@@ -1,0 +1,379 @@
+/* Основные стили для Telegram Mini App */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--tg-theme-bg-color, #ffffff);
+    color: var(--tg-theme-text-color, #000000);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 100%;
+    padding: 16px;
+    min-height: 100vh;
+}
+
+/* Заголовок */
+.header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 20px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Основной контент */
+.main-content {
+    background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Секция ввода */
+.input-section {
+    margin-bottom: 24px;
+}
+
+.input-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--tg-theme-text-color, #333);
+}
+
+#prompt {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--tg-theme-button-color, #007AFF);
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    resize: vertical;
+    background: var(--tg-theme-bg-color, #ffffff);
+    color: var(--tg-theme-text-color, #000000);
+    transition: border-color 0.3s ease;
+}
+
+#prompt:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Секция стилей */
+.style-section {
+    margin-bottom: 24px;
+}
+
+.style-section label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.style-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.style-btn {
+    padding: 12px 8px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: var(--tg-theme-bg-color, #ffffff);
+    color: var(--tg-theme-text-color, #333);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.style-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.style-btn.active {
+    border-color: var(--tg-theme-button-color, #007AFF);
+    background: var(--tg-theme-button-color, #007AFF);
+    color: var(--tg-theme-button-text-color, #ffffff);
+}
+
+/* Секция качества */
+.quality-section {
+    margin-bottom: 24px;
+}
+
+.quality-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+#quality {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: var(--tg-theme-bg-color, #ffffff);
+    color: var(--tg-theme-text-color, #000000);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Кнопки действий */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.generate-btn {
+    flex: 2;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.generate-btn:hover {
+    transform: translateY(-2px);
+}
+
+.generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.history-btn {
+    flex: 1;
+    padding: 16px 12px;
+    background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+    color: var(--tg-theme-text-color, #333);
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.history-btn:hover {
+    background: #e0e0e0;
+}
+
+/* Секция загрузки */
+.loading-section {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e0e0e0;
+    border-top: 4px solid var(--tg-theme-button-color, #007AFF);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-tip {
+    font-size: 14px;
+    color: var(--tg-theme-hint-color, #666);
+    margin-top: 10px;
+}
+
+/* Секция результатов */
+.result-section {
+    background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.result-section h3 {
+    margin-bottom: 16px;
+    color: var(--tg-theme-text-color, #333);
+}
+
+.image-container {
+    margin-bottom: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.result-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.save-btn, .share-btn, .new-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.save-btn {
+    background: #28a745;
+    color: white;
+}
+
+.share-btn {
+    background: var(--tg-theme-button-color, #007AFF);
+    color: white;
+}
+
+.new-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.save-btn:hover, .share-btn:hover, .new-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* История */
+.history-section {
+    background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.history-section h3 {
+    margin-bottom: 16px;
+    text-align: center;
+    color: var(--tg-theme-text-color, #333);
+}
+
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.history-item {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.history-item:hover {
+    transform: scale(1.05);
+}
+
+.history-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.back-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--tg-theme-button-color, #007AFF);
+    color: var(--tg-theme-button-text-color, #ffffff);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.back-btn:hover {
+    opacity: 0.9;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .container {
+        padding: 12px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+
+    .style-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .result-actions {
+        flex-direction: column;
+    }
+
+    .result-actions button {
+        flex: none;
+    }
+}
+
+/* Темная тема поддержка */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--tg-theme-bg-color, #1a1a1a);
+        color: var(--tg-theme-text-color, #ffffff);
+    }
+}
