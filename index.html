@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AI Image Generator</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #000000;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --accent-color: #667eea;
+            --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-bg: #e8f5e8;
+            --success-border: #4caf50;
+            --success-text: #2e7d32;
+            --error-bg: #ffebee;
+            --error-border: #f44336;
+            --error-text: #c62828;
+            --info-bg: #e3f2fd;
+            --info-border: #2196f3;
+            --info-text: #1976d2;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --border-color: #404040;
+            --accent-color: #8b9dc3;
+            --accent-gradient: linear-gradient(135deg, #8b9dc3 0%, #9b7bb8 100%);
+            --success-bg: #1b4332;
+            --success-border: #52b788;
+            --success-text: #95d5b2;
+            --error-bg: #4a1a1a;
+            --error-border: #ef5350;
+            --error-text: #ffcdd2;
+            --info-bg: #1a237e;
+            --info-border: #3f51b5;
+            --info-text: #c5cae9;
+            --shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color, var(--bg-primary));
+            color: var(--tg-theme-text-color, var(--text-primary));
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 100%;
+        }
+
+        .header {
+            background: var(--accent-gradient);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .controls {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .form-section {
+            background: var(--tg-theme-secondary-bg-color, var(--bg-secondary));
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, var(--text-primary));
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--tg-theme-button-color, var(--border-color));
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            background: var(--tg-theme-bg-color, var(--bg-primary));
+            color: var(--tg-theme-text-color, var(--text-primary));
+            min-height: 80px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--tg-theme-bg-color, var(--bg-primary));
+            color: var(--tg-theme-text-color, var(--text-primary));
+            cursor: pointer;
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .style-btn {
+            padding: 12px 8px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--tg-theme-bg-color, var(--bg-primary));
+            color: var(--tg-theme-text-color, var(--text-primary));
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .style-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .style-btn.active {
+            border-color: var(--tg-theme-button-color, var(--accent-color));
+            background: var(--tg-theme-button-color, var(--accent-color));
+            color: var(--tg-theme-button-text-color, white);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .status.success {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            color: var(--success-text);
+        }
+
+        .status.error {
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            color: var(--error-text);
+        }
+
+        .status.info {
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+            color: var(--info-text);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--tg-theme-button-color, var(--accent-color));
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--text-secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: opacity 0.2s ease;
+        }
+
+        .back-btn:hover {
+            opacity: 0.8;
+        }
+
+        .debug-info {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
+            font-family: monospace;
+            font-size: 12px;
+            color: #333;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .style-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                position: static;
+                justify-content: center;
+                margin-top: 12px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="container">
+        <div class="header">
+            <div class="controls">
+                <button class="control-btn" onclick="changeTheme()" title="Сменить тему">🎨</button>
+            </div>
+            <h1>🎨 AI Генератор Изображений</h1>
+            <p>Создавайте уникальные изображения с помощью ИИ</p>
+        </div>
+
+        <div id="connectionStatus" class="status info">
+            <span id="statusText">🔄 Подключение к Telegram...</span>
+        </div>
+
+        <div id="debugInfo" class="debug-info" style="display: none;">
+            <strong>🔍 Отладочная информация:</strong><br>
+            <div id="debugContent"></div>
+        </div>
+
+        <div class="form-section fade-in">
+            <div id="mainForm">
+                <div class="form-group">
+                    <label for="prompt">Опишите изображение:</label>
+                    <textarea 
+                        id="prompt" 
+                        placeholder="Например: красивый закат над морем в стиле импрессионизма"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Выберите стиль:</label>
+                    <div class="style-grid">
+                        <button class="style-btn active" data-style="realistic">
+                            🌟 Реалистичный
+                        </button>
+                        <button class="style-btn" data-style="artistic">
+                            🎭 Художественный
+                        </button>
+                        <button class="style-btn" data-style="cartoon">
+                            🎪 Мультяшный
+                        </button>
+                        <button class="style-btn" data-style="fantasy">
+                            🧙‍♂️ Фэнтези
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="quality">Качество изображения:</label>
+                    <select id="quality">
+                        <option value="standard">Стандартное (быстро)</option>
+                        <option value="hd" selected>HD (рекомендуется)</option>
+                        <option value="ultra">Ultra HD (медленно)</option>
+                    </select>
+                </div>
+
+                <button class="generate-btn" id="generateBtn" onclick="generateImage()">
+                    ✨ Создать изображение
+                </button>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <h3>Создаем ваше изображение...</h3>
+                <p>💡 Это может занять 30-60 секунд</p>
+                <p style="font-size: 14px; color: var(--text-secondary); margin-top: 16px;">
+                    Результат будет отправлен в чат с ботом
+                </p>
+                <button class="back-btn" onclick="backToForm()">
+                    ← Создать новое изображение
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App state
+        let tg = window.Telegram?.WebApp;
+        let selectedStyle = 'realistic';
+        let isGenerating = false;
+        let isTelegramApp = false;
+        let currentTheme = 'light';
+        let debugMode = false;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 App loaded');
+            initTelegramApp();
+            initEventListeners();
+
+            // Show debug info if in development
+            if (window.location.hostname === 'localhost' || window.location.search.includes('debug=1')) {
+                debugMode = true;
+                document.getElementById('debugInfo').style.display = 'block';
+            }
+        });
+
+        function initTelegramApp() {
+            addDebugInfo('🔍 Инициализация Telegram WebApp...');
+
+            if (typeof window.Telegram === 'undefined') {
+                addDebugInfo('❌ window.Telegram не найден');
+                showStatus('⚠️ Telegram WebApp API недоступен', 'error');
+                return;
+            }
+
+            if (!window.Telegram.WebApp) {
+                addDebugInfo('❌ window.Telegram.WebApp не найден');
+                showStatus('⚠️ Telegram WebApp не инициализирован', 'error');
+                return;
+            }
+
+            tg = window.Telegram.WebApp;
+            addDebugInfo('✅ Telegram WebApp найден');
+            addDebugInfo('📱 Platform: ' + (tg.platform || 'unknown'));
+            addDebugInfo('🔗 Version: ' + (tg.version || 'unknown'));
+
+            try {
+                tg.ready();
+                addDebugInfo('✅ tg.ready() выполнен');
+
+                tg.expand();
+                addDebugInfo('✅ tg.expand() выполнен');
+
+                isTelegramApp = true;
+
+                // Setup main button
+                if (tg.MainButton) {
+                    tg.MainButton.setText('✨ Создать изображение');
+                    tg.MainButton.onClick(generateImage);
+                    tg.MainButton.show();
+                    addDebugInfo('✅ MainButton настроена');
+                } else {
+                    addDebugInfo('⚠️ MainButton недоступна');
+                }
+
+                showStatus('📱 Подключено к Telegram', 'success');
+                addDebugInfo('✅ Telegram WebApp инициализирован успешно');
+
+                // Get user data
+                if (tg.initDataUnsafe?.user) {
+                    addDebugInfo('👤 Пользователь: ' + tg.initDataUnsafe.user.first_name);
+                    addDebugInfo('🆔 User ID: ' + tg.initDataUnsafe.user.id);
+                } else {
+                    addDebugInfo('⚠️ Данные пользователя недоступны');
+                }
+
+            } catch (error) {
+                addDebugInfo('❌ Ошибка инициализации: ' + error.message);
+                console.error('❌ Telegram WebApp initialization error:', error);
+                showStatus('⚠️ Ошибка подключения к Telegram', 'error');
+            }
+        }
+
+        function initEventListeners() {
+            // Style buttons
+            document.querySelectorAll('.style-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedStyle = this.dataset.style;
+
+                    if (tg?.HapticFeedback) {
+                        tg.HapticFeedback.impactOccurred('light');
+                    }
+
+                    addDebugInfo('🎨 Выбран стиль: ' + selectedStyle);
+                });
+            });
+
+            // Auto-resize textarea
+            document.getElementById('prompt').addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        }
+
+        function changeTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', currentTheme);
+
+            if (tg?.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+
+            addDebugInfo('🎨 Тема изменена на: ' + currentTheme);
+        }
+
+        function generateImage() {
+            if (isGenerating) return;
+
+            const prompt = document.getElementById('prompt').value.trim();
+            const quality = document.getElementById('quality').value;
+
+            addDebugInfo('🚀 Начало генерации изображения');
+            addDebugInfo('📝 Промпт: ' + prompt);
+            addDebugInfo('🎨 Стиль: ' + selectedStyle);
+            addDebugInfo('⚙️ Качество: ' + quality);
+
+            // Validation
+            if (!prompt) {
+                showStatus('❌ Пожалуйста, опишите изображение', 'error');
+                if (tg?.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                }
+                return;
+            }
+
+            if (prompt.length < 5) {
+                showStatus('❌ Описание слишком короткое (минимум 5 символов)', 'error');
+                return;
+            }
+
+            isGenerating = true;
+            showLoading();
+
+            // Data to send
+            const data = {
+                action: 'generate_image',
+                prompt: prompt,
+                style: selectedStyle,
+                quality: quality,
+                user_id: tg?.initDataUnsafe?.user?.id || null,
+                user_name: tg?.initDataUnsafe?.user?.first_name || 'Guest',
+                timestamp: new Date().toISOString(),
+                app_version: '4.0'
+            };
+
+            addDebugInfo('📤 Подготовлены данные для отправки:');
+            addDebugInfo(JSON.stringify(data, null, 2));
+
+            // ПРИНУДИТЕЛЬНАЯ ОТПРАВКА ДАННЫХ
+            if (tg && typeof tg.sendData === 'function') {
+                try {
+                    addDebugInfo('📡 Попытка отправки через tg.sendData...');
+                    tg.sendData(JSON.stringify(data));
+                    addDebugInfo('✅ tg.sendData выполнен успешно');
+
+                    // Update main button
+                    if (tg.MainButton) {
+                        tg.MainButton.setText('⏳ Генерируем...');
+                        tg.MainButton.hide();
+                    }
+
+                    if (tg.HapticFeedback) {
+                        tg.HapticFeedback.impactOccurred('medium');
+                    }
+
+                    showStatus('📤 Данные отправлены в Make!', 'success');
+
+                } catch (error) {
+                    addDebugInfo('❌ Ошибка tg.sendData: ' + error.message);
+                    console.error('❌ Error sending via Telegram:', error);
+                    showStatus('❌ Ошибка отправки данных: ' + error.message, 'error');
+                    backToForm();
+                }
+            } else if (tg && typeof tg.close === 'function') {
+                // Альтернативный способ - закрыть приложение с данными
+                try {
+                    addDebugInfo('🔄 Попытка отправки через tg.close...');
+                    tg.close();
+                    addDebugInfo('✅ tg.close выполнен');
+                } catch (error) {
+                    addDebugInfo('❌ Ошибка tg.close: ' + error.message);
+                    showDemoResult(data);
+                }
+            } else {
+                addDebugInfo('⚠️ Методы отправки недоступны, показываем демо');
+                showDemoResult(data);
+            }
+        }
+
+        function showDemoResult(data) {
+            addDebugInfo('🎭 Показ демо-результата');
+
+            setTimeout(() => {
+                const demoDiv = document.createElement('div');
+                demoDiv.innerHTML = `
+                    <div class="status error">
+                        <h3>⚠️ ПРОБЛЕМА С ОТПРАВКОЙ ДАННЫХ</h3>
+                        <p><strong>Промпт:</strong> ${data.prompt}</p>
+                        <p><strong>Стиль:</strong> ${data.style}</p>
+                        <p><strong>Качество:</strong> ${data.quality}</p>
+                        <br>
+                        <small>❌ Данные НЕ отправлены в Make!</small><br>
+                        <small>🔧 Проверьте настройки Web App в BotFather</small>
+                    </div>
+                `;
+
+                document.getElementById('loading').appendChild(demoDiv);
+            }, 2000);
+        }
+
+        function showLoading() {
+            document.getElementById('mainForm').style.display = 'none';
+            document.getElementById('loading').classList.add('show');
+
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Генерируем...';
+        }
+
+        function backToForm() {
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('mainForm').style.display = 'block';
+            isGenerating = false;
+
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = false;
+            generateBtn.textContent = '✨ Создать изображение';
+
+            // Restore main button
+            if (isTelegramApp && tg && tg.MainButton) {
+                tg.MainButton.setText('✨ Создать изображение');
+                tg.MainButton.show();
+            }
+
+            // Clear demo results
+            const demoResults = document.querySelectorAll('#loading > div:not(.spinner):not(h3):not(p):not(.back-btn)');
+            demoResults.forEach(result => result.remove());
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.querySelector('span').textContent = message;
+            statusDiv.className = `status ${type}`;
+
+            addDebugInfo('📢 Статус: ' + message + ' (' + type + ')');
+
+            // Auto-hide success status
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function addDebugInfo(message) {
+            if (!debugMode) return;
+
+            const debugContent = document.getElementById('debugContent');
+            const timestamp = new Date().toLocaleTimeString();
+            debugContent.innerHTML += `[${timestamp}] ${message}<br>`;
+            debugContent.scrollTop = debugContent.scrollHeight;
+
+            console.log(`[DEBUG] ${message}`);
+        }
+
+        // Global functions for debugging
+        window.enableDebug = function() {
+            debugMode = true;
+            document.getElementById('debugInfo').style.display = 'block';
+            addDebugInfo('🔍 Режим отладки включен');
+        };
+
+        window.testGeneration = function() {
+            document.getElementById('prompt').value = 'Тестовое изображение красивого заката';
+            generateImage();
+        };
+
+        window.getAppInfo = function() {
+            const info = {
+                telegramAvailable: !!tg,
+                telegramMethods: tg ? Object.keys(tg) : [],
+                selectedStyle: selectedStyle,
+                isGenerating: isGenerating,
+                isTelegramApp: isTelegramApp,
+                currentTheme: currentTheme,
+                tgData: tg?.initDataUnsafe || null,
+                sendDataAvailable: tg && typeof tg.sendData === 'function',
+                closeAvailable: tg && typeof tg.close === 'function'
+            };
+
+            console.log('📊 App Info:', info);
+            return info;
+        };
+
+        // Добавляем кнопку для включения отладки
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                window.enableDebug();
+            }
+        });
+
+        console.log('🎯 Команды для отладки:');
+        console.log('- enableDebug() - включить отладку');
+        console.log('- testGeneration() - тест генерации');
+        console.log('- getAppInfo() - информация о приложении');
+    </script>
+</body>
+</html>
