@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Генератор</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 16px;
+            background: #f5f5f5;
+            color: #333;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .content {
+            padding: 24px 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            box-sizing: border-box;
+        }
+        .style-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .style-btn {
+            padding: 12px 8px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            background: white;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .style-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .style-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 8px;
+        }
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .back-btn {
+            width: 100%;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .status {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: #1976d2;
+        }
+        .error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 AI Генератор</h1>
+            <p>Создавайте изображения с помощью ИИ</p>
+        </div>
+
+        <div class="content">
+            <div id="mainForm">
+                <div class="form-group">
+                    <label for="prompt">Опишите изображение:</label>
+                    <textarea 
+                        id="prompt" 
+                        rows="3" 
+                        placeholder="Например: красивый закат над морем в стиле импрессионизма"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Выберите стиль:</label>
+                    <div class="style-grid">
+                        <button class="style-btn active" data-style="realistic">🌟 Реалистичный</button>
+                        <button class="style-btn" data-style="artistic">🎭 Художественный</button>
+                        <button class="style-btn" data-style="cartoon">🎪 Мультяшный</button>
+                        <button class="style-btn" data-style="fantasy">🧙‍♂️ Фэнтези</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="quality">Качество изображения:</label>
+                    <select id="quality">
+                        <option value="standard">Стандартное (быстро)</option>
+                        <option value="hd" selected>HD (рекомендуется)</option>
+                        <option value="ultra">Ultra HD (медленно)</option>
+                    </select>
+                </div>
+
+                <button class="generate-btn" onclick="generateImage()">
+                    ✨ Создать изображение
+                </button>
+
+                <div id="status" class="status" style="display: none;"></div>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <h3>Создаем ваше изображение...</h3>
+                <p>💡 Это может занять 30-60 секунд</p>
+                <p style="font-size: 14px; color: #666; margin-top: 16px;">
+                    Результат будет отправлен в чат с ботом
+                </p>
+                <button class="back-btn" onclick="backToForm()">← Создать новое изображение</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedStyle = 'realistic';
+        let isGenerating = false;
+
+        // Проверяем доступность Telegram WebApp
+        let tg = null;
+        let isTelegramApp = false;
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Приложение загружено');
+
+            // Проверяем Telegram WebApp
+            checkTelegramWebApp();
+
+            // Инициализируем обработчики
+            initEventListeners();
+
+            showStatus('✅ Приложение готово к работе', 'success');
+        });
+
+        function checkTelegramWebApp() {
+            // Пытаемся загрузить Telegram WebApp динамически
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                isTelegramApp = true;
+                tg.expand();
+                tg.ready();
+                console.log('✅ Telegram WebApp подключен');
+                showStatus('📱 Подключено к Telegram', 'success');
+            } else {
+                // Пытаемся загрузить библиотеку динамически
+                loadTelegramScript();
+            }
+        }
+
+        function loadTelegramScript() {
+            const script = document.createElement('script');
+            script.src = 'https://telegram.org/js/telegram-web-app.js';
+            script.onload = function() {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    tg = window.Telegram.WebApp;
+                    isTelegramApp = true;
+                    tg.expand();
+                    tg.ready();
+                    console.log('✅ Telegram WebApp загружен динамически');
+                    showStatus('📱 Подключено к Telegram', 'success');
+                } else {
+                    console.log('⚠️ Telegram WebApp недоступен');
+                    showStatus('⚠️ Работает в режиме демо (без Telegram)', 'status');
+                }
+            };
+            script.onerror = function() {
+                console.log('❌ Не удалось загрузить Telegram WebApp');
+                showStatus('⚠️ Работает в режиме демо (без Telegram)', 'status');
+            };
+            document.head.appendChild(script);
+        }
+
+        function initEventListeners() {
+            // Обработчики стилей
+            document.querySelectorAll('.style-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedStyle = this.dataset.style;
+                    console.log('Выбран стиль:', selectedStyle);
+                });
+            });
+
+            // Автоматическое изменение высоты textarea
+            document.getElementById('prompt').addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        }
+
+        function generateImage() {
+            if (isGenerating) return;
+
+            const prompt = document.getElementById('prompt').value.trim();
+            const quality = document.getElementById('quality').value;
+
+            // Валидация
+            if (!prompt) {
+                showStatus('❌ Пожалуйста, опишите изображение', 'error');
+                return;
+            }
+
+            if (prompt.length < 5) {
+                showStatus('❌ Описание слишком короткое (минимум 5 символов)', 'error');
+                return;
+            }
+
+            isGenerating = true;
+            showLoading();
+
+            // Данные для отправки
+            const data = {
+                action: 'generate_image',
+                prompt: prompt,
+                style: selectedStyle,
+                quality: quality,
+                user_agent: navigator.userAgent,
+                timestamp: new Date().toISOString(),
+                app_version: '1.0'
+            };
+
+            console.log('📤 Отправляем данные:', data);
+
+            // Отправляем данные
+            if (isTelegramApp && tg && tg.sendData) {
+                try {
+                    tg.sendData(JSON.stringify(data));
+                    console.log('✅ Данные отправлены через Telegram WebApp');
+                } catch (error) {
+                    console.error('❌ Ошибка отправки через Telegram:', error);
+                    showDemoResult(data);
+                }
+            } else {
+                console.log('⚠️ Telegram WebApp недоступен, показываем демо');
+                showDemoResult(data);
+            }
+        }
+
+        function showDemoResult(data) {
+            setTimeout(() => {
+                const demoDiv = document.createElement('div');
+                demoDiv.className = 'result';
+                demoDiv.innerHTML = `
+                    <h3>📋 Данные подготовлены</h3>
+                    <p><strong>Промпт:</strong> ${data.prompt}</p>
+                    <p><strong>Стиль:</strong> ${data.style}</p>
+                    <p><strong>Качество:</strong> ${data.quality}</p>
+                    <div class="status success">
+                        ✅ В реальном боте эти данные будут отправлены в Make для генерации изображения
+                    </div>
+                `;
+
+                document.getElementById('loading').appendChild(demoDiv);
+            }, 2000);
+        }
+
+        function showLoading() {
+            document.getElementById('mainForm').style.display = 'none';
+            document.getElementById('loading').classList.add('show');
+        }
+
+        function backToForm() {
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('mainForm').style.display = 'block';
+            isGenerating = false;
+
+            // Очищаем результаты демо
+            const results = document.querySelectorAll('.result');
+            results.forEach(result => result.remove());
+        }
+
+        function showStatus(message, type = 'status') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Автоматически скрываем через 5 секунд
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Глобальные функции для отладки
+        window.testGeneration = function() {
+            document.getElementById('prompt').value = 'Тестовое изображение красивого заката';
+            generateImage();
+        };
+
+        window.getAppInfo = function() {
+            return {
+                telegramAvailable: isTelegramApp,
+                selectedStyle: selectedStyle,
+                isGenerating: isGenerating,
+                userAgent: navigator.userAgent
+            };
+        };
+
+        console.log('🎯 Для тестирования используйте: testGeneration() или getAppInfo()');
+    </script>
+</body>
+</html>
