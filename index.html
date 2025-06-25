@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AI Image Generator</title>
+    <link rel="stylesheet" href="styles_modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body data-theme="auto" data-lang="en">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen active">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <div class="logo-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+            </div>
+            <h2 data-i18n="loading">Loading...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <div class="logo-icon">🎨</div>
+                        <span data-i18n="app_title">AI Generator</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="control-btn" onclick="toggleLanguage()" title="Language">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                    </button>
+                    <button class="control-btn" onclick="toggleTheme()" title="Theme">
+                        <svg class="theme-icon sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                        <svg class="theme-icon moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                    <button class="control-btn" onclick="showHistory()" title="History">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v5h5"/>
+                            <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Status Bar -->
+        <div id="statusBar" class="status-bar">
+            <div class="status-content">
+                <div class="status-icon">🔄</div>
+                <span class="status-text" data-i18n="connecting">Connecting...</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Generation Screen -->
+            <div id="generationScreen" class="screen active">
+                <div class="screen-content">
+                    <div class="welcome-section">
+                        <h1 data-i18n="welcome_title">Create Amazing Images</h1>
+                        <p data-i18n="welcome_subtitle">Describe your vision and watch AI bring it to life</p>
+                    </div>
+
+                    <form class="generation-form" onsubmit="generateImage(event)">
+                        <!-- Prompt Input -->
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="prompt_label">Describe your image</label>
+                            <div class="input-wrapper">
+                                <textarea 
+                                    id="promptInput" 
+                                    class="form-textarea" 
+                                    data-i18n-placeholder="prompt_placeholder"
+                                    placeholder="A beautiful sunset over the ocean..."
+                                    rows="3"
+                                    maxlength="500"
+                                ></textarea>
+                                <div class="input-counter">
+                                    <span id="charCounter">0</span>/500
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Style Selection -->
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="style_label">Art Style</label>
+                            <div class="style-grid">
+                                <button type="button" class="style-card active" data-style="realistic" onclick="selectStyle(this)">
+                                    <div class="style-icon">🌟</div>
+                                    <span data-i18n="style_realistic">Realistic</span>
+                                </button>
+                                <button type="button" class="style-card" data-style="artistic" onclick="selectStyle(this)">
+                                    <div class="style-icon">🎭</div>
+                                    <span data-i18n="style_artistic">Artistic</span>
+                                </button>
+                                <button type="button" class="style-card" data-style="cartoon" onclick="selectStyle(this)">
+                                    <div class="style-icon">🎪</div>
+                                    <span data-i18n="style_cartoon">Cartoon</span>
+                                </button>
+                                <button type="button" class="style-card" data-style="fantasy" onclick="selectStyle(this)">
+                                    <div class="style-icon">🧙‍♂️</div>
+                                    <span data-i18n="style_fantasy">Fantasy</span>
+                                </button>
+                                <button type="button" class="style-card" data-style="anime" onclick="selectStyle(this)">
+                                    <div class="style-icon">🌸</div>
+                                    <span data-i18n="style_anime">Anime</span>
+                                </button>
+                                <button type="button" class="style-card" data-style="cyberpunk" onclick="selectStyle(this)">
+                                    <div class="style-icon">🤖</div>
+                                    <span data-i18n="style_cyberpunk">Cyberpunk</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quality & Size -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="quality_label">Quality</label>
+                                <select id="qualitySelect" class="form-select">
+                                    <option value="standard" data-i18n="quality_standard">Standard</option>
+                                    <option value="hd" selected data-i18n="quality_hd">HD</option>
+                                    <option value="ultra" data-i18n="quality_ultra">Ultra HD</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="size_label">Size</label>
+                                <select id="sizeSelect" class="form-select">
+                                    <option value="square" data-i18n="size_square">Square</option>
+                                    <option value="portrait" data-i18n="size_portrait">Portrait</option>
+                                    <option value="landscape" data-i18n="size_landscape">Landscape</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <button type="submit" class="generate-btn" id="generateBtn">
+                            <span class="btn-icon">✨</span>
+                            <span class="btn-text" data-i18n="generate_btn">Generate Image</span>
+                            <div class="btn-ripple"></div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Processing Screen -->
+            <div id="processingScreen" class="screen">
+                <div class="screen-content">
+                    <div class="processing-animation">
+                        <div class="processing-circle">
+                            <svg class="processing-svg" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="none" opacity="0.3"/>
+                                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="none" 
+                                        stroke-dasharray="283" stroke-dashoffset="283" class="progress-circle"/>
+                            </svg>
+                            <div class="processing-icon">🎨</div>
+                        </div>
+                    </div>
+
+                    <div class="processing-content">
+                        <h2 data-i18n="processing_title">Creating Your Masterpiece</h2>
+                        <p class="processing-subtitle" data-i18n="processing_subtitle">This may take up to 60 seconds</p>
+
+                        <div class="processing-steps">
+                            <div class="step active" data-step="1">
+                                <div class="step-icon">📝</div>
+                                <span data-i18n="step_analyzing">Analyzing prompt</span>
+                            </div>
+                            <div class="step" data-step="2">
+                                <div class="step-icon">🎨</div>
+                                <span data-i18n="step_generating">Generating image</span>
+                            </div>
+                            <div class="step" data-step="3">
+                                <div class="step-icon">✨</div>
+                                <span data-i18n="step_finalizing">Finalizing result</span>
+                            </div>
+                        </div>
+
+                        <div class="processing-timer">
+                            <span data-i18n="elapsed_time">Elapsed time:</span>
+                            <span id="elapsedTime">0s</span>
+                        </div>
+                    </div>
+
+                    <button class="cancel-btn" onclick="cancelGeneration()">
+                        <span data-i18n="cancel_btn">Cancel</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="resultScreen" class="screen">
+                <div class="screen-content">
+                    <div class="result-container">
+                        <div class="result-image-container">
+                            <img id="resultImage" class="result-image" alt="Generated Image" />
+                            <div class="image-overlay">
+                                <button class="overlay-btn download-btn" onclick="downloadImage()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7,10 12,15 17,10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                </button>
+                                <button class="overlay-btn share-btn" onclick="shareImage()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="18" cy="5" r="3"/>
+                                        <circle cx="6" cy="12" r="3"/>
+                                        <circle cx="18" cy="19" r="3"/>
+                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="result-info">
+                            <div class="result-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label" data-i18n="prompt_label">Prompt:</span>
+                                    <span class="meta-value" id="resultPrompt"></span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label" data-i18n="style_label">Style:</span>
+                                    <span class="meta-value" id="resultStyle"></span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label" data-i18n="quality_label">Quality:</span>
+                                    <span class="meta-value" id="resultQuality"></span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label" data-i18n="generation_time">Generation time:</span>
+                                    <span class="meta-value" id="resultTime"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="action-btn primary" onclick="newGeneration()">
+                                <span class="btn-icon">✨</span>
+                                <span data-i18n="create_new">Create New</span>
+                            </button>
+                            <button class="action-btn secondary" onclick="showHistory()">
+                                <span class="btn-icon">📋</span>
+                                <span data-i18n="view_history">View History</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Screen -->
+            <div id="historyScreen" class="screen">
+                <div class="screen-content">
+                    <div class="screen-header">
+                        <button class="back-btn" onclick="showGeneration()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5"/>
+                                <path d="M12 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <h2 data-i18n="history_title">Generation History</h2>
+                        <button class="clear-btn" onclick="clearHistory()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3,6 5,6 21,6"/>
+                                <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="history-content" id="historyContent">
+                        <div class="empty-history">
+                            <div class="empty-icon">📋</div>
+                            <h3 data-i18n="empty_history_title">No generations yet</h3>
+                            <p data-i18n="empty_history_subtitle">Create your first AI image to see it here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="app_modern.js"></script>
+</body>
+</html>
