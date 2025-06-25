@@ -306,6 +306,12 @@ if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
     appState.userName = appState.tg.initDataUnsafe.user.first_name + 
         (appState.tg.initDataUnsafe.user.last_name ? ' ' + appState.tg.initDataUnsafe.user.last_name : '');
     console.log('👤 User:', appState.userName, 'ID:', appState.userId);
+    console.log('🔍 Telegram Debug:', {
+    telegramExists: !!window.Telegram,
+    webAppExists: !!window.Telegram?.WebApp,
+    initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe,
+    userFromTelegram: window.Telegram?.WebApp?.initDataUnsafe?.user
+});
 } else {
     // Fallback для тестирования
     appState.userId = 'test_' + Date.now();
