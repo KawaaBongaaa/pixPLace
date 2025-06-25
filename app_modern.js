@@ -1,7 +1,7 @@
 // 🚀 Modern AI Image Generator WebApp
 // Configuration
 const CONFIG = {
-    WEBHOOK_URL: 'YOUR_MAKE_WEBHOOK_URL_HERE', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
+    WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
     TIMEOUT: 60000, // 60 секунд
     LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh'],
     DEFAULT_LANGUAGE: 'en'
