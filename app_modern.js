@@ -300,12 +300,18 @@ async function initTelegramApp() {
         appState.tg.expand();
 
         // Get user data
-        if (appState.tg.initDataUnsafe?.user) {
-            appState.userId = appState.tg.initDataUnsafe.user.id;
-            appState.userName = appState.tg.initDataUnsafe.user.first_name;
-            console.log('👤 User:', appState.userName, 'ID:', appState.userId);
-        }
-
+       // Get user data
+if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
+    appState.userId = appState.tg.initDataUnsafe.user.id.toString();
+    appState.userName = appState.tg.initDataUnsafe.user.first_name + 
+        (appState.tg.initDataUnsafe.user.last_name ? ' ' + appState.tg.initDataUnsafe.user.last_name : '');
+    console.log('👤 User:', appState.userName, 'ID:', appState.userId);
+} else {
+    // Fallback для тестирования
+    appState.userId = 'test_' + Date.now();
+    appState.userName = 'Test User';
+    console.log('⚠️ Using fallback user data');
+}
         // Setup main button
         if (appState.tg.MainButton) {
             appState.tg.MainButton.setText(appState.translate('generate_btn'));
