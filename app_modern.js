@@ -346,15 +346,6 @@ async function initTelegramApp() {
         showStatus('error', 'Telegram connection error');
     }
 }
-} else {
-    // Fallback для тестирования
-    appState.userId = 'test_' + Date.now();
-    appState.userName = 'Test User';
-    console.log('❌ NO USER DATA - using fallback:', {
-        initDataUnsafe: appState.tg.initDataUnsafe,
-        platform: appState.tg.platform
-    });
-}
         // Setup main button
         if (appState.tg.MainButton) {
             appState.tg.MainButton.setText(appState.translate('generate_btn'));
