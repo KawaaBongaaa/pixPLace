@@ -496,20 +496,31 @@ async function generateImage(event) {
             platform: window.Telegram?.WebApp?.platform
         });
 // Send request to Make webhook
-       const result = await sendToWebhook({
-            action: 'Image Generation',
-            prompt: prompt,
-            style: appState.selectedStyle,
-            quality: quality,
-            size: size,
-            user_id: appState.userId,
-            user_name: appState.userName,
-            user_language: window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code,
-            user_username: window.Telegram?.WebApp?.initDataUnsafe?.user?.username,
-            user_is_premium: window.Telegram?.WebApp?.initDataUnsafe?.user?.is_premium,
-            timestamp: new Date().toISOString(),
-            generation_id: appState.currentGeneration.id
-        });
+    const result = await sendToWebhook({
+        action: 'Image Generation',
+        prompt: prompt,
+        style: appState.selectedStyle,
+        quality: quality,
+        size: size,
+    
+    // Основные данные пользователя
+        user_id: appState.userId,
+        user_name: appState.userName,
+        user_username: appState.userUsername,
+        user_language: appState.userLanguage,
+        user_is_premium: appState.userIsPremium,
+        user_photo_url: appState.userPhotoUrl,
+    
+    // Технические данные
+        telegram_platform: appState.telegramPlatform,
+        telegram_version: appState.telegramVersion,
+        chat_instance: appState.chatInstance,
+        chat_type: appState.chatType,
+        auth_date: appState.authDate,
+    
+        timestamp: new Date().toISOString(),
+        generation_id: appState.currentGeneration.id
+    });
         // Handle successful response
         if (result.status === 'success' && result.image_url) {
             appState.currentGeneration.status = 'success';
