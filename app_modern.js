@@ -450,7 +450,7 @@ async function generateImage(event) {
             user_name: appState.userName,
             timestamp: new Date().toISOString(),
             generation_id: appState.currentGeneration.id
-        });});
+        });
 
         // Handle successful response
         if (result.status === 'success' && result.image_url) {
