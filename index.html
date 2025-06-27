@@ -8,7 +8,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+// Пробуем загрузить из разных источников
+const sources = [
+    'https://telegram.org/js/telegram-web-app.js',
+    'https://unpkg.com/@twa-dev/sdk@7.10.1/dist/index.js',
+    'https://cdn.jsdelivr.net/npm/@twa-dev/sdk@7.10.1/dist/index.js'
+];
+
+function loadTelegramSDK(index = 0) {
+    if (index >= sources.length) {
+        console.log('❌ All Telegram SDK sources failed');
+        return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = sources[index];
+    script.onload = () => console.log('✅ Telegram SDK loaded from:', sources[index]);
+    script.onerror = () => loadTelegramSDK(index + 1);
+    document.head.appendChild(script);
+}
+
+loadTelegramSDK();
+</script>
 </head>
 <body data-theme="auto" data-lang="en">
     <!-- Loading Screen -->
