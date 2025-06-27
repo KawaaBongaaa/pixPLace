@@ -431,7 +431,6 @@ async function generateImage(event) {
     startTimer();
 
     try {
-        // Send request to Make webhook
         // Добавьте ЭТИ СТРОКИ перед sendToWebhook:
 console.log('🔍 Sending data to webhook:', {
     userId: appState.userId,
@@ -441,8 +440,8 @@ console.log('🔍 Sending data to webhook:', {
 });
 
 // Send request to Make webhook
-const result = await sendToWebhook({
-action: 'generate_image',
+        const result = await sendToWebhook({
+            action: 'generate_image',
             prompt: prompt,
             style: appState.selectedStyle,
             quality: quality,
