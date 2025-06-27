@@ -300,7 +300,6 @@ async function initTelegramApp() {
         appState.tg.expand();
 
         // Get user data
-       // Get user data
 if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
     appState.userId = appState.tg.initDataUnsafe.user.id.toString();
     appState.userName = appState.tg.initDataUnsafe.user.first_name + 
@@ -432,13 +431,13 @@ async function generateImage(event) {
 
     try {
         // Добавьте ЭТИ СТРОКИ перед sendToWebhook:
-        console.log('🔍 Sending data to webhook:', {
-            userId: appState.userId,
-            userName: appState.userName,
-            telegramAvailable: !!window.Telegram?.WebApp,
-            initData: window.Telegram?.WebApp?.initDataUnsafe
+        console.log('🔍 Full Telegram debug:', {
+            webApp: window.Telegram?.WebApp,
+            initData: window.Telegram?.WebApp?.initData,
+            initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe,
+            version: window.Telegram?.WebApp?.version,
+            platform: window.Telegram?.WebApp?.platform
         });
-
 // Send request to Make webhook
         const result = await sendToWebhook({
             action: 'generate_image',
