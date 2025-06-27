@@ -304,7 +304,11 @@ if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
     appState.userId = appState.tg.initDataUnsafe.user.id.toString();
     appState.userName = appState.tg.initDataUnsafe.user.first_name + 
         (appState.tg.initDataUnsafe.user.last_name ? ' ' + appState.tg.initDataUnsafe.user.last_name : '');
-    console.log('👤 User:', appState.userName, 'ID:', appState.userId);
+    console.log('✅ REAL USER DATA SET:', {
+        userId: appState.userId,
+        userName: appState.userName,
+        platform: appState.tg.platform
+    });
     console.log('🔍 Telegram Debug:', {
     telegramExists: !!window.Telegram,
     webAppExists: !!window.Telegram?.WebApp,
