@@ -317,29 +317,63 @@ async function initTelegramApp() {
             initDataUnsafe: appState.tg.initDataUnsafe,
             user: appState.tg.initDataUnsafe?.user
         });
+        console.log('👤 User data extracted:', {
+            userId: appState.tg.initDataUnsafe?.user?.id,
+            firstName: appState.tg.initDataUnsafe?.user?.first_name,
+            lastName: appState.tg.initDataUnsafe?.user?.last_name,
+            username: appState.tg.initDataUnsafe?.user?.username
+        });
 
         // Get user data
-        if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
-            appState.userId = appState.tg.initDataUnsafe.user.id.toString();
-            appState.userName = appState.tg.initDataUnsafe.user.first_name + 
-                (appState.tg.initDataUnsafe.user.last_name ? ' ' + appState.tg.initDataUnsafe.user.last_name : '');
-            
-            console.log('✅ REAL USER DATA SET:', {
-                userId: appState.userId,
-                userName: appState.userName,
-                platform: appState.tg.platform
-            });
-        } else {
-            console.log('❌ NO USER DATA - using fallback:', {
-                initDataUnsafe: appState.tg.initDataUnsafe,
-                platform: appState.tg.platform
-            });
-            
-            appState.userId = 'tg_user_' + Date.now();
-            appState.userName = 'Telegram User';
-        }
-
-        showStatus('success', 'Connected to Telegram');
+    if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
+        const user = appState.tg.initDataUnsafe.user;
+    
+        // Основные данные
+        appState.userId = user.id.toString();
+        appState.userName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+    
+    // Дополнительные данные пользователя
+        appState.userUsername = user.username || null;
+        appState.userLanguage = user.language_code || 'en';
+        appState.userIsPremium = user.is_premium || false;
+        appState.userPhotoUrl = user.photo_url || null;
+        appState.userAllowsWriteToPm = user.allows_write_to_pm || false;
+    
+        // Данные чата/сессии
+        appState.chatInstance = appState.tg.initDataUnsafe.chat_instance || null;
+        appState.chatType = appState.tg.initDataUnsafe.chat_type || null;
+        appState.authDate = appState.tg.initDataUnsafe.auth_date || null;
+    
+    // Платформа и версия
+        appState.telegramPlatform = appState.tg.platform || 'unknown';
+        appState.telegramVersion = appState.tg.version || 'unknown';
+    
+        console.log('✅ REAL USER DATA SET:', {
+            userId: appState.userId,
+            userName: appState.userName,
+            username: appState.userUsername,
+            language: appState.userLanguage,
+            isPremium: appState.userIsPremium,
+            platform: appState.telegramPlatform,
+            version: appState.telegramVersion,
+            chatType: appState.chatType
+        });
+    } else {
+        console.log('❌ NO USER DATA - using fallback:', {
+            initDataUnsafe: appState.tg.initDataUnsafe,
+            platform: appState.tg.platform
+        });
+    
+        // Fallback данные
+        appState.userId = 'tg_user_' + Date.now();
+        appState.userName = 'Telegram User';
+        appState.userUsername = null;
+        appState.userLanguage = 'en';
+        appState.userIsPremium = false;
+        appState.userPhotoUrl = null;
+        appState.telegramPlatform = appState.tg?.platform || 'unknown';
+        appState.telegramVersion = appState.tg?.version || 'unknown';
+    }
         // Setup main button
         if (appState.tg.MainButton) {
             appState.tg.MainButton.setText(appState.translate('generate_btn'));
