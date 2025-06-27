@@ -319,7 +319,10 @@ if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
     // Fallback для тестирования
     appState.userId = 'test_' + Date.now();
     appState.userName = 'Test User';
-    console.log('⚠️ Using fallback user data');
+    console.log('❌ NO USER DATA - using fallback:', {
+        initDataUnsafe: appState.tg.initDataUnsafe,
+        platform: appState.tg.platform
+    });
 }
         // Setup main button
         if (appState.tg.MainButton) {
