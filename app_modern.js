@@ -288,9 +288,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function initTelegramApp() {
     console.log('🔍 Initializing Telegram WebApp...');
 
+    // Ждем загрузки Telegram SDK дольше
+    let attempts = 0;
+    while (typeof window.Telegram === 'undefined' && attempts < 100) {
+        await new Promise(resolve => setTimeout(resolve, 50)); // ждем 50мс
+        attempts++;
+    }
+
+    console.log('📱 After waiting - Telegram available:', !!window.Telegram?.WebApp);
+
     if (typeof window.Telegram === 'undefined' || !window.Telegram.WebApp) {
-        console.log('⚠️ Telegram WebApp not available');
-        showStatus('info', appState.translate('connecting'));
+        console.log('❌ Telegram WebApp still not available - using fallback');
+        appState.userId = 'fallback_' + Date.now();
+        appState.userName = 'Fallback User';
+        showStatus('info', 'Running in fallback mode');
         return;
     }
 
@@ -299,22 +310,42 @@ async function initTelegramApp() {
         appState.tg.ready();
         appState.tg.expand();
 
+        console.log('🔍 Telegram WebApp data:', {
+            available: !!appState.tg,
+            platform: appState.tg.platform,
+            version: appState.tg.version,
+            initDataUnsafe: appState.tg.initDataUnsafe,
+            user: appState.tg.initDataUnsafe?.user
+        });
+
         // Get user data
-if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
-    appState.userId = appState.tg.initDataUnsafe.user.id.toString();
-    appState.userName = appState.tg.initDataUnsafe.user.first_name + 
-        (appState.tg.initDataUnsafe.user.last_name ? ' ' + appState.tg.initDataUnsafe.user.last_name : '');
-    console.log('✅ REAL USER DATA SET:', {
-        userId: appState.userId,
-        userName: appState.userName,
-        platform: appState.tg.platform
-    });
-    console.log('🔍 Telegram Debug:', {
-    telegramExists: !!window.Telegram,
-    webAppExists: !!window.Telegram?.WebApp,
-    initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe,
-    userFromTelegram: window.Telegram?.WebApp?.initDataUnsafe?.user
-});
+        if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
+            appState.userId = appState.tg.initDataUnsafe.user.id.toString();
+            appState.userName = appState.tg.initDataUnsafe.user.first_name + 
+                (appState.tg.initDataUnsafe.user.last_name ? ' ' + appState.tg.initDataUnsafe.user.last_name : '');
+            
+            console.log('✅ REAL USER DATA SET:', {
+                userId: appState.userId,
+                userName: appState.userName,
+                platform: appState.tg.platform
+            });
+        } else {
+            console.log('❌ NO USER DATA - using fallback:', {
+                initDataUnsafe: appState.tg.initDataUnsafe,
+                platform: appState.tg.platform
+            });
+            
+            appState.userId = 'tg_user_' + Date.now();
+            appState.userName = 'Telegram User';
+        }
+
+        showStatus('success', 'Connected to Telegram');
+
+    } catch (error) {
+        console.error('❌ Telegram initialization error:', error);
+        showStatus('error', 'Telegram connection error');
+    }
+}
 } else {
     // Fallback для тестирования
     appState.userId = 'test_' + Date.now();
