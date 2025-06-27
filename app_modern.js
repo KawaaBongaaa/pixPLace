@@ -340,11 +340,6 @@ async function initTelegramApp() {
         }
 
         showStatus('success', 'Connected to Telegram');
-
-    } catch (error) {
-        console.error('❌ Telegram initialization error:', error);
-        showStatus('error', 'Telegram connection error');
-    }
         // Setup main button
         if (appState.tg.MainButton) {
             appState.tg.MainButton.setText(appState.translate('generate_btn'));
