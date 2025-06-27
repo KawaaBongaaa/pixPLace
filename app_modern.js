@@ -432,12 +432,12 @@ async function generateImage(event) {
 
     try {
         // Добавьте ЭТИ СТРОКИ перед sendToWebhook:
-console.log('🔍 Sending data to webhook:', {
-    userId: appState.userId,
-    userName: appState.userName,
-    telegramAvailable: !!window.Telegram?.WebApp,
-    initData: window.Telegram?.WebApp?.initDataUnsafe
-});
+        console.log('🔍 Sending data to webhook:', {
+            userId: appState.userId,
+            userName: appState.userName,
+            telegramAvailable: !!window.Telegram?.WebApp,
+            initData: window.Telegram?.WebApp?.initDataUnsafe
+        });
 
 // Send request to Make webhook
         const result = await sendToWebhook({
