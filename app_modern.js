@@ -432,8 +432,17 @@ async function generateImage(event) {
 
     try {
         // Send request to Make webhook
-        const result = await sendToWebhook({
-            action: 'generate_image',
+        // Добавьте ЭТИ СТРОКИ перед sendToWebhook:
+console.log('🔍 Sending data to webhook:', {
+    userId: appState.userId,
+    userName: appState.userName,
+    telegramAvailable: !!window.Telegram?.WebApp,
+    initData: window.Telegram?.WebApp?.initDataUnsafe
+});
+
+// Send request to Make webhook
+const result = await sendToWebhook({
+action: 'generate_image',
             prompt: prompt,
             style: appState.selectedStyle,
             quality: quality,
@@ -442,7 +451,7 @@ async function generateImage(event) {
             user_name: appState.userName,
             timestamp: new Date().toISOString(),
             generation_id: appState.currentGeneration.id
-        });
+        });});
 
         // Handle successful response
         if (result.status === 'success' && result.image_url) {
