@@ -440,7 +440,7 @@ async function generateImage(event) {
         });
 
 // Send request to Make webhook
-    const result = await sendToWebhook({
+        const result = await sendToWebhook({
             action: 'generate_image',
             prompt: prompt,
             style: appState.selectedStyle,
