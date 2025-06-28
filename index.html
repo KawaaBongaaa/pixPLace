@@ -337,5 +337,66 @@ loadTelegramSDK();
     <div id="toastContainer" class="toast-container"></div>
 
     <script src="app_modern.js"></script>
+    <!-- В конце body, перед закрывающим </body> -->
+<div id="musicPanel" class="music-panel">
+    <div class="music-panel-header">
+        <h3>🎵 Background Music</h3>
+        <button class="close-panel" onclick="toggleMusicPanel()">✕</button>
+    </div>
+    
+    <div class="music-panel-content">
+        <div class="music-controls">
+            <button id="playPauseBtn" class="control-btn" onclick="toggleMusic()">
+                <span id="playIcon">▶️</span>
+                <span id="playText">Play</span>
+            </button>
+            <button id="volumeBtn" class="control-btn" onclick="toggleVolume()">
+                🔊
+            </button>
+        </div>
+        
+        <div class="volume-slider" id="volumeSlider" style="display: none;">
+            <input type="range" id="volumeRange" min="0" max="100" value="50">
+        </div>
+        
+        <div class="playlist-section">
+            <h4>Choose Mood:</h4>
+            <div class="mood-buttons">
+                <button class="mood-btn active" data-mood="lofi" onclick="changeMood('lofi')">
+                    🎧 Lo-Fi
+                </button>
+                <button class="mood-btn" data-mood="ambient" onclick="changeMood('ambient')">
+                    🌙 Ambient
+                </button>
+                <button class="mood-btn" data-mood="jazz" onclick="changeMood('jazz')">
+                    🎷 Jazz
+                </button>
+                <button class="mood-btn" data-mood="electronic" onclick="changeMood('electronic')">
+                    ⚡ Electronic
+                </button>
+            </div>
+        </div>
+        
+        <div class="current-track">
+            <div class="track-info">
+                <div class="track-title" id="trackTitle">Select a mood to start</div>
+                <div class="track-artist" id="trackArtist">Background Music</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Скрытый SoundCloud iframe -->
+    <iframe id="soundcloudWidget" 
+            width="100%" 
+            height="166" 
+            scrolling="no" 
+            frameborder="no" 
+            allow="autoplay"
+            style="display: none;">
+    </iframe>
+</div>
+
+<!-- Overlay для закрытия панели -->
+<div id="musicOverlay" class="music-overlay" onclick="toggleMusicPanel()"></div>
 </body>
 </html>
