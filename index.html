@@ -64,6 +64,44 @@ loadTelegramSDK();
                     </div>
                 </div>
                 <div class="header-right">
+                <!-- Рядом с кнопками языка/темы -->
+<div class="music-widget">
+    <button id="musicToggle" class="music-toggle" onclick="toggleMusicDropdown()">
+        <span class="music-icon">🎵</span>
+    </button>
+    
+    <div id="musicDropdown" class="music-dropdown" style="display: none;">
+        <div class="music-header">
+            <span>🎵 Background Music</span>
+        </div>
+        
+        <div class="playlist-list">
+            <div class="playlist-item" onclick="playPlaylist('lofi')">
+                <span class="playlist-icon">🎧</span>
+                <span class="playlist-name">Lo-Fi Hip Hop</span>
+            </div>
+            
+            <div class="playlist-item" onclick="playPlaylist('ambient')">
+                <span class="playlist-icon">🌙</span>
+                <span class="playlist-name">Ambient</span>
+            </div>
+            
+            <div class="playlist-item" onclick="playPlaylist('jazz')">
+                <span class="playlist-icon">🎷</span>
+                <span class="playlist-name">Jazz</span>
+            </div>
+        </div>
+        
+        <div class="music-player-controls" id="musicControls" style="display: none;">
+            <button id="playPauseBtn" onclick="togglePlayPause()">⏸️</button>
+            <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="setVolume(this.value)">
+        </div>
+    </div>
+</div>
+
+<!-- Скрытый SoundCloud iframe -->
+<iframe id="musicPlayer" style="display: none;" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"></iframe>
+                    
                     <button class="control-btn" onclick="toggleLanguage()" title="Language">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
