@@ -974,9 +974,25 @@ window.downloadImage = downloadImage;
 window.shareImage = shareImage;
 
 // 🎵 Music Functions
+let currentWidget = null;
+let isPlaying = false;
+
+function toggleMusicDropdown() {
+    const dropdown = document.getElementById('musicDropdown');
+    const isVisible = dropdown.style.display === 'block';
+    
+    if (isVisible) {
+        dropdown.style.display = 'none';
+    } else {
+        dropdown.style.display = 'block';
+    }
+    
+    console.log('🎵 Music dropdown toggled:', !isVisible);
+}
+
 function playPlaylist(type) {
     const playlists = {
-        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
         ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026686&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
         jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026687&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
     };
@@ -984,39 +1000,68 @@ function playPlaylist(type) {
     const iframe = document.getElementById('musicPlayer');
     iframe.src = playlists[type];
     
-    // Показать контролы и кнопку запуска
+    // Показать контролы
     const controls = document.getElementById('musicControls');
-    controls.style.display = 'flex';
+    if (controls) {
+        controls.style.display = 'flex';
+    }
     
-    // Обновить кнопку play/pause
+    // Обновить кнопку
     const playBtn = document.getElementById('playPauseBtn');
-    playBtn.textContent = '▶️ Start';
-    playBtn.onclick = function() {
-        startMusicPlayback(type);
-    };
+    if (playBtn) {
+        playBtn.textContent = '▶ Play';
+        playBtn.onclick = function() {
+            startMusicPlayback(type);
+        };
+    }
     
-    console.log(`🎵 Playing ${type} playlist`);
+    console.log(`🎵 Loading ${type} playlist`);
 }
 
 function startMusicPlayback(type) {
-    // Создаем новый iframe с автовоспроизведением после клика пользователя
     const playlists = {
         relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026686&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026687&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
+        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026686&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026687&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
     };
     
     const iframe = document.getElementById('musicPlayer');
     iframe.src = playlists[type];
     
-    // Обновить кнопку
     const playBtn = document.getElementById('playPauseBtn');
-    playBtn.textContent = '⏸';
-    playBtn.onclick = togglePlayPause;
+    if (playBtn) {
+        playBtn.textContent = '⏸';
+        playBtn.onclick = togglePlayPause;
+    }
     
     isPlaying = true;
     console.log(`🎵 Started ${type} playlist`);
 }
+
+function togglePlayPause() {
+    const playBtn = document.getElementById('playPauseBtn');
+    if (isPlaying) {
+        playBtn.textContent = '▶';
+        isPlaying = false;
+    } else {
+        playBtn.textContent = '⏸';
+        isPlaying = true;
+    }
+}
+
+function setVolume(value) {
+    console.log(`🔊 Volume set to ${value}%`);
+}
+
+// Закрытие dropdown при клике вне его
+document.addEventListener('click', function(event) {
+    const musicWidget = document.querySelector('.music-widget');
+    const dropdown = document.getElementById('musicDropdown');
+    
+    if (musicWidget && dropdown && !musicWidget.contains(event.target)) {
+        dropdown.style.display = 'none';
+    }
+});
 // 🧪 Debug Functions
 window.getAppState = () => appState;
 window.setWebhookUrl = (url) => {
