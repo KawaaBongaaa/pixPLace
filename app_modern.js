@@ -151,7 +151,7 @@ const TRANSLATIONS = {
         copied_to_clipboard: 'Copiado al portapapeles',
         download_started: 'Descarga iniciada'
     },
-    fr: {
+fr: {
     loading: 'Chargement...',
     app_title: 'pixPLace',
     connecting: 'Connexion...',
@@ -198,7 +198,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: 'Copié dans le presse-papiers',
     download_started: 'Téléchargement lancé'
 },
-    de: {
+de: {
     loading: 'Lade...',
     app_title: 'pixPLace',
     connecting: 'Verbinden...',
@@ -245,7 +245,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: 'In die Zwischenablage kopiert',
     download_started: 'Download gestartet'
 },
-    zh: {
+zh: {
     loading: '加载中...',
     app_title: 'pixPLace',
     connecting: '连接中...',
@@ -292,7 +292,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: '已复制到剪贴板',
     download_started: '开始下载'
 },
-    'pt-BR': {
+pt: {
     loading: 'Carregando...',
     app_title: 'pixPLace',
     connecting: 'Conectando...',
@@ -339,7 +339,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: 'Copiado para a área de transferência',
     download_started: 'Download iniciado'
 },
-    ar: {
+ar: {
     loading: 'جارٍ التحميل...',
     app_title: 'pixPLace',
     connecting: 'جارٍ الاتصال...',
@@ -386,7 +386,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: 'تم النسخ إلى الحافظة',
     download_started: 'بدأ التحميل'
 },
-    hi: {
+hi: {
     loading: 'लोड हो रहा है...',
     app_title: 'pixPLace',
     connecting: 'कनेक्ट हो रहा है...',
@@ -433,7 +433,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: 'क्लिपबोर्ड में कॉपी किया गया',
     download_started: 'डाउनलोड शुरू हुआ'
 },
-    ja: {
+ja: {
     loading: '読み込み中...',
     app_title: 'pixPLace',
     connecting: '接続中...',
@@ -480,7 +480,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: 'クリップボードにコピーしました',
     download_started: 'ダウンロードを開始しました'
 },
-    it: {
+it: {
     loading: 'Caricamento...',
     app_title: 'pixPLace',
     connecting: 'Connessione in corso...',
@@ -527,7 +527,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: 'Copiato negli appunti',
     download_started: 'Download avviato'
 },
-    ko: {
+ko: {
     loading: '로딩 중...',
     app_title: 'pixPLace',
     connecting: '연결 중...',
@@ -574,7 +574,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: '클립보드에 복사됨',
     download_started: '다운로드 시작됨'
 },
-    tr: {
+tr: {
     loading: 'Yükleniyor...',
     app_title: 'pixPLace',
     connecting: 'Bağlanıyor...',
@@ -621,7 +621,7 @@ const TRANSLATIONS = {
     copied_to_clipboard: 'Panoya kopyalandı',
     download_started: 'İndirme başlatıldı'
 },
-    pl: {
+pl: {
     loading: 'Ładowanie...',
     app_title: 'pixPLace',
     connecting: 'Łączenie...',
