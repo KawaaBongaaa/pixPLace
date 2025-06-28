@@ -941,7 +941,7 @@ function toggleMusicDropdown() {
 
 function playPlaylist(type) {
     const playlists = {
-        lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1234567890&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        Relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true',
         ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1234567891&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
         jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1234567892&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
     };
