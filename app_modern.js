@@ -927,61 +927,49 @@ window.downloadImage = downloadImage;
 window.shareImage = shareImage;
 
 // 🎵 Music Functions
-let currentWidget = null;
-let isPlaying = false;
-
-function toggleMusicDropdown() {
-    const dropdown = document.getElementById('musicDropdown');
-    if (dropdown.style.display === 'none' || !dropdown.style.display) {
-        dropdown.style.display = 'block';
-    } else {
-        dropdown.style.display = 'none';
-    }
-}
-
 function playPlaylist(type) {
     const playlists = {
-        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
+        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026686&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026687&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
     };
     
     const iframe = document.getElementById('musicPlayer');
     iframe.src = playlists[type];
     
-    // Показать контролы
-    document.getElementById('musicControls').style.display = 'flex';
-    isPlaying = true;
+    // Показать контролы и кнопку запуска
+    const controls = document.getElementById('musicControls');
+    controls.style.display = 'flex';
+    
+    // Обновить кнопку play/pause
+    const playBtn = document.getElementById('playPauseBtn');
+    playBtn.textContent = '▶️ Start';
+    playBtn.onclick = function() {
+        startMusicPlayback(type);
+    };
     
     console.log(`🎵 Playing ${type} playlist`);
 }
 
-function togglePlayPause() {
-    // Здесь будет управление воспроизведением через SoundCloud API
-    const btn = document.getElementById('playPauseBtn');
-    if (isPlaying) {
-        btn.textContent = '▶';
-        isPlaying = false;
-    } else {
-        btn.textContent = '⏸';
-        isPlaying = true;
-    }
-}
-
-function setVolume(value) {
-    // Здесь будет управление громкостью через SoundCloud API
-    console.log(`🔊 Volume set to ${value}%`);
-}
-
-// Закрытие dropdown при клике вне его
-document.addEventListener('click', function(event) {
-    const musicWidget = document.querySelector('.music-widget');
-    const dropdown = document.getElementById('musicDropdown');
+function startMusicPlayback(type) {
+    // Создаем новый iframe с автовоспроизведением после клика пользователя
+    const playlists = {
+        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026686&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1274026687&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
+    };
     
-    if (musicWidget && !musicWidget.contains(event.target)) {
-        dropdown.style.display = 'none';
-    }
-});
+    const iframe = document.getElementById('musicPlayer');
+    iframe.src = playlists[type];
+    
+    // Обновить кнопку
+    const playBtn = document.getElementById('playPauseBtn');
+    playBtn.textContent = '⏸';
+    playBtn.onclick = togglePlayPause;
+    
+    isPlaying = true;
+    console.log(`🎵 Started ${type} playlist`);
+}
 // 🧪 Debug Functions
 window.getAppState = () => appState;
 window.setWebhookUrl = (url) => {
