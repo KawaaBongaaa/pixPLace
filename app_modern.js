@@ -926,6 +926,62 @@ window.clearHistory = clearHistory;
 window.downloadImage = downloadImage;
 window.shareImage = shareImage;
 
+// 🎵 Music Functions
+let currentWidget = null;
+let isPlaying = false;
+
+function toggleMusicDropdown() {
+    const dropdown = document.getElementById('musicDropdown');
+    if (dropdown.style.display === 'none' || !dropdown.style.display) {
+        dropdown.style.display = 'block';
+    } else {
+        dropdown.style.display = 'none';
+    }
+}
+
+function playPlaylist(type) {
+    const playlists = {
+        lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1234567890&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1234567891&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1234567892&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
+    };
+    
+    const iframe = document.getElementById('musicPlayer');
+    iframe.src = playlists[type];
+    
+    // Показать контролы
+    document.getElementById('musicControls').style.display = 'flex';
+    isPlaying = true;
+    
+    console.log(`🎵 Playing ${type} playlist`);
+}
+
+function togglePlayPause() {
+    // Здесь будет управление воспроизведением через SoundCloud API
+    const btn = document.getElementById('playPauseBtn');
+    if (isPlaying) {
+        btn.textContent = '▶️';
+        isPlaying = false;
+    } else {
+        btn.textContent = '⏸️';
+        isPlaying = true;
+    }
+}
+
+function setVolume(value) {
+    // Здесь будет управление громкостью через SoundCloud API
+    console.log(`🔊 Volume set to ${value}%`);
+}
+
+// Закрытие dropdown при клике вне его
+document.addEventListener('click', function(event) {
+    const musicWidget = document.querySelector('.music-widget');
+    const dropdown = document.getElementById('musicDropdown');
+    
+    if (musicWidget && !musicWidget.contains(event.target)) {
+        dropdown.style.display = 'none';
+    }
+});
 // 🧪 Debug Functions
 window.getAppState = () => appState;
 window.setWebhookUrl = (url) => {
