@@ -574,7 +574,7 @@ body {
 /* Style Grid */
 .style-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: var(--space-4);
 }
 
@@ -1154,4 +1154,95 @@ textarea:focus-visible {
         --border-primary: #ffffff;
         --border-secondary: #ffffff;
     }
+}
+/* Music Widget */
+.music-widget {
+    position: relative;
+    display: inline-block;
+}
+
+.music-toggle {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.music-toggle:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.music-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    min-width: 250px;
+    z-index: 1000;
+    margin-top: 8px;
+}
+
+.music-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.playlist-list {
+    padding: 8px 0;
+}
+
+.playlist-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.playlist-item:hover {
+    background: var(--hover-bg);
+}
+
+.playlist-icon {
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.playlist-name {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.music-player-controls {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#playPauseBtn {
+    background: var(--accent-color);
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: white;
+    cursor: pointer;
+}
+
+#volumeSlider {
+    flex: 1;
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    outline: none;
 }
