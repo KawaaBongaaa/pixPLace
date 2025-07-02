@@ -265,8 +265,10 @@ body {
     align-items: center;
     gap: var(--space-3);
     font-weight: 700;
-    font-size: 1.75rem;
+    font-size: 2rem;
     color: var(--text-primary);
+    text-decoration: none;
+    color: inherit;
 }
 
 .logo-text {
