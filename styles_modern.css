@@ -275,11 +275,6 @@ body {
     font-optical-sizing: auto;
     font-weight: 300;
     letter-spacing: 1px;
-    font-variation-settings:
-    "slnt" 0,
-    "CRSV" 0.5,
-    "ELSH" 0,
-    "ELXP" 0;
 }
 
 .logo-img {
