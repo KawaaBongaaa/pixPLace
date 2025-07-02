@@ -253,7 +253,8 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: var(--space-4) var(--space-6);
-    max-width: 100%;
+    padding-right: clamp(2rem, 5vw, 4rem);
+    max-width: 99%;
 }
 
 .header-left {
