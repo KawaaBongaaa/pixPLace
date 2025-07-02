@@ -252,8 +252,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: var(--space-4) var(--space-6);
-    padding-right: clamp(2rem, 5vw, 4rem);
-    max-width: 99%;
+    max-width: 100%;
 }
 
 .header-left {
@@ -273,7 +272,6 @@ body {
 .logo-text {
     font-family: "Jolly Lodger", system-ui;
     font-optical-sizing: auto;
-    font-size: clamp(1rem, 4vw, 1.75rem);
     font-weight: 400;
     font-style: normal;
     letter-spacing: 1px;
@@ -1113,8 +1111,15 @@ body {
     .main-content {
         padding: var(--space-3);
     }
+    .logo-img {
+        width: 60px;
+        height: 60px;
+    }
 
-    .welcome-section {
+   .logo-text {
+       font-size: 1.25rem;
+    }
+   .welcome-section {
         margin-bottom: var(--space-8);
     }
 
