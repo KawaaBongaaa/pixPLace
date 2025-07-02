@@ -273,7 +273,7 @@ body {
 .logo-text {
     font-family: "Bitcount Grid Double", system-ui;
     font-optical-sizing: auto;
-    font-weight: 900;
+    font-weight: 300;
     letter-spacing: 1px;
     font-variation-settings:
     "slnt" 0,
