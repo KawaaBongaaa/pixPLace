@@ -265,14 +265,14 @@ body {
     align-items: center;
     gap: var(--space-3);
     font-weight: 700;
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: var(--text-primary);
     text-decoration: none;
     color: inherit;
 }
 
 .logo-text {
-    font-family: "Jolly Lodger", system-ui;
+    font-family: "WDXL Lubrifont JP N", sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
@@ -280,8 +280,8 @@ body {
 }
 
 .logo-img {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     object-fit: contain;
 }
 
