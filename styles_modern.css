@@ -271,11 +271,15 @@ body {
 }
 
 .logo-text {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
+    font-family: "Bitcount Grid Double", system-ui;
+    font-optical-sizing: auto;
     font-weight: 900;
     letter-spacing: 1px;
-    text-transform: uppercase;
+    font-variation-settings:
+    "slnt" 0,
+    "CRSV" 0.5,
+    "ELSH" 0,
+    "ELXP" 0;
 }
 
 .logo-img {
