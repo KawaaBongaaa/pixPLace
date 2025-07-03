@@ -1114,13 +1114,13 @@ body {
         padding: var(--space-3);
     }
     .logo-img {
-        width: 60px;
-        height: 60px;
+        width: 80px;
+        height: 80px;
     }
 
    .logo-text {
-       font-size: 1.25rem;
-    }
+        font-size: clamp(1.25rem, 2.5vw, 2.5rem);
+   }
    .welcome-section {
         margin-bottom: var(--space-8);
     }
