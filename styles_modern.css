@@ -265,7 +265,7 @@ body {
     align-items: center;
     gap: var(--space-3);
     font-weight: 700;
-    font-size: 2.5rem;
+    font-size: clamp(2.5rem, 2.5vw, 3.5rem);
     color: var(--text-primary);
     text-decoration: none;
     color: inherit;
@@ -274,14 +274,14 @@ body {
 .logo-text {
     font-family: "WDXL Lubrifont JP N", sans-serif;
     font-optical-sizing: auto;
-    font-weight: 400;
+    font-weight: 800;
     font-style: normal;
     letter-spacing: 1px;
 }
 
 .logo-img {
-    width: 90px;
-    height: 90px;
+    width: clamp(80px, 10vw, 130px);
+    height: clamp(80px, 10vw, 130px);
     object-fit: contain;
 }
 
@@ -1114,12 +1114,13 @@ body {
         padding: var(--space-3);
     }
     .logo-img {
-        width: 80px;
-        height: 80px;
+        width: clamp(60px, 10vw, 100px);
+        height: clamp(60px, 10vw, 100px);
+        object-fit: contain;
     }
 
    .logo-text {
-        font-size: clamp(1.25rem, 2.5vw, 2.5rem);
+        font-size: clamp(2.2rem, 2.5vw, 2.6rem);
    }
    .welcome-section {
         margin-bottom: var(--space-8);
