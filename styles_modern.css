@@ -587,11 +587,11 @@ body {
 .style-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: var(--space-4);
+    gap: var(--space-1);
 }
 
 .style-card {
-    padding: var(--space-5);
+    padding: var(--space-0);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
     background: var(--bg-primary);
@@ -601,7 +601,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: var(--space-3);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-weight: 500;
     transition: all var(--transition-fast);
     position: relative;
