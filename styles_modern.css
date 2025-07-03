@@ -592,7 +592,7 @@ body {
 
 .style-card {
     padding: var(--space-0);
-    border: 2px solid var(--border-primary);
+    border: 0px solid var(--border-primary);
     border-radius: var(--radius-xl);
     background: var(--bg-primary);
     color: var(--text-primary);
