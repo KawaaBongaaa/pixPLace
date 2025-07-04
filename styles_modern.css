@@ -585,9 +585,9 @@ body {
 
 /* Style Grid */
 .style-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    display: flex;
     gap: var(--space-1);
+    overflow-x: auto;
 }
 
 .style-card {
@@ -598,7 +598,7 @@ body {
     color: var(--text-primary);
     cursor: pointer;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: var(--space-3);
     font-size: var(--font-size-xs);
