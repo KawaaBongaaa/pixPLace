@@ -520,6 +520,7 @@ body {
 }
 
 .form-label {
+    font-family: "WDXL Lubrifont JP N", sans-serif;
     font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--text-primary);
@@ -591,6 +592,8 @@ body {
 }
 
 .style-card {
+    font-family: "Bebas Neue", sans-serif;
+    font-style: normal;
     padding: var(--space-2);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
@@ -602,7 +605,7 @@ body {
     align-items: center;
     gap: var(--space-3);
     font-size: var(--font-size-sm);
-    font-weight: 500;
+    font-weight: 400;
     transition: all var(--transition-fast);
     position: relative;
     overflow: hidden;
