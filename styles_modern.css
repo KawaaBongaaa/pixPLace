@@ -591,8 +591,8 @@ body {
 }
 
 .style-card {
-    padding: var(--space-0);
-    border: 0px solid var(--border-primary);
+    padding: var(--space-1);
+    border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
     background: var(--bg-primary);
     color: var(--text-primary);
@@ -601,7 +601,7 @@ body {
     flex-direction: row;
     align-items: center;
     gap: var(--space-3);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     font-weight: 500;
     transition: all var(--transition-fast);
     position: relative;
@@ -1080,7 +1080,9 @@ body {
     }
 
     .style-grid {
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
+        flex-wrap: wrap; /* 🔥 перенос элементов на новую строку */
+        gap: var(--space-1);
     }
 
     .result-actions {
@@ -1132,9 +1134,10 @@ body {
     }
 
     .style-grid {
-        grid-template-columns: 1fr;
+       display: flex;
+       flex-wrap: wrap; /* 🔥 перенос элементов на новую строку */
+       gap: var(--space-1);
     }
-
     .control-btn {
         width: 36px;
         height: 36px;
