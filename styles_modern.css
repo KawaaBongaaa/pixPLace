@@ -512,7 +512,7 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-2);
 }
 
 .form-row {
@@ -523,9 +523,9 @@ body {
 
 .form-label {
     font-family: "WDXL Lubrifont JP N", sans-serif;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     font-size: var(--font-size-s);
-    font-weight: 600;
+    font-weight: 400;
     color: var(--text-primary);
 }
 
@@ -589,6 +589,7 @@ body {
 
 /* Style Grid */
 .style-grid {
+    padding-top: 2px;
     display: flex;
     gap: var(--space-1);
     overflow-x: auto;
@@ -596,10 +597,11 @@ body {
 
 .style-card {
     font-family: "Bebas Neue", sans-serif;
+    letter-spacing: 2px;
     font-style: normal;
-    padding: var(--space-2);
+    padding: var(--space-0);
     border: 2px solid var(--border-primary);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-md);
     background: var(--bg-primary);
     color: var(--text-primary);
     cursor: pointer;
@@ -613,7 +615,6 @@ body {
     transition: all var(--transition-fast);
     position: relative;
     overflow: hidden;
-    min-width: 100px; /* или сколько тебе нужно */
     flex: 1 1 auto;    /* позволяет растягиваться и сжиматься */
     white-space: normal; /* ❗️позволяет перенос строк */
     word-break: break-word; /* перенос слов при нехватке места */
