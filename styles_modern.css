@@ -287,6 +287,7 @@ body {
 
 .header-right {
     display: flex;
+    padding-right: 1rem;
     align-items: center;
     justify-content: flex-start;
     gap: var(--space-4);
