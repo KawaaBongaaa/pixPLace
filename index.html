@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=WDXL+Lubrifont+JP+N&display=swap" rel="stylesheet">
     <script>
 // Пробуем загрузить из разных источников
 const sources = [
@@ -69,7 +70,7 @@ loadTelegramSDK();
                 </div>
                 <div class="header-right">
                 <!-- Рядом с кнопками языка/темы -->
-<div class="music-widget">
+    <!-- 
     <button id="musicToggle" class="music-toggle" onclick="toggleMusicDropdown()">
         <span class="music-icon">🎵</span>
     </button>
@@ -101,7 +102,7 @@ loadTelegramSDK();
             <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="setVolume(this.value)">
         </div>
     </div>
-</div>
+</div> 
 
 <!-- Скрытый SoundCloud iframe -->
 <iframe id="musicPlayer" style="display: none;" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"></iframe>
