@@ -606,6 +606,10 @@ body {
     transition: all var(--transition-fast);
     position: relative;
     overflow: hidden;
+    min-width: 100px; /* или сколько тебе нужно */
+    flex: 1 1 auto;    /* позволяет растягиваться и сжиматься */
+    white-space: normal; /* ❗️позволяет перенос строк */
+    word-break: break-word; /* перенос слов при нехватке места */
 }
 
 .style-card:hover {
