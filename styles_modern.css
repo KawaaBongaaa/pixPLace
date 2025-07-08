@@ -522,9 +522,8 @@ body {
 }
 
 .form-label {
-    font-family: 'Golos Text', sans-serif;
-    letter-spacing: 1px;
-    font-size: var(--font-size-s);
+    font-family: "Roboto Mono", monospace;
+    font-size: var(--font-size-sm);
     font-weight: 400;
     color: var(--text-primary);
 }
@@ -540,7 +539,7 @@ body {
     padding: var(--space-4);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     color: var(--text-primary);
     background: var(--bg-primary);
     resize: vertical;
@@ -571,10 +570,9 @@ body {
 
 .form-select {
     font-family: "Winky Rough", sans-serif;
-    font-optical-sizing: auto;
-    font-style: normal;
+    font-size: var(--font-size-sm);
     width: 100%;
-    padding: var(--space-4);
+    padding: var(--space-2);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
     color: var(--text-primary);
