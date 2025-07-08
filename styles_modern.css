@@ -481,14 +481,14 @@ body {
 /* Welcome Section */
 .welcome-section {
     text-align: center;
-    margin-bottom: var(--space-12);
+    margin-bottom: var(--space-4);
 }
 
 .welcome-section h1 {
     font-size: var(--font-size-3xl);
-    font-weight: 800;
+    font-weight: 900;
     color: var(--text-primary);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-2);
     background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -534,6 +534,9 @@ body {
 }
 
 .form-textarea {
+    font-family: "Silkscreen", sans-serif;
+    font-weight: 400;
+    font-style: normal;
     width: 100%;
     padding: var(--space-4);
     border: 2px solid var(--border-primary);
