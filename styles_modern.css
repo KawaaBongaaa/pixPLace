@@ -522,7 +522,7 @@ body {
 }
 
 .form-label {
-    font-family: "WDXL Lubrifont JP N", sans-serif;
+    font-family: 'Golos Text', sans-serif;
     letter-spacing: 1px;
     font-size: var(--font-size-s);
     font-weight: 400;
