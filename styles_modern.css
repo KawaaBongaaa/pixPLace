@@ -535,8 +535,7 @@ body {
 
 .form-textarea {
     font-family: "Silkscreen", sans-serif;
-    font-weight: 400;
-    font-style: normal;
+    font-weight: 300;
     width: 100%;
     padding: var(--space-4);
     border: 2px solid var(--border-primary);
@@ -571,6 +570,7 @@ body {
 }
 
 .form-select {
+    
     width: 100%;
     padding: var(--space-4);
     border: 2px solid var(--border-primary);
@@ -598,11 +598,11 @@ body {
 }
 
 .style-card {
-    font-family: "Bebas Neue", sans-serif;
-    letter-spacing: 2px;
+    font-family: "Winky Rough", sans-serif;
+    font-optical-sizing: auto;
     font-style: normal;
-    padding: var(--space-0);
-    border: 2px solid var(--border-primary);
+    padding: var(--space-1);
+    border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
     background: var(--bg-primary);
     color: var(--text-primary);
@@ -612,7 +612,6 @@ body {
     align-items: center;
     justify-content: center;
     gap: var(--space-3);
-    font-size: var(--font-size-xs);
     font-weight: 400;
     transition: all var(--transition-fast);
     position: relative;
