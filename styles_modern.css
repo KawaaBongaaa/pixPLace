@@ -570,13 +570,14 @@ body {
 }
 
 .form-select {
-    
+    font-family: "Winky Rough", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
     width: 100%;
     padding: var(--space-4);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
     font-family: inherit;
-    font-size: var(--font-size-base);
     color: var(--text-primary);
     background: var(--bg-primary);
     cursor: pointer;
