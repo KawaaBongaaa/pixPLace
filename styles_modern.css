@@ -41,7 +41,7 @@
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
     /* Typography */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family: "Shantell Sans", cursive, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-size-xs: 0.75rem;
     --font-size-s: 0.8rem;
     --font-size-sm: 0.875rem;
@@ -528,9 +528,10 @@ body {
 }
 
 .form-label {
-    font-family: "Roboto Mono", monospace;
-    font-size: var(--font-size-sm);
-    font-weight: 400;
+    font-family: "Stalinist One", sans-serif;
+    font-size: var(--font-size-xs);
+    font-weight: 200;
+    opacity: 0.75;
     color: var(--text-primary);
 }
 
@@ -539,15 +540,14 @@ body {
 }
 
 .form-textarea {
-    font-family: "Doto", sans-serif;
-    font-weight: 300;
-    font-variation-settings:
-    "ROND" 0;
+    font-family: "Underdog", system-ui;
+    font-weight: 400;
+    font-style: normal;
     width: 100%;
     padding: var(--space-4);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     color: var(--text-primary);
     background: var(--bg-primary);
     resize: vertical;
@@ -577,8 +577,9 @@ body {
 }
 
 .form-select {
-    font-family: "Winky Rough", sans-serif;
-    font-size: var(--font-size-sm);
+    font-family: "Stalinist One", sans-serif;
+    font-weight: 200;
+    font-size: var(--font-size-s);
     width: 100%;
     padding: var(--space-2);
     border: 2px solid var(--border-primary);
@@ -618,7 +619,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: var(--space-3);
-    font-weight: 400;
+    font-weight: 600;
     transition: all var(--transition-fast);
     position: relative;
     overflow: hidden;

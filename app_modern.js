@@ -58,7 +58,7 @@ const TRANSLATIONS = {
         download_started: 'Download started'
     },
     ru: {
-        loading: 'Желаем Вам творческого вдохновения и чудесного настроения! Пожалуйста, Развлекайтесь...',
+        loading: 'Желаем творческого вдохновения и чудесного настроения! Пожалуйста, Развлекайтесь...',
         app_title: 'pixPLace',
         connecting: 'Подключение...',
         connected: 'Подключено к Telegram',
