@@ -288,10 +288,10 @@ body {
 
 .header-right {
     display: flex;
-    padding-right: 1rem;
-    align-items: center;
+    padding-right: 0.5rem;
+    align-items: right;
     justify-content: flex-start;
-    gap: var(--space-4);
+    gap: var(--space-2);
 }
 
 .control-btn {
