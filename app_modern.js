@@ -11,15 +11,15 @@ const CONFIG = {
 // 🌍 Translations
 const TRANSLATIONS = {
     en: {
-        loading: 'Have a Fun',
+        loading: 'Please, Have a Fun',
         app_title: 'pixPLace',
         connecting: 'Connecting...',
         connected: 'Connected to Telegram',
         welcome_title: 'Create Amazing Images',
         welcome_subtitle: 'Describe your vision and watch AI bring it to life',
-        prompt_label: 'Describe your image',
+        prompt_label: 'Prompt',
         prompt_placeholder: 'A beautiful sunset over the ocean...',
-        style_label: 'Art Style',
+        style_label: 'Style',
         style_realistic: 'Realistic',
         style_artistic: 'Artistic',
         style_cartoon: 'Cartoon',
@@ -49,7 +49,7 @@ const TRANSLATIONS = {
         empty_history_subtitle: 'Create your first AI image to see it here',
         generation_time: 'Generation time',
         error_prompt_required: 'Please describe your image',
-        error_prompt_too_short: 'Description too short (minimum 5 characters)',
+        error_prompt_too_short: 'Prompt too short (minimum 5 characters)',
         error_webhook_not_configured: 'Webhook URL not configured',
         error_generation_failed: 'Generation failed',
         error_timeout: 'Generation timeout. Please try again.',
@@ -58,7 +58,7 @@ const TRANSLATIONS = {
         download_started: 'Download started'
     },
     ru: {
-        loading: 'Развлекайтесь...',
+        loading: 'Желаем Вам творческого вдохновения и чудесного настроения! Пожалуйста, Развлекайтесь...',
         app_title: 'pixPLace',
         connecting: 'Подключение...',
         connected: 'Подключено к Telegram',
