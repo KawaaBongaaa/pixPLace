@@ -391,7 +391,7 @@ body {
 /* Main Content */
 .main-content {
     flex: 1;
-    padding: var(--space-6);
+    padding: var(--space-8);
     max-width: 800px;
     margin: 0 auto;
     width: 100%;
@@ -660,8 +660,11 @@ body {
     border-radius: var(--radius-2xl);
     background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
     color: white;
-    font-family: "Rubik Vinyl", system-ui;
-    font-size: var(--font-size-xl);
+    font-family: "WDXL Lubrifont JP N", sans-serif;
+    font-optical-sizing: auto;
+    font-style: bold;
+    letter-spacing: 1px;    
+    font-size: var(--font-size-2xl);
     font-weight: 800;
     cursor: pointer;
     display: flex;
