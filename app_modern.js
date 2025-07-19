@@ -1076,26 +1076,20 @@ function showSubscriptionNotice(result) {
     // Показать модальное окно
     modal.classList.add('show');
 
-    // Настроить кнопку оплаты
+    // Настроить кнопку оплаты 
     const upgradeBtn = document.getElementById('upgradeBtn');
     if (upgradeBtn) {
         upgradeBtn.onclick = () => {
-            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr'; // ЗАМЕНИТЕ НА ВАШУ ССЫЛКУ
+            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
 
-            console.log('💳 Trying to open payment URL:', paymentUrl);
+            console.log('💳 Opening payment URL:', paymentUrl);
 
-            // Попробуем разные способы открытия ссылки
-            if (appState.tg && appState.tg.openTelegramLink) {
-                console.log('📱 Using Telegram openTelegramLink');
-                appState.tg.openTelegramLink(paymentUrl);
-            } else if (appState.tg && appState.tg.openLink) {
-                console.log('📱 Using Telegram openLink');
-                appState.tg.openLink(paymentUrl);
-            } else if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
-                console.log('📱 Using window.Telegram.WebApp.openTelegramLink');
-                window.Telegram.WebApp.openTelegramLink(paymentUrl);
-            } else {
-                console.log('🌐 Using window.open fallback');
+            // Простой способ - через location
+            try {
+                window.location.href = paymentUrl;
+            } catch (error) {
+                console.error('❌ Error opening link:', error);
+                // Fallback
                 window.open(paymentUrl, '_blank');
             }
 
