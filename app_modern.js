@@ -151,523 +151,523 @@ const TRANSLATIONS = {
         copied_to_clipboard: 'Copiado al portapapeles',
         download_started: 'Descarga iniciada'
     },
-fr: {
-    loading: 'Chargement...',
-    app_title: 'pixPLace',
-    connecting: 'Connexion...',
-    connected: 'Connecté à Telegram',
-    welcome_title: 'Créez des images incroyables',
-    welcome_subtitle: 'Décrivez votre vision et regardez l’IA la prendre vie',
-    prompt_label: 'Décrivez votre image',
-    prompt_placeholder: 'Un magnifique coucher de soleil sur l’océan...',
-    style_label: 'Style artistique',
-    style_realistic: 'Réaliste',
-    style_artistic: 'Artistique',
-    style_cartoon: 'Dessin animé',
-    style_fantasy: 'Fantastique',
-    style_anime: 'Anime',
-    style_cyberpunk: 'Cyberpunk',
-    quality_label: 'Qualité',
-    quality_standard: 'Standard',
-    quality_hd: 'HD',
-    quality_ultra: 'Ultra HD',
-    size_label: 'Taille',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: 'Générer l’image',
-    processing_title: 'Création de votre chef-d’œuvre',
-    processing_subtitle: 'Cela peut prendre jusqu’à 60 secondes',
-    step_analyzing: 'Analyse de la description',
-    step_generating: 'Génération de l’image',
-    step_finalizing: 'Finalisation du résultat',
-    elapsed_time: 'Temps écoulé :',
-    cancel_btn: 'Annuler',
-    create_new: 'Créer une nouvelle',
-    view_history: 'Voir l’historique',
-    history_title: 'Historique des générations',
-    empty_history_title: 'Aucune génération pour le moment',
-    empty_history_subtitle: 'Créez votre première image IA pour la voir ici',
-    generation_time: 'Temps de génération',
-    error_prompt_required: 'Veuillez décrire votre image',
-    error_prompt_too_short: 'Description trop courte (minimum 5 caractères)',
-    error_webhook_not_configured: 'URL du webhook non configurée',
-    error_generation_failed: 'Échec de la génération',
-    error_timeout: 'Temps d’attente dépassé. Veuillez réessayer.',
-    success_generated: 'Image générée avec succès !',
-    copied_to_clipboard: 'Copié dans le presse-papiers',
-    download_started: 'Téléchargement lancé'
-},
-de: {
-    loading: 'Lade...',
-    app_title: 'pixPLace',
-    connecting: 'Verbinden...',
-    connected: 'Mit Telegram verbunden',
-    welcome_title: 'Erstelle erstaunliche Bilder',
-    welcome_subtitle: 'Beschreibe deine Vision und sieh zu, wie die KI sie zum Leben erweckt',
-    prompt_label: 'Beschreibe dein Bild',
-    prompt_placeholder: 'Ein schöner Sonnenuntergang über dem Ozean...',
-    style_label: 'Kunststil',
-    style_realistic: 'Realistisch',
-    style_artistic: 'Künstlerisch',
-    style_cartoon: 'Comic',
-    style_fantasy: 'Fantasie',
-    style_anime: 'Anime',
-    style_cyberpunk: 'Cyberpunk',
-    quality_label: 'Qualität',
-    quality_standard: 'Standard',
-    quality_hd: 'HD',
-    quality_ultra: 'Ultra HD',
-    size_label: 'Größe',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: 'Bild generieren',
-    processing_title: 'Dein Meisterwerk wird erstellt',
-    processing_subtitle: 'Dies kann bis zu 60 Sekunden dauern',
-    step_analyzing: 'Eingabe analysieren',
-    step_generating: 'Bild wird generiert',
-    step_finalizing: 'Ergebnis finalisieren',
-    elapsed_time: 'Vergangene Zeit:',
-    cancel_btn: 'Abbrechen',
-    create_new: 'Neu erstellen',
-    view_history: 'Verlauf anzeigen',
-    history_title: 'Generierungsverlauf',
-    empty_history_title: 'Noch keine Generierungen',
-    empty_history_subtitle: 'Erstelle dein erstes KI-Bild, um es hier zu sehen',
-    generation_time: 'Generierungszeit',
-    error_prompt_required: 'Bitte beschreibe dein Bild',
-    error_prompt_too_short: 'Beschreibung zu kurz (mindestens 5 Zeichen)',
-    error_webhook_not_configured: 'Webhook-URL nicht konfiguriert',
-    error_generation_failed: 'Generierung fehlgeschlagen',
-    error_timeout: 'Zeitüberschreitung bei der Generierung. Bitte versuche es erneut.',
-    success_generated: 'Bild erfolgreich generiert!',
-    copied_to_clipboard: 'In die Zwischenablage kopiert',
-    download_started: 'Download gestartet'
-},
-zh: {
-    loading: '加载中...',
-    app_title: 'pixPLace',
-    connecting: '连接中...',
-    connected: '已连接到 Telegram',
-    welcome_title: '创作令人惊叹的图像',
-    welcome_subtitle: '描述你的想法，让 AI 将其变为现实',
-    prompt_label: '描述你的图像',
-    prompt_placeholder: '一幅美丽的海上日落...',
-    style_label: '艺术风格',
-    style_realistic: '写实',
-    style_artistic: '艺术',
-    style_cartoon: '卡通',
-    style_fantasy: '奇幻',
-    style_anime: '动漫',
-    style_cyberpunk: '赛博朋克',
-    quality_label: '质量',
-    quality_standard: '标准',
-    quality_hd: '高清',
-    quality_ultra: '超高清',
-    size_label: '尺寸',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: '生成图像',
-    processing_title: '正在创作你的杰作',
-    processing_subtitle: '可能需要长达 60 秒',
-    step_analyzing: '分析描述中',
-    step_generating: '生成图像中',
-    step_finalizing: '正在完成结果',
-    elapsed_time: '已用时间：',
-    cancel_btn: '取消',
-    create_new: '创建新的',
-    view_history: '查看历史',
-    history_title: '生成历史',
-    empty_history_title: '尚未生成图像',
-    empty_history_subtitle: '创建你的第一张 AI 图像后将在此显示',
-    generation_time: '生成时间',
-    error_prompt_required: '请描述你的图像',
-    error_prompt_too_short: '描述太短（最少 5 个字符）',
-    error_webhook_not_configured: '未配置 Webhook URL',
-    error_generation_failed: '生成失败',
-    error_timeout: '生成超时。请重试。',
-    success_generated: '图像生成成功！',
-    copied_to_clipboard: '已复制到剪贴板',
-    download_started: '开始下载'
-},
-pt: {
-    loading: 'Carregando...',
-    app_title: 'pixPLace',
-    connecting: 'Conectando...',
-    connected: 'Conectado ao Telegram',
-    welcome_title: 'Crie Imagens Incríveis',
-    welcome_subtitle: 'Descreva sua visão e veja a IA trazê-la à vida',
-    prompt_label: 'Descreva sua imagem',
-    prompt_placeholder: 'Um belo pôr do sol sobre o oceano...',
-    style_label: 'Estilo artístico',
-    style_realistic: 'Realista',
-    style_artistic: 'Artístico',
-    style_cartoon: 'Desenho animado',
-    style_fantasy: 'Fantasia',
-    style_anime: 'Anime',
-    style_cyberpunk: 'Cyberpunk',
-    quality_label: 'Qualidade',
-    quality_standard: 'Padrão',
-    quality_hd: 'HD',
-    quality_ultra: 'Ultra HD',
-    size_label: 'Tamanho',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: 'Gerar imagem',
-    processing_title: 'Criando sua obra-prima',
-    processing_subtitle: 'Isso pode levar até 60 segundos',
-    step_analyzing: 'Analisando a descrição',
-    step_generating: 'Gerando imagem',
-    step_finalizing: 'Finalizando resultado',
-    elapsed_time: 'Tempo decorrido:',
-    cancel_btn: 'Cancelar',
-    create_new: 'Criar nova',
-    view_history: 'Ver histórico',
-    history_title: 'Histórico de gerações',
-    empty_history_title: 'Nenhuma geração ainda',
-    empty_history_subtitle: 'Crie sua primeira imagem com IA para vê-la aqui',
-    generation_time: 'Tempo de geração',
-    error_prompt_required: 'Por favor, descreva sua imagem',
-    error_prompt_too_short: 'Descrição muito curta (mínimo de 5 caracteres)',
-    error_webhook_not_configured: 'URL do webhook não configurado',
-    error_generation_failed: 'Falha na geração',
-    error_timeout: 'Tempo esgotado. Tente novamente.',
-    success_generated: 'Imagem gerada com sucesso!',
-    copied_to_clipboard: 'Copiado para a área de transferência',
-    download_started: 'Download iniciado'
-},
-ar: {
-    loading: 'جارٍ التحميل...',
-    app_title: 'pixPLace',
-    connecting: 'جارٍ الاتصال...',
-    connected: 'تم الاتصال بـ Telegram',
-    welcome_title: 'أنشئ صورًا مذهلة',
-    welcome_subtitle: 'صف رؤيتك وشاهد الذكاء الاصطناعي يحققها',
-    prompt_label: 'صف صورتك',
-    prompt_placeholder: 'غروب جميل فوق المحيط...',
-    style_label: 'النمط الفني',
-    style_realistic: 'واقعي',
-    style_artistic: 'فني',
-    style_cartoon: 'كرتوني',
-    style_fantasy: 'خيالي',
-    style_anime: 'أنمي',
-    style_cyberpunk: 'سايبربانك',
-    quality_label: 'الجودة',
-    quality_standard: 'عادي',
-    quality_hd: 'عالي الدقة',
-    quality_ultra: 'فائق الدقة',
-    size_label: 'الحجم',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: 'إنشاء صورة',
-    processing_title: 'يتم إنشاء تحفتك الفنية',
-    processing_subtitle: 'قد يستغرق ذلك حتى 60 ثانية',
-    step_analyzing: 'تحليل الوصف',
-    step_generating: 'إنشاء الصورة',
-    step_finalizing: 'إتمام النتيجة',
-    elapsed_time: 'الوقت المنقضي:',
-    cancel_btn: 'إلغاء',
-    create_new: 'إنشاء جديد',
-    view_history: 'عرض السجل',
-    history_title: 'سجل الإنشاءات',
-    empty_history_title: 'لا توجد صور حتى الآن',
-    empty_history_subtitle: 'أنشئ أول صورة بالذكاء الاصطناعي لتظهر هنا',
-    generation_time: 'وقت الإنشاء',
-    error_prompt_required: 'يرجى وصف صورتك',
-    error_prompt_too_short: 'الوصف قصير جدًا (5 أحرف على الأقل)',
-    error_webhook_not_configured: 'رابط webhook غير مهيأ',
-    error_generation_failed: 'فشل في الإنشاء',
-    error_timeout: 'انتهت المهلة. يرجى المحاولة مرة أخرى.',
-    success_generated: 'تم إنشاء الصورة بنجاح!',
-    copied_to_clipboard: 'تم النسخ إلى الحافظة',
-    download_started: 'بدأ التحميل'
-},
-hi: {
-    loading: 'लोड हो रहा है...',
-    app_title: 'pixPLace',
-    connecting: 'कनेक्ट हो रहा है...',
-    connected: 'Telegram से जुड़ा हुआ है',
-    welcome_title: 'शानदार चित्र बनाएं',
-    welcome_subtitle: 'अपनी कल्पना बताएं और AI को उसे जीवंत बनाते देखें',
-    prompt_label: 'अपने चित्र का विवरण दें',
-    prompt_placeholder: 'समुद्र के ऊपर एक सुंदर सूर्यास्त...',
-    style_label: 'कला शैली',
-    style_realistic: 'यथार्थवादी',
-    style_artistic: 'कलात्मक',
-    style_cartoon: 'कार्टून',
-    style_fantasy: 'काल्पनिक',
-    style_anime: 'एनीमे',
-    style_cyberpunk: 'साइबरपंक',
-    quality_label: 'गुणवत्ता',
-    quality_standard: 'STANDARD',
-    quality_hd: 'HD',
-    quality_ultra: 'ULTRA HD',
-    size_label: 'आकार',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: 'चित्र बनाएँ',
-    processing_title: 'आपकी उत्कृष्ट कृति बनाई जा रही है',
-    processing_subtitle: 'इसमें 60 सेकंड तक का समय लग सकता है',
-    step_analyzing: 'विवरण का विश्लेषण',
-    step_generating: 'चित्र बना रहा है',
-    step_finalizing: 'परिणाम अंतिम रूप दे रहा है',
-    elapsed_time: 'बीता हुआ समय:',
-    cancel_btn: 'रद्द करें',
-    create_new: 'नया बनाएँ',
-    view_history: 'इतिहास देखें',
-    history_title: 'जनरेशन इतिहास',
-    empty_history_title: 'अभी तक कोई जनरेशन नहीं',
-    empty_history_subtitle: 'AI से अपनी पहली छवि बनाएं और यहाँ देखें',
-    generation_time: 'जनरेशन समय',
-    error_prompt_required: 'कृपया चित्र का विवरण दें',
-    error_prompt_too_short: 'विवरण बहुत छोटा है (न्यूनतम 5 अक्षर)',
-    error_webhook_not_configured: 'Webhook URL कॉन्फ़िगर नहीं है',
-    error_generation_failed: 'चित्र निर्माण विफल हुआ',
-    error_timeout: 'समय समाप्त। कृपया पुनः प्रयास करें।',
-    success_generated: 'चित्र सफलतापूर्वक बनाया गया!',
-    copied_to_clipboard: 'क्लिपबोर्ड में कॉपी किया गया',
-    download_started: 'डाउनलोड शुरू हुआ'
-},
-ja: {
-    loading: '読み込み中...',
-    app_title: 'pixPLace',
-    connecting: '接続中...',
-    connected: 'Telegramに接続されました',
-    welcome_title: '驚くほど美しい画像を作成',
-    welcome_subtitle: 'あなたのイメージを言葉で伝え、AIがそれを形にします',
-    prompt_label: '画像を説明してください',
-    prompt_placeholder: '海の上に美しい夕日...',
-    style_label: 'アートスタイル',
-    style_realistic: 'リアル',
-    style_artistic: 'アーティスティック',
-    style_cartoon: 'カートゥーン',
-    style_fantasy: 'ファンタジー',
-    style_anime: 'アニメ',
-    style_cyberpunk: 'サイバーパンク',
-    quality_label: '画質',
-    quality_standard: '標準',
-    quality_hd: 'HD',
-    quality_ultra: 'ウルトラHD',
-    size_label: 'サイズ',
-    size_square: 'スクエア',
-    size_portrait: 'ポートレート',
-    size_landscape: 'ランドスケープ',
-    generate_btn: '画像を生成',
-    processing_title: 'あなたの作品を生成中',
-    processing_subtitle: '最大60秒かかる場合があります',
-    step_analyzing: 'プロンプトを解析中',
-    step_generating: '画像を生成中',
-    step_finalizing: '結果を仕上げています',
-    elapsed_time: '経過時間：',
-    cancel_btn: 'キャンセル',
-    create_new: '新規作成',
-    view_history: '履歴を見る',
-    history_title: '生成履歴',
-    empty_history_title: 'まだ画像がありません',
-    empty_history_subtitle: '最初のAI画像を作成するとここに表示されます',
-    generation_time: '生成時間',
-    error_prompt_required: '画像の説明を入力してください',
-    error_prompt_too_short: '説明が短すぎます（最低5文字）',
-    error_webhook_not_configured: 'Webhook URLが設定されていません',
-    error_generation_failed: '生成に失敗しました',
-    error_timeout: 'タイムアウトしました。もう一度お試しください。',
-    success_generated: '画像の生成が完了しました！',
-    copied_to_clipboard: 'クリップボードにコピーしました',
-    download_started: 'ダウンロードを開始しました'
-},
-it: {
-    loading: 'Caricamento...',
-    app_title: 'pixPLace',
-    connecting: 'Connessione in corso...',
-    connected: 'Connesso a Telegram',
-    welcome_title: 'Crea Immagini Straordinarie',
-    welcome_subtitle: 'Descrivi la tua visione e guarda l’IA darle vita',
-    prompt_label: 'Descrivi la tua immagine',
-    prompt_placeholder: 'Un bellissimo tramonto sull’oceano...',
-    style_label: 'Stile artistico',
-    style_realistic: 'Realistico',
-    style_artistic: 'Artistico',
-    style_cartoon: 'Cartone animato',
-    style_fantasy: 'Fantastico',
-    style_anime: 'Anime',
-    style_cyberpunk: 'Cyberpunk',
-    quality_label: 'Qualità',
-    quality_standard: 'Standard',
-    quality_hd: 'HD',
-    quality_ultra: 'Ultra HD',
-    size_label: 'Dimensione',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: 'Genera immagine',
-    processing_title: 'Creazione del tuo capolavoro',
-    processing_subtitle: 'Questo può richiedere fino a 60 secondi',
-    step_analyzing: 'Analisi della descrizione',
-    step_generating: 'Generazione immagine',
-    step_finalizing: 'Finalizzazione del risultato',
-    elapsed_time: 'Tempo trascorso:',
-    cancel_btn: 'Annulla',
-    create_new: 'Crea nuova',
-    view_history: 'Vedi cronologia',
-    history_title: 'Cronologia generazioni',
-    empty_history_title: 'Nessuna generazione disponibile',
-    empty_history_subtitle: 'Crea la tua prima immagine AI per visualizzarla qui',
-    generation_time: 'Tempo di generazione',
-    error_prompt_required: 'Descrivi la tua immagine',
-    error_prompt_too_short: 'Descrizione troppo corta (minimo 5 caratteri)',
-    error_webhook_not_configured: 'URL del webhook non configurato',
-    error_generation_failed: 'Generazione fallita',
-    error_timeout: 'Timeout della generazione. Riprova.',
-    success_generated: 'Immagine generata con successo!',
-    copied_to_clipboard: 'Copiato negli appunti',
-    download_started: 'Download avviato'
-},
-ko: {
-    loading: '로딩 중...',
-    app_title: 'pixPLace',
-    connecting: '연결 중...',
-    connected: 'Telegram에 연결됨',
-    welcome_title: '놀라운 이미지를 만들어보세요',
-    welcome_subtitle: '당신의 아이디어를 설명하면 AI가 현실로 만들어 드립니다',
-    prompt_label: '이미지를 설명하세요',
-    prompt_placeholder: '바다 위의 아름다운 일몰...',
-    style_label: '예술 스타일',
-    style_realistic: '사실적',
-    style_artistic: '예술적',
-    style_cartoon: '만화 스타일',
-    style_fantasy: '판타지',
-    style_anime: '애니메이션',
-    style_cyberpunk: '사이버펑크',
-    quality_label: '품질',
-    quality_standard: '표준',
-    quality_hd: 'HD',
-    quality_ultra: '울트라 HD',
-    size_label: '크기',
-    size_square: '정사각형',
-    size_portrait: '세로',
-    size_landscape: '가로',
-    generate_btn: '이미지 생성',
-    processing_title: '작품을 생성하는 중',
-    processing_subtitle: '최대 60초가 소요될 수 있습니다',
-    step_analyzing: '설명 분석 중',
-    step_generating: '이미지 생성 중',
-    step_finalizing: '결과 마무리 중',
-    elapsed_time: '소요 시간:',
-    cancel_btn: '취소',
-    create_new: '새로 만들기',
-    view_history: '기록 보기',
-    history_title: '생성 기록',
-    empty_history_title: '아직 생성된 이미지가 없습니다',
-    empty_history_subtitle: 'AI 이미지 생성을 시작하면 이곳에 표시됩니다',
-    generation_time: '생성 시간',
-    error_prompt_required: '이미지를 설명해주세요',
-    error_prompt_too_short: '설명이 너무 짧습니다 (최소 5자)',
-    error_webhook_not_configured: 'Webhook URL이 설정되지 않았습니다',
-    error_generation_failed: '이미지 생성 실패',
-    error_timeout: '생성 시간이 초과되었습니다. 다시 시도하세요.',
-    success_generated: '이미지가 성공적으로 생성되었습니다!',
-    copied_to_clipboard: '클립보드에 복사됨',
-    download_started: '다운로드 시작됨'
-},
-tr: {
-    loading: 'Yükleniyor...',
-    app_title: 'pixPLace',
-    connecting: 'Bağlanıyor...',
-    connected: 'Telegram’a bağlandı',
-    welcome_title: 'Harika Görseller Oluşturun',
-    welcome_subtitle: 'Hayalinizdekini tanımlayın, yapay zeka onu hayata geçirsin',
-    prompt_label: 'Görselinizi tanımlayın',
-    prompt_placeholder: 'Okyanus üzerinde güzel bir gün batımı...',
-    style_label: 'Sanat Tarzı',
-    style_realistic: 'Gerçekçi',
-    style_artistic: 'Sanatsal',
-    style_cartoon: 'Çizgi Film',
-    style_fantasy: 'Fantastik',
-    style_anime: 'Anime',
-    style_cyberpunk: 'Siberpunk',
-    quality_label: 'Kalite',
-    quality_standard: 'Standart',
-    quality_hd: 'HD',
-    quality_ultra: 'Ultra HD',
-    size_label: 'Boyut',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: 'Görsel Oluştur',
-    processing_title: 'Başyapıtınız Oluşturuluyor',
-    processing_subtitle: 'Bu işlem 60 saniye kadar sürebilir',
-    step_analyzing: 'Açıklama analiz ediliyor',
-    step_generating: 'Görsel oluşturuluyor',
-    step_finalizing: 'Sonuç hazırlanıyor',
-    elapsed_time: 'Geçen süre:',
-    cancel_btn: 'İptal',
-    create_new: 'Yeni Oluştur',
-    view_history: 'Geçmişi Görüntüle',
-    history_title: 'Oluşturma Geçmişi',
-    empty_history_title: 'Henüz bir görsel oluşturulmadı',
-    empty_history_subtitle: 'İlk AI görselinizi oluşturduğunuzda burada görünecek',
-    generation_time: 'Oluşturma süresi',
-    error_prompt_required: 'Lütfen görselinizi tanımlayın',
-    error_prompt_too_short: 'Tanım çok kısa (en az 5 karakter)',
-    error_webhook_not_configured: 'Webhook URL yapılandırılmadı',
-    error_generation_failed: 'Oluşturma başarısız oldu',
-    error_timeout: 'Zaman aşımı. Lütfen tekrar deneyin.',
-    success_generated: 'Görsel başarıyla oluşturuldu!',
-    copied_to_clipboard: 'Panoya kopyalandı',
-    download_started: 'İndirme başlatıldı'
-},
-pl: {
-    loading: 'Ładowanie...',
-    app_title: 'pixPLace',
-    connecting: 'Łączenie...',
-    connected: 'Połączono z Telegramem',
-    welcome_title: 'Twórz niesamowite obrazy',
-    welcome_subtitle: 'Opisz swoją wizję, a AI ją ożywi',
-    prompt_label: 'Opisz swój obraz',
-    prompt_placeholder: 'Piękny zachód słońca nad oceanem...',
-    style_label: 'Styl artystyczny',
-    style_realistic: 'Realistyczny',
-    style_artistic: 'Artystyczny',
-    style_cartoon: 'Kreskówkowy',
-    style_fantasy: 'Fantastyczny',
-    style_anime: 'Anime',
-    style_cyberpunk: 'Cyberpunk',
-    quality_label: 'Jakość',
-    quality_standard: 'Standardowa',
-    quality_hd: 'HD',
-    quality_ultra: 'Ultra HD',
-    size_label: 'Rozmiar',
-    size_square: '1:1',
-    size_portrait: '9:16',
-    size_landscape: '16:9',
-    generate_btn: 'Generuj obraz',
-    processing_title: 'Tworzenie arcydzieła',
-    processing_subtitle: 'Może to potrwać do 60 sekund',
-    step_analyzing: 'Analiza opisu',
-    step_generating: 'Generowanie obrazu',
-    step_finalizing: 'Finalizowanie wyniku',
-    elapsed_time: 'Czas:',
-    cancel_btn: 'Anuluj',
-    create_new: 'Utwórz nowy',
-    view_history: 'Zobacz historię',
-    history_title: 'Historia generacji',
-    empty_history_title: 'Brak wygenerowanych obrazów',
-    empty_history_subtitle: 'Stwórz pierwszy obraz AI, aby pojawił się tutaj',
-    generation_time: 'Czas generacji',
-    error_prompt_required: 'Opisz swój obraz',
-    error_prompt_too_short: 'Opis jest zbyt krótki (min. 5 znaków)',
-    error_webhook_not_configured: 'Webhook URL nie jest skonfigurowany',
-    error_generation_failed: 'Nie udało się wygenerować',
-    error_timeout: 'Przekroczono limit czasu. Spróbuj ponownie.',
-    success_generated: 'Obraz wygenerowany pomyślnie!',
-    copied_to_clipboard: 'Skopiowano do schowka',
-    download_started: 'Rozpoczęto pobieranie'
-}
+    fr: {
+        loading: 'Chargement...',
+        app_title: 'pixPLace',
+        connecting: 'Connexion...',
+        connected: 'Connecté à Telegram',
+        welcome_title: 'Créez des images incroyables',
+        welcome_subtitle: 'Décrivez votre vision et regardez l’IA la prendre vie',
+        prompt_label: 'Décrivez votre image',
+        prompt_placeholder: 'Un magnifique coucher de soleil sur l’océan...',
+        style_label: 'Style artistique',
+        style_realistic: 'Réaliste',
+        style_artistic: 'Artistique',
+        style_cartoon: 'Dessin animé',
+        style_fantasy: 'Fantastique',
+        style_anime: 'Anime',
+        style_cyberpunk: 'Cyberpunk',
+        quality_label: 'Qualité',
+        quality_standard: 'Standard',
+        quality_hd: 'HD',
+        quality_ultra: 'Ultra HD',
+        size_label: 'Taille',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: 'Générer l’image',
+        processing_title: 'Création de votre chef-d’œuvre',
+        processing_subtitle: 'Cela peut prendre jusqu’à 60 secondes',
+        step_analyzing: 'Analyse de la description',
+        step_generating: 'Génération de l’image',
+        step_finalizing: 'Finalisation du résultat',
+        elapsed_time: 'Temps écoulé :',
+        cancel_btn: 'Annuler',
+        create_new: 'Créer une nouvelle',
+        view_history: 'Voir l’historique',
+        history_title: 'Historique des générations',
+        empty_history_title: 'Aucune génération pour le moment',
+        empty_history_subtitle: 'Créez votre première image IA pour la voir ici',
+        generation_time: 'Temps de génération',
+        error_prompt_required: 'Veuillez décrire votre image',
+        error_prompt_too_short: 'Description trop courte (minimum 5 caractères)',
+        error_webhook_not_configured: 'URL du webhook non configurée',
+        error_generation_failed: 'Échec de la génération',
+        error_timeout: 'Temps d’attente dépassé. Veuillez réessayer.',
+        success_generated: 'Image générée avec succès !',
+        copied_to_clipboard: 'Copié dans le presse-papiers',
+        download_started: 'Téléchargement lancé'
+    },
+    de: {
+        loading: 'Lade...',
+        app_title: 'pixPLace',
+        connecting: 'Verbinden...',
+        connected: 'Mit Telegram verbunden',
+        welcome_title: 'Erstelle erstaunliche Bilder',
+        welcome_subtitle: 'Beschreibe deine Vision und sieh zu, wie die KI sie zum Leben erweckt',
+        prompt_label: 'Beschreibe dein Bild',
+        prompt_placeholder: 'Ein schöner Sonnenuntergang über dem Ozean...',
+        style_label: 'Kunststil',
+        style_realistic: 'Realistisch',
+        style_artistic: 'Künstlerisch',
+        style_cartoon: 'Comic',
+        style_fantasy: 'Fantasie',
+        style_anime: 'Anime',
+        style_cyberpunk: 'Cyberpunk',
+        quality_label: 'Qualität',
+        quality_standard: 'Standard',
+        quality_hd: 'HD',
+        quality_ultra: 'Ultra HD',
+        size_label: 'Größe',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: 'Bild generieren',
+        processing_title: 'Dein Meisterwerk wird erstellt',
+        processing_subtitle: 'Dies kann bis zu 60 Sekunden dauern',
+        step_analyzing: 'Eingabe analysieren',
+        step_generating: 'Bild wird generiert',
+        step_finalizing: 'Ergebnis finalisieren',
+        elapsed_time: 'Vergangene Zeit:',
+        cancel_btn: 'Abbrechen',
+        create_new: 'Neu erstellen',
+        view_history: 'Verlauf anzeigen',
+        history_title: 'Generierungsverlauf',
+        empty_history_title: 'Noch keine Generierungen',
+        empty_history_subtitle: 'Erstelle dein erstes KI-Bild, um es hier zu sehen',
+        generation_time: 'Generierungszeit',
+        error_prompt_required: 'Bitte beschreibe dein Bild',
+        error_prompt_too_short: 'Beschreibung zu kurz (mindestens 5 Zeichen)',
+        error_webhook_not_configured: 'Webhook-URL nicht konfiguriert',
+        error_generation_failed: 'Generierung fehlgeschlagen',
+        error_timeout: 'Zeitüberschreitung bei der Generierung. Bitte versuche es erneut.',
+        success_generated: 'Bild erfolgreich generiert!',
+        copied_to_clipboard: 'In die Zwischenablage kopiert',
+        download_started: 'Download gestartet'
+    },
+    zh: {
+        loading: '加载中...',
+        app_title: 'pixPLace',
+        connecting: '连接中...',
+        connected: '已连接到 Telegram',
+        welcome_title: '创作令人惊叹的图像',
+        welcome_subtitle: '描述你的想法，让 AI 将其变为现实',
+        prompt_label: '描述你的图像',
+        prompt_placeholder: '一幅美丽的海上日落...',
+        style_label: '艺术风格',
+        style_realistic: '写实',
+        style_artistic: '艺术',
+        style_cartoon: '卡通',
+        style_fantasy: '奇幻',
+        style_anime: '动漫',
+        style_cyberpunk: '赛博朋克',
+        quality_label: '质量',
+        quality_standard: '标准',
+        quality_hd: '高清',
+        quality_ultra: '超高清',
+        size_label: '尺寸',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: '生成图像',
+        processing_title: '正在创作你的杰作',
+        processing_subtitle: '可能需要长达 60 秒',
+        step_analyzing: '分析描述中',
+        step_generating: '生成图像中',
+        step_finalizing: '正在完成结果',
+        elapsed_time: '已用时间：',
+        cancel_btn: '取消',
+        create_new: '创建新的',
+        view_history: '查看历史',
+        history_title: '生成历史',
+        empty_history_title: '尚未生成图像',
+        empty_history_subtitle: '创建你的第一张 AI 图像后将在此显示',
+        generation_time: '生成时间',
+        error_prompt_required: '请描述你的图像',
+        error_prompt_too_short: '描述太短（最少 5 个字符）',
+        error_webhook_not_configured: '未配置 Webhook URL',
+        error_generation_failed: '生成失败',
+        error_timeout: '生成超时。请重试。',
+        success_generated: '图像生成成功！',
+        copied_to_clipboard: '已复制到剪贴板',
+        download_started: '开始下载'
+    },
+    pt: {
+        loading: 'Carregando...',
+        app_title: 'pixPLace',
+        connecting: 'Conectando...',
+        connected: 'Conectado ao Telegram',
+        welcome_title: 'Crie Imagens Incríveis',
+        welcome_subtitle: 'Descreva sua visão e veja a IA trazê-la à vida',
+        prompt_label: 'Descreva sua imagem',
+        prompt_placeholder: 'Um belo pôr do sol sobre o oceano...',
+        style_label: 'Estilo artístico',
+        style_realistic: 'Realista',
+        style_artistic: 'Artístico',
+        style_cartoon: 'Desenho animado',
+        style_fantasy: 'Fantasia',
+        style_anime: 'Anime',
+        style_cyberpunk: 'Cyberpunk',
+        quality_label: 'Qualidade',
+        quality_standard: 'Padrão',
+        quality_hd: 'HD',
+        quality_ultra: 'Ultra HD',
+        size_label: 'Tamanho',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: 'Gerar imagem',
+        processing_title: 'Criando sua obra-prima',
+        processing_subtitle: 'Isso pode levar até 60 segundos',
+        step_analyzing: 'Analisando a descrição',
+        step_generating: 'Gerando imagem',
+        step_finalizing: 'Finalizando resultado',
+        elapsed_time: 'Tempo decorrido:',
+        cancel_btn: 'Cancelar',
+        create_new: 'Criar nova',
+        view_history: 'Ver histórico',
+        history_title: 'Histórico de gerações',
+        empty_history_title: 'Nenhuma geração ainda',
+        empty_history_subtitle: 'Crie sua primeira imagem com IA para vê-la aqui',
+        generation_time: 'Tempo de geração',
+        error_prompt_required: 'Por favor, descreva sua imagem',
+        error_prompt_too_short: 'Descrição muito curta (mínimo de 5 caracteres)',
+        error_webhook_not_configured: 'URL do webhook não configurado',
+        error_generation_failed: 'Falha na geração',
+        error_timeout: 'Tempo esgotado. Tente novamente.',
+        success_generated: 'Imagem gerada com sucesso!',
+        copied_to_clipboard: 'Copiado para a área de transferência',
+        download_started: 'Download iniciado'
+    },
+    ar: {
+        loading: 'جارٍ التحميل...',
+        app_title: 'pixPLace',
+        connecting: 'جارٍ الاتصال...',
+        connected: 'تم الاتصال بـ Telegram',
+        welcome_title: 'أنشئ صورًا مذهلة',
+        welcome_subtitle: 'صف رؤيتك وشاهد الذكاء الاصطناعي يحققها',
+        prompt_label: 'صف صورتك',
+        prompt_placeholder: 'غروب جميل فوق المحيط...',
+        style_label: 'النمط الفني',
+        style_realistic: 'واقعي',
+        style_artistic: 'فني',
+        style_cartoon: 'كرتوني',
+        style_fantasy: 'خيالي',
+        style_anime: 'أنمي',
+        style_cyberpunk: 'سايبربانك',
+        quality_label: 'الجودة',
+        quality_standard: 'عادي',
+        quality_hd: 'عالي الدقة',
+        quality_ultra: 'فائق الدقة',
+        size_label: 'الحجم',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: 'إنشاء صورة',
+        processing_title: 'يتم إنشاء تحفتك الفنية',
+        processing_subtitle: 'قد يستغرق ذلك حتى 60 ثانية',
+        step_analyzing: 'تحليل الوصف',
+        step_generating: 'إنشاء الصورة',
+        step_finalizing: 'إتمام النتيجة',
+        elapsed_time: 'الوقت المنقضي:',
+        cancel_btn: 'إلغاء',
+        create_new: 'إنشاء جديد',
+        view_history: 'عرض السجل',
+        history_title: 'سجل الإنشاءات',
+        empty_history_title: 'لا توجد صور حتى الآن',
+        empty_history_subtitle: 'أنشئ أول صورة بالذكاء الاصطناعي لتظهر هنا',
+        generation_time: 'وقت الإنشاء',
+        error_prompt_required: 'يرجى وصف صورتك',
+        error_prompt_too_short: 'الوصف قصير جدًا (5 أحرف على الأقل)',
+        error_webhook_not_configured: 'رابط webhook غير مهيأ',
+        error_generation_failed: 'فشل في الإنشاء',
+        error_timeout: 'انتهت المهلة. يرجى المحاولة مرة أخرى.',
+        success_generated: 'تم إنشاء الصورة بنجاح!',
+        copied_to_clipboard: 'تم النسخ إلى الحافظة',
+        download_started: 'بدأ التحميل'
+    },
+    hi: {
+        loading: 'लोड हो रहा है...',
+        app_title: 'pixPLace',
+        connecting: 'कनेक्ट हो रहा है...',
+        connected: 'Telegram से जुड़ा हुआ है',
+        welcome_title: 'शानदार चित्र बनाएं',
+        welcome_subtitle: 'अपनी कल्पना बताएं और AI को उसे जीवंत बनाते देखें',
+        prompt_label: 'अपने चित्र का विवरण दें',
+        prompt_placeholder: 'समुद्र के ऊपर एक सुंदर सूर्यास्त...',
+        style_label: 'कला शैली',
+        style_realistic: 'यथार्थवादी',
+        style_artistic: 'कलात्मक',
+        style_cartoon: 'कार्टून',
+        style_fantasy: 'काल्पनिक',
+        style_anime: 'एनीमे',
+        style_cyberpunk: 'साइबरपंक',
+        quality_label: 'गुणवत्ता',
+        quality_standard: 'STANDARD',
+        quality_hd: 'HD',
+        quality_ultra: 'ULTRA HD',
+        size_label: 'आकार',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: 'चित्र बनाएँ',
+        processing_title: 'आपकी उत्कृष्ट कृति बनाई जा रही है',
+        processing_subtitle: 'इसमें 60 सेकंड तक का समय लग सकता है',
+        step_analyzing: 'विवरण का विश्लेषण',
+        step_generating: 'चित्र बना रहा है',
+        step_finalizing: 'परिणाम अंतिम रूप दे रहा है',
+        elapsed_time: 'बीता हुआ समय:',
+        cancel_btn: 'रद्द करें',
+        create_new: 'नया बनाएँ',
+        view_history: 'इतिहास देखें',
+        history_title: 'जनरेशन इतिहास',
+        empty_history_title: 'अभी तक कोई जनरेशन नहीं',
+        empty_history_subtitle: 'AI से अपनी पहली छवि बनाएं और यहाँ देखें',
+        generation_time: 'जनरेशन समय',
+        error_prompt_required: 'कृपया चित्र का विवरण दें',
+        error_prompt_too_short: 'विवरण बहुत छोटा है (न्यूनतम 5 अक्षर)',
+        error_webhook_not_configured: 'Webhook URL कॉन्फ़िगर नहीं है',
+        error_generation_failed: 'चित्र निर्माण विफल हुआ',
+        error_timeout: 'समय समाप्त। कृपया पुनः प्रयास करें।',
+        success_generated: 'चित्र सफलतापूर्वक बनाया गया!',
+        copied_to_clipboard: 'क्लिपबोर्ड में कॉपी किया गया',
+        download_started: 'डाउनलोड शुरू हुआ'
+    },
+    ja: {
+        loading: '読み込み中...',
+        app_title: 'pixPLace',
+        connecting: '接続中...',
+        connected: 'Telegramに接続されました',
+        welcome_title: '驚くほど美しい画像を作成',
+        welcome_subtitle: 'あなたのイメージを言葉で伝え、AIがそれを形にします',
+        prompt_label: '画像を説明してください',
+        prompt_placeholder: '海の上に美しい夕日...',
+        style_label: 'アートスタイル',
+        style_realistic: 'リアル',
+        style_artistic: 'アーティスティック',
+        style_cartoon: 'カートゥーン',
+        style_fantasy: 'ファンタジー',
+        style_anime: 'アニメ',
+        style_cyberpunk: 'サイバーパンク',
+        quality_label: '画質',
+        quality_standard: '標準',
+        quality_hd: 'HD',
+        quality_ultra: 'ウルトラHD',
+        size_label: 'サイズ',
+        size_square: 'スクエア',
+        size_portrait: 'ポートレート',
+        size_landscape: 'ランドスケープ',
+        generate_btn: '画像を生成',
+        processing_title: 'あなたの作品を生成中',
+        processing_subtitle: '最大60秒かかる場合があります',
+        step_analyzing: 'プロンプトを解析中',
+        step_generating: '画像を生成中',
+        step_finalizing: '結果を仕上げています',
+        elapsed_time: '経過時間：',
+        cancel_btn: 'キャンセル',
+        create_new: '新規作成',
+        view_history: '履歴を見る',
+        history_title: '生成履歴',
+        empty_history_title: 'まだ画像がありません',
+        empty_history_subtitle: '最初のAI画像を作成するとここに表示されます',
+        generation_time: '生成時間',
+        error_prompt_required: '画像の説明を入力してください',
+        error_prompt_too_short: '説明が短すぎます（最低5文字）',
+        error_webhook_not_configured: 'Webhook URLが設定されていません',
+        error_generation_failed: '生成に失敗しました',
+        error_timeout: 'タイムアウトしました。もう一度お試しください。',
+        success_generated: '画像の生成が完了しました！',
+        copied_to_clipboard: 'クリップボードにコピーしました',
+        download_started: 'ダウンロードを開始しました'
+    },
+    it: {
+        loading: 'Caricamento...',
+        app_title: 'pixPLace',
+        connecting: 'Connessione in corso...',
+        connected: 'Connesso a Telegram',
+        welcome_title: 'Crea Immagini Straordinarie',
+        welcome_subtitle: 'Descrivi la tua visione e guarda l’IA darle vita',
+        prompt_label: 'Descrivi la tua immagine',
+        prompt_placeholder: 'Un bellissimo tramonto sull’oceano...',
+        style_label: 'Stile artistico',
+        style_realistic: 'Realistico',
+        style_artistic: 'Artistico',
+        style_cartoon: 'Cartone animato',
+        style_fantasy: 'Fantastico',
+        style_anime: 'Anime',
+        style_cyberpunk: 'Cyberpunk',
+        quality_label: 'Qualità',
+        quality_standard: 'Standard',
+        quality_hd: 'HD',
+        quality_ultra: 'Ultra HD',
+        size_label: 'Dimensione',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: 'Genera immagine',
+        processing_title: 'Creazione del tuo capolavoro',
+        processing_subtitle: 'Questo può richiedere fino a 60 secondi',
+        step_analyzing: 'Analisi della descrizione',
+        step_generating: 'Generazione immagine',
+        step_finalizing: 'Finalizzazione del risultato',
+        elapsed_time: 'Tempo trascorso:',
+        cancel_btn: 'Annulla',
+        create_new: 'Crea nuova',
+        view_history: 'Vedi cronologia',
+        history_title: 'Cronologia generazioni',
+        empty_history_title: 'Nessuna generazione disponibile',
+        empty_history_subtitle: 'Crea la tua prima immagine AI per visualizzarla qui',
+        generation_time: 'Tempo di generazione',
+        error_prompt_required: 'Descrivi la tua immagine',
+        error_prompt_too_short: 'Descrizione troppo corta (minimo 5 caratteri)',
+        error_webhook_not_configured: 'URL del webhook non configurato',
+        error_generation_failed: 'Generazione fallita',
+        error_timeout: 'Timeout della generazione. Riprova.',
+        success_generated: 'Immagine generata con successo!',
+        copied_to_clipboard: 'Copiato negli appunti',
+        download_started: 'Download avviato'
+    },
+    ko: {
+        loading: '로딩 중...',
+        app_title: 'pixPLace',
+        connecting: '연결 중...',
+        connected: 'Telegram에 연결됨',
+        welcome_title: '놀라운 이미지를 만들어보세요',
+        welcome_subtitle: '당신의 아이디어를 설명하면 AI가 현실로 만들어 드립니다',
+        prompt_label: '이미지를 설명하세요',
+        prompt_placeholder: '바다 위의 아름다운 일몰...',
+        style_label: '예술 스타일',
+        style_realistic: '사실적',
+        style_artistic: '예술적',
+        style_cartoon: '만화 스타일',
+        style_fantasy: '판타지',
+        style_anime: '애니메이션',
+        style_cyberpunk: '사이버펑크',
+        quality_label: '품질',
+        quality_standard: '표준',
+        quality_hd: 'HD',
+        quality_ultra: '울트라 HD',
+        size_label: '크기',
+        size_square: '정사각형',
+        size_portrait: '세로',
+        size_landscape: '가로',
+        generate_btn: '이미지 생성',
+        processing_title: '작품을 생성하는 중',
+        processing_subtitle: '최대 60초가 소요될 수 있습니다',
+        step_analyzing: '설명 분석 중',
+        step_generating: '이미지 생성 중',
+        step_finalizing: '결과 마무리 중',
+        elapsed_time: '소요 시간:',
+        cancel_btn: '취소',
+        create_new: '새로 만들기',
+        view_history: '기록 보기',
+        history_title: '생성 기록',
+        empty_history_title: '아직 생성된 이미지가 없습니다',
+        empty_history_subtitle: 'AI 이미지 생성을 시작하면 이곳에 표시됩니다',
+        generation_time: '생성 시간',
+        error_prompt_required: '이미지를 설명해주세요',
+        error_prompt_too_short: '설명이 너무 짧습니다 (최소 5자)',
+        error_webhook_not_configured: 'Webhook URL이 설정되지 않았습니다',
+        error_generation_failed: '이미지 생성 실패',
+        error_timeout: '생성 시간이 초과되었습니다. 다시 시도하세요.',
+        success_generated: '이미지가 성공적으로 생성되었습니다!',
+        copied_to_clipboard: '클립보드에 복사됨',
+        download_started: '다운로드 시작됨'
+    },
+    tr: {
+        loading: 'Yükleniyor...',
+        app_title: 'pixPLace',
+        connecting: 'Bağlanıyor...',
+        connected: 'Telegram’a bağlandı',
+        welcome_title: 'Harika Görseller Oluşturun',
+        welcome_subtitle: 'Hayalinizdekini tanımlayın, yapay zeka onu hayata geçirsin',
+        prompt_label: 'Görselinizi tanımlayın',
+        prompt_placeholder: 'Okyanus üzerinde güzel bir gün batımı...',
+        style_label: 'Sanat Tarzı',
+        style_realistic: 'Gerçekçi',
+        style_artistic: 'Sanatsal',
+        style_cartoon: 'Çizgi Film',
+        style_fantasy: 'Fantastik',
+        style_anime: 'Anime',
+        style_cyberpunk: 'Siberpunk',
+        quality_label: 'Kalite',
+        quality_standard: 'Standart',
+        quality_hd: 'HD',
+        quality_ultra: 'Ultra HD',
+        size_label: 'Boyut',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: 'Görsel Oluştur',
+        processing_title: 'Başyapıtınız Oluşturuluyor',
+        processing_subtitle: 'Bu işlem 60 saniye kadar sürebilir',
+        step_analyzing: 'Açıklama analiz ediliyor',
+        step_generating: 'Görsel oluşturuluyor',
+        step_finalizing: 'Sonuç hazırlanıyor',
+        elapsed_time: 'Geçen süre:',
+        cancel_btn: 'İptal',
+        create_new: 'Yeni Oluştur',
+        view_history: 'Geçmişi Görüntüle',
+        history_title: 'Oluşturma Geçmişi',
+        empty_history_title: 'Henüz bir görsel oluşturulmadı',
+        empty_history_subtitle: 'İlk AI görselinizi oluşturduğunuzda burada görünecek',
+        generation_time: 'Oluşturma süresi',
+        error_prompt_required: 'Lütfen görselinizi tanımlayın',
+        error_prompt_too_short: 'Tanım çok kısa (en az 5 karakter)',
+        error_webhook_not_configured: 'Webhook URL yapılandırılmadı',
+        error_generation_failed: 'Oluşturma başarısız oldu',
+        error_timeout: 'Zaman aşımı. Lütfen tekrar deneyin.',
+        success_generated: 'Görsel başarıyla oluşturuldu!',
+        copied_to_clipboard: 'Panoya kopyalandı',
+        download_started: 'İndirme başlatıldı'
+    },
+    pl: {
+        loading: 'Ładowanie...',
+        app_title: 'pixPLace',
+        connecting: 'Łączenie...',
+        connected: 'Połączono z Telegramem',
+        welcome_title: 'Twórz niesamowite obrazy',
+        welcome_subtitle: 'Opisz swoją wizję, a AI ją ożywi',
+        prompt_label: 'Opisz swój obraz',
+        prompt_placeholder: 'Piękny zachód słońca nad oceanem...',
+        style_label: 'Styl artystyczny',
+        style_realistic: 'Realistyczny',
+        style_artistic: 'Artystyczny',
+        style_cartoon: 'Kreskówkowy',
+        style_fantasy: 'Fantastyczny',
+        style_anime: 'Anime',
+        style_cyberpunk: 'Cyberpunk',
+        quality_label: 'Jakość',
+        quality_standard: 'Standardowa',
+        quality_hd: 'HD',
+        quality_ultra: 'Ultra HD',
+        size_label: 'Rozmiar',
+        size_square: '1:1',
+        size_portrait: '9:16',
+        size_landscape: '16:9',
+        generate_btn: 'Generuj obraz',
+        processing_title: 'Tworzenie arcydzieła',
+        processing_subtitle: 'Może to potrwać do 60 sekund',
+        step_analyzing: 'Analiza opisu',
+        step_generating: 'Generowanie obrazu',
+        step_finalizing: 'Finalizowanie wyniku',
+        elapsed_time: 'Czas:',
+        cancel_btn: 'Anuluj',
+        create_new: 'Utwórz nowy',
+        view_history: 'Zobacz historię',
+        history_title: 'Historia generacji',
+        empty_history_title: 'Brak wygenerowanych obrazów',
+        empty_history_subtitle: 'Stwórz pierwszy obraz AI, aby pojawił się tutaj',
+        generation_time: 'Czas generacji',
+        error_prompt_required: 'Opisz swój obraz',
+        error_prompt_too_short: 'Opis jest zbyt krótki (min. 5 znaków)',
+        error_webhook_not_configured: 'Webhook URL nie jest skonfigurowany',
+        error_generation_failed: 'Nie udało się wygenerować',
+        error_timeout: 'Przekroczono limit czasu. Spróbuj ponownie.',
+        success_generated: 'Obraz wygenerowany pomyślnie!',
+        copied_to_clipboard: 'Skopiowano do schowka',
+        download_started: 'Rozpoczęto pobieranie'
+    }
 };
 
 // 🎯 App State
@@ -779,7 +779,7 @@ class AppState {
 const appState = new AppState();
 
 // 🚀 App Initialization
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     console.log('🚀 pixPLace Creator starting...');
 
     // Show loading screen
@@ -843,55 +843,55 @@ async function initTelegramApp() {
         });
 
         // Get user data
-    if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
-        const user = appState.tg.initDataUnsafe.user;
-    
-        // Основные данные
-        appState.userId = user.id.toString();
-        appState.userName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
-    
-    // Дополнительные данные пользователя
-        appState.userUsername = user.username || null;
-        appState.userLanguage = user.language_code || 'en';
-        appState.userIsPremium = user.is_premium || false;
-        appState.userPhotoUrl = user.photo_url || null;
-        appState.userAllowsWriteToPm = user.allows_write_to_pm || false;
-    
-        // Данные чата/сессии
-        appState.chatInstance = appState.tg.initDataUnsafe.chat_instance || null;
-        appState.chatType = appState.tg.initDataUnsafe.chat_type || null;
-        appState.authDate = appState.tg.initDataUnsafe.auth_date || null;
-    
-    // Платформа и версия
-        appState.telegramPlatform = appState.tg.platform || 'unknown';
-        appState.telegramVersion = appState.tg.version || 'unknown';
-    
-        console.log('✅ REAL USER DATA SET:', {
-            userId: appState.userId,
-            userName: appState.userName,
-            username: appState.userUsername,
-            language: appState.userLanguage,
-            isPremium: appState.userIsPremium,
-            platform: appState.telegramPlatform,
-            version: appState.telegramVersion,
-            chatType: appState.chatType
-        });
-    } else {
-        console.log('❌ NO USER DATA - using fallback:', {
-            initDataUnsafe: appState.tg.initDataUnsafe,
-            platform: appState.tg.platform
-        });
-    
-        // Fallback данные
-        appState.userId = 'tg_user_' + Date.now();
-        appState.userName = 'Telegram User';
-        appState.userUsername = null;
-        appState.userLanguage = 'en';
-        appState.userIsPremium = false;
-        appState.userPhotoUrl = null;
-        appState.telegramPlatform = appState.tg?.platform || 'unknown';
-        appState.telegramVersion = appState.tg?.version || 'unknown';
-    }
+        if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
+            const user = appState.tg.initDataUnsafe.user;
+
+            // Основные данные
+            appState.userId = user.id.toString();
+            appState.userName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+
+            // Дополнительные данные пользователя
+            appState.userUsername = user.username || null;
+            appState.userLanguage = user.language_code || 'en';
+            appState.userIsPremium = user.is_premium || false;
+            appState.userPhotoUrl = user.photo_url || null;
+            appState.userAllowsWriteToPm = user.allows_write_to_pm || false;
+
+            // Данные чата/сессии
+            appState.chatInstance = appState.tg.initDataUnsafe.chat_instance || null;
+            appState.chatType = appState.tg.initDataUnsafe.chat_type || null;
+            appState.authDate = appState.tg.initDataUnsafe.auth_date || null;
+
+            // Платформа и версия
+            appState.telegramPlatform = appState.tg.platform || 'unknown';
+            appState.telegramVersion = appState.tg.version || 'unknown';
+
+            console.log('✅ REAL USER DATA SET:', {
+                userId: appState.userId,
+                userName: appState.userName,
+                username: appState.userUsername,
+                language: appState.userLanguage,
+                isPremium: appState.userIsPremium,
+                platform: appState.telegramPlatform,
+                version: appState.telegramVersion,
+                chatType: appState.chatType
+            });
+        } else {
+            console.log('❌ NO USER DATA - using fallback:', {
+                initDataUnsafe: appState.tg.initDataUnsafe,
+                platform: appState.tg.platform
+            });
+
+            // Fallback данные
+            appState.userId = 'tg_user_' + Date.now();
+            appState.userName = 'Telegram User';
+            appState.userUsername = null;
+            appState.userLanguage = 'en';
+            appState.userIsPremium = false;
+            appState.userPhotoUrl = null;
+            appState.telegramPlatform = appState.tg?.platform || 'unknown';
+            appState.telegramVersion = appState.tg?.version || 'unknown';
+        }
         // Setup main button
         if (appState.tg.MainButton) {
             appState.tg.MainButton.setText(appState.translate('generate_btn'));
@@ -928,7 +928,7 @@ function initializeUI() {
     const charCounter = document.getElementById('charCounter');
 
     if (promptInput && charCounter) {
-        promptInput.addEventListener('input', function() {
+        promptInput.addEventListener('input', function () {
             charCounter.textContent = this.value.length;
 
             // Auto-resize
@@ -1013,83 +1013,62 @@ async function generateImage(event) {
             version: window.Telegram?.WebApp?.version,
             platform: window.Telegram?.WebApp?.platform
         });
-// Send request to Make webhook
-    const result = await sendToWebhook({
-        action: 'Image Generation',
-        prompt: prompt,
-        style: appState.selectedStyle,
-        quality: quality,
-        size: size,
-    
-    // Основные данные пользователя
-        user_id: appState.userId,
-        user_name: appState.userName,
-        user_username: appState.userUsername,
-        user_language: appState.userLanguage,
-        user_is_premium: appState.userIsPremium,
-        user_photo_url: appState.userPhotoUrl,
-    
-    // Технические данные
-        telegram_platform: appState.telegramPlatform,
-        telegram_version: appState.telegramVersion,
-        chat_instance: appState.chatInstance,
-        chat_type: appState.chatType,
-        auth_date: appState.authDate,
-    
-        timestamp: new Date().toISOString(),
-        generation_id: appState.currentGeneration.id
-    });
+        // Send request to Make webhook
+        const result = await sendToWebhook({
+            action: 'Image Generation',
+            prompt: prompt,
+            style: appState.selectedStyle,
+            quality: quality,
+            size: size,
+
+            // Основные данные пользователя
+            user_id: appState.userId,
+            user_name: appState.userName,
+            user_username: appState.userUsername,
+            user_language: appState.userLanguage,
+            user_is_premium: appState.userIsPremium,
+            user_photo_url: appState.userPhotoUrl,
+
+            // Технические данные
+            telegram_platform: appState.telegramPlatform,
+            telegram_version: appState.telegramVersion,
+            chat_instance: appState.chatInstance,
+            chat_type: appState.chatType,
+            auth_date: appState.authDate,
+
+            timestamp: new Date().toISOString(),
+            generation_id: appState.currentGeneration.id
+        });
         // Handle successful response
         // Проверка лимитов генераций
-    if (result.allowed === false && result.reason === 'limit_reached') {
-        appState.currentGeneration.status = 'limit';
-        appState.currentGeneration.result = result.image_url;
-        appState.currentGeneration.endTime = Date.now();
-        appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+        if (result.allowed === false && result.reason === 'limit_reached') {
+            appState.currentGeneration.status = 'limit';
+            appState.currentGeneration.result = result.image_url;
+            appState.currentGeneration.endTime = Date.now();
+            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
 
-        showSubscriptionNotice(result); // 👈 новый метод
-        showToast('warning', appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.');
-        triggerHaptic('warning');
-        return;
-    }
+            showSubscriptionNotice(result); // 👈 новый метод
+            showToast('warning', appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.');
+            triggerHaptic('warning');
+            return;
+        }
 
-    // Стандартная обработка успешного результата
-    /*if (result.status === 'success' && result.image_url) {
-        appState.currentGeneration.status = 'success';
-        appState.currentGeneration.result = result.image_url;
-        appState.currentGeneration.endTime = Date.now();
-        appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+        // Стандартная обработка успешного результата
+        /*if (result.status === 'success' && result.image_url) {
+            appState.currentGeneration.status = 'success';
+            appState.currentGeneration.result = result.image_url;
+            appState.currentGeneration.endTime = Date.now();
+            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+    
+            appState.saveHistory();
+            showResult(result);
+            showToast('success', appState.translate('success_generated'));
+            triggerHaptic('success');
+    
+        } else {
+            throw new Error(result.error || 'Unknown error');
+        }*/
 
-        appState.saveHistory();
-        showResult(result);
-        showToast('success', appState.translate('success_generated'));
-        triggerHaptic('success');
-
-    } else {
-        throw new Error(result.error || 'Unknown error');
-    }*/
-   if (result.status === 'success' && result.image_url) {
-    appState.currentGeneration.status = 'success';
-    appState.currentGeneration.result = result.image_url;
-    appState.currentGeneration.endTime = Date.now();
-    appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
-
-    appState.saveHistory();
-
-    // 👇 Добавляем проверку лимита
-    if (result.limit_reached === true || result.limit_reached === 'true') {
-    console.log('✅ Лимит достигнут, показываем кнопку');
-    showSubscriptionNotice(result);
-    } else {
-    console.log('✅ Лимит не достигнут, обычный результат');
-    showResult(result);
-    showToast('success', appState.translate('success_generated'));
-    triggerHaptic('success');
-    }
-
-} else {
-    throw new Error(result.error || 'Unknown error');
-}
     } catch (error) {
         console.error('❌ Generation error:', error);
 
@@ -1104,227 +1083,286 @@ async function generateImage(event) {
         appState.isGenerating = false;
         stopTimer();
     }
-}
 
-// 🌐 Webhook Communication
-async function sendToWebhook(data) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
+    // Move the function definition outside the try-catch block
+    function handleGenerationResponse(response) {
+        if (response.status === 'success') {
+            if (response.limit_reached === 'true') {
+                showSubscriptionScreen(response.payment_url);
+                showToast(response.message || 'Trial limit reached', 'warning');
+                return;
+            }
+            if (response.status === 'success' && response.image_url) {
+                appState.currentGeneration.status = 'success';
+                appState.currentGeneration.result = response.image_url;
+                appState.currentGeneration.endTime = Date.now();
+                appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
 
-    try {
-        const response = await fetch(CONFIG.WEBHOOK_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-            signal: controller.signal
-        });
+                appState.saveHistory();
 
-        clearTimeout(timeoutId);
+                // 👇 Добавляем проверку лимита
+                if (response.limit_reached === true || response.limit_reached === 'true') {
+                    console.log('✅ Лимит достигнут, показываем кнопку');
+                    showSubscriptionNotice(response);
+                } else {
+                    console.log('✅ Лимит не достигнут, обычный результат');
+                    showResult(response);
+                    showToast('success', appState.translate('success_generated'));
+                    triggerHaptic('success');
+                }
 
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            } else {
+                throw new Error(response.error || 'Unknown error');
+            }
+        }
+    }
+
+        // 🌐 Webhook Communication
+        async function sendToWebhook(data) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
+
+            try {
+                const response = await fetch(CONFIG.WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('✅ Webhook response:', result);
+                return result;
+
+            } catch (error) {
+                clearTimeout(timeoutId);
+
+                if (error.name === 'AbortError') {
+                    throw new Error(appState.translate('error_timeout'));
+                }
+
+                throw error;
+            }
         }
 
-        const result = await response.json();
-        console.log('✅ Webhook response:', result);
-        return result;
-
-    } catch (error) {
-        clearTimeout(timeoutId);
-
-        if (error.name === 'AbortError') {
-            throw new Error(appState.translate('error_timeout'));
+        // 🎬 Screen Management
+        function getCurrentScreen() {
+            const activeScreen = document.querySelector('.screen.active');
+            return activeScreen ? activeScreen.id : null;
         }
 
-        throw error;
-    }
-}
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
 
-// 🎬 Screen Management
-function getCurrentScreen() {
-    const activeScreen = document.querySelector('.screen.active');
-    return activeScreen ? activeScreen.id : null;
-}
+            // Show target screen
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+            }
 
-function showScreen(screenId) {
-    // Hide all screens
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-
-    // Show target screen
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.classList.add('active');
-    }
-
-    // Update main button
-    updateMainButton(screenId);
-}
-
-function updateMainButton(screenId) {
-    if (!appState.tg?.MainButton) return;
-
-    switch (screenId) {
-        case 'generationScreen':
-            appState.tg.MainButton.setText(appState.translate('generate_btn'));
-            appState.tg.MainButton.show();
-            break;
-        case 'processingScreen':
-            appState.tg.MainButton.hide();
-            break;
-        case 'resultScreen':
-            appState.tg.MainButton.setText(appState.translate('create_new'));
-            appState.tg.MainButton.show();
-            break;
-        case 'historyScreen':
-            appState.tg.MainButton.setText('← ' + appState.translate('create_new'));
-            appState.tg.MainButton.show();
-            break;
-    }
-}
-
-function showLoadingScreen() {
-    document.getElementById('loadingScreen').classList.add('active');
-}
-
-function hideLoadingScreen() {
-    document.getElementById('loadingScreen').classList.remove('active');
-}
-
-function showApp() {
-    document.getElementById('app').classList.add('loaded');
-}
-
-function showGeneration() {
-    showScreen('generationScreen');
-}
-
-function showProcessing() {
-    showScreen('processingScreen');
-    updateProcessingSteps(1);
-}
-
-function showResult(result) {
-    showScreen('resultScreen');
-
-    // Update result display
-    const resultImage = document.getElementById('resultImage');
-    const resultPrompt = document.getElementById('resultPrompt');
-    const resultStyle = document.getElementById('resultStyle');
-    const resultQuality = document.getElementById('resultQuality');
-    const resultTime = document.getElementById('resultTime');
-
-    if (resultImage) resultImage.src = result.image_url;
-    if (resultPrompt) resultPrompt.textContent = appState.currentGeneration.prompt;
-    if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
-    if (resultQuality) resultQuality.textContent = appState.translate('quality_' + appState.currentGeneration.quality);
-    if (resultTime) {
-        const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
-        resultTime.textContent = duration + 's';
-    }
-}
-
-function showSubscriptionNotice(result) {
-    showScreen('resultScreen'); // Используем тот же экран
-
-    const resultImage = document.getElementById('resultImage');
-    const resultPrompt = document.getElementById('resultPrompt');
-    const resultStyle = document.getElementById('resultStyle');
-    const resultQuality = document.getElementById('resultQuality');
-    const resultTime = document.getElementById('resultTime');
-    const container = document.getElementById('resultContainer');
-
-    if (resultImage) resultImage.src = result.image_url || '/images/limit.jpg';
-    if (resultPrompt) resultPrompt.textContent = appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.';
-    if (resultStyle) resultStyle.textContent = '';
-    if (resultQuality) resultQuality.textContent = '';
-    if (resultTime) resultTime.textContent = '';
-
-    if (container) {
-        container.querySelectorAll('.pay-btn').forEach(btn => btn.remove());
-
-        const payButton = document.createElement('button');
-        payButton.textContent = appState.translate('subscribe_btn') || 'Subscribe Now';
-        payButton.classList.add('btn', 'pay-btn');
-        payButton.onclick = () => {
-            window.open(result.payment_url || 'https://pay.example.com', '_blank');
-        };
-
-        container.appendChild(payButton);
-    }
-}
-
-function showHistory() {
-    showScreen('historyScreen');
-    updateHistoryDisplay();
-}
-
-// 📊 Processing Animation
-function updateProcessingSteps(activeStep) {
-    document.querySelectorAll('.step').forEach((step, index) => {
-        if (index + 1 <= activeStep) {
-            step.classList.add('active');
-        } else {
-            step.classList.remove('active');
-        }
-    });
-
-    // Update progress circle
-    const progressCircle = document.querySelector('.progress-circle');
-    if (progressCircle) {
-        const progress = (activeStep / 3) * 283; // 283 is circumference
-        progressCircle.style.strokeDashoffset = 283 - progress;
-    }
-}
-
-function startTimer() {
-    const elapsedTimeElement = document.getElementById('elapsedTime');
-    let step = 1;
-
-    appState.timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - appState.startTime) / 1000);
-        if (elapsedTimeElement) {
-            elapsedTimeElement.textContent = elapsed + 's';
+            // Update main button
+            updateMainButton(screenId);
         }
 
-        // Update steps based on time
-        if (elapsed > 10 && step === 1) {
-            updateProcessingSteps(2);
-            step = 2;
-        } else if (elapsed > 30 && step === 2) {
-            updateProcessingSteps(3);
-            step = 3;
+        function updateMainButton(screenId) {
+            if (!appState.tg?.MainButton) return;
+
+            switch (screenId) {
+                case 'generationScreen':
+                    appState.tg.MainButton.setText(appState.translate('generate_btn'));
+                    appState.tg.MainButton.show();
+                    break;
+                case 'processingScreen':
+                    appState.tg.MainButton.hide();
+                    break;
+                case 'resultScreen':
+                    appState.tg.MainButton.setText(appState.translate('create_new'));
+                    appState.tg.MainButton.show();
+                    break;
+                case 'historyScreen':
+                    appState.tg.MainButton.setText('← ' + appState.translate('create_new'));
+                    appState.tg.MainButton.show();
+                    break;
+            }
         }
-    }, 1000);
-}
 
-function stopTimer() {
-    if (appState.timerInterval) {
-        clearInterval(appState.timerInterval);
-        appState.timerInterval = null;
-    }
-}
+        function showLoadingScreen() {
+            document.getElementById('loadingScreen').classList.add('active');
+        }
 
-// 📋 History Management
-function updateHistoryDisplay() {
-    const historyContent = document.getElementById('historyContent');
-    if (!historyContent) return;
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').classList.remove('active');
+        }
 
-    if (appState.generationHistory.length === 0) {
-        historyContent.innerHTML = `
+        function showApp() {
+            document.getElementById('app').classList.add('loaded');
+        }
+
+        function showGeneration() {
+            showScreen('generationScreen');
+        }
+
+        function showProcessing() {
+            showScreen('processingScreen');
+            updateProcessingSteps(1);
+        }
+
+        function showResult(result) {
+            showScreen('resultScreen');
+
+            // Update result display
+            const resultImage = document.getElementById('resultImage');
+            const resultPrompt = document.getElementById('resultPrompt');
+            const resultStyle = document.getElementById('resultStyle');
+            const resultQuality = document.getElementById('resultQuality');
+            const resultTime = document.getElementById('resultTime');
+
+            if (resultImage) resultImage.src = result.image_url;
+            if (resultPrompt) resultPrompt.textContent = appState.currentGeneration.prompt;
+            if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
+            if (resultQuality) resultQuality.textContent = appState.translate('quality_' + appState.currentGeneration.quality);
+            if (resultTime) {
+                const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
+                resultTime.textContent = duration + 's';
+            }
+        }
+        function showSubscriptionScreen(paymentUrl) {
+            // Скрыть все экраны
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+
+            // Показать экран подписки
+            const subscriptionScreen = document.getElementById('subscriptionScreen');
+            subscriptionScreen.classList.add('active');
+
+            // Настроить кнопку оплаты
+            const upgradeBtn = document.getElementById('upgradeBtn');
+            upgradeBtn.onclick = () => {
+                if (window.Telegram?.WebApp) {
+                    window.Telegram.WebApp.openTelegramLink(paymentUrl);
+                } else {
+                    window.open(paymentUrl, '_blank');
+                }
+            };
+        }
+
+        function showGeneration() {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById('generationScreen').classList.add('active');
+        }
+
+        function showSubscriptionNotice(result) {
+            showScreen('resultScreen'); // Используем тот же экран
+
+            const resultImage = document.getElementById('resultImage');
+            const resultPrompt = document.getElementById('resultPrompt');
+            const resultStyle = document.getElementById('resultStyle');
+            const resultQuality = document.getElementById('resultQuality');
+            const resultTime = document.getElementById('resultTime');
+            const container = document.getElementById('resultContainer');
+
+            if (resultImage) resultImage.src = result.image_url || '/images/limit.jpg';
+            if (resultPrompt) resultPrompt.textContent = appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.';
+            if (resultStyle) resultStyle.textContent = '';
+            if (resultQuality) resultQuality.textContent = '';
+            if (resultTime) resultTime.textContent = '';
+
+            if (container) {
+                container.querySelectorAll('.pay-btn').forEach(btn => btn.remove());
+
+                const payButton = document.createElement('button');
+                payButton.textContent = appState.translate('subscribe_btn') || 'Subscribe Now';
+                payButton.classList.add('btn', 'pay-btn');
+                payButton.onclick = () => {
+                    window.open(result.payment_url || 'https://pay.example.com', '_blank');
+                };
+
+                container.appendChild(payButton);
+            }
+        }
+
+        function showHistory() {
+            showScreen('historyScreen');
+            updateHistoryDisplay();
+        }
+
+        // 📊 Processing Animation
+        function updateProcessingSteps(activeStep) {
+            document.querySelectorAll('.step').forEach((step, index) => {
+                if (index + 1 <= activeStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+
+            // Update progress circle
+            const progressCircle = document.querySelector('.progress-circle');
+            if (progressCircle) {
+                const progress = (activeStep / 3) * 283; // 283 is circumference
+                progressCircle.style.strokeDashoffset = 283 - progress;
+            }
+        }
+
+        function startTimer() {
+            const elapsedTimeElement = document.getElementById('elapsedTime');
+            let step = 1;
+
+            appState.timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - appState.startTime) / 1000);
+                if (elapsedTimeElement) {
+                    elapsedTimeElement.textContent = elapsed + 's';
+                }
+
+                // Update steps based on time
+                if (elapsed > 10 && step === 1) {
+                    updateProcessingSteps(2);
+                    step = 2;
+                } else if (elapsed > 30 && step === 2) {
+                    updateProcessingSteps(3);
+                    step = 3;
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (appState.timerInterval) {
+                clearInterval(appState.timerInterval);
+                appState.timerInterval = null;
+            }
+        }
+
+        // 📋 History Management
+        function updateHistoryDisplay() {
+            const historyContent = document.getElementById('historyContent');
+            if (!historyContent) return;
+
+            if (appState.generationHistory.length === 0) {
+                historyContent.innerHTML = `
             <div class="empty-history">
                 <div class="empty-icon">📋</div>
                 <h3 data-i18n="empty_history_title">${appState.translate('empty_history_title')}</h3>
                 <p data-i18n="empty_history_subtitle">${appState.translate('empty_history_subtitle')}</p>
             </div>
         `;
-        return;
-    }
+                return;
+            }
 
-    historyContent.innerHTML = appState.generationHistory.map(item => `
+            historyContent.innerHTML = appState.generationHistory.map(item => `
         <div class="history-item" onclick="viewHistoryItem('${item.id}')">
             <div class="history-header">
                 <span class="history-date">${new Date(item.timestamp).toLocaleString()}</span>
@@ -1340,274 +1378,276 @@ function updateHistoryDisplay() {
             ${item.error ? `<p style="color: var(--error-500); font-size: var(--font-size-sm); margin-top: var(--space-2);">❌ ${item.error}</p>` : ''}
         </div>
     `).join('');
-}
-
-function getStatusText(status) {
-    switch (status) {
-        case 'processing': return '⏳';
-        case 'success': return '✅';
-        case 'error': return '❌';
-        default: return status;
-    }
-}
-
-function viewHistoryItem(id) {
-    const item = appState.generationHistory.find(h => h.id == id);
-    if (item && item.result) {
-        appState.currentGeneration = item;
-        showResult({ image_url: item.result });
-    }
-}
-
-function clearHistory() {
-    if (confirm('Clear all generation history?')) {
-        appState.generationHistory = [];
-        appState.saveHistory();
-        updateHistoryDisplay();
-        triggerHaptic('medium');
-    }
-}
-
-// 🎨 Style Selection
-function selectStyle(button) {
-    // Remove active class from all style buttons
-    document.querySelectorAll('.style-card').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    // Add active class to clicked button
-    button.classList.add('active');
-
-    // Update selected style
-    appState.selectedStyle = button.dataset.style;
-
-    triggerHaptic('light');
-    console.log('🎨 Style selected:', appState.selectedStyle);
-}
-
-// 🔄 Action Functions
-function newGeneration() {
-    showGeneration();
-    // Clear form
-    document.getElementById('promptInput').value = '';
-    document.getElementById('charCounter').textContent = '0';
-}
-
-function cancelGeneration() {
-    if (appState.currentGeneration) {
-        appState.currentGeneration.status = 'cancelled';
-        appState.currentGeneration.error = 'Cancelled by user';
-        appState.saveHistory();
-    }
-
-    appState.isGenerating = false;
-    stopTimer();
-    showGeneration();
-    triggerHaptic('medium');
-}
-
-// 📱 Device Integration
-function downloadImage() {
-    if (!appState.currentGeneration?.result) return;
-
-    const link = document.createElement('a');
-    link.href = appState.currentGeneration.result;
-    link.download = `ai-generated-${appState.currentGeneration.id}.jpg`;
-    link.click();
-
-    showToast('info', appState.translate('download_started'));
-    triggerHaptic('light');
-}
-
-function shareImage() {
-    if (!appState.currentGeneration?.result) return;
-
-    if (navigator.share) {
-        navigator.share({
-            title: 'Image generated by pixPLace App',
-            text: appState.currentGeneration.prompt,
-            url: appState.currentGeneration.result
-        });
-    } else {
-        // Fallback: copy to clipboard
-        navigator.clipboard.writeText(appState.currentGeneration.result).then(() => {
-            showToast('info', appState.translate('copied_to_clipboard'));
-        });
-    }
-
-    triggerHaptic('light');
-}
-
-// 🎯 Utility Functions
-function showStatus(type, message) {
-    const statusBar = document.getElementById('statusBar');
-    const statusText = document.querySelector('.status-text');
-
-    if (statusBar && statusText) {
-        statusText.textContent = message;
-        statusBar.className = `status-bar ${type} show`;
-
-        setTimeout(() => {
-            statusBar.classList.remove('show');
-        }, 3000);
-    }
-}
-
-function showToast(type, message) {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-
-    container.appendChild(toast);
-
-    // Trigger animation
-    setTimeout(() => toast.classList.add('show'), 100);
-
-    // Remove after delay
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => container.removeChild(toast), 300);
-    }, 3000);
-}
-
-function triggerHaptic(type) {
-    if (appState.tg?.HapticFeedback) {
-        switch (type) {
-            case 'light':
-                appState.tg.HapticFeedback.impactOccurred('light');
-                break;
-            case 'medium':
-                appState.tg.HapticFeedback.impactOccurred('medium');
-                break;
-            case 'heavy':
-                appState.tg.HapticFeedback.impactOccurred('heavy');
-                break;
-            case 'success':
-                appState.tg.HapticFeedback.notificationOccurred('success');
-                break;
-            case 'error':
-                appState.tg.HapticFeedback.notificationOccurred('error');
-                break;
         }
-    }
-}
 
-// 🌍 Global Functions
-window.toggleLanguage = () => appState.toggleLanguage();
-window.toggleTheme = () => appState.toggleTheme();
-window.showHistory = showHistory;
-window.showGeneration = showGeneration;
-window.selectStyle = selectStyle;
-window.generateImage = generateImage;
-window.newGeneration = newGeneration;
-window.cancelGeneration = cancelGeneration;
-window.clearHistory = clearHistory;
-window.downloadImage = downloadImage;
-window.shareImage = shareImage;
+        function getStatusText(status) {
+            switch (status) {
+                case 'processing': return '⏳';
+                case 'success': return '✅';
+                case 'error': return '❌';
+                default: return status;
+            }
+        }
 
-// 🎵 Music Functions
-let currentWidget = null;
-let isPlaying = false;
+        function viewHistoryItem(id) {
+            const item = appState.generationHistory.find(h => h.id == id);
+            if (item && item.result) {
+                appState.currentGeneration = item;
+                showResult({ image_url: item.result });
+            }
+        }
 
-function toggleMusicDropdown() {
-    const dropdown = document.getElementById('musicDropdown');
-    const isVisible = dropdown.style.display === 'block';
-    
-    if (isVisible) {
-        dropdown.style.display = 'none';
-    } else {
-        dropdown.style.display = 'block';
-    }
-    
-    console.log('🎵 Music dropdown toggled:', !isVisible);
-}
+        function clearHistory() {
+            if (confirm('Clear all generation history?')) {
+                appState.generationHistory = [];
+                appState.saveHistory();
+                updateHistoryDisplay();
+                triggerHaptic('medium');
+            }
+        }
 
-function playPlaylist(type) {
-    const playlists = {
-        lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
-    };
-    
-    const iframe = document.getElementById('musicPlayer');
-    iframe.src = playlists[type];
-    
-    // Показать контролы
-    const controls = document.getElementById('musicControls');
-    if (controls) {
-        controls.style.display = 'flex';
-    }
-    
-    // Обновить кнопку
-    const playBtn = document.getElementById('playPauseBtn');
-    if (playBtn) {
-        playBtn.textContent = '▶ Play';
-        playBtn.onclick = function() {
-            startMusicPlayback(type);
+        // 🎨 Style Selection
+        function selectStyle(button) {
+            // Remove active class from all style buttons
+            document.querySelectorAll('.style-card').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            button.classList.add('active');
+
+            // Update selected style
+            appState.selectedStyle = button.dataset.style;
+
+            triggerHaptic('light');
+            console.log('🎨 Style selected:', appState.selectedStyle);
+        }
+
+        // 🔄 Action Functions
+        function newGeneration() {
+            showGeneration();
+            // Clear form
+            document.getElementById('promptInput').value = '';
+            document.getElementById('charCounter').textContent = '0';
+        }
+
+        function cancelGeneration() {
+            if (appState.currentGeneration) {
+                appState.currentGeneration.status = 'cancelled';
+                appState.currentGeneration.error = 'Cancelled by user';
+                appState.saveHistory();
+            }
+
+            appState.isGenerating = false;
+            stopTimer();
+            showGeneration();
+            triggerHaptic('medium');
+        }
+
+        // 📱 Device Integration
+        function downloadImage() {
+            if (!appState.currentGeneration?.result) return;
+
+            const link = document.createElement('a');
+            link.href = appState.currentGeneration.result;
+            link.download = `ai-generated-${appState.currentGeneration.id}.jpg`;
+            link.click();
+
+            showToast('info', appState.translate('download_started'));
+            triggerHaptic('light');
+        }
+
+        function shareImage() {
+            if (!appState.currentGeneration?.result) return;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Image generated by pixPLace App',
+                    text: appState.currentGeneration.prompt,
+                    url: appState.currentGeneration.result
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(appState.currentGeneration.result).then(() => {
+                    showToast('info', appState.translate('copied_to_clipboard'));
+                });
+            }
+
+            triggerHaptic('light');
+        }
+
+        // 🎯 Utility Functions
+        function showStatus(type, message) {
+            const statusBar = document.getElementById('statusBar');
+            const statusText = document.querySelector('.status-text');
+
+            if (statusBar && statusText) {
+                statusText.textContent = message;
+                statusBar.className = `status-bar ${type} show`;
+
+                setTimeout(() => {
+                    statusBar.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+
+            container.appendChild(toast);
+
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 100);
+
+            // Remove after delay
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function triggerHaptic(type) {
+            if (appState.tg?.HapticFeedback) {
+                switch (type) {
+                    case 'light':
+                        appState.tg.HapticFeedback.impactOccurred('light');
+                        break;
+                    case 'medium':
+                        appState.tg.HapticFeedback.impactOccurred('medium');
+                        break;
+                    case 'heavy':
+                        appState.tg.HapticFeedback.impactOccurred('heavy');
+                        break;
+                    case 'success':
+                        appState.tg.HapticFeedback.notificationOccurred('success');
+                        break;
+                    case 'error':
+                        appState.tg.HapticFeedback.notificationOccurred('error');
+                        break;
+                }
+            }
+        }
+
+        // 🌍 Global Functions
+        window.toggleLanguage = () => appState.toggleLanguage();
+        window.toggleTheme = () => appState.toggleTheme();
+        window.showHistory = showHistory;
+        window.showGeneration = showGeneration;
+        window.selectStyle = selectStyle;
+        window.generateImage = generateImage;
+        window.newGeneration = newGeneration;
+        window.cancelGeneration = cancelGeneration;
+        window.clearHistory = clearHistory;
+        window.downloadImage = downloadImage;
+        window.shareImage = shareImage;
+
+        // 🎵 Music Functions
+        let currentWidget = null;
+        let isPlaying = false;
+
+        function toggleMusicDropdown() {
+            const dropdown = document.getElementById('musicDropdown');
+            const isVisible = dropdown.style.display === 'block';
+
+            if (isVisible) {
+                dropdown.style.display = 'none';
+            } else {
+                dropdown.style.display = 'block';
+            }
+
+            console.log('🎵 Music dropdown toggled:', !isVisible);
+        }
+
+        function playPlaylist(type) {
+            const playlists = {
+                lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+                ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+                jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+                relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
+            };
+
+            const iframe = document.getElementById('musicPlayer');
+            iframe.src = playlists[type];
+
+            // Показать контролы
+            const controls = document.getElementById('musicControls');
+            if (controls) {
+                controls.style.display = 'flex';
+            }
+
+            // Обновить кнопку
+            const playBtn = document.getElementById('playPauseBtn');
+            if (playBtn) {
+                playBtn.textContent = '▶ Play';
+                playBtn.onclick = function () {
+                    startMusicPlayback(type);
+                };
+            }
+
+            console.log(`🎵 Loading ${type} playlist`);
+        }
+
+        function startMusicPlayback(type) {
+            const playlists = {
+                lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+                ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+                jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+                relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
+            };
+
+            const iframe = document.getElementById('musicPlayer');
+            iframe.src = playlists[type];
+
+            const playBtn = document.getElementById('playPauseBtn');
+            if (playBtn) {
+                playBtn.textContent = '⏸';
+                playBtn.onclick = togglePlayPause;
+            }
+
+            isPlaying = true;
+            console.log(`🎵 Started ${type} playlist`);
+        }
+
+        function togglePlayPause() {
+            const playBtn = document.getElementById('playPauseBtn');
+            if (isPlaying) {
+                playBtn.textContent = '▶';
+                isPlaying = false;
+            } else {
+                playBtn.textContent = '⏸';
+                isPlaying = true;
+            }
+        }
+
+        function setVolume(value) {
+            console.log(`🔊 Volume set to ${value}%`);
+        }
+
+        // Закрытие dropdown при клике вне его
+        document.addEventListener('click', function (event) {
+            const musicWidget = document.querySelector('.music-widget');
+            const dropdown = document.getElementById('musicDropdown');
+
+            if (musicWidget && dropdown && !musicWidget.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+        // 🧪 Debug Functions
+        window.getAppState = () => appState;
+        window.setWebhookUrl = (url) => {
+            CONFIG.WEBHOOK_URL = url;
+            console.log('✅ Webhook URL updated');
         };
-    }
-    
-    console.log(`🎵 Loading ${type} playlist`);
-}
 
-function startMusicPlayback(type) {
-    const playlists = {
-        lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
-    };
-    
-    const iframe = document.getElementById('musicPlayer');
-    iframe.src = playlists[type];
-    
-    const playBtn = document.getElementById('playPauseBtn');
-    if (playBtn) {
-        playBtn.textContent = '⏸';
-        playBtn.onclick = togglePlayPause;
-    }
-    
-    isPlaying = true;
-    console.log(`🎵 Started ${type} playlist`);
-}
-
-function togglePlayPause() {
-    const playBtn = document.getElementById('playPauseBtn');
-    if (isPlaying) {
-        playBtn.textContent = '▶';
-        isPlaying = false;
-    } else {
-        playBtn.textContent = '⏸';
-        isPlaying = true;
-    }
-}
-
-function setVolume(value) {
-    console.log(`🔊 Volume set to ${value}%`);
-}
-
-// Закрытие dropdown при клике вне его
-document.addEventListener('click', function(event) {
-    const musicWidget = document.querySelector('.music-widget');
-    const dropdown = document.getElementById('musicDropdown');
-    
-    if (musicWidget && dropdown && !musicWidget.contains(event.target)) {
-        dropdown.style.display = 'none';
-    }
-});
-// 🧪 Debug Functions
-window.getAppState = () => appState;
-window.setWebhookUrl = (url) => {
-    CONFIG.WEBHOOK_URL = url;
-    console.log('✅ Webhook URL updated');
-};
-
-console.log('🎯 pixPLace App loaded!');
-console.log('🔧 Debug commands:');
-console.log('- getAppState() - get current app state');
-console.log('- setWebhookUrl("url") - set webhook URL');
-console.log('⚠️ Don\'t forget to set your webhook URL!');
+        console.log('🎯 pixPLace App loaded!');
+        console.log('🔧 Debug commands:');
+        console.log('- getAppState() - get current app state');
+        console.log('- setWebhookUrl("url") - set webhook URL');
+                console.log('⚠️ Don\'t forget to set your webhook URL!');
+        
+        }

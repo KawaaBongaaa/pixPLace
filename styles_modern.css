@@ -973,7 +973,41 @@ body {
     background: var(--bg-tertiary);
     border-color: var(--border-secondary);
 }
+.subscription-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-6);
+    max-width: 400px;
+    margin: 0 auto;
+}
 
+.subscription-icon {
+    color: var(--color-primary);
+    margin-bottom: var(--space-4);
+}
+
+.subscription-container h2 {
+    margin: 0 0 var(--space-2);
+    color: var(--color-text);
+}
+
+.subscription-container p {
+    margin: 0 0 var(--space-6);
+    color: var(--color-text-secondary);
+}
+
+.subscription-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    margin-bottom: var(--space-4);
+    width: 100%;
+    justify-content: center;
+    font-size: var(--font-size-lg);
+}
 /* History */
 .history-content {
     display: flex;
