@@ -1400,17 +1400,6 @@ async function generateImage(event) {
         stopTimer();
     }
 }
-function showLoadingScreen() {
-    document.getElementById('loadingScreen').classList.add('active');
-}
-
-function hideLoadingScreen() {
-    document.getElementById('loadingScreen').classList.remove('active');
-}
-
-function showApp() {
-    document.getElementById('app').classList.add('loaded');
-}
 
 // Move the function definition outside the try-catch block
 function handleGenerationResponse(response) {
