@@ -1078,42 +1078,70 @@ function showSubscriptionNotice(result) {
 
     // Настроить кнопку оплаты 
     const upgradeBtn = document.getElementById('upgradeBtn');
-    if (upgradeBtn) {
-        upgradeBtn.onclick = () => {
-            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+if (upgradeBtn) {
+    upgradeBtn.onclick = () => {
+        const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+        
+        debugLog('💳 Payment button clicked', 'info');
+        debugLog('💳 Payment URL: ' + paymentUrl, 'info');
 
-            console.log('💳 Opening payment URL:', paymentUrl);
-
-            // Альтернативный способ - через создание ссылки
-            try {
-                const link = document.createElement('a');
-                link.href = paymentUrl;
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-
-                // Добавляем в DOM и кликаем
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
+        try {
+            // Метод 1: Telegram WebApp openTelegramLink
+            if (window.Telegram?.WebApp?.openTelegramLink) {
+                debugLog('📱 Method 1: openTelegramLink', 'info');
+                window.Telegram.WebApp.openTelegramLink(paymentUrl);
+                debugLog('✅ openTelegramLink executed', 'success');
                 showToast('success', 'Opening payment...');
-
-            } catch (error) {
-                console.error('❌ Error opening link:', error);
-
-                // Показать ссылку пользователю для ручного перехода
-                alert('Please open this link manually:\n\n' + paymentUrl);
+                
+            // Метод 2: Telegram WebApp openLink  
+            } else if (window.Telegram?.WebApp?.openLink) {
+                debugLog('📱 Method 2: openLink', 'info');
+                window.Telegram.WebApp.openLink(paymentUrl);
+                debugLog('✅ openLink executed', 'success');
+                showToast('success', 'Opening payment...');
+                
+            // Метод 3: Создание невидимой ссылки и клик
+            } else {
+                debugLog('📱 Method 3: Hidden link click', 'info');
+                
+                const hiddenLink = document.createElement('a');
+                hiddenLink.href = paymentUrl;
+                hiddenLink.target = '_self'; // Важно: _self вместо _blank
+                hiddenLink.style.display = 'none';
+                
+                document.body.appendChild(hiddenLink);
+                
+                // Симулируем клик пользователя
+                const clickEvent = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                    buttons: 1
+                });
+                
+                hiddenLink.dispatchEvent(clickEvent);
+                document.body.removeChild(hiddenLink);
+                
+                debugLog('✅ Hidden link click executed', 'success');
+                showToast('success', 'Opening payment...');
             }
-
-            modal.classList.remove('show');
-
-            // Восстановить главную кнопку
-            if (appState.tg && appState.tg.MainButton) {
-                appState.tg.MainButton.setText(appState.translate('create_new'));
-                appState.tg.MainButton.show();
+            
+        } catch (error) {
+            debugLog('❌ Error: ' + error.message, 'error');
+            
+            // Fallback метод 4: Прямое перенаправление
+            try {
+                debugLog('📱 Method 4: Direct redirect', 'info');
+                window.location.replace(paymentUrl);
+            } catch (error2) {
+                debugLog('❌ Fallback error: ' + error2.message, 'error');
+                showToast('error', 'Could not open payment link');
             }
-        };
-    }
+        }
+
+        modal.classList.remove('show');
+    };
+}
 
     // Настроить кнопку закрытия
     const closeBtn = document.getElementById('closeLimitModal');
