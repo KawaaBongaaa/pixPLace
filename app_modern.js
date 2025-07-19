@@ -779,9 +779,65 @@ const appState = new AppState();
 
 
 
+// 🎯 Utility Functions
+function showStatus(type, message) {
+    const statusBar = document.getElementById('statusBar');
+    const statusText = document.querySelector('.status-text');
+
+    if (statusBar && statusText) {
+        statusText.textContent = message;
+        statusBar.className = `status-bar ${type} show`;
+
+        setTimeout(() => {
+            statusBar.classList.remove('show');
+        }, 3000);
+    }
+}
+
+function showToast(type, message) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Remove after delay
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => container.removeChild(toast), 300);
+    }, 3000);
+}
+
+function triggerHaptic(type) {
+    if (appState.tg?.HapticFeedback) {
+        switch (type) {
+            case 'light':
+                appState.tg.HapticFeedback.impactOccurred('light');
+                break;
+            case 'medium':
+                appState.tg.HapticFeedback.impactOccurred('medium');
+                break;
+            case 'heavy':
+                appState.tg.HapticFeedback.impactOccurred('heavy');
+                break;
+            case 'success':
+                appState.tg.HapticFeedback.notificationOccurred('success');
+                break;
+            case 'error':
+                appState.tg.HapticFeedback.notificationOccurred('error');
+                break;
+        }
+    }
+}
 
 // 🖼️ UI Initialization
-
+// 🎬 Screen Management
 function showLoadingScreen() {
     document.getElementById('loadingScreen').classList.add('active');
 }
@@ -794,7 +850,6 @@ function showApp() {
     document.getElementById('app').classList.add('loaded');
 }
 
-// 🎬 Screen Management
 function getCurrentScreen() {
     const activeScreen = document.querySelector('.screen.active');
     return activeScreen ? activeScreen.id : null;
@@ -1493,62 +1548,6 @@ async function generateImage(event) {
         triggerHaptic('light');
     }
 
-    // 🎯 Utility Functions
-    function showStatus(type, message) {
-        const statusBar = document.getElementById('statusBar');
-        const statusText = document.querySelector('.status-text');
-
-        if (statusBar && statusText) {
-            statusText.textContent = message;
-            statusBar.className = `status-bar ${type} show`;
-
-            setTimeout(() => {
-                statusBar.classList.remove('show');
-            }, 3000);
-        }
-    }
-
-    function showToast(type, message) {
-        const container = document.getElementById('toastContainer');
-        if (!container) return;
-
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-
-        container.appendChild(toast);
-
-        // Trigger animation
-        setTimeout(() => toast.classList.add('show'), 100);
-
-        // Remove after delay
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => container.removeChild(toast), 300);
-        }, 3000);
-    }
-
-    function triggerHaptic(type) {
-        if (appState.tg?.HapticFeedback) {
-            switch (type) {
-                case 'light':
-                    appState.tg.HapticFeedback.impactOccurred('light');
-                    break;
-                case 'medium':
-                    appState.tg.HapticFeedback.impactOccurred('medium');
-                    break;
-                case 'heavy':
-                    appState.tg.HapticFeedback.impactOccurred('heavy');
-                    break;
-                case 'success':
-                    appState.tg.HapticFeedback.notificationOccurred('success');
-                    break;
-                case 'error':
-                    appState.tg.HapticFeedback.notificationOccurred('error');
-                    break;
-            }
-        }
-    }
 
     // 🌍 Global Functions
     window.toggleLanguage = () => appState.toggleLanguage();
