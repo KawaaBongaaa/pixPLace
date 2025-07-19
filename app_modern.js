@@ -1076,12 +1076,27 @@ function showSubscriptionNotice(result) {
     modal.classList.add('show');
 
     // Настроить кнопку оплаты
+    function showSubscriptionNotice(result) {
+    console.log('🚨 Showing limit modal with result:', result);
+
+    const modal = document.getElementById('limitModal');
+    if (!modal) {
+        console.error('❌ Modal not found!');
+        return;
+    }
+
+    // Показать модальное окно
+    modal.classList.add('show');
+
+    // Получить URL для оплаты из результата
+    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+    console.log('💳 Payment URL from result:', paymentUrl);
+
+    // Настроить кнопку оплаты ПРЯМО ЗДЕСЬ
     const upgradeBtn = document.getElementById('upgradeBtn');
     if (upgradeBtn) {
         upgradeBtn.onclick = () => {
-            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
-
-            console.log('💳 Payment URL:', paymentUrl);
+            console.log('💳 Button clicked, using URL:', paymentUrl);
             console.log('💳 Telegram WebApp available:', !!window.Telegram?.WebApp);
             console.log('💳 openLink available:', !!window.Telegram?.WebApp?.openLink);
 
@@ -1104,20 +1119,16 @@ function showSubscriptionNotice(result) {
             } catch (error) {
                 console.error('❌ Error opening payment link:', error);
                 showToast('error', 'Could not open payment link');
-
-                // Показать ссылку пользователю
                 alert('Please open this link manually:\n\n' + paymentUrl);
             }
 
+            // Закрыть модальное окно
             modal.classList.remove('show');
-
-            // Восстановить главную кнопку
-            if (appState.tg && appState.tg.MainButton) {
-                appState.tg.MainButton.setText(appState.translate('create_new'));
-                appState.tg.MainButton.show();
-            }
         };
+    } else {
+        console.error('❌ upgradeBtn not found!');
     }
+}
 
     // Настроить кнопку закрытия
     const closeBtn = document.getElementById('closeLimitModal');
@@ -1425,12 +1436,16 @@ async function generateImage(event) {
             appState.currentGeneration.result = result.image_url || null;
             appState.saveHistory();
 
-            showSubscriptionNotice(result);
+            // Получаем URL для оплаты из ответа или используем дефолтный
+            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+
+            // Вызываем правильную функцию с URL
+            showSubscriptionScreen(paymentUrl);
+
             showToast('warning', result.message || 'Generation limit reached');
             triggerHaptic('warning');
             return;
         }
-
         // Успешная генерация
         if (result.status === 'success' && result.image_url) {
             console.log('✅ Generation successful');
