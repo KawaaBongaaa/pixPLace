@@ -731,7 +731,6 @@ class AppState {
         const nextIndex = (currentIndex + 1) % themes.length;
         this.setTheme(themes[nextIndex]);
     }
-
     // Storage methods
     saveSettings() {
         try {
@@ -1083,6 +1082,17 @@ async function generateImage(event) {
         appState.isGenerating = false;
         stopTimer();
     }
+function showLoadingScreen() {
+            document.getElementById('loadingScreen').classList.add('active');
+        }
+
+        function hideLoadingScreen() {
+            document.getElementById('loadingScreen').classList.remove('active');
+        }
+
+        function showApp() {
+            document.getElementById('app').classList.add('loaded');
+        }
 
     // Move the function definition outside the try-catch block
     function handleGenerationResponse(response) {
@@ -1195,18 +1205,6 @@ async function generateImage(event) {
                     appState.tg.MainButton.show();
                     break;
             }
-        }
-
-        function showLoadingScreen() {
-            document.getElementById('loadingScreen').classList.add('active');
-        }
-
-        function hideLoadingScreen() {
-            document.getElementById('loadingScreen').classList.remove('active');
-        }
-
-        function showApp() {
-            document.getElementById('app').classList.add('loaded');
         }
 
         function showGeneration() {
