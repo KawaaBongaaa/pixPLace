@@ -1054,7 +1054,7 @@ async function generateImage(event) {
     }
 
     // Стандартная обработка успешного результата
-    if (result.status === 'success' && result.image_url) {
+    /*if (result.status === 'success' && result.image_url) {
         appState.currentGeneration.status = 'success';
         appState.currentGeneration.result = result.image_url;
         appState.currentGeneration.endTime = Date.now();
@@ -1067,7 +1067,27 @@ async function generateImage(event) {
 
     } else {
         throw new Error(result.error || 'Unknown error');
+    }*/
+   if (result.status === 'success' && result.image_url) {
+    appState.currentGeneration.status = 'success';
+    appState.currentGeneration.result = result.image_url;
+    appState.currentGeneration.endTime = Date.now();
+    appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+
+    appState.saveHistory();
+
+    // 👇 Добавляем проверку лимита
+    if (result.limit_reached) {
+        showSubscriptionNotice(result); // Показываем кнопку "Оформить подписку"
+    } else {
+        showResult(result); // Обычный результат
+        showToast('success', appState.translate('success_generated'));
+        triggerHaptic('success');
     }
+
+} else {
+    throw new Error(result.error || 'Unknown error');
+}
     } catch (error) {
         console.error('❌ Generation error:', error);
 
