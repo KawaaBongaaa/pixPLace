@@ -1043,14 +1043,13 @@ function showSubscriptionScreen(paymentUrl) {
     // Настроить кнопку оплаты
     const upgradeBtn = document.getElementById('upgradeBtn');
     upgradeBtn.onclick = () => {
-        if (window.Telegram?.WebApp) {
-            window.Telegram.WebApp.openTelegramLink(paymentUrl);
+        if (window.Telegram?.WebApp?.openLink) {
+            window.Telegram.WebApp.openLink(paymentUrl);
         } else {
             window.open(paymentUrl, '_blank');
         }
     };
 }
-
 function showGeneration() {
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -1076,38 +1075,47 @@ function showSubscriptionNotice(result) {
     // Показать модальное окно
     modal.classList.add('show');
 
-    // Настроить кнопку оплаты 
+    // Настроить кнопку оплаты
     const upgradeBtn = document.getElementById('upgradeBtn');
     if (upgradeBtn) {
         upgradeBtn.onclick = () => {
             const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
 
-            debugLog('💳 Payment button clicked', 'info');
+            console.log('💳 Payment URL:', paymentUrl);
+            console.log('💳 Telegram WebApp available:', !!window.Telegram?.WebApp);
+            console.log('💳 openLink available:', !!window.Telegram?.WebApp?.openLink);
 
             try {
-                // Метод через iframe
-                debugLog('📱 Method: iframe redirect', 'info');
+                if (window.Telegram?.WebApp?.openLink) {
+                    console.log('📱 Using Telegram.WebApp.openLink');
+                    window.Telegram.WebApp.openLink(paymentUrl);
+                    console.log('✅ openLink called successfully');
+                } else if (window.Telegram?.WebApp?.openTelegramLink) {
+                    console.log('📱 Using Telegram.WebApp.openTelegramLink');
+                    window.Telegram.WebApp.openTelegramLink(paymentUrl);
+                    console.log('✅ openTelegramLink called successfully');
+                } else {
+                    console.log('❌ No Telegram methods available');
+                    throw new Error('Telegram methods not available');
+                }
 
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = paymentUrl;
-
-                document.body.appendChild(iframe);
-
-                // Через секунду перенаправляем основное окно
-                setTimeout(() => {
-                    window.location.href = paymentUrl;
-                    document.body.removeChild(iframe);
-                }, 1000);
-
-                debugLog('✅ iframe redirect initiated', 'success');
-                showToast('success', 'Redirecting to payment...');
+                showToast('success', 'Opening payment link...');
 
             } catch (error) {
-                debugLog('❌ iframe error: ' + error.message, 'error');
+                console.error('❌ Error opening payment link:', error);
+                showToast('error', 'Could not open payment link');
+
+                // Показать ссылку пользователю
+                alert('Please open this link manually:\n\n' + paymentUrl);
             }
 
             modal.classList.remove('show');
+
+            // Восстановить главную кнопку
+            if (appState.tg && appState.tg.MainButton) {
+                appState.tg.MainButton.setText(appState.translate('create_new'));
+                appState.tg.MainButton.show();
+            }
         };
     }
 
