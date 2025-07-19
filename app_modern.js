@@ -1318,14 +1318,8 @@ async function generateImage(event) {
     startTimer();
 
     try {
-        // Добавьте ЭТИ СТРОКИ перед sendToWebhook:
-        console.log('🔍 Full Telegram debug:', {
-            webApp: window.Telegram?.WebApp,
-            initData: window.Telegram?.WebApp?.initData,
-            initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe,
-            version: window.Telegram?.WebApp?.version,
-            platform: window.Telegram?.WebApp?.platform
-        });
+        console.log('📤 Sending to webhook...');
+
         // Send request to Make webhook
         const result = await sendToWebhook({
             action: 'Image Generation',
@@ -1333,60 +1327,69 @@ async function generateImage(event) {
             style: appState.selectedStyle,
             quality: quality,
             size: size,
-
-            // Основные данные пользователя
             user_id: appState.userId,
             user_name: appState.userName,
             user_username: appState.userUsername,
             user_language: appState.userLanguage,
             user_is_premium: appState.userIsPremium,
-            user_photo_url: appState.userPhotoUrl,
-
-            // Технические данные
             telegram_platform: appState.telegramPlatform,
             telegram_version: appState.telegramVersion,
-            chat_instance: appState.chatInstance,
-            chat_type: appState.chatType,
-            auth_date: appState.authDate,
-
             timestamp: new Date().toISOString(),
             generation_id: appState.currentGeneration.id
         });
-        // Handle successful response
-        // Проверка лимитов генераций
-        if (result.allowed === false && result.reason === 'limit_reached') {
-            appState.currentGeneration.status = 'limit';
-            appState.currentGeneration.result = result.image_url;
-            appState.currentGeneration.endTime = Date.now();
-            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
 
-            showSubscriptionNotice(result); // 👈 новый метод
-            showToast('warning', appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.');
-            triggerHaptic('warning');
-            return;
-        }
+        console.log('📥 Webhook response received:', result);
 
-        // Стандартная обработка успешного результата
-        /*if (result.status === 'success' && result.image_url) {
-            appState.currentGeneration.status = 'success';
-            appState.currentGeneration.result = result.image_url;
-            appState.currentGeneration.endTime = Date.now();
-            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
-    
-            appState.saveHistory();
-            showResult(result);
-            showToast('success', appState.translate('success_generated'));
-            triggerHaptic('success');
-    
+        // Handle response
+        if (result && typeof result === 'object') {
+            // Проверка лимитов
+            if (result.limit_reached === true || result.limit_reached === 'true') {
+                console.log('⚠️ Limit reached');
+                appState.currentGeneration.status = 'limit';
+                appState.currentGeneration.result = result.image_url || null;
+                appState.currentGeneration.endTime = Date.now();
+                appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+                appState.saveHistory();
+
+                showSubscriptionNotice(result);
+                showToast('warning', result.message || 'Generation limit reached');
+                triggerHaptic('warning');
+                return;
+            }
+
+            // Успешная генерация
+            if (result.status === 'success' && result.image_url) {
+                console.log('✅ Generation successful');
+                appState.currentGeneration.status = 'success';
+                appState.currentGeneration.result = result.image_url;
+                appState.currentGeneration.endTime = Date.now();
+                appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+
+                appState.saveHistory();
+                showResult(result);
+                showToast('success', appState.translate('success_generated'));
+                triggerHaptic('success');
+                return;
+            }
+
+            // Ошибка в ответе
+            if (result.status === 'error' || result.error) {
+                throw new Error(result.error || result.message || 'Unknown error from webhook');
+            }
+
+            // Неожиданный формат ответа
+            throw new Error('Unexpected response format: ' + JSON.stringify(result));
         } else {
-            throw new Error(result.error || 'Unknown error');
-        }*/
+            throw new Error('Invalid response from webhook');
+        }
 
     } catch (error) {
         console.error('❌ Generation error:', error);
 
         appState.currentGeneration.status = 'error';
         appState.currentGeneration.error = error.message;
+        appState.currentGeneration.endTime = Date.now();
+        appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
         appState.saveHistory();
 
         showToast('error', appState.translate('error_generation_failed') + ': ' + error.message);
@@ -1396,273 +1399,297 @@ async function generateImage(event) {
         appState.isGenerating = false;
         stopTimer();
     }
-    function showLoadingScreen() {
-        document.getElementById('loadingScreen').classList.add('active');
-    }
+}
+function showLoadingScreen() {
+    document.getElementById('loadingScreen').classList.add('active');
+}
 
-    function hideLoadingScreen() {
-        document.getElementById('loadingScreen').classList.remove('active');
-    }
+function hideLoadingScreen() {
+    document.getElementById('loadingScreen').classList.remove('active');
+}
 
-    function showApp() {
-        document.getElementById('app').classList.add('loaded');
-    }
+function showApp() {
+    document.getElementById('app').classList.add('loaded');
+}
 
-    // Move the function definition outside the try-catch block
-    function handleGenerationResponse(response) {
-        if (response.status === 'success') {
-            if (response.limit_reached === 'true') {
-                showSubscriptionScreen(response.payment_url);
-                showToast(response.message || 'Trial limit reached', 'warning');
-                return;
-            }
-            if (response.status === 'success' && response.image_url) {
-                appState.currentGeneration.status = 'success';
-                appState.currentGeneration.result = response.image_url;
-                appState.currentGeneration.endTime = Date.now();
-                appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+// Move the function definition outside the try-catch block
+function handleGenerationResponse(response) {
+    if (response.status === 'success') {
+        if (response.limit_reached === 'true') {
+            showSubscriptionScreen(response.payment_url);
+            showToast(response.message || 'Trial limit reached', 'warning');
+            return;
+        }
+        if (response.status === 'success' && response.image_url) {
+            appState.currentGeneration.status = 'success';
+            appState.currentGeneration.result = response.image_url;
+            appState.currentGeneration.endTime = Date.now();
+            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
 
-                appState.saveHistory();
+            appState.saveHistory();
 
-                // 👇 Добавляем проверку лимита
-                if (response.limit_reached === true || response.limit_reached === 'true') {
-                    console.log('✅ Лимит достигнут, показываем кнопку');
-                    showSubscriptionNotice(response);
-                } else {
-                    console.log('✅ Лимит не достигнут, обычный результат');
-                    showResult(response);
-                    showToast('success', appState.translate('success_generated'));
-                    triggerHaptic('success');
-                }
-
+            // 👇 Добавляем проверку лимита
+            if (response.limit_reached === true || response.limit_reached === 'true') {
+                console.log('✅ Лимит достигнут, показываем кнопку');
+                showSubscriptionNotice(response);
             } else {
-                throw new Error(response.error || 'Unknown error');
+                console.log('✅ Лимит не достигнут, обычный результат');
+                showResult(response);
+                showToast('success', appState.translate('success_generated'));
+                triggerHaptic('success');
             }
+
+        } else {
+            throw new Error(response.error || 'Unknown error');
         }
     }
+}
 
-    // 🌐 Webhook Communication
-    async function sendToWebhook(data) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
+// 🌐 Webhook Communication
+async function sendToWebhook(data) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
 
-        try {
-            const response = await fetch(CONFIG.WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-                signal: controller.signal
-            });
+    try {
+        console.log('📤 Sending webhook request:', data);
 
-            clearTimeout(timeoutId);
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            console.log('✅ Webhook response:', result);
-            return result;
-
-        } catch (error) {
-            clearTimeout(timeoutId);
-
-            if (error.name === 'AbortError') {
-                throw new Error(appState.translate('error_timeout'));
-            }
-
-            throw error;
-        }
-    }
-
-    // 🎨 Style Selection
-    function selectStyle(button) {
-        // Remove active class from all style buttons
-        document.querySelectorAll('.style-card').forEach(btn => {
-            btn.classList.remove('active');
+        const response = await fetch(CONFIG.WEBHOOK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data),
+            signal: controller.signal
         });
 
-        // Add active class to clicked button
-        button.classList.add('active');
+        clearTimeout(timeoutId);
 
-        // Update selected style
-        appState.selectedStyle = button.dataset.style;
+        console.log('📥 Webhook response status:', response.status, response.statusText);
 
-        triggerHaptic('light');
-        console.log('🎨 Style selected:', appState.selectedStyle);
-    }
-
-    // 🔄 Action Functions
-    function newGeneration() {
-        showGeneration();
-        // Clear form
-        document.getElementById('promptInput').value = '';
-        document.getElementById('charCounter').textContent = '0';
-    }
-
-    function cancelGeneration() {
-        if (appState.currentGeneration) {
-            appState.currentGeneration.status = 'cancelled';
-            appState.currentGeneration.error = 'Cancelled by user';
-            appState.saveHistory();
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        appState.isGenerating = false;
-        stopTimer();
-        showGeneration();
-        triggerHaptic('medium');
-    }
+        // Проверяем Content-Type
+        const contentType = response.headers.get('content-type');
+        console.log('📄 Response content-type:', contentType);
 
-    // 📱 Device Integration
-    function downloadImage() {
-        if (!appState.currentGeneration?.result) return;
-
-        const link = document.createElement('a');
-        link.href = appState.currentGeneration.result;
-        link.download = `ai-generated-${appState.currentGeneration.id}.jpg`;
-        link.click();
-
-        showToast('info', appState.translate('download_started'));
-        triggerHaptic('light');
-    }
-
-    function shareImage() {
-        if (!appState.currentGeneration?.result) return;
-
-        if (navigator.share) {
-            navigator.share({
-                title: 'Image generated by pixPLace App',
-                text: appState.currentGeneration.prompt,
-                url: appState.currentGeneration.result
-            });
+        let result;
+        if (contentType && contentType.includes('application/json')) {
+            result = await response.json();
         } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(appState.currentGeneration.result).then(() => {
-                showToast('info', appState.translate('copied_to_clipboard'));
-            });
+            // Если не JSON, пробуем получить как текст
+            const text = await response.text();
+            console.log('📄 Response text:', text);
+
+            // Пробуем парсить как JSON
+            try {
+                result = JSON.parse(text);
+            } catch (e) {
+                throw new Error('Response is not valid JSON: ' + text);
+            }
         }
 
-        triggerHaptic('light');
+        console.log('✅ Parsed webhook response:', result);
+        return result;
+
+    } catch (error) {
+        clearTimeout(timeoutId);
+
+        if (error.name === 'AbortError') {
+            throw new Error(appState.translate('error_timeout'));
+        }
+
+        console.error('❌ Webhook error:', error);
+        throw error;
     }
-
-
-    // 🌍 Global Functions
-    window.toggleLanguage = () => appState.toggleLanguage();
-    window.toggleTheme = () => appState.toggleTheme();
-    window.showHistory = showHistory;
-    window.showGeneration = showGeneration;
-    window.selectStyle = selectStyle;
-    window.generateImage = generateImage;
-    window.newGeneration = newGeneration;
-    window.cancelGeneration = cancelGeneration;
-    window.clearHistory = clearHistory;
-    window.downloadImage = downloadImage;
-    window.shareImage = shareImage;
-
-    // 🎵 Music Functions
-    let currentWidget = null;
-    let isPlaying = false;
-
-    function toggleMusicDropdown() {
-        const dropdown = document.getElementById('musicDropdown');
-        const isVisible = dropdown.style.display === 'block';
-
-        if (isVisible) {
-            dropdown.style.display = 'none';
-        } else {
-            dropdown.style.display = 'block';
-        }
-
-        console.log('🎵 Music dropdown toggled:', !isVisible);
-    }
-
-    function playPlaylist(type) {
-        const playlists = {
-            lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-            ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-            jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-            relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
-        };
-
-        const iframe = document.getElementById('musicPlayer');
-        iframe.src = playlists[type];
-
-        // Показать контролы
-        const controls = document.getElementById('musicControls');
-        if (controls) {
-            controls.style.display = 'flex';
-        }
-
-        // Обновить кнопку
-        const playBtn = document.getElementById('playPauseBtn');
-        if (playBtn) {
-            playBtn.textContent = '▶ Play';
-            playBtn.onclick = function () {
-                startMusicPlayback(type);
-            };
-        }
-
-        console.log(`🎵 Loading ${type} playlist`);
-    }
-
-    function startMusicPlayback(type) {
-        const playlists = {
-            lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-            ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-            jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-            relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
-        };
-
-        const iframe = document.getElementById('musicPlayer');
-        iframe.src = playlists[type];
-
-        const playBtn = document.getElementById('playPauseBtn');
-        if (playBtn) {
-            playBtn.textContent = '⏸';
-            playBtn.onclick = togglePlayPause;
-        }
-
-        isPlaying = true;
-        console.log(`🎵 Started ${type} playlist`);
-    }
-
-    function togglePlayPause() {
-        const playBtn = document.getElementById('playPauseBtn');
-        if (isPlaying) {
-            playBtn.textContent = '▶';
-            isPlaying = false;
-        } else {
-            playBtn.textContent = '⏸';
-            isPlaying = true;
-        }
-    }
-
-    function setVolume(value) {
-        console.log(`🔊 Volume set to ${value}%`);
-    }
-
-    // Закрытие dropdown при клике вне его
-    document.addEventListener('click', function (event) {
-        const musicWidget = document.querySelector('.music-widget');
-        const dropdown = document.getElementById('musicDropdown');
-
-        if (musicWidget && dropdown && !musicWidget.contains(event.target)) {
-            dropdown.style.display = 'none';
-        }
+}
+// 🎨 Style Selection
+function selectStyle(button) {
+    // Remove active class from all style buttons
+    document.querySelectorAll('.style-card').forEach(btn => {
+        btn.classList.remove('active');
     });
-    // 🧪 Debug Functions
-    window.getAppState = () => appState;
-    window.setWebhookUrl = (url) => {
-        CONFIG.WEBHOOK_URL = url;
-        console.log('✅ Webhook URL updated');
+
+    // Add active class to clicked button
+    button.classList.add('active');
+
+    // Update selected style
+    appState.selectedStyle = button.dataset.style;
+
+    triggerHaptic('light');
+    console.log('🎨 Style selected:', appState.selectedStyle);
+}
+
+// 🔄 Action Functions
+function newGeneration() {
+    showGeneration();
+    // Clear form
+    document.getElementById('promptInput').value = '';
+    document.getElementById('charCounter').textContent = '0';
+}
+
+function cancelGeneration() {
+    if (appState.currentGeneration) {
+        appState.currentGeneration.status = 'cancelled';
+        appState.currentGeneration.error = 'Cancelled by user';
+        appState.saveHistory();
+    }
+
+    appState.isGenerating = false;
+    stopTimer();
+    showGeneration();
+    triggerHaptic('medium');
+}
+
+// 📱 Device Integration
+function downloadImage() {
+    if (!appState.currentGeneration?.result) return;
+
+    const link = document.createElement('a');
+    link.href = appState.currentGeneration.result;
+    link.download = `ai-generated-${appState.currentGeneration.id}.jpg`;
+    link.click();
+
+    showToast('info', appState.translate('download_started'));
+    triggerHaptic('light');
+}
+
+function shareImage() {
+    if (!appState.currentGeneration?.result) return;
+
+    if (navigator.share) {
+        navigator.share({
+            title: 'Image generated by pixPLace App',
+            text: appState.currentGeneration.prompt,
+            url: appState.currentGeneration.result
+        });
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(appState.currentGeneration.result).then(() => {
+            showToast('info', appState.translate('copied_to_clipboard'));
+        });
+    }
+
+    triggerHaptic('light');
+}
+
+
+// 🌍 Global Functions
+window.toggleLanguage = () => appState.toggleLanguage();
+window.toggleTheme = () => appState.toggleTheme();
+window.showHistory = showHistory;
+window.showGeneration = showGeneration;
+window.selectStyle = selectStyle;
+window.generateImage = generateImage;
+window.newGeneration = newGeneration;
+window.cancelGeneration = cancelGeneration;
+window.clearHistory = clearHistory;
+window.downloadImage = downloadImage;
+window.shareImage = shareImage;
+
+// 🎵 Music Functions
+let currentWidget = null;
+let isPlaying = false;
+
+function toggleMusicDropdown() {
+    const dropdown = document.getElementById('musicDropdown');
+    const isVisible = dropdown.style.display === 'block';
+
+    if (isVisible) {
+        dropdown.style.display = 'none';
+    } else {
+        dropdown.style.display = 'block';
+    }
+
+    console.log('🎵 Music dropdown toggled:', !isVisible);
+}
+
+function playPlaylist(type) {
+    const playlists = {
+        lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
     };
 
-    console.log('🎯 pixPLace App loaded!');
-    console.log('🔧 Debug commands:');
-    console.log('- getAppState() - get current app state');
-    console.log('- setWebhookUrl("url") - set webhook URL');
-    console.log('⚠️ Don\'t forget to set your webhook URL!');
+    const iframe = document.getElementById('musicPlayer');
+    iframe.src = playlists[type];
 
+    // Показать контролы
+    const controls = document.getElementById('musicControls');
+    if (controls) {
+        controls.style.display = 'flex';
+    }
+
+    // Обновить кнопку
+    const playBtn = document.getElementById('playPauseBtn');
+    if (playBtn) {
+        playBtn.textContent = '▶ Play';
+        playBtn.onclick = function () {
+            startMusicPlayback(type);
+        };
+    }
+
+    console.log(`🎵 Loading ${type} playlist`);
 }
+
+function startMusicPlayback(type) {
+    const playlists = {
+        lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+        relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
+    };
+
+    const iframe = document.getElementById('musicPlayer');
+    iframe.src = playlists[type];
+
+    const playBtn = document.getElementById('playPauseBtn');
+    if (playBtn) {
+        playBtn.textContent = '⏸';
+        playBtn.onclick = togglePlayPause;
+    }
+
+    isPlaying = true;
+    console.log(`🎵 Started ${type} playlist`);
+}
+
+function togglePlayPause() {
+    const playBtn = document.getElementById('playPauseBtn');
+    if (isPlaying) {
+        playBtn.textContent = '▶';
+        isPlaying = false;
+    } else {
+        playBtn.textContent = '⏸';
+        isPlaying = true;
+    }
+}
+
+function setVolume(value) {
+    console.log(`🔊 Volume set to ${value}%`);
+}
+
+// Закрытие dropdown при клике вне его
+document.addEventListener('click', function (event) {
+    const musicWidget = document.querySelector('.music-widget');
+    const dropdown = document.getElementById('musicDropdown');
+
+    if (musicWidget && dropdown && !musicWidget.contains(event.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+// 🧪 Debug Functions
+window.getAppState = () => appState;
+window.setWebhookUrl = (url) => {
+    CONFIG.WEBHOOK_URL = url;
+    console.log('✅ Webhook URL updated');
+};
+
+console.log('🎯 pixPLace App loaded!');
+console.log('🔧 Debug commands:');
+console.log('- getAppState() - get current app state');
+console.log('- setWebhookUrl("url") - set webhook URL');
+console.log('⚠️ Don\'t forget to set your webhook URL!');
+
