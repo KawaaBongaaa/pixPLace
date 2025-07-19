@@ -1228,7 +1228,7 @@ function showSubscriptionNotice(result) {
         payButton.textContent = appState.translate('subscribe_btn') || 'Subscribe Now';
         payButton.classList.add('btn', 'pay-btn');
         payButton.onclick = () => {
-            window.open(result.payment_url || 'https://t.me/tribute/app?startapp=swcr', '_blank');
+            window.open(result.payment_url || 'https://pay.example.com', '_blank');
         };
 
         container.appendChild(payButton);
