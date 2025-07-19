@@ -712,7 +712,23 @@ body {
     width: 300px;
     height: 300px;
 }
+.pay-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #007bff;
+  color: var(--primary-300);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
+.pay-btn:hover {
+  background-color: #0056b3;
+}
 /* Processing Screen */
 .processing-animation {
     display: flex;
