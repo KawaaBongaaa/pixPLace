@@ -1401,39 +1401,6 @@ async function generateImage(event) {
     }
 }
 
-// Move the function definition outside the try-catch block
-function handleGenerationResponse(response) {
-    if (response.status === 'success') {
-        if (response.limit_reached === 'true') {
-            showSubscriptionScreen(response.payment_url);
-            showToast(response.message || 'Trial limit reached', 'warning');
-            return;
-        }
-        if (response.status === 'success' && response.image_url) {
-            appState.currentGeneration.status = 'success';
-            appState.currentGeneration.result = response.image_url;
-            appState.currentGeneration.endTime = Date.now();
-            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
-
-            appState.saveHistory();
-
-            // 👇 Добавляем проверку лимита
-            if (response.limit_reached === true || response.limit_reached === 'true') {
-                console.log('✅ Лимит достигнут, показываем кнопку');
-                showSubscriptionNotice(response);
-            } else {
-                console.log('✅ Лимит не достигнут, обычный результат');
-                showResult(response);
-                showToast('success', appState.translate('success_generated'));
-                triggerHaptic('success');
-            }
-
-        } else {
-            throw new Error(response.error || 'Unknown error');
-        }
-    }
-}
-
 // 🌐 Webhook Communication
 async function sendToWebhook(data) {
     const controller = new AbortController();
