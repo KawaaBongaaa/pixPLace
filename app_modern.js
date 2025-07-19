@@ -929,31 +929,36 @@ function showHistory() {
     updateHistoryDisplay();
 }
 
-// 🚀 App Initialization
-document.addEventListener('DOMContentLoaded', async function () {
-    console.log('🚀 pixPLace Creator starting...');
+// 🎨 UI Initialization
+function initializeUI() {
+    // Character counter
+    const promptInput = document.getElementById('promptInput');
+    const charCounter = document.getElementById('charCounter');
 
-    // Show loading screen
-    showLoadingScreen();
+    if (promptInput && charCounter) {
+        promptInput.addEventListener('input', function () {
+            charCounter.textContent = this.value.length;
 
-    // Load settings and history
-    appState.loadSettings();
-    appState.loadHistory();
+            // Auto-resize
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    }
 
-    // Initialize Telegram WebApp
-    await initTelegramApp();
+    // Form submission
+    const form = document.querySelector('.generation-form');
+    if (form) {
+        form.addEventListener('submit', generateImage);
+    }
 
-    // Initialize UI
-    initializeUI();
+    // Update translations
+    appState.updateTranslations();
 
-    // Hide loading screen and show app
-    setTimeout(() => {
-        hideLoadingScreen();
-        showApp();
-    }, 1500);
-});
+    console.log('✅ UI initialized');
+}
 
 // 📱 Telegram WebApp Integration
+
 async function initTelegramApp() {
     console.log('🔍 Initializing Telegram WebApp...');
 
@@ -1072,33 +1077,30 @@ async function initTelegramApp() {
     }
 }
 
-// 🎨 UI Initialization
-function initializeUI() {
-    // Character counter
-    const promptInput = document.getElementById('promptInput');
-    const charCounter = document.getElementById('charCounter');
+// 🚀 App Initialization
+document.addEventListener('DOMContentLoaded', async function () {
+    console.log('🚀 pixPLace Creator starting...');
 
-    if (promptInput && charCounter) {
-        promptInput.addEventListener('input', function () {
-            charCounter.textContent = this.value.length;
+    // Show loading screen
+    showLoadingScreen();
 
-            // Auto-resize
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
-        });
-    }
+    // Load settings and history
+    appState.loadSettings();
+    appState.loadHistory();
 
-    // Form submission
-    const form = document.querySelector('.generation-form');
-    if (form) {
-        form.addEventListener('submit', generateImage);
-    }
+    // Initialize Telegram WebApp
+    await initTelegramApp();
 
-    // Update translations
-    appState.updateTranslations();
+    // Initialize UI
+    initializeUI();
 
-    console.log('✅ UI initialized');
-}
+    // Hide loading screen and show app
+    setTimeout(() => {
+        hideLoadingScreen();
+        showApp();
+    }, 1500);
+});
+
 
 // 🖼️ Image Generation
 async function generateImage(event) {
