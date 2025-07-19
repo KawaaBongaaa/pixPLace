@@ -719,7 +719,7 @@ body {
   font-size: 16px;
   font-weight: bold;
   background-color: #007bff;
-  color: var(--primary-300);
+  color: white;
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -973,41 +973,7 @@ body {
     background: var(--bg-tertiary);
     border-color: var(--border-secondary);
 }
-.subscription-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: var(--space-6);
-    max-width: 400px;
-    margin: 0 auto;
-}
 
-.subscription-icon {
-    color: var(--color-primary);
-    margin-bottom: var(--space-4);
-}
-
-.subscription-container h2 {
-    margin: 0 0 var(--space-2);
-    color: var(--color-text);
-}
-
-.subscription-container p {
-    margin: 0 0 var(--space-6);
-    color: var(--color-text-secondary);
-}
-
-.subscription-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-6);
-    margin-bottom: var(--space-4);
-    width: 100%;
-    justify-content: center;
-    font-size: var(--font-size-lg);
-}
 /* History */
 .history-content {
     display: flex;
@@ -1253,6 +1219,89 @@ textarea:focus-visible {
         --border-primary: #ffffff;
         --border-secondary: #ffffff;
     }
+}
+
+
+/* Модальное окно лимита */
+.limit-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+}
+
+.limit-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.limit-modal-content {
+    background: #1a1a1a;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid #333;
+}
+
+.limit-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.limit-modal h2 {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.limit-modal p {
+    color: #ccc;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.limit-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.limit-buttons .btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #ccc;
+    border: 1px solid #555;
+}
+
+.btn-secondary:hover {
+    background: #333;
+    color: white;
 }
 /* Music Widget */
 .music-widget {

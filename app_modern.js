@@ -1059,55 +1059,35 @@ function showGeneration() {
 }
 
 function showSubscriptionNotice(result) {
+    console.log('🚨 Showing limit modal with result:', result);
+    
     const modal = document.getElementById('limitModal');
-    const upgradeBtn = document.getElementById('upgradeBtn');
-    const closeBtn = document.getElementById('closeLimitModal');
-
     if (!modal) {
-        console.error('❌ Limit modal not found');
+        console.error('❌ Modal not found!');
         return;
     }
 
     // Показать модальное окно
     modal.classList.add('show');
-
+    
     // Настроить кнопку оплаты
+    const upgradeBtn = document.getElementById('upgradeBtn');
     if (upgradeBtn) {
         upgradeBtn.onclick = () => {
-            const paymentUrl = result.payment_url || 'https://your-payment-link.com';
-
-            if (appState.tg?.openTelegramLink) {
-                appState.tg.openTelegramLink(paymentUrl);
-            } else if (appState.tg?.openLink) {
-                appState.tg.openLink(paymentUrl);
-            } else {
-                window.open(paymentUrl, '_blank');
-            }
-
-            // Закрыть модальное окно
+            const paymentUrl = result.payment_url || 'https://t.me/your_payment_bot'; // ЗАМЕНИТЕ НА ВАШУ ССЫЛКУ
+            window.open(paymentUrl, '_blank');
             modal.classList.remove('show');
-
-            console.log('💳 Opening payment URL:', paymentUrl);
         };
     }
-
+    
     // Настроить кнопку закрытия
+    const closeBtn = document.getElementById('closeLimitModal');
     if (closeBtn) {
         closeBtn.onclick = () => {
             modal.classList.remove('show');
-            showGeneration(); // Вернуться к экрану генерации
+            showGeneration();
         };
     }
-
-    // Закрытие по клику на фон
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            modal.classList.remove('show');
-            showGeneration();
-        }
-    };
-
-    console.log('⚠️ Limit modal shown');
 }
 function showHistory() {
     showScreen('historyScreen');
