@@ -1084,50 +1084,28 @@ function showSubscriptionNotice(result) {
 
             console.log('💳 Opening payment URL:', paymentUrl);
 
-            // Правильный способ для Telegram WebApp
+            // Альтернативный способ - через создание ссылки
             try {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    console.log('📱 Using Telegram WebApp methods');
+                const link = document.createElement('a');
+                link.href = paymentUrl;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
 
-                    // Попробуем разные методы Telegram
-                    if (window.Telegram.WebApp.openTelegramLink) {
-                        console.log('📱 Using openTelegramLink');
-                        window.Telegram.WebApp.openTelegramLink(paymentUrl);
-                    } else if (window.Telegram.WebApp.openLink) {
-                        console.log('📱 Using openLink');
-                        window.Telegram.WebApp.openLink(paymentUrl);
-                    } else {
-                        console.log('📱 Using close and redirect');
-                        // Закрываем WebApp и переходим по ссылке
-                        window.Telegram.WebApp.close();
-                        window.location.href = paymentUrl;
-                    }
-                } else {
-                    console.log('🌐 No Telegram WebApp, using direct redirect');
-                    window.location.href = paymentUrl;
-                }
+                // Добавляем в DOM и кликаем
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
 
-                // Показать успешное уведомление
                 showToast('success', 'Opening payment...');
 
             } catch (error) {
                 console.error('❌ Error opening link:', error);
 
-                // Fallback - показать ссылку пользователю
-                showToast('info', 'Please open: ' + paymentUrl);
-
-                // Копировать в буфер обмена
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(paymentUrl).then(() => {
-                        showToast('success', 'Payment link copied to clipboard!');
-                    });
-                }
+                // Показать ссылку пользователю для ручного перехода
+                alert('Please open this link manually:\n\n' + paymentUrl);
             }
 
-            // Закрыть модальное окно через небольшую задержку
-            setTimeout(() => {
-                modal.classList.remove('show');
-            }, 500);
+            modal.classList.remove('show');
 
             // Восстановить главную кнопку
             if (appState.tg && appState.tg.MainButton) {
