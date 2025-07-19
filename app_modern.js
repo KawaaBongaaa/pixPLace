@@ -58,7 +58,7 @@ const TRANSLATIONS = {
         download_started: 'Download started'
     },
     ru: {
-        loading: 'Желаем творческого вдохновения и чудесного настроения! Пожалуйста, Развлекайтесь...',
+        loading: 'Творите с Удовольствием!',
         app_title: 'pixPLace',
         connecting: 'Подключение...',
         connected: 'Подключено к Telegram',
@@ -675,7 +675,7 @@ class AppState {
     constructor() {
         this.tg = null;
         this.currentLanguage = CONFIG.DEFAULT_LANGUAGE;
-        this.currentTheme = 'auto';
+        this.currentTheme = 'dark';
         this.selectedStyle = 'realistic';
         this.isGenerating = false;
         this.userId = null;
@@ -1040,21 +1040,34 @@ async function generateImage(event) {
         generation_id: appState.currentGeneration.id
     });
         // Handle successful response
-        if (result.status === 'success' && result.image_url) {
-            appState.currentGeneration.status = 'success';
-            appState.currentGeneration.result = result.image_url;
-            appState.currentGeneration.endTime = Date.now();
-            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+        // Проверка лимитов генераций
+    if (result.allowed === false && result.reason === 'limit_reached') {
+        appState.currentGeneration.status = 'limit';
+        appState.currentGeneration.result = result.image_url;
+        appState.currentGeneration.endTime = Date.now();
+        appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
 
-            appState.saveHistory();
-            showResult(result);
-            showToast('success', appState.translate('success_generated'));
-            triggerHaptic('success');
+        showSubscriptionNotice(result); // 👈 новый метод
+        showToast('warning', appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.');
+        triggerHaptic('warning');
+        return;
+    }
 
-        } else {
-            throw new Error(result.error || 'Unknown error');
-        }
+    // Стандартная обработка успешного результата
+    if (result.status === 'success' && result.image_url) {
+        appState.currentGeneration.status = 'success';
+        appState.currentGeneration.result = result.image_url;
+        appState.currentGeneration.endTime = Date.now();
+        appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
 
+        appState.saveHistory();
+        showResult(result);
+        showToast('success', appState.translate('success_generated'));
+        triggerHaptic('success');
+
+    } else {
+        throw new Error(result.error || 'Unknown error');
+    }
     } catch (error) {
         console.error('❌ Generation error:', error);
 
@@ -1189,6 +1202,36 @@ function showResult(result) {
     if (resultTime) {
         const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
         resultTime.textContent = duration + 's';
+    }
+}
+
+function showSubscriptionNotice(result) {
+    showScreen('resultScreen'); // Используем тот же экран
+
+    const resultImage = document.getElementById('resultImage');
+    const resultPrompt = document.getElementById('resultPrompt');
+    const resultStyle = document.getElementById('resultStyle');
+    const resultQuality = document.getElementById('resultQuality');
+    const resultTime = document.getElementById('resultTime');
+    const container = document.getElementById('resultContainer');
+
+    if (resultImage) resultImage.src = result.image_url || '/images/limit.jpg';
+    if (resultPrompt) resultPrompt.textContent = appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.';
+    if (resultStyle) resultStyle.textContent = '';
+    if (resultQuality) resultQuality.textContent = '';
+    if (resultTime) resultTime.textContent = '';
+
+    if (container) {
+        container.querySelectorAll('.pay-btn').forEach(btn => btn.remove());
+
+        const payButton = document.createElement('button');
+        payButton.textContent = appState.translate('subscribe_btn') || 'Subscribe Now';
+        payButton.classList.add('btn', 'pay-btn');
+        payButton.onclick = () => {
+            window.open(result.payment_url || 'https://t.me/tribute/app?startapp=swcr', '_blank');
+        };
+
+        container.appendChild(payButton);
     }
 }
 
