@@ -1078,70 +1078,38 @@ function showSubscriptionNotice(result) {
 
     // Настроить кнопку оплаты 
     const upgradeBtn = document.getElementById('upgradeBtn');
-if (upgradeBtn) {
-    upgradeBtn.onclick = () => {
-        const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
-        
-        debugLog('💳 Payment button clicked', 'info');
-        debugLog('💳 Payment URL: ' + paymentUrl, 'info');
+    if (upgradeBtn) {
+        upgradeBtn.onclick = () => {
+            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
 
-        try {
-            // Метод 1: Telegram WebApp openTelegramLink
-            if (window.Telegram?.WebApp?.openTelegramLink) {
-                debugLog('📱 Method 1: openTelegramLink', 'info');
-                window.Telegram.WebApp.openTelegramLink(paymentUrl);
-                debugLog('✅ openTelegramLink executed', 'success');
-                showToast('success', 'Opening payment...');
-                
-            // Метод 2: Telegram WebApp openLink  
-            } else if (window.Telegram?.WebApp?.openLink) {
-                debugLog('📱 Method 2: openLink', 'info');
-                window.Telegram.WebApp.openLink(paymentUrl);
-                debugLog('✅ openLink executed', 'success');
-                showToast('success', 'Opening payment...');
-                
-            // Метод 3: Создание невидимой ссылки и клик
-            } else {
-                debugLog('📱 Method 3: Hidden link click', 'info');
-                
-                const hiddenLink = document.createElement('a');
-                hiddenLink.href = paymentUrl;
-                hiddenLink.target = '_self'; // Важно: _self вместо _blank
-                hiddenLink.style.display = 'none';
-                
-                document.body.appendChild(hiddenLink);
-                
-                // Симулируем клик пользователя
-                const clickEvent = new MouseEvent('click', {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true,
-                    buttons: 1
-                });
-                
-                hiddenLink.dispatchEvent(clickEvent);
-                document.body.removeChild(hiddenLink);
-                
-                debugLog('✅ Hidden link click executed', 'success');
-                showToast('success', 'Opening payment...');
-            }
-            
-        } catch (error) {
-            debugLog('❌ Error: ' + error.message, 'error');
-            
-            // Fallback метод 4: Прямое перенаправление
+            debugLog('💳 Payment button clicked', 'info');
+
             try {
-                debugLog('📱 Method 4: Direct redirect', 'info');
-                window.location.replace(paymentUrl);
-            } catch (error2) {
-                debugLog('❌ Fallback error: ' + error2.message, 'error');
-                showToast('error', 'Could not open payment link');
-            }
-        }
+                // Метод через iframe
+                debugLog('📱 Method: iframe redirect', 'info');
 
-        modal.classList.remove('show');
-    };
-}
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = paymentUrl;
+
+                document.body.appendChild(iframe);
+
+                // Через секунду перенаправляем основное окно
+                setTimeout(() => {
+                    window.location.href = paymentUrl;
+                    document.body.removeChild(iframe);
+                }, 1000);
+
+                debugLog('✅ iframe redirect initiated', 'success');
+                showToast('success', 'Redirecting to payment...');
+
+            } catch (error) {
+                debugLog('❌ iframe error: ' + error.message, 'error');
+            }
+
+            modal.classList.remove('show');
+        };
+    }
 
     // Настроить кнопку закрытия
     const closeBtn = document.getElementById('closeLimitModal');
