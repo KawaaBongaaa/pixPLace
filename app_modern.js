@@ -1084,16 +1084,50 @@ function showSubscriptionNotice(result) {
 
             console.log('💳 Opening payment URL:', paymentUrl);
 
-            // Простой способ - через location
+            // Правильный способ для Telegram WebApp
             try {
-                window.location.href = paymentUrl;
+                if (window.Telegram && window.Telegram.WebApp) {
+                    console.log('📱 Using Telegram WebApp methods');
+
+                    // Попробуем разные методы Telegram
+                    if (window.Telegram.WebApp.openTelegramLink) {
+                        console.log('📱 Using openTelegramLink');
+                        window.Telegram.WebApp.openTelegramLink(paymentUrl);
+                    } else if (window.Telegram.WebApp.openLink) {
+                        console.log('📱 Using openLink');
+                        window.Telegram.WebApp.openLink(paymentUrl);
+                    } else {
+                        console.log('📱 Using close and redirect');
+                        // Закрываем WebApp и переходим по ссылке
+                        window.Telegram.WebApp.close();
+                        window.location.href = paymentUrl;
+                    }
+                } else {
+                    console.log('🌐 No Telegram WebApp, using direct redirect');
+                    window.location.href = paymentUrl;
+                }
+
+                // Показать успешное уведомление
+                showToast('success', 'Opening payment...');
+
             } catch (error) {
                 console.error('❌ Error opening link:', error);
-                // Fallback
-                window.open(paymentUrl, '_blank');
+
+                // Fallback - показать ссылку пользователю
+                showToast('info', 'Please open: ' + paymentUrl);
+
+                // Копировать в буфер обмена
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(paymentUrl).then(() => {
+                        showToast('success', 'Payment link copied to clipboard!');
+                    });
+                }
             }
 
-            modal.classList.remove('show');
+            // Закрыть модальное окно через небольшую задержку
+            setTimeout(() => {
+                modal.classList.remove('show');
+            }, 500);
 
             // Восстановить главную кнопку
             if (appState.tg && appState.tg.MainButton) {
