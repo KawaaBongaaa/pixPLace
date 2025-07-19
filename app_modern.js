@@ -1262,7 +1262,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 
-// 🖼️ Image Generation
+// 🖼️ Image Generation - ИСПРАВЛЕННАЯ ВЕРСИЯ
 async function generateImage(event) {
     if (event) {
         event.preventDefault();
@@ -1319,7 +1319,7 @@ async function generateImage(event) {
 
     try {
         console.log('📤 Sending to webhook...');
-
+        
         // Send request to Make webhook
         const result = await sendToWebhook({
             action: 'Image Generation',
@@ -1340,48 +1340,49 @@ async function generateImage(event) {
 
         console.log('📥 Webhook response received:', result);
 
+        // Обновляем данные генерации
+        appState.currentGeneration.endTime = Date.now();
+        appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+
         // Handle response
-        if (result && typeof result === 'object') {
-            // Проверка лимитов
-            if (result.limit_reached === true || result.limit_reached === 'true') {
-                console.log('⚠️ Limit reached');
-                appState.currentGeneration.status = 'limit';
-                appState.currentGeneration.result = result.image_url || null;
-                appState.currentGeneration.endTime = Date.now();
-                appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
-                appState.saveHistory();
-
-                showSubscriptionNotice(result);
-                showToast('warning', result.message || 'Generation limit reached');
-                triggerHaptic('warning');
-                return;
-            }
-
-            // Успешная генерация
-            if (result.status === 'success' && result.image_url) {
-                console.log('✅ Generation successful');
-                appState.currentGeneration.status = 'success';
-                appState.currentGeneration.result = result.image_url;
-                appState.currentGeneration.endTime = Date.now();
-                appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
-
-                appState.saveHistory();
-                showResult(result);
-                showToast('success', appState.translate('success_generated'));
-                triggerHaptic('success');
-                return;
-            }
-
-            // Ошибка в ответе
-            if (result.status === 'error' || result.error) {
-                throw new Error(result.error || result.message || 'Unknown error from webhook');
-            }
-
-            // Неожиданный формат ответа
-            throw new Error('Unexpected response format: ' + JSON.stringify(result));
-        } else {
+        if (!result || typeof result !== 'object') {
             throw new Error('Invalid response from webhook');
         }
+
+        // Проверка на ошибку
+        if (result.status === 'error' || result.error) {
+            throw new Error(result.error || result.message || 'Unknown error from webhook');
+        }
+
+        // Проверка лимитов (ПЕРВАЯ ПРОВЕРКА)
+        if (result.limit_reached === true || result.limit_reached === 'true' || result.limit_reached === '1') {
+            console.log('⚠️ Limit reached');
+            appState.currentGeneration.status = 'limit';
+            appState.currentGeneration.result = result.image_url || null;
+            appState.saveHistory();
+            
+            showSubscriptionNotice(result);
+            showToast('warning', result.message || 'Generation limit reached');
+            triggerHaptic('warning');
+            return;
+        }
+
+        // Успешная генерация
+        if (result.status === 'success' && result.image_url) {
+            console.log('✅ Generation successful');
+            appState.currentGeneration.status = 'success';
+            appState.currentGeneration.result = result.image_url;
+            appState.saveHistory();
+            
+            showResult(result);
+            showToast('success', appState.translate('success_generated'));
+            triggerHaptic('success');
+            return;
+        }
+
+        // Если дошли сюда - неожиданный формат ответа
+        console.error('❌ Unexpected response format:', result);
+        throw new Error('Unexpected response format: ' + JSON.stringify(result));
 
     } catch (error) {
         console.error('❌ Generation error:', error);
@@ -1400,7 +1401,6 @@ async function generateImage(event) {
         stopTimer();
     }
 }
-
 // 🌐 Webhook Communication
 async function sendToWebhook(data) {
     const controller = new AbortController();
