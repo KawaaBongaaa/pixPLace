@@ -1074,7 +1074,7 @@ function showSubscriptionNotice(result) {
     const upgradeBtn = document.getElementById('upgradeBtn');
     if (upgradeBtn) {
         upgradeBtn.onclick = () => {
-            const paymentUrl = result.payment_url || 'https://t.me/your_payment_bot'; // ЗАМЕНИТЕ НА ВАШУ ССЫЛКУ
+            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr'; // ЗАМЕНИТЕ НА ВАШУ ССЫЛКУ
             window.open(paymentUrl, '_blank');
             modal.classList.remove('show');
         };
