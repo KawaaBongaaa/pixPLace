@@ -55,7 +55,9 @@ const TRANSLATIONS = {
         error_timeout: 'Generation timeout. Please try again.',
         success_generated: 'Image generated successfully!',
         copied_to_clipboard: 'Copied to clipboard',
-        download_started: 'Download started'
+        download_started: 'Download started',
+        limit_title: 'Generation Limit Reached',
+        limit_message: 'You\'ve reached your free generation limit. Upgrade to continue creating amazing images!'
     },
     ru: {
         loading: 'Творите с Удовольствием!',
@@ -102,7 +104,9 @@ const TRANSLATIONS = {
         error_timeout: 'Превышено время ожидания. Попробуйте еще раз.',
         success_generated: 'Изображение успешно создано!',
         copied_to_clipboard: 'Скопировано в буфер обмена',
-        download_started: 'Загрузка началась'
+        download_started: 'Загрузка началась',
+        limit_title: 'Лимит Генераций Исчерпан',
+        limit_message: 'Вы достигли лимита бесплатных генераций. Обновите подписку, чтобы продолжить создавать потрясающие изображения!'
     },
     es: {
         loading: 'Cargando...',
@@ -1055,35 +1059,56 @@ function showGeneration() {
 }
 
 function showSubscriptionNotice(result) {
-    showScreen('resultScreen'); // Используем тот же экран
+    const modal = document.getElementById('limitModal');
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    const closeBtn = document.getElementById('closeLimitModal');
 
-    const resultImage = document.getElementById('resultImage');
-    const resultPrompt = document.getElementById('resultPrompt');
-    const resultStyle = document.getElementById('resultStyle');
-    const resultQuality = document.getElementById('resultQuality');
-    const resultTime = document.getElementById('resultTime');
-    const container = document.getElementById('resultContainer');
-
-    if (resultImage) resultImage.src = result.image_url || '/images/limit.jpg';
-    if (resultPrompt) resultPrompt.textContent = appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.';
-    if (resultStyle) resultStyle.textContent = '';
-    if (resultQuality) resultQuality.textContent = '';
-    if (resultTime) resultTime.textContent = '';
-
-    if (container) {
-        container.querySelectorAll('.pay-btn').forEach(btn => btn.remove());
-
-        const payButton = document.createElement('button');
-        payButton.textContent = appState.translate('subscribe_btn') || 'Subscribe Now';
-        payButton.classList.add('btn', 'pay-btn');
-        payButton.onclick = () => {
-            window.open(result.payment_url || 'https://pay.example.com', '_blank');
-        };
-
-        container.appendChild(payButton);
+    if (!modal) {
+        console.error('❌ Limit modal not found');
+        return;
     }
-}
 
+    // Показать модальное окно
+    modal.classList.add('show');
+
+    // Настроить кнопку оплаты
+    if (upgradeBtn) {
+        upgradeBtn.onclick = () => {
+            const paymentUrl = result.payment_url || 'https://your-payment-link.com';
+
+            if (appState.tg?.openTelegramLink) {
+                appState.tg.openTelegramLink(paymentUrl);
+            } else if (appState.tg?.openLink) {
+                appState.tg.openLink(paymentUrl);
+            } else {
+                window.open(paymentUrl, '_blank');
+            }
+
+            // Закрыть модальное окно
+            modal.classList.remove('show');
+
+            console.log('💳 Opening payment URL:', paymentUrl);
+        };
+    }
+
+    // Настроить кнопку закрытия
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            modal.classList.remove('show');
+            showGeneration(); // Вернуться к экрану генерации
+        };
+    }
+
+    // Закрытие по клику на фон
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('show');
+            showGeneration();
+        }
+    };
+
+    console.log('⚠️ Limit modal shown');
+}
 function showHistory() {
     showScreen('historyScreen');
     updateHistoryDisplay();
@@ -1319,7 +1344,7 @@ async function generateImage(event) {
 
     try {
         console.log('📤 Sending to webhook...');
-        
+
         // Send request to Make webhook
         const result = await sendToWebhook({
             action: 'Image Generation',
@@ -1360,7 +1385,7 @@ async function generateImage(event) {
             appState.currentGeneration.status = 'limit';
             appState.currentGeneration.result = result.image_url || null;
             appState.saveHistory();
-            
+
             showSubscriptionNotice(result);
             showToast('warning', result.message || 'Generation limit reached');
             triggerHaptic('warning');
@@ -1373,7 +1398,7 @@ async function generateImage(event) {
             appState.currentGeneration.status = 'success';
             appState.currentGeneration.result = result.image_url;
             appState.saveHistory();
-            
+
             showResult(result);
             showToast('success', appState.translate('success_generated'));
             triggerHaptic('success');
@@ -1648,4 +1673,12 @@ console.log('🔧 Debug commands:');
 console.log('- getAppState() - get current app state');
 console.log('- setWebhookUrl("url") - set webhook URL');
 console.log('⚠️ Don\'t forget to set your webhook URL!');
+// Добавьте в конец файла:
+window.closeLimitModal = () => {
+    const modal = document.getElementById('limitModal');
+    if (modal) {
+        modal.classList.remove('show');
+        showGeneration();
+    }
+};
 
