@@ -1077,12 +1077,14 @@ async function generateImage(event) {
     appState.saveHistory();
 
     // 👇 Добавляем проверку лимита
-    if (result.limit_reached) {
-        showSubscriptionNotice(result); // Показываем кнопку "Оформить подписку"
+    if (result.limit_reached === true || result.limit_reached === 'true') {
+    console.log('✅ Лимит достигнут, показываем кнопку');
+    showSubscriptionNotice(result);
     } else {
-        showResult(result); // Обычный результат
-        showToast('success', appState.translate('success_generated'));
-        triggerHaptic('success');
+    console.log('✅ Лимит не достигнут, обычный результат');
+    showResult(result);
+    showToast('success', appState.translate('success_generated'));
+    triggerHaptic('success');
     }
 
 } else {
