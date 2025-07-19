@@ -777,6 +777,158 @@ class AppState {
 // 🎯 Global state
 const appState = new AppState();
 
+
+
+
+// 🖼️ UI Initialization
+
+function showLoadingScreen() {
+    document.getElementById('loadingScreen').classList.add('active');
+}
+
+function hideLoadingScreen() {
+    document.getElementById('loadingScreen').classList.remove('active');
+}
+
+function showApp() {
+    document.getElementById('app').classList.add('loaded');
+}
+
+// 🎬 Screen Management
+function getCurrentScreen() {
+    const activeScreen = document.querySelector('.screen.active');
+    return activeScreen ? activeScreen.id : null;
+}
+
+function showScreen(screenId) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+
+    // Show target screen
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+    }
+
+    // Update main button
+    updateMainButton(screenId);
+}
+
+function updateMainButton(screenId) {
+    if (!appState.tg?.MainButton) return;
+
+    switch (screenId) {
+        case 'generationScreen':
+            appState.tg.MainButton.setText(appState.translate('generate_btn'));
+            appState.tg.MainButton.show();
+            break;
+        case 'processingScreen':
+            appState.tg.MainButton.hide();
+            break;
+        case 'resultScreen':
+            appState.tg.MainButton.setText(appState.translate('create_new'));
+            appState.tg.MainButton.show();
+            break;
+        case 'historyScreen':
+            appState.tg.MainButton.setText('← ' + appState.translate('create_new'));
+            appState.tg.MainButton.show();
+            break;
+    }
+}
+
+function showGeneration() {
+    showScreen('generationScreen');
+}
+
+function showProcessing() {
+    showScreen('processingScreen');
+    updateProcessingSteps(1);
+}
+
+function showResult(result) {
+    showScreen('resultScreen');
+
+    // Update result display
+    const resultImage = document.getElementById('resultImage');
+    const resultPrompt = document.getElementById('resultPrompt');
+    const resultStyle = document.getElementById('resultStyle');
+    const resultQuality = document.getElementById('resultQuality');
+    const resultTime = document.getElementById('resultTime');
+
+    if (resultImage) resultImage.src = result.image_url;
+    if (resultPrompt) resultPrompt.textContent = appState.currentGeneration.prompt;
+    if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
+    if (resultQuality) resultQuality.textContent = appState.translate('quality_' + appState.currentGeneration.quality);
+    if (resultTime) {
+        const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
+        resultTime.textContent = duration + 's';
+    }
+}
+function showSubscriptionScreen(paymentUrl) {
+    // Скрыть все экраны
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+
+    // Показать экран подписки
+    const subscriptionScreen = document.getElementById('subscriptionScreen');
+    subscriptionScreen.classList.add('active');
+
+    // Настроить кнопку оплаты
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    upgradeBtn.onclick = () => {
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.openTelegramLink(paymentUrl);
+        } else {
+            window.open(paymentUrl, '_blank');
+        }
+    };
+}
+
+function showGeneration() {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    document.getElementById('generationScreen').classList.add('active');
+}
+
+function showSubscriptionNotice(result) {
+    showScreen('resultScreen'); // Используем тот же экран
+
+    const resultImage = document.getElementById('resultImage');
+    const resultPrompt = document.getElementById('resultPrompt');
+    const resultStyle = document.getElementById('resultStyle');
+    const resultQuality = document.getElementById('resultQuality');
+    const resultTime = document.getElementById('resultTime');
+    const container = document.getElementById('resultContainer');
+
+    if (resultImage) resultImage.src = result.image_url || '/images/limit.jpg';
+    if (resultPrompt) resultPrompt.textContent = appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.';
+    if (resultStyle) resultStyle.textContent = '';
+    if (resultQuality) resultQuality.textContent = '';
+    if (resultTime) resultTime.textContent = '';
+
+    if (container) {
+        container.querySelectorAll('.pay-btn').forEach(btn => btn.remove());
+
+        const payButton = document.createElement('button');
+        payButton.textContent = appState.translate('subscribe_btn') || 'Subscribe Now';
+        payButton.classList.add('btn', 'pay-btn');
+        payButton.onclick = () => {
+            window.open(result.payment_url || 'https://pay.example.com', '_blank');
+        };
+
+        container.appendChild(payButton);
+    }
+}
+
+function showHistory() {
+    showScreen('historyScreen');
+    updateHistoryDisplay();
+}
+
 // 🚀 App Initialization
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('🚀 pixPLace Creator starting...');
@@ -1082,17 +1234,17 @@ async function generateImage(event) {
         appState.isGenerating = false;
         stopTimer();
     }
-function showLoadingScreen() {
-            document.getElementById('loadingScreen').classList.add('active');
-        }
+    function showLoadingScreen() {
+        document.getElementById('loadingScreen').classList.add('active');
+    }
 
-        function hideLoadingScreen() {
-            document.getElementById('loadingScreen').classList.remove('active');
-        }
+    function hideLoadingScreen() {
+        document.getElementById('loadingScreen').classList.remove('active');
+    }
 
-        function showApp() {
-            document.getElementById('app').classList.add('loaded');
-        }
+    function showApp() {
+        document.getElementById('app').classList.add('loaded');
+    }
 
     // Move the function definition outside the try-catch block
     function handleGenerationResponse(response) {
@@ -1127,240 +1279,105 @@ function showLoadingScreen() {
         }
     }
 
-        // 🌐 Webhook Communication
-        async function sendToWebhook(data) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
+    // 🌐 Webhook Communication
+    async function sendToWebhook(data) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
 
-            try {
-                const response = await fetch(CONFIG.WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                console.log('✅ Webhook response:', result);
-                return result;
-
-            } catch (error) {
-                clearTimeout(timeoutId);
-
-                if (error.name === 'AbortError') {
-                    throw new Error(appState.translate('error_timeout'));
-                }
-
-                throw error;
-            }
-        }
-
-        // 🎬 Screen Management
-        function getCurrentScreen() {
-            const activeScreen = document.querySelector('.screen.active');
-            return activeScreen ? activeScreen.id : null;
-        }
-
-        function showScreen(screenId) {
-            // Hide all screens
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
+        try {
+            const response = await fetch(CONFIG.WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+                signal: controller.signal
             });
 
-            // Show target screen
-            const targetScreen = document.getElementById(screenId);
-            if (targetScreen) {
-                targetScreen.classList.add('active');
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            // Update main button
-            updateMainButton(screenId);
-        }
+            const result = await response.json();
+            console.log('✅ Webhook response:', result);
+            return result;
 
-        function updateMainButton(screenId) {
-            if (!appState.tg?.MainButton) return;
+        } catch (error) {
+            clearTimeout(timeoutId);
 
-            switch (screenId) {
-                case 'generationScreen':
-                    appState.tg.MainButton.setText(appState.translate('generate_btn'));
-                    appState.tg.MainButton.show();
-                    break;
-                case 'processingScreen':
-                    appState.tg.MainButton.hide();
-                    break;
-                case 'resultScreen':
-                    appState.tg.MainButton.setText(appState.translate('create_new'));
-                    appState.tg.MainButton.show();
-                    break;
-                case 'historyScreen':
-                    appState.tg.MainButton.setText('← ' + appState.translate('create_new'));
-                    appState.tg.MainButton.show();
-                    break;
+            if (error.name === 'AbortError') {
+                throw new Error(appState.translate('error_timeout'));
             }
+
+            throw error;
         }
+    }
 
-        function showGeneration() {
-            showScreen('generationScreen');
-        }
-
-        function showProcessing() {
-            showScreen('processingScreen');
-            updateProcessingSteps(1);
-        }
-
-        function showResult(result) {
-            showScreen('resultScreen');
-
-            // Update result display
-            const resultImage = document.getElementById('resultImage');
-            const resultPrompt = document.getElementById('resultPrompt');
-            const resultStyle = document.getElementById('resultStyle');
-            const resultQuality = document.getElementById('resultQuality');
-            const resultTime = document.getElementById('resultTime');
-
-            if (resultImage) resultImage.src = result.image_url;
-            if (resultPrompt) resultPrompt.textContent = appState.currentGeneration.prompt;
-            if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
-            if (resultQuality) resultQuality.textContent = appState.translate('quality_' + appState.currentGeneration.quality);
-            if (resultTime) {
-                const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
-                resultTime.textContent = duration + 's';
+    // 📊 Processing Animation
+    function updateProcessingSteps(activeStep) {
+        document.querySelectorAll('.step').forEach((step, index) => {
+            if (index + 1 <= activeStep) {
+                step.classList.add('active');
+            } else {
+                step.classList.remove('active');
             }
+        });
+
+        // Update progress circle
+        const progressCircle = document.querySelector('.progress-circle');
+        if (progressCircle) {
+            const progress = (activeStep / 3) * 283; // 283 is circumference
+            progressCircle.style.strokeDashoffset = 283 - progress;
         }
-        function showSubscriptionScreen(paymentUrl) {
-            // Скрыть все экраны
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
+    }
 
-            // Показать экран подписки
-            const subscriptionScreen = document.getElementById('subscriptionScreen');
-            subscriptionScreen.classList.add('active');
+    function startTimer() {
+        const elapsedTimeElement = document.getElementById('elapsedTime');
+        let step = 1;
 
-            // Настроить кнопку оплаты
-            const upgradeBtn = document.getElementById('upgradeBtn');
-            upgradeBtn.onclick = () => {
-                if (window.Telegram?.WebApp) {
-                    window.Telegram.WebApp.openTelegramLink(paymentUrl);
-                } else {
-                    window.open(paymentUrl, '_blank');
-                }
-            };
-        }
-
-        function showGeneration() {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            document.getElementById('generationScreen').classList.add('active');
-        }
-
-        function showSubscriptionNotice(result) {
-            showScreen('resultScreen'); // Используем тот же экран
-
-            const resultImage = document.getElementById('resultImage');
-            const resultPrompt = document.getElementById('resultPrompt');
-            const resultStyle = document.getElementById('resultStyle');
-            const resultQuality = document.getElementById('resultQuality');
-            const resultTime = document.getElementById('resultTime');
-            const container = document.getElementById('resultContainer');
-
-            if (resultImage) resultImage.src = result.image_url || '/images/limit.jpg';
-            if (resultPrompt) resultPrompt.textContent = appState.translate('limit_reached_prompt') || 'You have reached your generation limit. Please upgrade your subscription.';
-            if (resultStyle) resultStyle.textContent = '';
-            if (resultQuality) resultQuality.textContent = '';
-            if (resultTime) resultTime.textContent = '';
-
-            if (container) {
-                container.querySelectorAll('.pay-btn').forEach(btn => btn.remove());
-
-                const payButton = document.createElement('button');
-                payButton.textContent = appState.translate('subscribe_btn') || 'Subscribe Now';
-                payButton.classList.add('btn', 'pay-btn');
-                payButton.onclick = () => {
-                    window.open(result.payment_url || 'https://pay.example.com', '_blank');
-                };
-
-                container.appendChild(payButton);
+        appState.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - appState.startTime) / 1000);
+            if (elapsedTimeElement) {
+                elapsedTimeElement.textContent = elapsed + 's';
             }
-        }
 
-        function showHistory() {
-            showScreen('historyScreen');
-            updateHistoryDisplay();
-        }
-
-        // 📊 Processing Animation
-        function updateProcessingSteps(activeStep) {
-            document.querySelectorAll('.step').forEach((step, index) => {
-                if (index + 1 <= activeStep) {
-                    step.classList.add('active');
-                } else {
-                    step.classList.remove('active');
-                }
-            });
-
-            // Update progress circle
-            const progressCircle = document.querySelector('.progress-circle');
-            if (progressCircle) {
-                const progress = (activeStep / 3) * 283; // 283 is circumference
-                progressCircle.style.strokeDashoffset = 283 - progress;
+            // Update steps based on time
+            if (elapsed > 10 && step === 1) {
+                updateProcessingSteps(2);
+                step = 2;
+            } else if (elapsed > 30 && step === 2) {
+                updateProcessingSteps(3);
+                step = 3;
             }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (appState.timerInterval) {
+            clearInterval(appState.timerInterval);
+            appState.timerInterval = null;
         }
+    }
 
-        function startTimer() {
-            const elapsedTimeElement = document.getElementById('elapsedTime');
-            let step = 1;
+    // 📋 History Management
+    function updateHistoryDisplay() {
+        const historyContent = document.getElementById('historyContent');
+        if (!historyContent) return;
 
-            appState.timerInterval = setInterval(() => {
-                const elapsed = Math.floor((Date.now() - appState.startTime) / 1000);
-                if (elapsedTimeElement) {
-                    elapsedTimeElement.textContent = elapsed + 's';
-                }
-
-                // Update steps based on time
-                if (elapsed > 10 && step === 1) {
-                    updateProcessingSteps(2);
-                    step = 2;
-                } else if (elapsed > 30 && step === 2) {
-                    updateProcessingSteps(3);
-                    step = 3;
-                }
-            }, 1000);
-        }
-
-        function stopTimer() {
-            if (appState.timerInterval) {
-                clearInterval(appState.timerInterval);
-                appState.timerInterval = null;
-            }
-        }
-
-        // 📋 History Management
-        function updateHistoryDisplay() {
-            const historyContent = document.getElementById('historyContent');
-            if (!historyContent) return;
-
-            if (appState.generationHistory.length === 0) {
-                historyContent.innerHTML = `
+        if (appState.generationHistory.length === 0) {
+            historyContent.innerHTML = `
             <div class="empty-history">
                 <div class="empty-icon">📋</div>
                 <h3 data-i18n="empty_history_title">${appState.translate('empty_history_title')}</h3>
                 <p data-i18n="empty_history_subtitle">${appState.translate('empty_history_subtitle')}</p>
             </div>
         `;
-                return;
-            }
+            return;
+        }
 
-            historyContent.innerHTML = appState.generationHistory.map(item => `
+        historyContent.innerHTML = appState.generationHistory.map(item => `
         <div class="history-item" onclick="viewHistoryItem('${item.id}')">
             <div class="history-header">
                 <span class="history-date">${new Date(item.timestamp).toLocaleString()}</span>
@@ -1376,276 +1393,276 @@ function showLoadingScreen() {
             ${item.error ? `<p style="color: var(--error-500); font-size: var(--font-size-sm); margin-top: var(--space-2);">❌ ${item.error}</p>` : ''}
         </div>
     `).join('');
+    }
+
+    function getStatusText(status) {
+        switch (status) {
+            case 'processing': return '⏳';
+            case 'success': return '✅';
+            case 'error': return '❌';
+            default: return status;
         }
+    }
 
-        function getStatusText(status) {
-            switch (status) {
-                case 'processing': return '⏳';
-                case 'success': return '✅';
-                case 'error': return '❌';
-                default: return status;
-            }
+    function viewHistoryItem(id) {
+        const item = appState.generationHistory.find(h => h.id == id);
+        if (item && item.result) {
+            appState.currentGeneration = item;
+            showResult({ image_url: item.result });
         }
+    }
 
-        function viewHistoryItem(id) {
-            const item = appState.generationHistory.find(h => h.id == id);
-            if (item && item.result) {
-                appState.currentGeneration = item;
-                showResult({ image_url: item.result });
-            }
-        }
-
-        function clearHistory() {
-            if (confirm('Clear all generation history?')) {
-                appState.generationHistory = [];
-                appState.saveHistory();
-                updateHistoryDisplay();
-                triggerHaptic('medium');
-            }
-        }
-
-        // 🎨 Style Selection
-        function selectStyle(button) {
-            // Remove active class from all style buttons
-            document.querySelectorAll('.style-card').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Add active class to clicked button
-            button.classList.add('active');
-
-            // Update selected style
-            appState.selectedStyle = button.dataset.style;
-
-            triggerHaptic('light');
-            console.log('🎨 Style selected:', appState.selectedStyle);
-        }
-
-        // 🔄 Action Functions
-        function newGeneration() {
-            showGeneration();
-            // Clear form
-            document.getElementById('promptInput').value = '';
-            document.getElementById('charCounter').textContent = '0';
-        }
-
-        function cancelGeneration() {
-            if (appState.currentGeneration) {
-                appState.currentGeneration.status = 'cancelled';
-                appState.currentGeneration.error = 'Cancelled by user';
-                appState.saveHistory();
-            }
-
-            appState.isGenerating = false;
-            stopTimer();
-            showGeneration();
+    function clearHistory() {
+        if (confirm('Clear all generation history?')) {
+            appState.generationHistory = [];
+            appState.saveHistory();
+            updateHistoryDisplay();
             triggerHaptic('medium');
         }
+    }
 
-        // 📱 Device Integration
-        function downloadImage() {
-            if (!appState.currentGeneration?.result) return;
+    // 🎨 Style Selection
+    function selectStyle(button) {
+        // Remove active class from all style buttons
+        document.querySelectorAll('.style-card').forEach(btn => {
+            btn.classList.remove('active');
+        });
 
-            const link = document.createElement('a');
-            link.href = appState.currentGeneration.result;
-            link.download = `ai-generated-${appState.currentGeneration.id}.jpg`;
-            link.click();
+        // Add active class to clicked button
+        button.classList.add('active');
 
-            showToast('info', appState.translate('download_started'));
-            triggerHaptic('light');
+        // Update selected style
+        appState.selectedStyle = button.dataset.style;
+
+        triggerHaptic('light');
+        console.log('🎨 Style selected:', appState.selectedStyle);
+    }
+
+    // 🔄 Action Functions
+    function newGeneration() {
+        showGeneration();
+        // Clear form
+        document.getElementById('promptInput').value = '';
+        document.getElementById('charCounter').textContent = '0';
+    }
+
+    function cancelGeneration() {
+        if (appState.currentGeneration) {
+            appState.currentGeneration.status = 'cancelled';
+            appState.currentGeneration.error = 'Cancelled by user';
+            appState.saveHistory();
         }
 
-        function shareImage() {
-            if (!appState.currentGeneration?.result) return;
+        appState.isGenerating = false;
+        stopTimer();
+        showGeneration();
+        triggerHaptic('medium');
+    }
 
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Image generated by pixPLace App',
-                    text: appState.currentGeneration.prompt,
-                    url: appState.currentGeneration.result
-                });
-            } else {
-                // Fallback: copy to clipboard
-                navigator.clipboard.writeText(appState.currentGeneration.result).then(() => {
-                    showToast('info', appState.translate('copied_to_clipboard'));
-                });
-            }
+    // 📱 Device Integration
+    function downloadImage() {
+        if (!appState.currentGeneration?.result) return;
 
-            triggerHaptic('light');
+        const link = document.createElement('a');
+        link.href = appState.currentGeneration.result;
+        link.download = `ai-generated-${appState.currentGeneration.id}.jpg`;
+        link.click();
+
+        showToast('info', appState.translate('download_started'));
+        triggerHaptic('light');
+    }
+
+    function shareImage() {
+        if (!appState.currentGeneration?.result) return;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Image generated by pixPLace App',
+                text: appState.currentGeneration.prompt,
+                url: appState.currentGeneration.result
+            });
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(appState.currentGeneration.result).then(() => {
+                showToast('info', appState.translate('copied_to_clipboard'));
+            });
         }
 
-        // 🎯 Utility Functions
-        function showStatus(type, message) {
-            const statusBar = document.getElementById('statusBar');
-            const statusText = document.querySelector('.status-text');
+        triggerHaptic('light');
+    }
 
-            if (statusBar && statusText) {
-                statusText.textContent = message;
-                statusBar.className = `status-bar ${type} show`;
+    // 🎯 Utility Functions
+    function showStatus(type, message) {
+        const statusBar = document.getElementById('statusBar');
+        const statusText = document.querySelector('.status-text');
 
-                setTimeout(() => {
-                    statusBar.classList.remove('show');
-                }, 3000);
-            }
-        }
+        if (statusBar && statusText) {
+            statusText.textContent = message;
+            statusBar.className = `status-bar ${type} show`;
 
-        function showToast(type, message) {
-            const container = document.getElementById('toastContainer');
-            if (!container) return;
-
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-
-            container.appendChild(toast);
-
-            // Trigger animation
-            setTimeout(() => toast.classList.add('show'), 100);
-
-            // Remove after delay
             setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => container.removeChild(toast), 300);
+                statusBar.classList.remove('show');
             }, 3000);
         }
+    }
 
-        function triggerHaptic(type) {
-            if (appState.tg?.HapticFeedback) {
-                switch (type) {
-                    case 'light':
-                        appState.tg.HapticFeedback.impactOccurred('light');
-                        break;
-                    case 'medium':
-                        appState.tg.HapticFeedback.impactOccurred('medium');
-                        break;
-                    case 'heavy':
-                        appState.tg.HapticFeedback.impactOccurred('heavy');
-                        break;
-                    case 'success':
-                        appState.tg.HapticFeedback.notificationOccurred('success');
-                        break;
-                    case 'error':
-                        appState.tg.HapticFeedback.notificationOccurred('error');
-                        break;
-                }
+    function showToast(type, message) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+
+        container.appendChild(toast);
+
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Remove after delay
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => container.removeChild(toast), 300);
+        }, 3000);
+    }
+
+    function triggerHaptic(type) {
+        if (appState.tg?.HapticFeedback) {
+            switch (type) {
+                case 'light':
+                    appState.tg.HapticFeedback.impactOccurred('light');
+                    break;
+                case 'medium':
+                    appState.tg.HapticFeedback.impactOccurred('medium');
+                    break;
+                case 'heavy':
+                    appState.tg.HapticFeedback.impactOccurred('heavy');
+                    break;
+                case 'success':
+                    appState.tg.HapticFeedback.notificationOccurred('success');
+                    break;
+                case 'error':
+                    appState.tg.HapticFeedback.notificationOccurred('error');
+                    break;
             }
         }
+    }
 
-        // 🌍 Global Functions
-        window.toggleLanguage = () => appState.toggleLanguage();
-        window.toggleTheme = () => appState.toggleTheme();
-        window.showHistory = showHistory;
-        window.showGeneration = showGeneration;
-        window.selectStyle = selectStyle;
-        window.generateImage = generateImage;
-        window.newGeneration = newGeneration;
-        window.cancelGeneration = cancelGeneration;
-        window.clearHistory = clearHistory;
-        window.downloadImage = downloadImage;
-        window.shareImage = shareImage;
+    // 🌍 Global Functions
+    window.toggleLanguage = () => appState.toggleLanguage();
+    window.toggleTheme = () => appState.toggleTheme();
+    window.showHistory = showHistory;
+    window.showGeneration = showGeneration;
+    window.selectStyle = selectStyle;
+    window.generateImage = generateImage;
+    window.newGeneration = newGeneration;
+    window.cancelGeneration = cancelGeneration;
+    window.clearHistory = clearHistory;
+    window.downloadImage = downloadImage;
+    window.shareImage = shareImage;
 
-        // 🎵 Music Functions
-        let currentWidget = null;
-        let isPlaying = false;
+    // 🎵 Music Functions
+    let currentWidget = null;
+    let isPlaying = false;
 
-        function toggleMusicDropdown() {
-            const dropdown = document.getElementById('musicDropdown');
-            const isVisible = dropdown.style.display === 'block';
+    function toggleMusicDropdown() {
+        const dropdown = document.getElementById('musicDropdown');
+        const isVisible = dropdown.style.display === 'block';
 
-            if (isVisible) {
-                dropdown.style.display = 'none';
-            } else {
-                dropdown.style.display = 'block';
-            }
-
-            console.log('🎵 Music dropdown toggled:', !isVisible);
+        if (isVisible) {
+            dropdown.style.display = 'none';
+        } else {
+            dropdown.style.display = 'block';
         }
 
-        function playPlaylist(type) {
-            const playlists = {
-                lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-                ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-                jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-                relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
-            };
+        console.log('🎵 Music dropdown toggled:', !isVisible);
+    }
 
-            const iframe = document.getElementById('musicPlayer');
-            iframe.src = playlists[type];
-
-            // Показать контролы
-            const controls = document.getElementById('musicControls');
-            if (controls) {
-                controls.style.display = 'flex';
-            }
-
-            // Обновить кнопку
-            const playBtn = document.getElementById('playPauseBtn');
-            if (playBtn) {
-                playBtn.textContent = '▶ Play';
-                playBtn.onclick = function () {
-                    startMusicPlayback(type);
-                };
-            }
-
-            console.log(`🎵 Loading ${type} playlist`);
-        }
-
-        function startMusicPlayback(type) {
-            const playlists = {
-                lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-                ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-                jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
-                relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
-            };
-
-            const iframe = document.getElementById('musicPlayer');
-            iframe.src = playlists[type];
-
-            const playBtn = document.getElementById('playPauseBtn');
-            if (playBtn) {
-                playBtn.textContent = '⏸';
-                playBtn.onclick = togglePlayPause;
-            }
-
-            isPlaying = true;
-            console.log(`🎵 Started ${type} playlist`);
-        }
-
-        function togglePlayPause() {
-            const playBtn = document.getElementById('playPauseBtn');
-            if (isPlaying) {
-                playBtn.textContent = '▶';
-                isPlaying = false;
-            } else {
-                playBtn.textContent = '⏸';
-                isPlaying = true;
-            }
-        }
-
-        function setVolume(value) {
-            console.log(`🔊 Volume set to ${value}%`);
-        }
-
-        // Закрытие dropdown при клике вне его
-        document.addEventListener('click', function (event) {
-            const musicWidget = document.querySelector('.music-widget');
-            const dropdown = document.getElementById('musicDropdown');
-
-            if (musicWidget && dropdown && !musicWidget.contains(event.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
-        // 🧪 Debug Functions
-        window.getAppState = () => appState;
-        window.setWebhookUrl = (url) => {
-            CONFIG.WEBHOOK_URL = url;
-            console.log('✅ Webhook URL updated');
+    function playPlaylist(type) {
+        const playlists = {
+            lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+            ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+            jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+            relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
         };
 
-        console.log('🎯 pixPLace App loaded!');
-        console.log('🔧 Debug commands:');
-        console.log('- getAppState() - get current app state');
-        console.log('- setWebhookUrl("url") - set webhook URL');
-                console.log('⚠️ Don\'t forget to set your webhook URL!');
-        
+        const iframe = document.getElementById('musicPlayer');
+        iframe.src = playlists[type];
+
+        // Показать контролы
+        const controls = document.getElementById('musicControls');
+        if (controls) {
+            controls.style.display = 'flex';
         }
+
+        // Обновить кнопку
+        const playBtn = document.getElementById('playPauseBtn');
+        if (playBtn) {
+            playBtn.textContent = '▶ Play';
+            playBtn.onclick = function () {
+                startMusicPlayback(type);
+            };
+        }
+
+        console.log(`🎵 Loading ${type} playlist`);
+    }
+
+    function startMusicPlayback(type) {
+        const playlists = {
+            lofi: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+            ambient: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+            jazz: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false',
+            relax: 'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/330718027&color=%237a8fb5&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false'
+        };
+
+        const iframe = document.getElementById('musicPlayer');
+        iframe.src = playlists[type];
+
+        const playBtn = document.getElementById('playPauseBtn');
+        if (playBtn) {
+            playBtn.textContent = '⏸';
+            playBtn.onclick = togglePlayPause;
+        }
+
+        isPlaying = true;
+        console.log(`🎵 Started ${type} playlist`);
+    }
+
+    function togglePlayPause() {
+        const playBtn = document.getElementById('playPauseBtn');
+        if (isPlaying) {
+            playBtn.textContent = '▶';
+            isPlaying = false;
+        } else {
+            playBtn.textContent = '⏸';
+            isPlaying = true;
+        }
+    }
+
+    function setVolume(value) {
+        console.log(`🔊 Volume set to ${value}%`);
+    }
+
+    // Закрытие dropdown при клике вне его
+    document.addEventListener('click', function (event) {
+        const musicWidget = document.querySelector('.music-widget');
+        const dropdown = document.getElementById('musicDropdown');
+
+        if (musicWidget && dropdown && !musicWidget.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+    // 🧪 Debug Functions
+    window.getAppState = () => appState;
+    window.setWebhookUrl = (url) => {
+        CONFIG.WEBHOOK_URL = url;
+        console.log('✅ Webhook URL updated');
+    };
+
+    console.log('🎯 pixPLace App loaded!');
+    console.log('🔧 Debug commands:');
+    console.log('- getAppState() - get current app state');
+    console.log('- setWebhookUrl("url") - set webhook URL');
+    console.log('⚠️ Don\'t forget to set your webhook URL!');
+
+}
