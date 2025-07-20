@@ -1030,7 +1030,7 @@ function showResult(result) {
         resultTime.textContent = duration + 's';
     }
 }
-/*function showSubscriptionScreen(paymentUrl) {
+function showSubscriptionScreen(paymentUrl) {
     // Скрыть все экраны
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -1049,7 +1049,7 @@ function showResult(result) {
             window.open(paymentUrl, '_blank');
         }
     };
-}*/
+}
 function showGeneration() {
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
