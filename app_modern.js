@@ -1061,6 +1061,8 @@ function showGeneration() {
 }
 
 function showSubscriptionNotice(result) {
+    console.log('🔗 Payment URL from result:', result.payment_url);
+    console.log('🔗 Full result object:', result);
     const modal = document.getElementById('limitModal');
     if (!modal) {
         console.error('❌ Modal not found!');
@@ -1075,22 +1077,31 @@ function showSubscriptionNotice(result) {
 
     // Настроить кнопку оплаты
     const upgradeBtn = document.getElementById('upgradeBtn');
+    console.log('🔘 Upgrade button found:', !!upgradeBtn);
     if (upgradeBtn) {
+        console.log('🔘 Setting up button click handler');
         upgradeBtn.onclick = () => {
+            console.log('🔘 Button clicked! Opening:', paymentUrl);
+            console.log('🔘 Button clicked! Payment URL:', paymentUrl);
             try {
                 if (window.Telegram?.WebApp?.openLink) {
+                    console.log('🔗 Using Telegram.WebApp.openLink');
                     window.Telegram.WebApp.openLink(paymentUrl);
                 } else if (window.Telegram?.WebApp?.openTelegramLink) {
+                    console.log('🔗 Using Telegram.WebApp.openTelegramLink');
                     window.Telegram.WebApp.openTelegramLink(paymentUrl);
                 } else {
+                    console.log('🔗 Using window.open');
                     window.open(paymentUrl, '_blank');
                 }
+                console.log('✅ Link opening attempted');
             } catch (error) {
+                console.error('❌ Error opening payment link:', error);
                 console.error('❌ Error opening payment link:', error);
                 alert('Please open this link manually:\n\n' + paymentUrl);
             }
             // Закрывать окно можно, если хочешь, или оставить открытым
-            // modal.classList.remove('show');
+            modal.classList.remove('show');
         };
     }
 
@@ -1392,7 +1403,7 @@ async function generateImage(event) {
 
             // Вызываем правильную функцию с URL
             showSubscriptionNotice(result);
-            
+
             showToast('warning', result.message || 'Generation limit reached');
             triggerHaptic('warning');
             return;
