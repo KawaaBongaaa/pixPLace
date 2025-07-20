@@ -1113,8 +1113,6 @@ function showSubscriptionNotice(result) {
             window.open(paymentUrl, '_blank');
         }
     };
-    modal.classList.remove('show');
-
     // Настроить кнопку закрытия
     const closeBtn = document.getElementById('closeLimitModal');
     if (closeBtn) {
