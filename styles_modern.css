@@ -1223,6 +1223,7 @@ textarea:focus-visible {
 
 
 /* Модальное окно лимита - современный стиль */
+/* Модальное окно лимита - современный стиль */
 .limit-modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
