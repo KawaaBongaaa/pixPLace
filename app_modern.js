@@ -1081,6 +1081,7 @@ function showSubscriptionNotice(result) {
     if (upgradeBtn) {
         console.log('🔘 Setting up button click handler');
         upgradeBtn.onclick = () => {
+            alert('Button clicked!'); // ← ДОБАВЬ ЭТУ СТРОКУ ДЛЯ ТЕСТА
             console.log('🔘 Button clicked! Opening:', paymentUrl);
             console.log('🔘 Button clicked! Payment URL:', paymentUrl);
             try {
