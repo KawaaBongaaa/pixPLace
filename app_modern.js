@@ -1064,77 +1064,59 @@ function showGeneration() {
 }
 
 function showSubscriptionNotice(result) {
-    console.log('🚨 Showing limit modal with result:', result);
+  const modal = document.getElementById('limitModal');
+  if (!modal) {
+    console.error('❌ Modal not found!');
+    return;
+  }
 
-    const modal = document.getElementById('limitModal');
-    if (!modal) {
-        console.error('❌ Modal not found!');
-        return;
-    }
+  // Показать модальное окно
+  modal.classList.add('show');
 
-    // Показать модальное окно
-    modal.classList.add('show');
+  // Получить URL для оплаты из результата
+  const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
 
-    // Получить URL для оплаты из результата
-    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
-    console.log('💳 Payment URL from result:', paymentUrl);
+  // Настроить кнопку оплаты
+  const upgradeBtn = document.getElementById('upgradeBtn');
+  if (upgradeBtn) {
+    upgradeBtn.onclick = () => {
+      try {
+        if (window.Telegram?.WebApp?.openLink) {
+          window.Telegram.WebApp.openLink(paymentUrl);
+        } else if (window.Telegram?.WebApp?.openTelegramLink) {
+          window.Telegram.WebApp.openTelegramLink(paymentUrl);
+        } else {
+          window.open(paymentUrl, '_blank');
+        }
+        showToast('success', 'Opening payment link...');
+      } catch (error) {
+        console.error('❌ Error opening payment link:', error);
+        showToast('error', 'Could not open payment link');
+        alert('Please open this link manually:\n\n' + paymentUrl);
+      }
+      modal.classList.remove('show');
+    };
+  }
 
-    // Настроить кнопку оплаты
-    const upgradeBtn = document.getElementById('upgradeBtn');
-    if (upgradeBtn) {
-        upgradeBtn.onclick = () => {
-            console.log('💳 Button clicked, using URL:', paymentUrl);
-            console.log('💳 Telegram WebApp available:', !!window.Telegram?.WebApp);
-            console.log('💳 openLink available:', !!window.Telegram?.WebApp?.openLink);
+  // Настроить кнопку закрытия
+  const closeBtn = document.getElementById('closeLimitModal');
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      modal.classList.remove('show');
+      showGeneration();
 
-            try {
-                if (window.Telegram?.WebApp?.openLink) {
-                    console.log('📱 Using Telegram.WebApp.openLink');
-                    window.Telegram.WebApp.openLink(paymentUrl);
-                    console.log('✅ openLink called successfully');
-                } else if (window.Telegram?.WebApp?.openTelegramLink) {
-                    console.log('📱 Using Telegram.WebApp.openTelegramLink');
-                    window.Telegram.WebApp.openTelegramLink(paymentUrl);
-                    console.log('✅ openTelegramLink called successfully');
-                } else {
-                    console.log('❌ No Telegram methods available');
-                    throw new Error('Telegram methods not available');
-                }
+      // Восстановить главную кнопку Telegram
+      if (appState.tg && appState.tg.MainButton) {
+        appState.tg.MainButton.setText(appState.translate('generate_btn'));
+        appState.tg.MainButton.show();
+      }
+    };
+  }
 
-                showToast('success', 'Opening payment link...');
-
-            } catch (error) {
-                console.error('❌ Error opening payment link:', error);
-                showToast('error', 'Could not open payment link');
-                alert('Please open this link manually:\n\n' + paymentUrl);
-            }
-
-            // Закрыть модальное окно
-            modal.classList.remove('show');
-        };
-    } else {
-        console.error('❌ upgradeBtn not found!');
-    }
-
-    // Настроить кнопку закрытия (ОДИН РАЗ, ВНУТРИ ФУНКЦИИ)
-    const closeBtn = document.getElementById('closeLimitModal');
-    if (closeBtn) {
-        closeBtn.onclick = () => {
-            modal.classList.remove('show');
-            showGeneration();
-
-            // Восстановить главную кнопку
-            if (appState.tg && appState.tg.MainButton) {
-                appState.tg.MainButton.setText(appState.translate('generate_btn'));
-                appState.tg.MainButton.show();
-            }
-        };
-    }
-
-    // Скрыть главную кнопку Telegram пока показано модальное окно
-    if (appState.tg && appState.tg.MainButton) {
-        appState.tg.MainButton.hide();
-    }
+  // Скрыть главную кнопку Telegram пока показано модальное окно
+  if (appState.tg && appState.tg.MainButton) {
+    appState.tg.MainButton.hide();
+  }
 }
 
 function showHistory() {
