@@ -1088,13 +1088,12 @@ function showSubscriptionNotice(result) {
         } else {
           window.open(paymentUrl, '_blank');
         }
-        showToast('success', 'Opening payment link...');
       } catch (error) {
         console.error('❌ Error opening payment link:', error);
-        showToast('error', 'Could not open payment link');
         alert('Please open this link manually:\n\n' + paymentUrl);
       }
-      modal.classList.remove('show');
+      // Закрывать окно можно, если хочешь, или оставить открытым
+      // modal.classList.remove('show');
     };
   }
 
@@ -1117,10 +1116,6 @@ function showSubscriptionNotice(result) {
   if (appState.tg && appState.tg.MainButton) {
     appState.tg.MainButton.hide();
   }
-}
-function showHistory() {
-    showScreen('historyScreen');
-    updateHistoryDisplay();
 }
 
 // 🎨 UI Initialization
