@@ -1075,24 +1075,11 @@ function showSubscriptionNotice(result) {
     // Показать модальное окно
     modal.classList.add('show');
 
-    // Настроить кнопку оплаты
-    function showSubscriptionNotice(result) {
-    console.log('🚨 Showing limit modal with result:', result);
-
-    const modal = document.getElementById('limitModal');
-    if (!modal) {
-        console.error('❌ Modal not found!');
-        return;
-    }
-
-    // Показать модальное окно
-    modal.classList.add('show');
-
     // Получить URL для оплаты из результата
     const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
     console.log('💳 Payment URL from result:', paymentUrl);
 
-    // Настроить кнопку оплаты ПРЯМО ЗДЕСЬ
+    // Настроить кнопку оплаты
     const upgradeBtn = document.getElementById('upgradeBtn');
     if (upgradeBtn) {
         upgradeBtn.onclick = () => {
@@ -1128,9 +1115,8 @@ function showSubscriptionNotice(result) {
     } else {
         console.error('❌ upgradeBtn not found!');
     }
-}
 
-    // Настроить кнопку закрытия
+    // Настроить кнопку закрытия (ОДИН РАЗ, ВНУТРИ ФУНКЦИИ)
     const closeBtn = document.getElementById('closeLimitModal');
     if (closeBtn) {
         closeBtn.onclick = () => {
@@ -1149,14 +1135,6 @@ function showSubscriptionNotice(result) {
     if (appState.tg && appState.tg.MainButton) {
         appState.tg.MainButton.hide();
     }
-}
-// Настроить кнопку закрытия
-const closeBtn = document.getElementById('closeLimitModal');
-if (closeBtn) {
-    closeBtn.onclick = () => {
-        modal.classList.remove('show');
-        showGeneration();
-    };
 }
 
 function showHistory() {
