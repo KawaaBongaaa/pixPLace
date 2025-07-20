@@ -1002,9 +1002,6 @@ function updateMainButton(screenId) {
     }
 }
 
-function showGeneration() {
-    showScreen('generationScreen');
-}
 
 function showProcessing() {
     showScreen('processingScreen');
