@@ -1362,6 +1362,15 @@ textarea:focus-visible {
     opacity: 0.8;
   }
 }
+/* Исправление для кнопки Upgrade */
+#upgradeBtn {
+    pointer-events: auto !important;
+    z-index: 9999 !important;
+    position: relative !important;
+    padding: 15px 25px !important;
+    min-height: 50px !important;
+    min-width: 150px !important;
+}
 /* Music Widget */
 .music-widget {
     position: relative;

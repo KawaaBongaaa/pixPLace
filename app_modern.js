@@ -1062,6 +1062,10 @@ function showGeneration() {
 
 function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
+    // Получить URL для оплаты из результата
+    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+    console.log('🔗 Payment URL from result:', result.payment_url);
+
     const modal = document.getElementById('limitModal');
     if (!modal) {
         console.error('❌ Modal not found!');
@@ -1071,9 +1075,6 @@ function showSubscriptionNotice(result) {
     // Показать модальное окно
     modal.classList.add('show');
 
-    // Получить URL для оплаты из результата
-    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
-    console.log('🔗 Payment URL from result:', result.payment_url);
 
     // Настроить кнопку оплаты
     const upgradeBtn = document.getElementById('upgradeBtn');
