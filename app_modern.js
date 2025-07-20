@@ -1061,58 +1061,58 @@ function showGeneration() {
 }
 
 function showSubscriptionNotice(result) {
-  const modal = document.getElementById('limitModal');
-  if (!modal) {
-    console.error('❌ Modal not found!');
-    return;
-  }
+    const modal = document.getElementById('limitModal');
+    if (!modal) {
+        console.error('❌ Modal not found!');
+        return;
+    }
 
-  // Показать модальное окно
-  modal.classList.add('show');
+    // Показать модальное окно
+    modal.classList.add('show');
 
-  // Получить URL для оплаты из результата
-  const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+    // Получить URL для оплаты из результата
+    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
 
-  // Настроить кнопку оплаты
-  const upgradeBtn = document.getElementById('upgradeBtn');
-  if (upgradeBtn) {
-    upgradeBtn.onclick = () => {
-      try {
-        if (window.Telegram?.WebApp?.openLink) {
-          window.Telegram.WebApp.openLink(paymentUrl);
-        } else if (window.Telegram?.WebApp?.openTelegramLink) {
-          window.Telegram.WebApp.openTelegramLink(paymentUrl);
-        } else {
-          window.open(paymentUrl, '_blank');
-        }
-      } catch (error) {
-        console.error('❌ Error opening payment link:', error);
-        alert('Please open this link manually:\n\n' + paymentUrl);
-      }
-      // Закрывать окно можно, если хочешь, или оставить открытым
-      // modal.classList.remove('show');
-    };
-  }
+    // Настроить кнопку оплаты
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    if (upgradeBtn) {
+        upgradeBtn.onclick = () => {
+            try {
+                if (window.Telegram?.WebApp?.openLink) {
+                    window.Telegram.WebApp.openLink(paymentUrl);
+                } else if (window.Telegram?.WebApp?.openTelegramLink) {
+                    window.Telegram.WebApp.openTelegramLink(paymentUrl);
+                } else {
+                    window.open(paymentUrl, '_blank');
+                }
+            } catch (error) {
+                console.error('❌ Error opening payment link:', error);
+                alert('Please open this link manually:\n\n' + paymentUrl);
+            }
+            // Закрывать окно можно, если хочешь, или оставить открытым
+            // modal.classList.remove('show');
+        };
+    }
 
-  // Настроить кнопку закрытия
-  const closeBtn = document.getElementById('closeLimitModal');
-  if (closeBtn) {
-    closeBtn.onclick = () => {
-      modal.classList.remove('show');
-      showGeneration();
+    // Настроить кнопку закрытия
+    const closeBtn = document.getElementById('closeLimitModal');
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            modal.classList.remove('show');
+            showGeneration();
 
-      // Восстановить главную кнопку Telegram
-      if (appState.tg && appState.tg.MainButton) {
-        appState.tg.MainButton.setText(appState.translate('generate_btn'));
-        appState.tg.MainButton.show();
-      }
-    };
-  }
+            // Восстановить главную кнопку Telegram
+            if (appState.tg && appState.tg.MainButton) {
+                appState.tg.MainButton.setText(appState.translate('generate_btn'));
+                appState.tg.MainButton.show();
+            }
+        };
+    }
 
-  // Скрыть главную кнопку Telegram пока показано модальное окно
-  if (appState.tg && appState.tg.MainButton) {
-    appState.tg.MainButton.hide();
-  }
+    // Скрыть главную кнопку Telegram пока показано модальное окно
+    if (appState.tg && appState.tg.MainButton) {
+        appState.tg.MainButton.hide();
+    }
 }
 
 // 🎨 UI Initialization
@@ -1391,8 +1391,8 @@ async function generateImage(event) {
             const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
 
             // Вызываем правильную функцию с URL
-            showSubscriptionScreen(paymentUrl);
-
+            showSubscriptionNotice(result);
+            
             showToast('warning', result.message || 'Generation limit reached');
             triggerHaptic('warning');
             return;
