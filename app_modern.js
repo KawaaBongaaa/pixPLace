@@ -1077,7 +1077,7 @@ function showSubscriptionNotice(result) {
 
 
     // Настроить кнопку оплаты
-    /*const upgradeBtn = document.getElementById('upgradeBtn');
+    const upgradeBtn = document.getElementById('upgradeBtn');
     console.log('🔘 Upgrade button found:', !!upgradeBtn);
     if (upgradeBtn) {
         console.log('🔘 Setting up button click handler');
@@ -1104,15 +1104,8 @@ function showSubscriptionNotice(result) {
             // Закрывать окно можно, если хочешь, или оставить открытым
             modal.classList.remove('show');
         };
-    }*/
-   const upgradeBtn = document.getElementById('upgradeBtn');
-    upgradeBtn.onclick = () => {
-        if (window.Telegram?.WebApp?.openLink) {
-            window.Telegram.WebApp.openLink(paymentUrl);
-        } else {
-            window.open(paymentUrl, '_blank');
-        }
-    };
+    }
+
     // Настроить кнопку закрытия
     const closeBtn = document.getElementById('closeLimitModal');
     if (closeBtn) {
