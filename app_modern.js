@@ -1085,21 +1085,26 @@ function showSubscriptionNotice(result) {
             console.log('🔘 Button clicked! Opening:', paymentUrl);
             console.log('🔘 Button clicked! Payment URL:', paymentUrl);
             try {
+                if (!paymentUrl) {
+                    console.error('❌ Payment URL is empty');
+                    alert('Payment URL not available');
+                    return;
+                }
+
+                console.log('🔗 Opening payment URL:', paymentUrl);
+
                 if (window.Telegram?.WebApp?.openLink) {
                     console.log('🔗 Using Telegram.WebApp.openLink');
                     window.Telegram.WebApp.openLink(paymentUrl);
-                } else if (window.Telegram?.WebApp?.openTelegramLink) {
-                    console.log('🔗 Using Telegram.WebApp.openTelegramLink');
-                    window.Telegram.WebApp.openTelegramLink(paymentUrl);
                 } else {
-                    console.log('🔗 Using window.open');
+                    console.log('🔗 Using window.open (fallback)');
                     window.open(paymentUrl, '_blank');
                 }
+
                 console.log('✅ Link opening attempted');
             } catch (error) {
                 console.error('❌ Error opening payment link:', error);
-                console.error('❌ Error opening payment link:', error);
-                alert('Please open this link manually:\n\n' + paymentUrl);
+                alert('Error opening payment link. Please try again.');
             }
             // Закрывать окно можно, если хочешь, или оставить открытым
             modal.classList.remove('show');
