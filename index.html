@@ -445,12 +445,14 @@
 
     <script src="app_modern.js"></script>
     <!-- Модальное окно лимита -->
+    <!-- Модальное окно лимита -->
     <div id="limitModal" class="limit-modal">
+        <div class="limit-modal-backdrop"></div>
         <div class="limit-modal-content">
             <div class="limit-icon">⚡</div>
-            <h2>Generation Limit Reached</h2>
-            <p>You've reached your free generation limit. Upgrade to continue creating amazing images!</p>
-
+            <h2 class="limit-title">Generation Limit Reached</h2>
+            <p class="limit-message">You've reached your free generation limit. Upgrade now to continue creating amazing
+                images!</p>
             <div class="limit-buttons">
                 <button id="upgradeBtn" class="btn btn-primary">
                     🔥 Upgrade Now

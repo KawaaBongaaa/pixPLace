@@ -1118,7 +1118,6 @@ function showSubscriptionNotice(result) {
     appState.tg.MainButton.hide();
   }
 }
-
 function showHistory() {
     showScreen('historyScreen');
     updateHistoryDisplay();
