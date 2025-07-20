@@ -1061,7 +1061,6 @@ function showGeneration() {
 }
 
 function showSubscriptionNotice(result) {
-    console.log('🔗 Payment URL from result:', result.payment_url);
     console.log('🔗 Full result object:', result);
     const modal = document.getElementById('limitModal');
     if (!modal) {
@@ -1074,6 +1073,7 @@ function showSubscriptionNotice(result) {
 
     // Получить URL для оплаты из результата
     const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+    console.log('🔗 Payment URL from result:', result.payment_url);
 
     // Настроить кнопку оплаты
     const upgradeBtn = document.getElementById('upgradeBtn');
@@ -1085,12 +1085,6 @@ function showSubscriptionNotice(result) {
             console.log('🔘 Button clicked! Opening:', paymentUrl);
             console.log('🔘 Button clicked! Payment URL:', paymentUrl);
             try {
-                if (!paymentUrl) {
-                    console.error('❌ Payment URL is empty');
-                    alert('Payment URL not available');
-                    return;
-                }
-
                 console.log('🔗 Opening payment URL:', paymentUrl);
 
                 if (window.Telegram?.WebApp?.openLink) {
