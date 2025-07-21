@@ -4,8 +4,8 @@
     --primary-100: #e0f2fe;
     --primary-200: #bae6fd;
     --primary-300: #857dfc;
-    --primary-400: #fff701;
-    --primary-500: #e300efdf;
+    --primary-400: #01eaff;
+    --primary-500: #0070efa3;
     --primary-600: #00d0ff;
     --primary-700: #0369a1;
     --primary-800: #075985;
@@ -79,30 +79,30 @@
 
 /* Dark Theme */
 [data-theme="dark"] {
-    --bg-primary: #0b1910;
+    --bg-primary: #191719;
     /* Темнейший navy black */
-    --bg-secondary: #111827;
+    --bg-secondary: #252225;
     /* Чуть светлее, как в Vercel UI */
-    --bg-tertiary: #1f2937;
+    --bg-tertiary: #24282f;
     /* Элементы, карточки */
 
     --text-primary: #e5e7eb;
     /* Светлый, но не чисто белый */
-    --text-secondary: #9ca3af;
+    --text-secondary: #9ea4b0;
     /* Серый для второстепенного текста */
     --text-tertiary: #6b7280;
     /* Для подписей и placeholder'ов */
 
-    --accent: #7f5af0;
+    --accent: #5ac0f0;
     /* Фиолетово-индиго — главный тренд */
-    --accent-hover: #a78bfa;
+    --accent-hover: #84cef0;
     /* Светлее при наведении */
     --accent-muted: #5d5fef;
     /* Спокойный оттенок акцента */
 
-    --border-primary: #2e3440;
+    --border-primary: #0280ff26;
     /* Границы UI */
-    --border-secondary: #3b4252;
+    --border-secondary: #02afff7a;
     /* Мягкие границы */
 
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -532,14 +532,14 @@ body {
 /* Welcome Section */
 .welcome-section {
     text-align: center;
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-0);
 }
 
 .welcome-section h1 {
     font-size: var(--font-size-3xl);
     font-weight: 900;
     color: var(--text-primary);
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-0);
     background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -563,7 +563,7 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-0);
 }
 
 .form-row {
@@ -589,7 +589,7 @@ body {
     font-weight: 400;
     font-style: normal;
     width: 100%;
-    padding: var(--space-4);
+    padding: var(--space-4) var(--space-6);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
     font-size: var(--font-size-base);
@@ -629,7 +629,7 @@ body {
     padding: var(--space-1);
     letter-spacing: 2px;
     border: 2px solid var(--border-primary);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm);
     color: var(--text-primary);
     background: var(--bg-primary);
     cursor: pointer;
@@ -644,7 +644,7 @@ body {
 
 /* Style Grid */
 .style-grid {
-    padding-top: 3px;
+    padding-top: 2px;
     display: flex;
     gap: var(--space-1);
     overflow-x: auto;
@@ -653,7 +653,7 @@ body {
 .style-card {
     font-optical-sizing: auto;
     font-style: normal;
-    padding: var(--space-1);
+    padding: var(--space-0) var(--space-1);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-md);
     background: var(--bg-primary);

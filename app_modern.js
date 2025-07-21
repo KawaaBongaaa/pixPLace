@@ -944,6 +944,10 @@ function clearHistory() {
         triggerHaptic('medium');
     }
 }
+function showHistory() {
+    showScreen('historyScreen');
+    updateHistoryDisplay();
+}
 
 // 🖼️ UI Initialization
 // 🎬 Screen Management
