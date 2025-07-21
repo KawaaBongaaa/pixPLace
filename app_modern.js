@@ -7,7 +7,15 @@ const CONFIG = {
     DEFAULT_LANGUAGE: 'en',
     DEFAULT_THEME: 'dark', // 'light', 'dark', 'auto'
 };
-
+// ВРЕМЕННОЕ ОТКЛЮЧЕНИЕ TELEGRAM MAINBUTTON
+if (window.Telegram?.WebApp?.MainButton) {
+    window.Telegram.WebApp.MainButton = {
+        setText: () => {},
+        show: () => {},
+        hide: () => {},
+        onClick: () => {}
+    };
+}
 // 🌍 Translations
 const TRANSLATIONS = {
     en: {
