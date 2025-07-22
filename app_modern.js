@@ -1,12 +1,4 @@
 // 🚀 Modern AI Image Generator WebApp
-// Configuration
-const CONFIG = {
-    WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
-    TIMEOUT: 120000, // 120 секунд
-    LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt-br', 'ar', 'hi', 'ja', 'it', 'ko', 'tr', 'pl'],
-    DEFAULT_LANGUAGE: 'en',
-    DEFAULT_THEME: 'dark', // 'light', 'dark', 'auto'
-};
 // ВРЕМЕННОЕ ОТКЛЮЧЕНИЕ TELEGRAM MAINBUTTON
 if (window.Telegram?.WebApp?.MainButton) {
     window.Telegram.WebApp.MainButton = {
@@ -16,6 +8,14 @@ if (window.Telegram?.WebApp?.MainButton) {
         onClick: () => {}
     };
 }
+// Configuration
+const CONFIG = {
+    WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
+    TIMEOUT: 120000, // 120 секунд
+    LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt-br', 'ar', 'hi', 'ja', 'it', 'ko', 'tr', 'pl'],
+    DEFAULT_LANGUAGE: 'en',
+    DEFAULT_THEME: 'dark', // 'light', 'dark', 'auto'
+};
 // 🌍 Translations
 const TRANSLATIONS = {
     en: {
