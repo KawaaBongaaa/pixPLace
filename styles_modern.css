@@ -326,8 +326,8 @@ body {
 }
 
 .logo-img {
-    width: clamp(80px, 10vw, 130px);
-    height: clamp(80px, 10vw, 130px);
+    width: clamp(100px, 10vw, 150px);
+    height: clamp(100px, 10vw, 150px);
     object-fit: contain;
 }
 
@@ -702,11 +702,11 @@ body {
 
 /* Generate Button */
 .generate-btn {
-    width: 100%;
+    width: calc(100% - 40px) !important;
     padding: var(--space-1) var(--space-2);
     border: none;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--primary-400), var(--primary-500));
     color: white;
     font-family: "Shantell Sans", sans-serif;
     font-optical-sizing: auto;
@@ -714,12 +714,15 @@ body {
     font-size: var(--font-size-xl);
     font-weight: 600;
     cursor: pointer;
-    display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-1);
     transition: all var(--transition-fast);
-    position: relative;
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
 }
@@ -1213,12 +1216,12 @@ body {
     }
 
     .main-content {
-        padding: var(--space-3);
+        padding: var(--space-1);
     }
 
     .logo-img {
-        width: clamp(60px, 10vw, 100px);
-        height: clamp(60px, 10vw, 100px);
+        width: clamp(90px, 10vw, 130px);
+        height: clamp(90px, 10vw, 130px);
         object-fit: contain;
     }
 
@@ -1227,7 +1230,7 @@ body {
     }
 
     .welcome-section {
-        margin-bottom: var(--space-8);
+        margin-bottom: var(--space-4);
     }
 
     .generation-form {
