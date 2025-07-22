@@ -1091,7 +1091,7 @@ function showGeneration() {
     //}
 }
 
-function showSubscriptionNotice(result) {
+function showSubscriptionScreen(result) {
     console.log('🔗 Full result object:', result);
     const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
     console.log('🔗 Payment URL from result:', result.payment_url);
