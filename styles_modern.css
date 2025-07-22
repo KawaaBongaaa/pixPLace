@@ -563,17 +563,22 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: var(--space-0);
+    gap: var(--space-1);
 }
 
 .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     gap: var(--space-6);
+    padding-left: 10px;
+    padding-bottom: 20px;
+
 }
 
 .form-label {
     font-size: var(--font-size-s);
+    padding-left: 15px;
     letter-spacing: 1px;
     font-weight: 500;
     opacity: 0.85;
@@ -582,6 +587,7 @@ body {
 
 .input-wrapper {
     position: relative;
+    padding: var(--space-0) var(--space-1);
 }
 
 .form-textarea {
@@ -589,7 +595,7 @@ body {
     font-weight: 400;
     font-style: normal;
     width: 100%;
-    padding: var(--space-4) var(--space-6);
+    padding: var(--space-3) var(--space-3);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
     font-size: var(--font-size-base);
@@ -622,8 +628,13 @@ body {
 }
 
 .form-select {
-    font-family: "WDXL Lubrifont JP N", sans-serif;
+    font-family: "Winky Rough", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
     font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: var(--font-size-sm);
     width: 100%;
     padding: var(--space-1);
@@ -718,7 +729,7 @@ body {
     justify-content: center;
     gap: var(--space-2);
     transition: all var(--transition-fast);
-    position: relative; 
+    position: relative;
     bottom: 20px;
     left: 20px;
     right: 20px;

@@ -292,16 +292,16 @@
                                 <textarea id="promptInput" class="form-textarea"
                                     data-i18n-placeholder="prompt_placeholder"
                                     placeholder="A beautiful sunset over the ocean..." rows="3"
-                                    maxlength="500"></textarea>
+                                    maxlength="888"></textarea>
                                 <div class="input-counter">
-                                    <span id="charCounter">0</span>/500
+                                    <span id="charCounter">0</span>/888
                                 </div>
                             </div>
                         </div>
 
                         <!-- Style Selection -->
                         <div class="form-group">
-                            <label class="form-label" data-i18n="style_label">Art Style</label>
+                            <label class="form-label" data-i18n="style_label">Style</label>
                             <div class="style-grid">
                                 <button type="button" class="style-card active" data-style="realistic"
                                     onclick="selectStyle(this)">
@@ -546,11 +546,6 @@
                 <button class="btn btn-primary" id="upgradeBtn">
                     🔥 Upgrade Now
                 </button>
-                <script>
-                    document.getElementById("upgradeBtn").addEventListener("click", function () {
-                        window.open("https://t.me/tribute/app?startapp=swcr", "_blank");
-                    });
-                </script>
                 <button id="closeLimitModal" class="btn btn-secondary">
                     Maybe Later
                 </button>
