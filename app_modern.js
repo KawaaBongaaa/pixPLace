@@ -870,7 +870,26 @@ function updateProcessingSteps(activeStep) {
         progressCircle.style.strokeDashoffset = 283 - progress;
     }
 }
+function updateProgressBar(elapsed) {
+    const progressBar = document.querySelector('.progress-bar');
+    const progressFill = document.querySelector('.progress-fill');
 
+    if (progressBar && progressFill) {
+        // Примерный прогресс на основе времени (0-100%)
+        const maxTime = 60; // максимальное ожидаемое время в секундах
+        const progress = Math.min((elapsed / maxTime) * 100, 100);
+        progressFill.style.width = progress + '%';
+    }
+
+    // Обновить круговой прогресс, если есть
+    const progressCircle = document.querySelector('.progress-circle');
+    if (progressCircle) {
+        const circumference = 283; // окружность круга
+        const progress = Math.min((elapsed / 60) * 100, 100);
+        const offset = circumference - (progress / 100) * circumference;
+        progressCircle.style.strokeDashoffset = offset;
+    }
+}
 function startTimer() {
     const elapsedTimeElement = document.getElementById('elapsedTime');
     let step = 1;
@@ -880,7 +899,7 @@ function startTimer() {
         if (elapsedTimeElement) {
             elapsedTimeElement.textContent = elapsed + 's';
         }
-
+        updateProgressBar(elapsed);
         // Update steps based on time
         if (elapsed > 10 && step === 1) {
             updateProcessingSteps(2);
@@ -1080,7 +1099,6 @@ function showGeneration() {
 
 function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
-    // Получить URL для оплаты из результата
     const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
     console.log('🔗 Payment URL from result:', result.payment_url);
 
@@ -1093,19 +1111,14 @@ function showSubscriptionNotice(result) {
     // Показать модальное окно
     modal.classList.add('show');
 
-
     // Настроить кнопку оплаты
     const upgradeBtn = document.getElementById('upgradeBtn');
     console.log('🔘 Upgrade button found:', !!upgradeBtn);
     if (upgradeBtn) {
         console.log('🔘 Setting up button click handler');
         upgradeBtn.onclick = () => {
-            alert('Button clicked!'); // ← ДОБАВЬ ЭТУ СТРОКУ ДЛЯ ТЕСТА
             console.log('🔘 Button clicked! Opening:', paymentUrl);
-            console.log('🔘 Button clicked! Payment URL:', paymentUrl);
             try {
-                console.log('🔗 Opening payment URL:', paymentUrl);
-
                 if (window.Telegram?.WebApp?.openLink) {
                     console.log('🔗 Using Telegram.WebApp.openLink');
                     window.Telegram.WebApp.openLink(paymentUrl);
@@ -1113,14 +1126,17 @@ function showSubscriptionNotice(result) {
                     console.log('🔗 Using window.open (fallback)');
                     window.open(paymentUrl, '_blank');
                 }
-
                 console.log('✅ Link opening attempted');
+
+                // Закрыть модальное окно ПОСЛЕ успешного открытия ссылки
+                setTimeout(() => {
+                    modal.classList.remove('show');
+                }, 500);
+
             } catch (error) {
                 console.error('❌ Error opening payment link:', error);
                 alert('Error opening payment link. Please try again.');
             }
-            // Закрывать окно можно, если хочешь, или оставить открытым
-            modal.classList.remove('show');
         };
     }
 
@@ -1130,19 +1146,8 @@ function showSubscriptionNotice(result) {
         closeBtn.onclick = () => {
             modal.classList.remove('show');
             showGeneration();
-
-            // Восстановить главную кнопку Telegram
-            /*if (appState.tg && appState.tg.MainButton) {
-                appState.tg.MainButton.setText(appState.translate('generate_btn'));
-                appState.tg.MainButton.show();
-            }*/
         };
     }
-
-    // Скрыть главную кнопку Telegram пока показано модальное окно
-    //if (appState.tg && appState.tg.MainButton) {
-    //    appState.tg.MainButton.hide();
-    //}
 }
 
 // 🎨 UI Initialization
