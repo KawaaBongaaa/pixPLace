@@ -1,13 +1,19 @@
 // 🚀 Modern AI Image Generator WebApp
 // ВРЕМЕННОЕ ОТКЛЮЧЕНИЕ TELEGRAM MAINBUTTON
-if (window.Telegram?.WebApp?.MainButton) {
-    window.Telegram.WebApp.MainButton = {
-        setText: () => {},
-        show: () => {},
-        hide: () => {},
-        onClick: () => {}
-    };
-}
+// ПОЛНОЕ ОТКЛЮЧЕНИЕ TELEGRAM MAINBUTTON
+window.Telegram = window.Telegram || {};
+window.Telegram.WebApp = window.Telegram.WebApp || {};
+window.Telegram.WebApp.MainButton = {
+    setText: () => console.log('MainButton.setText disabled'),
+    show: () => console.log('MainButton.show disabled'),
+    hide: () => console.log('MainButton.hide disabled'),
+    onClick: () => console.log('MainButton.onClick disabled')
+};
+
+// Также отключим другие методы Telegram
+window.Telegram.WebApp.ready = () => console.log('Telegram.WebApp.ready disabled');
+window.Telegram.WebApp.expand = () => console.log('Telegram.WebApp.expand disabled');
+window.Telegram.WebApp.close = () => console.log('Telegram.WebApp.close disabled');
 // Configuration
 const CONFIG = {
     WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
@@ -989,10 +995,10 @@ function showScreen(screenId) {
     }
 
     // Update main button
-    updateMainButton(screenId);
+    //updateMainButton(screenId);
 }
 
-function updateMainButton(screenId) {
+/*function updateMainButton(screenId) {
     if (!appState.tg?.MainButton) return;
 
     switch (screenId) {
@@ -1012,7 +1018,7 @@ function updateMainButton(screenId) {
             appState.tg.MainButton.show();
             break;
     }
-}
+}*/
 
 
 function showProcessing() {
@@ -1066,10 +1072,10 @@ function showGeneration() {
     document.getElementById('generationScreen').classList.add('active');
 
     // Восстановить главную кнопку Telegram
-    if (appState.tg && appState.tg.MainButton) {
-        appState.tg.MainButton.setText(appState.translate('generate_btn'));
-        appState.tg.MainButton.show();
-    }
+    //if (appState.tg && appState.tg.MainButton) {
+    //    appState.tg.MainButton.setText(appState.translate('generate_btn'));
+    //    appState.tg.MainButton.show();
+    //}
 }
 
 function showSubscriptionNotice(result) {
@@ -1126,17 +1132,17 @@ function showSubscriptionNotice(result) {
             showGeneration();
 
             // Восстановить главную кнопку Telegram
-            if (appState.tg && appState.tg.MainButton) {
+            /*if (appState.tg && appState.tg.MainButton) {
                 appState.tg.MainButton.setText(appState.translate('generate_btn'));
                 appState.tg.MainButton.show();
-            }
+            }*/
         };
     }
 
     // Скрыть главную кнопку Telegram пока показано модальное окно
-    if (appState.tg && appState.tg.MainButton) {
-        appState.tg.MainButton.hide();
-    }
+    //if (appState.tg && appState.tg.MainButton) {
+    //    appState.tg.MainButton.hide();
+    //}
 }
 
 // 🎨 UI Initialization
@@ -1259,7 +1265,7 @@ async function initTelegramApp() {
             appState.telegramVersion = appState.tg?.version || 'unknown';
         }
         // Setup main button
-        if (appState.tg.MainButton) {
+        /*if (appState.tg.MainButton) {
             appState.tg.MainButton.setText(appState.translate('generate_btn'));
             appState.tg.MainButton.onClick(() => {
                 if (getCurrentScreen() === 'generationScreen') {
@@ -1271,7 +1277,7 @@ async function initTelegramApp() {
                 }
             });
             appState.tg.MainButton.show();
-        }
+        }*/
 
         // Auto-detect language
         const tgLang = appState.tg.initDataUnsafe?.user?.language_code;
