@@ -1090,10 +1090,10 @@ function showGeneration() {
     //    appState.tg.MainButton.show();
     //}
 }
-//result.payment_url
+
 function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
-    const paymentUrl = 'https://t.me/tribute/app?startapp=swcr' || 'https://t.me/tribute/app?startapp=swcr';
+    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
     console.log('🔗 Payment URL from result:', result.payment_url);
 
     const modal = document.getElementById('limitModal');
@@ -1174,162 +1174,154 @@ function initializeUI() {
 
 // 📱 Telegram WebApp Integration
 
-function initTelegramApp() {
-    console.log('🔧 Initializing Telegram WebApp...');
-    console.log('🌐 User Agent:', navigator.userAgent);
-    console.log('🔗 URL:', window.location.href);
-    console.log('🔗 Referrer:', document.referrer);
+async function initTelegramApp() {
+    console.log('🔍 Initializing Telegram WebApp...');
 
-    // Ждем немного, иногда данные приходят с задержкой
-    setTimeout(() => {
-        console.log('⏰ Delayed check after 500ms...');
-        checkTelegramData();
-    }, 500);
+    // Ждем загрузки Telegram SDK дольше
+    let attempts = 0;
+    while (typeof window.Telegram === 'undefined' && attempts < 100) {
+        await new Promise(resolve => setTimeout(resolve, 50)); // ждем 50мс
+        attempts++;
+    }
 
-    setTimeout(() => {
-        console.log('⏰ Delayed check after 1000ms...');
-        checkTelegramData();
-    }, 1000);
+    console.log('📱 After waiting - Telegram available:', !!window.Telegram?.WebApp);
 
-    setTimeout(() => {
-        console.log('⏰ Delayed check after 2000ms...');
-        checkTelegramData();
-    }, 2000);
-
-    // Немедленная проверка
-    checkTelegramData();
-}
-
-function checkTelegramData() {
-    console.log('📊 === TELEGRAM DATA CHECK ===');
-    console.log('📊 window.Telegram exists:', !!window.Telegram);
-
-    if (!window.Telegram || !window.Telegram.WebApp) {
-        console.log('❌ Telegram WebApp not available');
+    if (typeof window.Telegram === 'undefined' || !window.Telegram.WebApp) {
+        console.log('❌ Telegram WebApp still not available - using fallback');
+        appState.userId = 'fallback_' + Date.now();
+        appState.userName = 'Fallback User';
+        showStatus('info', 'Running in fallback mode');
         return;
     }
 
-    const tg = window.Telegram.WebApp;
+    try {
+        appState.tg = window.Telegram.WebApp;
+        appState.tg.ready();
+        appState.tg.expand();
 
-    // Полная диагностика
-    console.log('📱 Version:', tg.version);
-    console.log('📱 Platform:', tg.platform);
-    console.log('📱 Color scheme:', tg.colorScheme);
-    console.log('📱 Is expanded:', tg.isExpanded);
-    console.log('📱 Viewport height:', tg.viewportHeight);
-    console.log('📱 Viewport stable height:', tg.viewportStableHeight);
+        // ✅ УЛУЧШЕННАЯ ДИАГНОСТИКА:
+        console.log('🔍 Telegram WebApp data:', {
+            available: !!appState.tg,
+            platform: appState.tg.platform,
+            version: appState.tg.version,
+            initDataUnsafe: appState.tg.initDataUnsafe,
+            user: appState.tg.initDataUnsafe?.user,
+            // НОВЫЕ ПРОВЕРКИ:
+            initData: appState.tg.initData, // Сырые данные
+            isExpanded: appState.tg.isExpanded,
+            viewportHeight: appState.tg.viewportHeight,
+            colorScheme: appState.tg.colorScheme,
+            themeParams: appState.tg.themeParams
+        });
 
-    // Проверяем initData
-    console.log('📊 InitData exists:', !!tg.initData);
-    console.log('📊 InitData length:', tg.initData ? tg.initData.length : 0);
-    console.log('📊 InitData raw:', tg.initData);
+        // ДОПОЛНИТЕЛЬНАЯ ДИАГНОСТИКА:
+        console.log('🌍 Environment check:', {
+            url: window.location.href,
+            referrer: document.referrer,
+            userAgent: navigator.userAgent,
+            isHTTPS: window.location.protocol === 'https:',
+            hasInitData: !!appState.tg.initData,
+            initDataLength: appState.tg.initData?.length || 0
+        });
 
-    // Проверяем initDataUnsafe
-    console.log('📊 InitDataUnsafe exists:', !!tg.initDataUnsafe);
-    console.log('📊 InitDataUnsafe content:', tg.initDataUnsafe);
+        console.log('👤 User data extracted:', {
+            userId: appState.tg.initDataUnsafe?.user?.id,
+            firstName: appState.tg.initDataUnsafe?.user?.first_name,
+            lastName: appState.tg.initDataUnsafe?.user?.last_name,
+            username: appState.tg.initDataUnsafe?.user?.username
+        });
 
-    if (tg.initDataUnsafe) {
-        console.log('📊 InitDataUnsafe keys:', Object.keys(tg.initDataUnsafe));
-        console.log('📊 User in initDataUnsafe:', tg.initDataUnsafe.user);
-        console.log('📊 Query ID:', tg.initDataUnsafe.query_id);
-        console.log('📊 Auth date:', tg.initDataUnsafe.auth_date);
-        console.log('📊 Hash:', tg.initDataUnsafe.hash);
-    }
+        // Get user data
+        if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
+            const user = appState.tg.initDataUnsafe.user;
 
-    // Попробуем разные способы получения данных
-    let userData = null;
+            // Основные данные
+            appState.userId = user.id.toString();
+            appState.userName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
 
-    // Способ 1: Прямо из initDataUnsafe
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        userData = tg.initDataUnsafe.user;
-        console.log('✅ Method 1 - Direct initDataUnsafe:', userData);
-    }
+            // Дополнительные данные пользователя
+            appState.userUsername = user.username || null;
+            appState.userLanguage = user.language_code || 'en';
+            appState.userIsPremium = user.is_premium || false;
+            appState.userPhotoUrl = user.photo_url || null;
+            appState.userAllowsWriteToPm = user.allows_write_to_pm || false;
 
-    // Способ 2: Парсинг initData
-    if (!userData && tg.initData) {
-        console.log('🔍 Method 2 - Parsing initData...');
-        try {
-            const urlParams = new URLSearchParams(tg.initData);
-            console.log('📊 InitData params:', Array.from(urlParams.entries()));
+            // Данные чата/сессии
+            appState.chatInstance = appState.tg.initDataUnsafe.chat_instance || null;
+            appState.chatType = appState.tg.initDataUnsafe.chat_type || null;
+            appState.authDate = appState.tg.initDataUnsafe.auth_date || null;
 
-            const userParam = urlParams.get('user');
-            if (userParam) {
-                userData = JSON.parse(decodeURIComponent(userParam));
-                console.log('✅ Method 2 - Parsed from initData:', userData);
+            // Платформа и версия
+            appState.telegramPlatform = appState.tg.platform || 'unknown';
+            appState.telegramVersion = appState.tg.version || 'unknown';
+
+            console.log('✅ REAL USER DATA SET:', {
+                userId: appState.userId,
+                userName: appState.userName,
+                username: appState.userUsername,
+                language: appState.userLanguage,
+                isPremium: appState.userIsPremium,
+                platform: appState.telegramPlatform,
+                version: appState.telegramVersion,
+                chatType: appState.chatType
+            });
+        } else {
+            // ✅ УЛУЧШЕННАЯ ДИАГНОСТИКА:
+            console.log('❌ NO USER DATA - detailed check:', {
+                hasInitDataUnsafe: !!appState.tg.initDataUnsafe,
+                initDataUnsafeKeys: Object.keys(appState.tg.initDataUnsafe || {}),
+                hasInitData: !!appState.tg.initData,
+                initDataPreview: appState.tg.initData?.substring(0, 100),
+                launchedVia: appState.tg.initDataUnsafe?.start_param || 'unknown',
+                currentURL: window.location.href,
+                isDirectAccess: !document.referrer.includes('telegram')
+            });
+
+            // Разные fallback для разных случаев
+            if (!appState.tg.initDataUnsafe) {
+                appState.userId = 'fallback_no_unsafe_' + Date.now();
+                appState.userName = 'No InitDataUnsafe';
+            } else if (!appState.tg.initDataUnsafe.user) {
+                appState.userId = 'fallback_no_user_' + Date.now();
+                appState.userName = 'No User Data';
+            } else {
+                appState.userId = 'fallback_unknown_' + Date.now();
+                appState.userName = 'Unknown Issue';
             }
-        } catch (e) {
-            console.log('❌ Method 2 failed:', e);
-        }
-    }
 
-    // Способ 3: Проверяем URL параметры (иногда данные передаются через URL)
-    if (!userData) {
-        console.log('🔍 Method 3 - Checking URL params...');
-        const urlParams = new URLSearchParams(window.location.search);
-        const tgWebAppData = urlParams.get('tgWebAppData');
-        if (tgWebAppData) {
-            try {
-                const decodedData = decodeURIComponent(tgWebAppData);
-                const dataParams = new URLSearchParams(decodedData);
-                const userParam = dataParams.get('user');
-                if (userParam) {
-                    userData = JSON.parse(decodeURIComponent(userParam));
-                    console.log('✅ Method 3 - From URL params:', userData);
+            appState.userUsername = null;
+            appState.userLanguage = 'en';
+            appState.userIsPremium = false;
+            appState.userPhotoUrl = null;
+            appState.telegramPlatform = appState.tg?.platform || 'unknown';
+            appState.telegramVersion = appState.tg?.version || 'unknown';
+        }
+        // Setup main button
+        /*if (appState.tg.MainButton) {
+            appState.tg.MainButton.setText(appState.translate('generate_btn'));
+            appState.tg.MainButton.onClick(() => {
+                if (getCurrentScreen() === 'generationScreen') {
+                    generateImage();
+                } else if (getCurrentScreen() === 'resultScreen') {
+                    showGeneration();
+                } else if (getCurrentScreen() === 'historyScreen') {
+                    showGeneration();
                 }
-            } catch (e) {
-                console.log('❌ Method 3 failed:', e);
-            }
+            });
+            appState.tg.MainButton.show();
+        }*/
+
+        // Auto-detect language
+        const tgLang = appState.tg.initDataUnsafe?.user?.language_code;
+        if (tgLang && CONFIG.LANGUAGES.includes(tgLang)) {
+            appState.setLanguage(tgLang);
         }
-    }
 
-    // Способ 4: Проверяем hash в URL
-    if (!userData && window.location.hash) {
-        console.log('🔍 Method 4 - Checking URL hash...');
-        try {
-            const hashData = window.location.hash.substring(1);
-            const hashParams = new URLSearchParams(hashData);
-            const userParam = hashParams.get('user');
-            if (userParam) {
-                userData = JSON.parse(decodeURIComponent(userParam));
-                console.log('✅ Method 4 - From URL hash:', userData);
-            }
-        } catch (e) {
-            console.log('❌ Method 4 failed:', e);
-        }
-    }
+        showStatus('success', appState.translate('connected'));
 
-    if (userData) {
-        console.log('🎉 SUCCESS! User data found:', userData);
-        window.telegramUser = {
-            id: userData.id,
-            first_name: userData.first_name || 'Unknown',
-            username: userData.username || '',
-            language_code: userData.language_code || 'en',
-            is_premium: userData.is_premium || false
-        };
-
-        // Обновляем UI если нужно
-        updateUIWithUserData();
-
-    } else {
-        console.log('❌ NO USER DATA FOUND with any method');
-        console.log('❌ Device/Browser info:');
-        console.log('   - iOS:', /iPad|iPhone|iPod/.test(navigator.userAgent));
-        console.log('   - Android:', /Android/.test(navigator.userAgent));
-        console.log('   - Chrome:', /Chrome/.test(navigator.userAgent));
-        console.log('   - Safari:', /Safari/.test(navigator.userAgent));
-        console.log('   - Telegram:', /Telegram/.test(navigator.userAgent));
-    }
-
-    console.log('📊 === END CHECK ===');
-}
-
-function updateUIWithUserData() {
-    // Обновляем интерфейс когда получили данные пользователя
-    const hasRealUser = window.telegramUser && !getUserId().startsWith('fallback');
-    if (hasRealUser) {
-        console.log('✅ Real user authenticated, generation should work');
-        // Можно показать уведомление об успешной авторизации
+    } catch (error) {
+        console.error('❌ Telegram initialization error:', error);
+        showStatus('error', 'Telegram connection error');
     }
 }
 
@@ -1749,23 +1741,11 @@ console.log('- getAppState() - get current app state');
 console.log('- setWebhookUrl("url") - set webhook URL');
 console.log('⚠️ Don\'t forget to set your webhook URL!');
 // Добавьте в конец файла:
-/*window.closeLimitModal = () => {
+window.closeLimitModal = () => {
     const modal = document.getElementById('limitModal');
     if (modal) {
         modal.classList.remove('show');
         showGeneration();
     }
-};*/
-// Добавь это в конец файла
-if (window.Telegram && window.Telegram.WebApp) {
-    // Слушаем события Telegram WebApp
-    window.Telegram.WebApp.onEvent('themeChanged', function() {
-        console.log('🎨 Theme changed, rechecking data...');
-        checkTelegramData();
-    });
-    
-    window.Telegram.WebApp.onEvent('viewportChanged', function() {
-        console.log('📱 Viewport changed, rechecking data...');
-        checkTelegramData();
-    });
-}
+};
+
