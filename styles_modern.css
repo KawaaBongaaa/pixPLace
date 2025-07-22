@@ -705,7 +705,7 @@ body {
     width: calc(100% - 40px) !important;
     padding: var(--space-1) var(--space-2);
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-);
     background: linear-gradient(135deg, var(--primary-400), var(--primary-500));
     color: white;
     font-family: "Shantell Sans", sans-serif;
@@ -718,7 +718,7 @@ body {
     justify-content: center;
     gap: var(--space-1);
     transition: all var(--transition-fast);
-    position: fixed !important;
+    position: relative !important;
     bottom: 20px !important;
     left: 20px !important;
     right: 20px !important;
