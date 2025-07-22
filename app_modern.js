@@ -901,7 +901,7 @@ function startTimer() {
         }
         updateProgressBar(elapsed);
         // Update steps based on time
-        
+
     }, 1000);
 }
 
@@ -1199,13 +1199,31 @@ async function initTelegramApp() {
         appState.tg.ready();
         appState.tg.expand();
 
+        // ✅ УЛУЧШЕННАЯ ДИАГНОСТИКА:
         console.log('🔍 Telegram WebApp data:', {
             available: !!appState.tg,
             platform: appState.tg.platform,
             version: appState.tg.version,
             initDataUnsafe: appState.tg.initDataUnsafe,
-            user: appState.tg.initDataUnsafe?.user
+            user: appState.tg.initDataUnsafe?.user,
+            // НОВЫЕ ПРОВЕРКИ:
+            initData: appState.tg.initData, // Сырые данные
+            isExpanded: appState.tg.isExpanded,
+            viewportHeight: appState.tg.viewportHeight,
+            colorScheme: appState.tg.colorScheme,
+            themeParams: appState.tg.themeParams
         });
+
+        // ДОПОЛНИТЕЛЬНАЯ ДИАГНОСТИКА:
+        console.log('🌍 Environment check:', {
+            url: window.location.href,
+            referrer: document.referrer,
+            userAgent: navigator.userAgent,
+            isHTTPS: window.location.protocol === 'https:',
+            hasInitData: !!appState.tg.initData,
+            initDataLength: appState.tg.initData?.length || 0
+        });
+
         console.log('👤 User data extracted:', {
             userId: appState.tg.initDataUnsafe?.user?.id,
             firstName: appState.tg.initDataUnsafe?.user?.first_name,
@@ -1248,14 +1266,29 @@ async function initTelegramApp() {
                 chatType: appState.chatType
             });
         } else {
-            console.log('❌ NO USER DATA - using fallback:', {
-                initDataUnsafe: appState.tg.initDataUnsafe,
-                platform: appState.tg.platform
+            // ✅ УЛУЧШЕННАЯ ДИАГНОСТИКА:
+            console.log('❌ NO USER DATA - detailed check:', {
+                hasInitDataUnsafe: !!appState.tg.initDataUnsafe,
+                initDataUnsafeKeys: Object.keys(appState.tg.initDataUnsafe || {}),
+                hasInitData: !!appState.tg.initData,
+                initDataPreview: appState.tg.initData?.substring(0, 100),
+                launchedVia: appState.tg.initDataUnsafe?.start_param || 'unknown',
+                currentURL: window.location.href,
+                isDirectAccess: !document.referrer.includes('telegram')
             });
 
-            // Fallback данные
-            appState.userId = 'tg_user_' + Date.now();
-            appState.userName = 'Telegram User';
+            // Разные fallback для разных случаев
+            if (!appState.tg.initDataUnsafe) {
+                appState.userId = 'fallback_no_unsafe_' + Date.now();
+                appState.userName = 'No InitDataUnsafe';
+            } else if (!appState.tg.initDataUnsafe.user) {
+                appState.userId = 'fallback_no_user_' + Date.now();
+                appState.userName = 'No User Data';
+            } else {
+                appState.userId = 'fallback_unknown_' + Date.now();
+                appState.userName = 'Unknown Issue';
+            }
+
             appState.userUsername = null;
             appState.userLanguage = 'en';
             appState.userIsPremium = false;
