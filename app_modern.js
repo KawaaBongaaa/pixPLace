@@ -901,13 +901,7 @@ function startTimer() {
         }
         updateProgressBar(elapsed);
         // Update steps based on time
-        if (elapsed > 10 && step === 1) {
-            updateProcessingSteps(2);
-            step = 2;
-        } else if (elapsed > 30 && step === 2) {
-            updateProcessingSteps(3);
-            step = 3;
-        }
+        
     }, 1000);
 }
 
