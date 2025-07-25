@@ -11,9 +11,18 @@ window.Telegram.WebApp.MainButton = {
 };
 
 // Также отключим другие методы Telegram
-window.Telegram.WebApp.ready = () => console.log('Telegram.WebApp.ready disabled');
-window.Telegram.WebApp.expand = () => console.log('Telegram.WebApp.expand disabled');
-window.Telegram.WebApp.close = () => console.log('Telegram.WebApp.close disabled');
+const originalReady = window.Telegram.WebApp.ready;
+window.Telegram.WebApp.ready = function () {
+    console.log('Telegram.WebApp.ready called');
+    originalReady(); // вызывает оригинальную функцию
+};
+
+const originalExpand = window.Telegram.WebApp.expand;
+window.Telegram.WebApp.expand = function () {
+    console.log('Telegram.WebApp.expand called');
+    originalExpand(); // вызывает оригинальную функцию
+};
+//window.Telegram.WebApp.close = () => console.log('Telegram.WebApp.close disabled');
 // Configuration
 const CONFIG = {
     WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!

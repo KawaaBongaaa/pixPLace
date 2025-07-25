@@ -1307,7 +1307,7 @@ textarea:focus-visible {
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: 99997; /* Увеличиваем z-index */
     overflow: hidden;
     font-family: 'Inter', sans-serif;
 }
@@ -1328,7 +1328,7 @@ textarea:focus-visible {
     -webkit-backdrop-filter: blur(6px);
     opacity: 0;
     animation: fadeInBackdrop 0.3s ease forwards;
-    z-index: 1;
+    z-index: 99998; /* Меньше чем у модального окна */
 }
 
 .limit-modal-content {
@@ -1341,7 +1341,7 @@ textarea:focus-visible {
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
     color: #f0f0f5;
     text-align: center;
-    z-index: 2;
+    z-index: 99999; /* Максимальный z-index */
     transform: translateY(-30px);
     opacity: 0;
     animation: slideInContent 0.4s ease forwards 0.1s;
@@ -1460,11 +1460,18 @@ textarea:focus-visible {
 /* Исправление для кнопки Upgrade */
 #upgradeBtn {
     pointer-events: auto !important;
-    z-index: 9999 !important;
+    z-index: 100001 !important; /* Еще выше */
     position: relative !important;
     padding: 15px 25px !important;
     min-height: 50px !important;
     min-width: 150px !important;
+    cursor: pointer !important;
+}
+.limit-modal .btn {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 100002 !important;
 }
 
 /* Music Widget */
