@@ -1090,8 +1090,8 @@ function showGeneration() {
     //    appState.tg.MainButton.show();
     //}
 }
-
-function showSubscriptionNotice(result) {
+//old
+/*function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
     const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
     console.log('🔗 Payment URL from result:', result.payment_url);
@@ -1140,6 +1140,59 @@ function showSubscriptionNotice(result) {
         closeBtn.onclick = () => {
             modal.classList.remove('show');
             showGeneration();
+        };
+    }
+}*/
+function showSubscriptionNotice(result) {
+    console.log('🔗 Full result object:', result);
+    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+    console.log('🔗 Payment URL from result:', paymentUrl);
+
+    const modal = document.getElementById('limitModal');
+    if (!modal) {
+        console.error('❌ Modal not found!');
+        return;
+    }
+
+    // Показать модальное окно
+    modal.classList.add('show');
+
+    // Настроить кнопку оплаты
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    console.log('🔘 Upgrade button found:', !!upgradeBtn);
+    if (upgradeBtn) {
+        console.log('🔘 Setting up button click handler');
+        upgradeBtn.onclick = () => {
+            console.log('🔘 Upgrade button clicked');
+
+            // Сначала закрываем модальное окно
+            modal.classList.remove('show');
+
+            // Затем с небольшой задержкой открываем ссылку
+            setTimeout(() => {
+                try {
+                    if (window.Telegram?.WebApp?.openLink) {
+                        console.log('🔗 Using Telegram.WebApp.openLink');
+                        window.Telegram.WebApp.openLink(paymentUrl);
+                    } else {
+                        console.log('🔗 Using window.open (fallback)');
+                        window.open(paymentUrl, '_blank');
+                    }
+                    console.log('✅ Link opening attempted');
+                } catch (error) {
+                    console.error('❌ Error opening payment link:', error);
+                    alert('Error opening payment link. Please try again.');
+                }
+            }, 100); // 100 мс для плавности UI
+        };
+    }
+
+    // Настроить кнопку закрытия
+    const closeBtn = document.getElementById('closeLimitModal');
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            modal.classList.remove('show');
+            showGeneration(); // Показываем генератор после закрытия
         };
     }
 }
