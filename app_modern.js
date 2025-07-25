@@ -1700,9 +1700,10 @@ window.cancelGeneration = cancelGeneration;
 window.clearHistory = clearHistory;
 window.downloadImage = downloadImage;
 window.shareImage = shareImage;
+window.showSubscriptionNotice = showSubscriptionNotice;
 
 // 🎵 Music Functions
-let currentWidget = null;
+/*let currentWidget = null;
 let isPlaying = false;
 
 function toggleMusicDropdown() {
@@ -1791,7 +1792,7 @@ document.addEventListener('click', function (event) {
     if (musicWidget && dropdown && !musicWidget.contains(event.target)) {
         dropdown.style.display = 'none';
     }
-});
+});*/
 // 🧪 Debug Functions
 window.getAppState = () => appState;
 window.setWebhookUrl = (url) => {
