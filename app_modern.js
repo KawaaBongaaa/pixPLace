@@ -1091,7 +1091,7 @@ function showGeneration() {
     //}
 }
 
-function showSubscriptionScreen(result) {
+function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
     const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
     console.log('🔗 Payment URL from result:', result.payment_url);
@@ -1442,17 +1442,27 @@ async function generateImage(event) {
             throw new Error(result.error || result.message || 'Unknown error from webhook');
         }
 
-        // Проверка лимитов (ПЕРВАЯ ПРОВЕРКА)
-        if (result.limit_reached === true || result.limit_reached === 'true' || result.limit_reached === '1') {
-            console.log('⚠️ Limit reached');
+        /// Проверка лимитов (ПЕРВАЯ ПРОВЕРКА)
+        console.log('🔍 Checking if limit reached...');
+        const limitReached = result.limit_reached === true ||
+            result.limit_reached === 'true' ||
+            result.limit_reached === '1' ||
+            result.limit_reached === 1;
+
+        console.log('🔍 Limit reached result:', limitReached);
+
+        if (limitReached) {
+            console.log('⚠️ LIMIT REACHED - Opening modal');
             appState.currentGeneration.status = 'limit';
             appState.currentGeneration.result = result.image_url || null;
             appState.saveHistory();
 
             // Получаем URL для оплаты из ответа или используем дефолтный
             const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+            console.log('🔗 Payment URL:', paymentUrl);
 
-            // Вызываем правильную функцию с URL
+            // Вызываем функцию показа модального окна
+            console.log('🔗 Calling showSubscriptionNotice...');
             showSubscriptionNotice(result);
 
             showToast('warning', result.message || 'Generation limit reached');
