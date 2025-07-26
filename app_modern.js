@@ -1106,16 +1106,10 @@ function showSubscriptionNotice(result) {
             // Затем с небольшой задержкой открываем ссылку
             setTimeout(() => {
                 try {
-                    if (window.Telegram?.WebApp?.openLink) {
-                        console.log('🔗 Using Telegram.WebApp.openLink');
-                        window.Telegram.WebApp.openLink(paymentUrl);
-                    } else {
-                        console.log('🔗 Using window.open (fallback)');
-                        window.open(paymentUrl, '_blank');
-                    }
-                    console.log('✅ Link opening attempted');
+                    console.log('🔗 Redirecting to payment URL...');
+                    window.location.href = paymentUrl;
                 } catch (error) {
-                    console.error('❌ Error opening payment link:', error);
+                    console.error('❌ Error redirecting to payment link:', error);
                     alert('Error opening payment link. Please try again.');
                 }
             }, 100); // 100 мс для плавности UI
