@@ -1376,21 +1376,20 @@ async function initTelegramApp() {
 // 🚀 App Initialization
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('🚀 pixPLace Creator starting...');
-
-    // Show loading screen
+    
     showLoadingScreen();
-
-    // Load settings and history
     appState.loadSettings();
     appState.loadHistory();
 
-    // Initialize Telegram WebApp
-    await initTelegramApp();
+    try {
+        await loadTelegramSDK();              // 👉 дождаться загрузки SDK
+        await initTelegramApp();              // 👉 только теперь можно обращаться к WebApp
+    } catch (e) {
+        console.error('❌ SDK load error:', e);
+        showStatus('error', 'Telegram SDK load failed');
+    }
 
-    // Initialize UI
     initializeUI();
-
-    // Hide loading screen and show app
     setTimeout(() => {
         hideLoadingScreen();
         showApp();
