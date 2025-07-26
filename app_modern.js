@@ -1102,7 +1102,7 @@ function showSubscriptionNotice(result) {
 
             // Сначала закрываем модальное окно
             modal.classList.remove('show');
-
+            showGeneration();
             // Затем с небольшой задержкой открываем ссылку
             setTimeout(() => {
                 try {
