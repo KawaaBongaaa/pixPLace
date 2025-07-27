@@ -31,40 +31,28 @@
         ];
 
         function loadTelegramSDK(index = 0) {
-            if (index >= sources.length) {
-                console.log('❌ All Telegram SDK sources failed');
-                return;
-            }
-
-            const script = document.createElement('script');
-            script.src = sources[index];
-
-            // ⬇️ Вот сюда вставляй:
-            script.onload = () => {
-                console.log('✅ Telegram SDK loaded from:', sources[index]);
-
-                // Теперь Telegram SDK точно загружен — вызываем .ready()
-                Telegram.WebApp.ready();
-
-                // Пробуем получить initData
-                const initData = Telegram.WebApp.initDataUnsafe;
-                console.log('📦 Telegram initDataUnsafe:', initData);
-                console.log('👤 User ID:', initData?.user?.id);
-
-                if (!initData?.user) {
-                    console.warn('⚠️ Пользователь не определён. Возможно, WebApp открыт вне Telegram');
+            return new Promise((resolve, reject) => {
+                if (index >= sources.length) {
+                    reject('❌ All Telegram SDK sources failed');
+                    return;
                 }
-            };
 
-            script.onerror = () => {
-                console.warn('❌ Failed to load:', sources[index]);
-                loadTelegramSDK(index + 1);
-            };
+                const script = document.createElement('script');
+                script.src = sources[index];
 
-            document.head.appendChild(script);
+                script.onload = () => {
+                    console.log('✅ Telegram SDK loaded from:', sources[index]);
+                    resolve(); // только теперь можно использовать WebApp
+                };
+
+                script.onerror = () => {
+                    console.warn(`⚠️ Failed to load ${sources[index]}, trying next...`);
+                    resolve(loadTelegramSDK(index + 1));
+                };
+
+                document.head.appendChild(script);
+            });
         }
-
-        loadTelegramSDK();
     </script>
 </head>
 
@@ -223,9 +211,9 @@
     </div>
 </div> 
 
-<!-- Скрытый SoundCloud iframe 
+<!-- Скрытый SoundCloud iframe -->
                     <iframe id="musicPlayer" style="display: none;" width="100%" height="166" scrolling="no"
-                        frameborder="no" allow="autoplay"></iframe>-->
+                        frameborder="no" allow="autoplay"></iframe>
 
                     <button class="control-btn" onclick="toggleLanguage()" title="Language">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -312,16 +300,16 @@
                                 <textarea id="promptInput" class="form-textarea"
                                     data-i18n-placeholder="prompt_placeholder"
                                     placeholder="A beautiful sunset over the ocean..." rows="3"
-                                    maxlength="888"></textarea>
+                                    maxlength="500"></textarea>
                                 <div class="input-counter">
-                                    <span id="charCounter">0</span>/888
+                                    <span id="charCounter">0</span>/500
                                 </div>
                             </div>
                         </div>
 
                         <!-- Style Selection -->
                         <div class="form-group">
-                            <label class="form-label" data-i18n="style_label">Style</label>
+                            <label class="form-label" data-i18n="style_label">Art Style</label>
                             <div class="style-grid">
                                 <button type="button" class="style-card active" data-style="realistic"
                                     onclick="selectStyle(this)">
@@ -563,10 +551,9 @@
             <p class="limit-message">You've reached your free generation limit. Upgrade now to continue creating amazing
                 images!</p>
             <div class="limit-buttons">
-                <a href="https://t.me/tribute/app?startapp=swcr" target="_blank" class="btn btn-primary"
-                    id="upgradeBtn">
+                <button class="btn btn-primary" id="upgradeBtn">
                     🔥 Upgrade Now
-                </a>
+                </button>
                 <button id="closeLimitModal" class="btn btn-secondary">
                     Maybe Later
                 </button>
@@ -574,75 +561,5 @@
         </div>
     </div>
 </body>
-
-<footer class="footer pt-8 pb-6 f6 color-fg-muted p-responsive" role="contentinfo">
-    <h2 class="sr-only"></h2>
-
-
-
-
-    <div class="mx-2">
-        <div class="d-flex flex-items-center flex-shrink-0 mx-2">
-            <a aria-label="pixPLace" class="footer-octicon mr-2" href="appLink here put">
-            </a>
-            <span>
-                © 2025 pixPLace,&nbsp;Inc.
-            </span>
-        </div>
-
-        <nav aria-label="Footer">
-            <h3 class="sr-only" id="sr-footer-heading"></h3>
-
-            <ul class="list-style-none d-flex flex-justify-center flex-wrap mb-2 mb-lg-0"
-                aria-labelledby="sr-footer-heading">
-                <!-- 
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to Terms&quot;,&quot;label&quot;:&quot;text:terms&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Terms</a>
-          </li>
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to privacy&quot;,&quot;label&quot;:&quot;text:privacy&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Privacy</a>
-          </li>
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to security&quot;,&quot;label&quot;:&quot;text:security&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Security</a>
-          </li>
--->
-                <li class="mx-2">
-                    <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to status&quot;,&quot;label&quot;:&quot;text:status&quot;}"
-                        href="https://t.me/tribute/app?startapp=swcr" data-view-component="true"
-                        class="Link--secondary Link">check Subscription</a>
-                </li>
-                <!-- 
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to docs&quot;,&quot;label&quot;:&quot;text:docs&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Docs</a>
-          </li>
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to contact&quot;,&quot;label&quot;:&quot;text:contact&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Contact</a>
-          </li>
-
-          <li class="mx-2">
-  <cookie-consent-link data-catalyst="">
-    <button type="button" class="Link--secondary underline-on-hover border-0 p-0 color-bg-transparent" data-action="click:cookie-consent-link#showConsentManagement" data-analytics-event="{&quot;location&quot;:&quot;footer&quot;,&quot;action&quot;:&quot;cookies&quot;,&quot;context&quot;:&quot;subfooter&quot;,&quot;tag&quot;:&quot;link&quot;,&quot;label&quot;:&quot;cookies_link_subfooter_footer&quot;}">
-       Pay Subscription
-    </button>
-  </cookie-consent-link>
-</li>
-
-<li class="mx-2">
-  <cookie-consent-link data-catalyst="">
-    <button type="button" class="Link--secondary underline-on-hover border-0 p-0 color-bg-transparent text-left" data-action="click:cookie-consent-link#showConsentManagement" data-analytics-event="{&quot;location&quot;:&quot;footer&quot;,&quot;action&quot;:&quot;dont_share_info&quot;,&quot;context&quot;:&quot;subfooter&quot;,&quot;tag&quot;:&quot;link&quot;,&quot;label&quot;:&quot;dont_share_info_link_subfooter_footer&quot;}">
-      Do not share my personal information
-    </button>
-  </cookie-consent-link>
-</li>
--->
-            </ul>
-        </nav>
-    </div>
-</footer>
 
 </html>
