@@ -24,7 +24,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Underdog&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Vinyl&family=Underdog&display=swap" rel="stylesheet">
     <script>
-        // Пробуем загрузить из разных источников
         const sources = [
             'https://telegram.org/js/telegram-web-app.js',
             'https://unpkg.com/@twa-dev/sdk@7.10.1/dist/index.js',
@@ -39,8 +38,29 @@
 
             const script = document.createElement('script');
             script.src = sources[index];
-            script.onload = () => console.log('✅ Telegram SDK loaded from:', sources[index]);
-            script.onerror = () => loadTelegramSDK(index + 1);
+
+            // ⬇️ Вот сюда вставляй:
+            script.onload = () => {
+                console.log('✅ Telegram SDK loaded from:', sources[index]);
+
+                // Теперь Telegram SDK точно загружен — вызываем .ready()
+                Telegram.WebApp.ready();
+
+                // Пробуем получить initData
+                const initData = Telegram.WebApp.initDataUnsafe;
+                console.log('📦 Telegram initDataUnsafe:', initData);
+                console.log('👤 User ID:', initData?.user?.id);
+
+                if (!initData?.user) {
+                    console.warn('⚠️ Пользователь не определён. Возможно, WebApp открыт вне Telegram');
+                }
+            };
+
+            script.onerror = () => {
+                console.warn('❌ Failed to load:', sources[index]);
+                loadTelegramSDK(index + 1);
+            };
+
             document.head.appendChild(script);
         }
 
