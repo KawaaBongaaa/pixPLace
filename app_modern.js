@@ -1,6 +1,4 @@
 // 🚀 Modern AI Image Generator WebApp
-// ВРЕМЕННОЕ ОТКЛЮЧЕНИЕ TELEGRAM MAINBUTTON
-// ПОЛНОЕ ОТКЛЮЧЕНИЕ TELEGRAM MAINBUTTON
 window.Telegram = window.Telegram || {};
 window.Telegram.WebApp = window.Telegram.WebApp || {};
 /*window.Telegram.WebApp.MainButton = {
@@ -1246,6 +1244,13 @@ async function initTelegramApp() {
         appState.tg = window.Telegram.WebApp;
         appState.tg.ready();
         appState.tg.expand();
+        console.log('🧾 Full initDataUnsafe dump:', JSON.stringify(appState.tg.initDataUnsafe, null, 2));
+
+        // ⚠️ ПРОВЕРКА: Есть ли пользователь?
+        if (!appState.tg.initData || !appState.tg.initDataUnsafe?.user) {
+            showStatus('error', '⚠️ WebApp не запущен из Telegram. Повторите запуск через бота.');
+            return;
+        }
 
         // ✅ УЛУЧШЕННАЯ ДИАГНОСТИКА:
         console.log('🔍 Telegram WebApp data:', {
@@ -1376,7 +1381,7 @@ async function initTelegramApp() {
 // 🚀 App Initialization
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('🚀 pixPLace Creator starting...');
-    
+
     showLoadingScreen();
     appState.loadSettings();
     appState.loadHistory();
