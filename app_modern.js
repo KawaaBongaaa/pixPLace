@@ -1616,7 +1616,134 @@ async function sendToWebhook(data) {
     }
 }
 // 🎨 Style Selection
-function selectStyle(button) {
+// глобальное состояние (если уже есть, не перезаписывает)
+window.appState = window.appState || { selectedStyle: null };
+
+// элементы
+const carousel = document.querySelector('.card-3d');
+const items = Array.from(carousel.children);
+const totalItems = items.length;
+const stepAngle = 360 / totalItems;
+
+let isDragging = false;
+let startX = 0;
+let currentRotation = 0;
+let targetRotation = 0;
+let animating = false;
+
+// Инициализация: разложить карточки по кругу
+items.forEach((el, i) => {
+  const angle = stepAngle * i;
+  el.style.setProperty('--angle', `${angle}deg`);
+  el.style.transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(150px)`;
+});
+
+// Выбор стиля — универсальная функция
+function selectStyle(element) {
+  // очистка
+  items.forEach(el => el.classList.remove('active'));
+
+  // активная карточка
+  element.classList.add('active');
+  window.appState.selectedStyle = element.dataset.style;
+  triggerHaptic('light');
+  console.log('🎨 Style selected:', window.appState.selectedStyle);
+}
+
+// Обновление поворота карусели (прямо ставит)
+function updateRotation(angle) {
+  currentRotation = angle;
+  carousel.style.transform = `rotateY(${currentRotation}deg)`;
+}
+
+// Плавное приведение к ближайшей карточке
+function snapToNearestCard() {
+  const normalized = ((currentRotation % 360) + 360) % 360;
+  const nearestStep = Math.round(normalized / stepAngle);
+  const snappedAngle = nearestStep * stepAngle;
+  targetRotation = snappedAngle;
+
+  // анимация к targetRotation
+  if (animating) return;
+  animating = true;
+
+  const duration = 300;
+  const start = performance.now();
+  const initial = currentRotation;
+
+  function animate(time) {
+    const t = Math.min(1, (time - start) / duration);
+    // сглаживание (ease out)
+    const ease = 1 - Math.pow(1 - t, 3);
+    const delta = targetRotation - initial;
+    updateRotation(initial + delta * ease);
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      animating = false;
+      // определяем активную карточку по финальному углу
+      let index = ((360 - targetRotation) / stepAngle) % totalItems;
+      index = Math.round(index) % totalItems;
+      if (index < 0) index += totalItems;
+      const selected = items[index];
+      selectStyle(selected);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// Pointer (мышь/тач) обработка
+carousel.addEventListener('pointerdown', (e) => {
+  isDragging = true;
+  startX = e.clientX;
+  carousel.setPointerCapture(e.pointerId);
+});
+
+carousel.addEventListener('pointermove', (e) => {
+  if (!isDragging) return;
+  const delta = e.clientX - startX;
+  startX = e.clientX;
+  updateRotation(currentRotation + delta * 0.4); // чувствительность
+});
+
+carousel.addEventListener('pointerup', (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+  snapToNearestCard();
+});
+
+carousel.addEventListener('pointerleave', (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+  snapToNearestCard();
+});
+
+// Клик по карточке — сразу выбрать и зафиксировать
+items.forEach((el, i) => {
+  el.addEventListener('click', () => {
+    const angle = stepAngle * i;
+    // разворачиваем к этой карточке
+    updateRotation(-angle);
+    snapToNearestCard();
+  });
+});
+
+// haptic placeholder / вибро (если поддерживается)
+function triggerHaptic(type) {
+  if ('vibrate' in navigator) {
+    if (type === 'light') navigator.vibrate(15);
+    else if (type === 'medium') navigator.vibrate([30, 10, 30]);
+    else if (type === 'heavy') navigator.vibrate(60);
+  } else {
+    console.log(`[haptic:${type}]`);
+  }
+}
+
+// инициализация: зафиксировать первую карточку
+snapToNearestCard();
+
+/*function selectStyle(button) {
     // Remove active class from all style buttons
     document.querySelectorAll('.style-card').forEach(btn => {
         btn.classList.remove('active');
@@ -1630,7 +1757,7 @@ function selectStyle(button) {
 
     triggerHaptic('light');
     console.log('🎨 Style selected:', appState.selectedStyle);
-}
+}*/
 
 // 🔄 Action Functions
 function newGeneration() {
