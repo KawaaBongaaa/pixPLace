@@ -1119,6 +1119,7 @@ body {
 
 .history-details {
     display: flex;
+    position: relative;
     gap: var(--space-4);
     font-size: var(--font-size-sm);
     color: var(--text-secondary);
@@ -1130,6 +1131,20 @@ body {
     max-width: 200px;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
+}
+
+.info-pair {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px; /* или по твоему дизайну */
+}
+
+.info-pair svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: block;
 }
 
 /* Toast Notifications */
