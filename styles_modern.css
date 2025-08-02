@@ -1535,6 +1535,7 @@ textarea:focus-visible {
     transform-style: preserve-3d;
     transition: transform 0.5s cubic-bezier(.22, .61, .36, 1);
     cursor: grab;
+    touch-action: none;
 }
 
 .carousel-item {
