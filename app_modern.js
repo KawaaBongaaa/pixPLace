@@ -1510,7 +1510,7 @@ async function generateImage(event) {
             appState.saveHistory();
 
             // Получаем URL для оплаты из ответа или используем дефолтный
-            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=syDv';
             console.log('🔗 Payment URL:', paymentUrl);
 
             // Вызываем функцию показа модального окна
