@@ -1631,113 +1631,145 @@ let currentRotation = 0;
 let targetRotation = 0;
 let animating = false;
 
+function rotateCarousel(direction) {
+    // Увеличиваем targetRotation на один шаг
+    targetRotation += stepAngle * direction;
+
+    // Запускаем анимацию
+    if (!animating) animateRotation();
+}
+
+function animateRotation() {
+    animating = true;
+
+    const animationSpeed = 0.1; // Чем меньше — тем плавнее
+
+    function step() {
+        const delta = targetRotation - currentRotation;
+        const stepRotation = delta * animationSpeed;
+
+        // Если осталось совсем чуть-чуть — просто добиваем
+        if (Math.abs(delta) < 0.01) {
+            currentRotation = targetRotation;
+            carousel.style.transform = `rotateY(${currentRotation}deg)`;
+            animating = false;
+            return;
+        }
+
+        currentRotation += stepRotation;
+        carousel.style.transform = `rotateY(${currentRotation}deg)`;
+        requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
+    snapToNearestCard();
+}
 // Инициализация: разложить карточки по кругу
 items.forEach((el, i) => {
-  const angle = stepAngle * i;
-  el.style.setProperty('--angle', `${angle}deg`);
-  el.style.transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(150px)`;
+    const angle = stepAngle * i;
+    el.style.setProperty('--angle', `${angle}deg`);
+    el.style.transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(150px)`;
 });
 
 // Выбор стиля — универсальная функция
 function selectStyle(element) {
-  // очистка
-  items.forEach(el => el.classList.remove('active'));
+    // очистка
+    items.forEach(el => el.classList.remove('active'));
 
-  // активная карточка
-  element.classList.add('active');
-  window.appState.selectedStyle = element.dataset.style;
-  triggerHaptic('light');
-  console.log('🎨 Style selected:', window.appState.selectedStyle);
+    // активная карточка
+    element.classList.add('active');
+    window.appState.selectedStyle = element.dataset.style;
+    triggerHaptic('light');
+    console.log('🎨 Style selected:', window.appState.selectedStyle);
 }
 
 // Обновление поворота карусели (прямо ставит)
 function updateRotation(angle) {
-  currentRotation = angle;
-  carousel.style.transform = `rotateY(${currentRotation}deg)`;
+    currentRotation = angle;
+    carousel.style.transform = `rotateY(${currentRotation}deg)`;
 }
 
 // Плавное приведение к ближайшей карточке
 function snapToNearestCard() {
-  const normalized = ((currentRotation % 360) + 360) % 360;
-  const nearestStep = Math.round(normalized / stepAngle);
-  const snappedAngle = nearestStep * stepAngle;
-  targetRotation = snappedAngle;
+    const normalized = ((currentRotation % 360) + 360) % 360;
+    const nearestStep = Math.round(normalized / stepAngle);
+    const snappedAngle = nearestStep * stepAngle;
 
-  // анимация к targetRotation
-  if (animating) return;
-  animating = true;
+    const delta = snappedAngle - normalized;
+    targetRotation = currentRotation + delta;
 
-  const duration = 300;
-  const start = performance.now();
-  const initial = currentRotation;
+    // анимация к targetRotation
+    if (animating) return;
+    animating = true;
 
-  function animate(time) {
-    const t = Math.min(1, (time - start) / duration);
-    // сглаживание (ease out)
-    const ease = 1 - Math.pow(1 - t, 3);
-    const delta = targetRotation - initial;
-    updateRotation(initial + delta * ease);
-    if (t < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      animating = false;
-      // определяем активную карточку по финальному углу
-      let index = ((360 - targetRotation) / stepAngle) % totalItems;
-      index = Math.round(index) % totalItems;
-      if (index < 0) index += totalItems;
-      const selected = items[index];
-      selectStyle(selected);
+    const duration = 300;
+    const start = performance.now();
+    const initial = currentRotation;
+
+    function animate(time) {
+        const t = Math.min(1, (time - start) / duration);
+        const ease = 1 - Math.pow(1 - t, 3);
+        const delta = targetRotation - initial;
+        updateRotation(initial + delta * ease);
+        if (t < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            animating = false;
+            // определяем активную карточку по финальному углу
+            let index = ((360 - (targetRotation % 360)) / stepAngle) % totalItems;
+            index = Math.round(index) % totalItems;
+            if (index < 0) index += totalItems;
+            const selected = items[index];
+            selectStyle(selected);
+        }
     }
-  }
 
-  requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
 }
-
 // Pointer (мышь/тач) обработка
 carousel.addEventListener('pointerdown', (e) => {
-  isDragging = true;
-  startX = e.clientX;
-  carousel.setPointerCapture(e.pointerId);
+    isDragging = true;
+    startX = e.clientX;
+    carousel.setPointerCapture(e.pointerId);
 });
 
 carousel.addEventListener('pointermove', (e) => {
-  if (!isDragging) return;
-  const delta = e.clientX - startX;
-  startX = e.clientX;
-  updateRotation(currentRotation + delta * 0.4); // чувствительность
+    if (!isDragging) return;
+    const delta = e.clientX - startX;
+    startX = e.clientX;
+    updateRotation(currentRotation + delta * 0.4); // чувствительность
 });
 
 carousel.addEventListener('pointerup', (e) => {
-  if (!isDragging) return;
-  isDragging = false;
-  snapToNearestCard();
+    if (!isDragging) return;
+    isDragging = false;
+    snapToNearestCard();
 });
 
 carousel.addEventListener('pointerleave', (e) => {
-  if (!isDragging) return;
-  isDragging = false;
-  snapToNearestCard();
+    if (!isDragging) return;
+    isDragging = false;
+    snapToNearestCard();
 });
 
 // Клик по карточке — сразу выбрать и зафиксировать
 items.forEach((el, i) => {
-  el.addEventListener('click', () => {
-    const angle = stepAngle * i;
-    // разворачиваем к этой карточке
-    updateRotation(-angle);
-    snapToNearestCard();
-  });
+    el.addEventListener('click', () => {
+        const angle = stepAngle * i;
+        targetRotation = -angle;
+        animateRotation(); // мягкий поворот
+    });
 });
 
 // haptic placeholder / вибро (если поддерживается)
 function triggerHaptic(type) {
-  if ('vibrate' in navigator) {
-    if (type === 'light') navigator.vibrate(15);
-    else if (type === 'medium') navigator.vibrate([30, 10, 30]);
-    else if (type === 'heavy') navigator.vibrate(60);
-  } else {
-    console.log(`[haptic:${type}]`);
-  }
+    if ('vibrate' in navigator) {
+        if (type === 'light') navigator.vibrate(15);
+        else if (type === 'medium') navigator.vibrate([30, 10, 30]);
+        else if (type === 'heavy') navigator.vibrate(60);
+    } else {
+        console.log(`[haptic:${type}]`);
+    }
 }
 
 // инициализация: зафиксировать первую карточку

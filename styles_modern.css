@@ -1541,15 +1541,16 @@ textarea:focus-visible {
     position: absolute;
     top: 40%;
     left: 50%;
-    width: 80px;
-    height: 100px;
+    width: 70px;
+    height: 85px;
     background-color: #1f1f25;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
     transform-origin: center center;
     display: relative;
     flex-direction: column;
     align-items: center;
+    text-align: center;
     justify-content: center;
     padding: 2px;
     box-sizing: border-box;
@@ -1560,34 +1561,34 @@ textarea:focus-visible {
 }
 
 .carousel-item p {
-    margin: 0;
+    bottom: 0;
+    right: 2px;
     font-size: 0.75rem;
     font-weight: 600;
-    text-align: center;
     position: absolute;
     z-index: 2;
     pointer-events: none;
 }
 
 .carousel-item img {
-    width: 100px;
-    height: 140px;
+    width: 70px;
+    height: 90px;
     object-fit: cover;
     border-radius: 0.4rem;
     margin-bottom: 6px;
     pointer-events: none;
-    position: absolute;
+    position: flex;
     z-index: 1;
     flex-shrink: 0;
 }
 
 
 .carousel-item.active {
-    border-color: #5affff;
-    box-shadow: 0 20px 40px rgba(90, 255, 255, 0.4);
+    border-color: #037ec1;
+    box-shadow: 0 20px 30px rgba(3, 105, 165, 0.37);
     transform: scale(1.3) translate(-50%, -50%) rotateY(var(--angle)) translateZ(150px);
     z-index: 10;
-    animation: flash 0.4s ease-in-out;
+    animation: flash 0.15s ease-in-out;
 }
 
 @keyframes flash {
