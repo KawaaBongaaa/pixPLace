@@ -1078,7 +1078,7 @@ function showSubscriptionScreen(paymentUrl) {
 }
 function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
-    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
+    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=syDv';
     console.log('🔗 Payment URL from result:', paymentUrl);
 
     const modal = document.getElementById('limitModal');
@@ -1724,6 +1724,14 @@ function snapToNearestCard() {
 
     requestAnimationFrame(animate);
 }
+// Клик по карточке — сразу выбрать и зафиксировать
+items.forEach((el, i) => {
+    el.addEventListener('click', () => {
+        const angle = stepAngle * i;
+        targetRotation = -angle;
+        animateRotation(); // мягкий поворот
+    });
+});
 // Pointer (мышь/тач) обработка
 carousel.addEventListener('pointerdown', (e) => {
     isDragging = true;
@@ -1748,15 +1756,6 @@ carousel.addEventListener('pointerleave', (e) => {
     if (!isDragging) return;
     isDragging = false;
     snapToNearestCard();
-});
-
-// Клик по карточке — сразу выбрать и зафиксировать
-items.forEach((el, i) => {
-    el.addEventListener('click', () => {
-        const angle = stepAngle * i;
-        targetRotation = -angle;
-        animateRotation(); // мягкий поворот
-    });
 });
 
 // haptic placeholder / вибро (если поддерживается)
