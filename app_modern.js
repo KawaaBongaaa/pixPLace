@@ -1617,8 +1617,6 @@ async function sendToWebhook(data) {
 }
 // 🎨 Style Selection
 // глобальное состояние (если уже есть, не перезаписывает)
-window.appState = window.appState || { selectedStyle: null };
-
 // элементы
 const carousel = document.querySelector('.card-3d');
 const items = Array.from(carousel.children);
@@ -1678,9 +1676,9 @@ function selectStyle(element) {
 
     // активная карточка
     element.classList.add('active');
-    window.appState.selectedStyle = element.dataset.style;
+    appState.selectedStyle = element.dataset.style;
     triggerHaptic('light');
-    console.log('🎨 Style selected:', window.appState.selectedStyle);
+    console.log('🎨 Style selected:', appState.selectedStyle);
 }
 
 // Обновление поворота карусели (прямо ставит)
