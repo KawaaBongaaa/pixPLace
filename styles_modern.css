@@ -1523,14 +1523,14 @@ textarea:focus-visible {
     width: 100%;
     height: 100px;
     margin: 0 auto;
-    perspective: 2000px;
+    perspective: 500px;
     position: relative;
     user-select: none;
 }
 
 .card-3d {
     width: 100%;
-    height: 100%;
+    height: 60%;
     position: relative;
     transform-style: preserve-3d;
     transition: transform 0.5s cubic-bezier(.22, .61, .36, 1);
@@ -1539,10 +1539,10 @@ textarea:focus-visible {
 
 .carousel-item {
     position: absolute;
-    top: 40%;
+    top: 50%;
     left: 50%;
-    width: 70px;
-    height: 85px;
+    width: 60px;
+    height: 80px;
     background-color: #1f1f25;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 5px;
@@ -1551,13 +1551,16 @@ textarea:focus-visible {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    text-shadow: #000000;
     justify-content: center;
-    padding: 2px;
+    padding: 0px;
     box-sizing: border-box;
-    color: #fff;
+    color: #ffffff;
     transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
     overflow: hidden;
-    font-family: system-ui, sans-serif;
+    font-family: "WDXL Lubrifont JP N", sans-serif;
+    font-optical-sizing: auto;
+    letter-spacing: 1px;
 }
 
 .carousel-item p {
@@ -1565,6 +1568,7 @@ textarea:focus-visible {
     right: 2px;
     font-size: 0.75rem;
     font-weight: 600;
+    object-fit: fill;
     position: absolute;
     z-index: 2;
     pointer-events: none;
@@ -1574,7 +1578,7 @@ textarea:focus-visible {
     width: 70px;
     height: 90px;
     object-fit: cover;
-    border-radius: 0.4rem;
+    border-radius: 0.1rem;
     margin-bottom: 6px;
     pointer-events: none;
     position: flex;
