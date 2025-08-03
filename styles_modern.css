@@ -333,10 +333,10 @@ body {
 
 .header-right {
     display: flex;
-    padding-right: 0.5rem;
+    padding-right: 0.4rem;
     align-items: right;
     justify-content: flex-start;
-    gap: var(--space-2);
+    gap: var(--space-1);
 }
 
 .control-btn {
@@ -471,7 +471,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-4);
 }
 
 .screen-header h2 {
@@ -479,8 +479,27 @@ body {
     font-weight: 800;
     color: var(--text-primary);
 }
-
 .back-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: none; /* по умолчанию скрыта */
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.show-back .back-btn {
+    display: flex;
+}
+/*.back-btn {
+    position: relative;
+    z-index: 1001;
     width: 40px;
     height: 40px;
     border: none;
@@ -491,7 +510,9 @@ body {
     align-items: center;
     justify-content: center;
     transition: all var(--transition-fast);
-}
+    display: none; /* по умолчанию скрыта 
+
+}*/
 
 .back-btn:hover {
     background: var(--bg-tertiary);
@@ -502,6 +523,7 @@ body {
     width: 20px;
     height: 20px;
 }
+
 
 .clear-btn {
     padding: var(--space-2) var(--space-4);
@@ -1050,6 +1072,11 @@ body {
     gap: var(--space-6);
 }
 
+.history_title {
+    align-items: end;
+    position: relative;
+}
+
 .empty-history {
     text-align: center;
     padding: var(--space-16) var(--space-8);
@@ -1137,14 +1164,15 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 14px; /* или по твоему дизайну */
+    font-size: 14px;
+    /* или по твоему дизайну */
 }
 
 .info-pair svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  display: block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: block;
 }
 
 /* Toast Notifications */
@@ -1247,11 +1275,12 @@ body {
     .logo-img {
         width: clamp(90px, 10vw, 130px);
         height: clamp(90px, 10vw, 130px);
-        object-fit: contain;
+        object-fit: fill;
     }
 
     .logo-text {
         font-size: clamp(2.2rem, 2.5vw, 2.4rem);
+        left: 0;
     }
 
     .welcome-section {

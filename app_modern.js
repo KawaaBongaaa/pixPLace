@@ -911,6 +911,15 @@ function stopTimer() {
 }
 
 // 📋 History Management
+
+function showBackButton(show) {
+    const body = document.body;
+    if (show) {
+        body.classList.add('show-back');
+    } else {
+        body.classList.remove('show-back');
+    }
+}
 function updateHistoryDisplay() {
     const historyContent = document.getElementById('historyContent');
     if (!historyContent) return;
@@ -948,6 +957,8 @@ function updateHistoryDisplay() {
             ${item.error ? `<p style="color: var(--error-500); font-size: var(--font-size-sm); margin-top: var(--space-2);">❌ ${item.error}</p>` : ''}
         </div>
     `).join('');
+    showBackButton(true); // показать
+
 }
 
 function getStatusText(status) {
@@ -1135,6 +1146,8 @@ function showGeneration() {
         screen.classList.remove('active');
     });
     document.getElementById('generationScreen').classList.add('active');
+    showBackButton(false);
+
 
     // Восстановить главную кнопку Telegram
     //if (appState.tg && appState.tg.MainButton) {
