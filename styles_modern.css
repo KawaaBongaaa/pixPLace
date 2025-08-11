@@ -1663,69 +1663,7 @@ textarea:focus-visible {
         filter: brightness(1.4);
     }
 }
-/* === ваш текущий styles_modern.css без изменений выше === */
 
-/* ... (весь ваш существующий CSS остаётся без изменений) ... */
-
-/* === ДОбАВЛЕНО: Dark-friendly dropzone для i2i === */
-.i2i-dropzone {
-  --i2i-border: rgba(255,255,255,0.18);
-  --i2i-border-active: #7aa7ff;
-  --i2i-bg: rgba(255,255,255,0.04);
-  --i2i-bg-active: rgba(122,167,255,0.09);
-  border: 2px dashed var(--i2i-border);
-  border-radius: 12px;
-  background: var(--i2i-bg);
-  padding: 16px;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-}
-
-.i2i-dropzone:focus-visible {
-  border-color: var(--i2i-border-active);
-  box-shadow: 0 0 0 3px rgba(122,167,255,0.25) inset;
-}
-
-.i2i-dropzone.is-dragover {
-  border-color: var(--i2i-border-active);
-  background: var(--i2i-bg-active);
-  box-shadow: 0 6px 22px rgba(122,167,255,0.12);
-  transform: translateZ(0) scale(1.01);
-}
-
-.i2i-dropzone .i2i-dropzone-inner {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  text-align: center;
-  color: rgba(255,255,255,0.85);
-}
-
-.i2i-icon { font-size: 22px; opacity: 0.9; }
-.i2i-title { font-weight: 600; }
-.i2i-sub { font-size: 13px; color: rgba(255,255,255,0.65); }
-
-.i2i-preview {
-  margin-top: 12px;
-  display: grid;
-  gap: 8px;
-}
-.i2i-preview img {
-  max-width: 100%;
-  max-height: 260px;
-  border-radius: 8px;
-  display: block;
-}
-.i2i-filename { font-size: 12px; color: rgba(255,255,255,0.7); }
-.i2i-help { margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.6); }
-
-@media (prefers-reduced-motion: reduce) {
-  .i2i-dropzone { transition: none; }
-  .i2i-dropzone.is-dragover { transform: none; }
-}
 /* Music Widget 
 .music-widget {
     position: relative;
