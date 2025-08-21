@@ -38,10 +38,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantasy',
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
-        quality_label: 'Quality',
-        quality_standard: 'Standard',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Mode',
+        mode_standard: 'Standard',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Size',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -87,10 +87,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Фэнтэзи',
         style_anime: 'Анимэ',
         style_cyberpunk: 'CyberPunk',
-        quality_label: 'Качество',
-        quality_standard: 'Standard',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Качество',
+        mode_standard: 'Standard',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Размер',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -136,10 +136,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantasía',
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
-        quality_label: 'Calidad',
-        quality_standard: 'Estándar',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Calidad',
+        mode_standard: 'Estándar',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Tamaño',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -183,10 +183,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantastique',
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
-        quality_label: 'Qualité',
-        quality_standard: 'Standard',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Qualité',
+        mode_standard: 'Standard',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Taille',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -230,10 +230,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantasie',
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
-        quality_label: 'Qualität',
-        quality_standard: 'Standard',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Qualität',
+        mode_standard: 'Standard',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Größe',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -277,10 +277,10 @@ const TRANSLATIONS = {
         style_fantasy: '奇幻',
         style_anime: '动漫',
         style_cyberpunk: '赛博朋克',
-        quality_label: '质量',
-        quality_standard: '标准',
-        quality_hd: '高清',
-        quality_ultra: '超高清',
+        mode_label: '质量',
+        mode_standard: '标准',
+        mode_hd: '高清',
+        mode_ultra: '超高清',
         size_label: '尺寸',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -324,10 +324,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantasia',
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
-        quality_label: 'Qualidade',
-        quality_standard: 'Padrão',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Qualidade',
+        mode_standard: 'Padrão',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Tamanho',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -371,10 +371,10 @@ const TRANSLATIONS = {
         style_fantasy: 'خيالي',
         style_anime: 'أنمي',
         style_cyberpunk: 'سايبربانك',
-        quality_label: 'الجودة',
-        quality_standard: 'عادي',
-        quality_hd: 'عالي الدقة',
-        quality_ultra: 'فائق الدقة',
+        mode_label: 'الجودة',
+        mode_standard: 'عادي',
+        mode_hd: 'عالي الدقة',
+        mode_ultra: 'فائق الدقة',
         size_label: 'الحجم',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -418,10 +418,10 @@ const TRANSLATIONS = {
         style_fantasy: 'काल्पनिक',
         style_anime: 'एनीमे',
         style_cyberpunk: 'साइबरपंक',
-        quality_label: 'गुणवत्ता',
-        quality_standard: 'STANDARD',
-        quality_hd: 'HD',
-        quality_ultra: 'ULTRA HD',
+        mode_label: 'गुणवत्ता',
+        mode_standard: 'STANDARD',
+        mode_hd: 'HD',
+        mode_ultra: 'ULTRA HD',
         size_label: 'आकार',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -465,10 +465,10 @@ const TRANSLATIONS = {
         style_fantasy: 'ファンタジー',
         style_anime: 'アニメ',
         style_cyberpunk: 'サイバーパンク',
-        quality_label: '画質',
-        quality_standard: '標準',
-        quality_hd: 'HD',
-        quality_ultra: 'ウルトラHD',
+        mode_label: '画質',
+        mode_standard: '標準',
+        mode_hd: 'HD',
+        mode_ultra: 'ウルトラHD',
         size_label: 'サイズ',
         size_square: 'スクエア',
         size_portrait: 'ポートレート',
@@ -512,10 +512,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantastico',
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
-        quality_label: 'Qualità',
-        quality_standard: 'Standard',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Qualità',
+        mode_standard: 'Standard',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Dimensione',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -559,10 +559,10 @@ const TRANSLATIONS = {
         style_fantasy: '판타지',
         style_anime: '애니메이션',
         style_cyberpunk: '사이버펑크',
-        quality_label: '품질',
-        quality_standard: '표준',
-        quality_hd: 'HD',
-        quality_ultra: '울트라 HD',
+        mode_label: '품질',
+        mode_standard: '표준',
+        mode_hd: 'HD',
+        mode_ultra: '울트라 HD',
         size_label: '크기',
         size_square: '정사각형',
         size_portrait: '세로',
@@ -606,10 +606,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantastik',
         style_anime: 'Anime',
         style_cyberpunk: 'Siberpunk',
-        quality_label: 'Kalite',
-        quality_standard: 'Standart',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Kalite',
+        mode_standard: 'Standart',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Boyut',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -653,10 +653,10 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantastyczny',
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
-        quality_label: 'Jakość',
-        quality_standard: 'Standardowa',
-        quality_hd: 'HD',
-        quality_ultra: 'Ultra HD',
+        mode_label: 'Jakość',
+        mode_standard: 'Standardowa',
+        mode_hd: 'HD',
+        mode_ultra: 'Ultra HD',
         size_label: 'Rozmiar',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -949,7 +949,7 @@ function updateHistoryDisplay() {
                 </span>
                 <span class="info-pair">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="M240-40v-329L110-580l185-300h370l185 300-130 211v329l-240-80-240 80Zm80-111 160-53 160 53v-129H320v129Zm20-649L204-580l136 220h280l136-220-136-220H340Zm98 383L296-558l57-57 85 85 169-170 57 56-226 227ZM320-280h320-320Z"/></svg>
-                ${appState.translate('quality_' + item.quality)}
+                ${appState.translate('mode_' + item.mode)}
                 </span>
                 ${item.duration ? `<span> ⏱ ${Math.round(item.duration / 1000)}s</span>` : ''}
             </div>
@@ -1061,13 +1061,13 @@ function showResult(result) {
     const resultImage = document.getElementById('resultImage');
     const resultPrompt = document.getElementById('resultPrompt');
     const resultStyle = document.getElementById('resultStyle');
-    const resultQuality = document.getElementById('resultQuality');
+    const resultMode = document.getElementById('resultMode');
     const resultTime = document.getElementById('resultTime');
 
     if (resultImage) resultImage.src = result.image_url;
     if (resultPrompt) resultPrompt.textContent = appState.currentGeneration.prompt;
     if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
-    if (resultQuality) resultQuality.textContent = appState.translate('quality_' + appState.currentGeneration.quality);
+    if (resultMode) resultMode.textContent = appState.translate('mode_' + appState.currentGeneration.mode);
     if (resultTime) {
         const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
         resultTime.textContent = duration + 's';
@@ -1430,10 +1430,10 @@ async function generateImage(event) {
     if (appState.isGenerating) return;
 
     const prompt = document.getElementById('promptInput').value.trim();
-    const quality = document.getElementById('qualitySelect').value;
+    const mode = document.getElementById('modeSelect').value;
     const size = document.getElementById('sizeSelect').value;
 
-    console.log('🚀 Starting generation:', { prompt, style: appState.selectedStyle, quality, size });
+    console.log('🚀 Starting generation:', { prompt, style: appState.selectedStyle, mode, size });
 
     // Validation
     if (!prompt) {
@@ -1461,7 +1461,7 @@ async function generateImage(event) {
         id: Date.now(),
         prompt: prompt,
         style: appState.selectedStyle,
-        quality: quality,
+        mode: mode,
         size: size,
         timestamp: new Date().toISOString(),
         status: 'processing',
@@ -1484,7 +1484,7 @@ async function generateImage(event) {
             action: 'Image Generation',
             prompt: prompt,
             style: appState.selectedStyle,
-            quality: quality,
+            mode: mode,
             size: size,
             user_id: appState.userId,
             user_name: appState.userName,
