@@ -39,7 +39,7 @@ const TRANSLATIONS = {
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
         mode_label: 'Mode',
-        mode_print_maker: 'Print&Stickers Maker',
+        mode_print_maker: 'Print/Stickers',
         mode_fast_generation: 'Fast Generation',
         mode_pixplace_pro: 'pixPLace Pro (text Supported)',
         size_label: 'Size',
@@ -71,8 +71,8 @@ const TRANSLATIONS = {
         limit_title: 'Generation Limit Reached',
         limit_message: 'You\'ve reached your free generation limit. Upgrade to continue creating amazing images!',
         check_subsciption: 'Check Subsciption',
-        closeLimitModal: 'Later',
-        upgradeBtn: 'Upgrade Plan'
+        closeLimitModal: 'Maybe Later',
+        upgradeBtn: 'Upgrade Now'
 
     },
     ru: {
@@ -122,10 +122,10 @@ const TRANSLATIONS = {
         copied_to_clipboard: 'Скопировано в буфер обмена',
         download_started: 'Загрузка началась',
         limit_title: 'Лимит Генераций Исчерпан',
-        limit_message: 'Вы достигли лимита бесплатных генераций. Обновите подписку, чтобы продолжить создавать потрясающие изображения!',
+        limit_message: 'Токены для генерации Закончились! Вы можете получить Больше Токенов, оплатив подписку на канал pixPLace',
         check_subsciption: 'проверить Подписку',
-        closeLimitModal: 'Позже',
-        upgradeBtn: 'Оплатить'
+        closeLimitModal: 'Может Позже',
+        upgradeBtn: 'Оплатить Сейчас'
 
     },
     es: {
