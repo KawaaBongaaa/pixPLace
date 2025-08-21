@@ -70,7 +70,10 @@ const TRANSLATIONS = {
         download_started: 'Download started',
         limit_title: 'Generation Limit Reached',
         limit_message: 'You\'ve reached your free generation limit. Upgrade to continue creating amazing images!',
-        check_subsciption: 'Check Subsciption'
+        check_subsciption: 'Check Subsciption',
+        closeLimitModal: 'Later',
+        upgradeBtn: 'Upgrade Plan'
+
     },
     ru: {
         loading: 'Творите с Удовольствием!',
@@ -91,7 +94,7 @@ const TRANSLATIONS = {
         mode_label: 'Режим генерации',
         mode_print_maker: 'Принты/Стикеры',
         mode_fast_generation: 'Быстрая генерация',
-        mode_pixplace_pro: 'pixPLace Pro (En) text supported',
+        mode_pixplace_pro: 'pixPLace Pro (Logo/Text/Photo)',
         size_label: 'Размер',
         size_square: '1:1',
         size_portrait: '9:16',
@@ -120,7 +123,9 @@ const TRANSLATIONS = {
         download_started: 'Загрузка началась',
         limit_title: 'Лимит Генераций Исчерпан',
         limit_message: 'Вы достигли лимита бесплатных генераций. Обновите подписку, чтобы продолжить создавать потрясающие изображения!',
-        check_subsciption: 'проверить Подписку'
+        check_subsciption: 'проверить Подписку',
+        closeLimitModal: 'Позже',
+        upgradeBtn: 'Оплатить'
 
     },
     es: {
