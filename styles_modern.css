@@ -736,35 +736,36 @@ body {
 }
 
 /* Обёртка карусели */
+/* Обёртка: только скрыть переполнение по Y */
 .carousel-2d-wrapper {
   position: relative;
-  overflow: hidden; /* скрываем “клонированные” края */
+  overflow: hidden;
 }
 
-/* Горизонтальный трек */
+/* Трек: простой горизонтальный список, нативный скролл */
 .carousel-2d {
   display: flex;
   gap: 8px;
   align-items: stretch;
-  will-change: transform;
+  overflow-x: auto;         /* нативный горизонтальный скролл */
+  overflow-y: hidden;
+  scroll-behavior: smooth;  /* плавный скролл */
+  -webkit-overflow-scrolling: touch;
   user-select: none;
-  -webkit-user-drag: none;
-  touch-action: pan-x;        /* свайп только по X */
-  cursor: grab;
-  /* Без фиксированного центрирования! */
+  touch-action: pan-x;      /* свайп по X */
+  padding: 4px 8px;         /* небольшой внутренний отступ */
 }
 
-/* Карточка */
+/* Карточки */
 .carousel-2d-item {
-  position: relative;
   flex: 0 0 auto;
-  width: 80px;            /* подгони под свои размеры */
-  height: 100px;          /* подгони под свои размеры */
+  width: 80px;
+  height: 100px;
   border-radius: 6px;
   overflow: hidden;
   border: 2px solid rgba(255,255,255,0.1);
   background: #1f1f25;
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
 .carousel-2d-item img {
   display: block;
@@ -781,22 +782,18 @@ body {
   font-size: 11px;
   font-weight: 600;
   color: #fff;
-  text-shadow: 0 1px 2px #000;
   text-align: center;
   pointer-events: none;
+  /* добавлена более заметная тень под текст */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.6);
 }
 
-/* Активная */
+/* Активная карточка — лёгкое выделение */
 .carousel-2d-item.active {
   border-color: #037ec1;
-  box-shadow: 0 10px 18px rgba(3,105,165,0.35);
+  box-shadow: 0 8px 14px rgba(3,105,165,0.26);
   transform: scale(1.06);
-  z-index: 2;
-}
-
-/* В момент перетаскивания */
-.carousel-2d.dragging {
-  cursor: grabbing;
+  z-index: 1;
 }
 
 /* Generate Button */
