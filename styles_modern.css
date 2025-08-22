@@ -329,6 +329,7 @@ body {
     width: clamp(100px, 10vw, 150px);
     height: clamp(100px, 10vw, 150px);
     object-fit: contain;
+    color: var(--text-primary);
 }
 
 .header-right {
@@ -1575,7 +1576,7 @@ textarea:focus-visible {
     padding-bottom: 10;
 }
 
-.carousel-container {
+/*.carousel-container {
   position: relative;
   width: 100%;
   max-width: 600px;
@@ -1649,6 +1650,7 @@ textarea:focus-visible {
     flex: 0 0 90px;
   }
 }
+*/
 /*
 .carousel-wrapper {
     width: 40%;

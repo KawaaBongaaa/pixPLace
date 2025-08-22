@@ -1703,6 +1703,7 @@ async function sendToWebhook(data) {
     }
 }
 // 🎨 Style Selection
+/*
 const track = document.querySelector('.carousel-track');
 const items = Array.from(track.children);
 const prevBtn = document.querySelector('.prev');
