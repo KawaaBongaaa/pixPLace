@@ -1720,369 +1720,325 @@ async function sendToWebhook(data) {
 // 2D Carousel functionality
 // Stable 2D Carousel
 // Infinite 2D Carousel (loop, Android-friendly)
-(() => {
-    const track = document.getElementById('carousel2d');
-    if (!track) return;
+(function() {
+  const wrapper = document.querySelector('.carousel-2d-wrapper');
+  const track = document.getElementById('carousel2d');
+  if (!wrapper || !track) return;
 
-    const container = track.parentElement;
-    const GAP = 12;
-    const LEFT_PAD = 12;
+  // Нормализуем стилевые данные
+  function styleOf(el) {
+    return (el?.dataset?.style || '').toLowerCase();
+  }
 
-    // Реальные элементы (без клонов)
-    let realItems = Array.from(track.querySelectorAll('.carousel-2d-item'));
-    let items = []; // с клонами
-    let itemWidth = 96;
+  // Соберём исходные реальные элементы
+  const realItems = Array.from(track.children);
+  if (realItems.length === 0) return;
 
-    // Сколько элементов показывается примерно на вьюпорте (оценка)
-    function estimateVisible() {
-        const w = container.clientWidth || 360;
-        return Math.max(1, Math.round(w / (itemWidth + GAP)));
+  // Переменные состояния
+  let items = [];                  // включая клоны
+  let selectedStyle = styleOf(realItems[0]); // по умолчанию первая
+  let itemWidth = 0;
+  let gap = 0;
+  let offsetX = 0;                 // текущий translateX
+  let isDragging = false;
+  let startX = 0;
+  let prevX = 0;
+  let velocity = 0;
+  let lastMoveT = 0;
+  let animFrame = null;
+  let isSnapping = false;
+  let clonesPerSide = 0;
+
+  // Вычисление размеров (учитывая gap)
+  function measure() {
+    // Берём реальный первый
+    const first = track.querySelector('.carousel-2d-item');
+    if (!first) return;
+    const r1 = first.getBoundingClientRect();
+    itemWidth = r1.width;
+    // ближайшего соседа расстояние по X — даст нам шаг (width + gap)
+    const second = first.nextElementSibling;
+    if (second) {
+      const r2 = second.getBoundingClientRect();
+      const step = r2.left - r1.left;
+      gap = Math.max(0, Math.round(step - itemWidth));
+    } else {
+      gap = 8; // запас
     }
-    let CLONE_COUNT = 0;
+  }
 
-    // State
-    let offsetX = 0;
-    let startX = 0;
-    let dragStartOffset = 0;
-    let isDragging = false;
-    let hasMoved = false;
-    let velocity = 0;
-    let lastMoveTime = 0;
-    let lastMoveX = 0;
-    let rafId = 0;
-    let isAnimating = false;
-    let selectedStyle = (realItems?.[0]?.dataset.style || 'realistic').toLowerCase();
+  // Клонирование для бесконечного скролла
+  function buildClones() {
+    // Сколько карточек помещается в вьюпорт + запас
+    const viewW = wrapper.clientWidth;
+    const perView = Math.max(1, Math.ceil(viewW / Math.max(1, itemWidth + gap)));
+    clonesPerSide = perView + 3; // запас
 
-    function sendWebhook(style) {
-        try { /* window.myWebhook?.(style); */ } catch (e) { console.warn('Webhook error', e); }
+    // Сброс
+    track.innerHTML = '';
+    // Левые клоны (конец в начало)
+    const leftClones = realItems.slice(-clonesPerSide).map(n => cloneNode(n));
+    leftClones.forEach(n => track.appendChild(n));
+    // Реальные
+    realItems.forEach(n => track.appendChild(n));
+    // Правые клоны (начало в конец)
+    const rightClones = realItems.slice(0, clonesPerSide).map(n => cloneNode(n));
+    rightClones.forEach(n => track.appendChild(n));
+
+    // Обновим массив items
+    items = Array.from(track.children);
+  }
+
+  function cloneNode(node) {
+    const c = node.cloneNode(true);
+    c.classList.add('clone');
+    return c;
+  }
+
+  // Индексы
+  const realCount = realItems.length;
+  function realIndexFromDomIndex(domIdx) {
+    // items = [L clones..., realItems..., R clones...]
+    const realStart = clonesPerSide;
+    return (domIdx - realStart + realCount) % realCount;
+  }
+  function domIndexFromRealIndex(realIdx) {
+    const realStart = clonesPerSide;
+    return realStart + realIdx;
+  }
+
+  // Трансформа
+  function setTransform(x, withTransition = false) {
+    if (withTransition) {
+      track.style.transition = 'transform .25s cubic-bezier(.22,.61,.36,1)';
+    } else {
+      track.style.transition = 'none';
     }
+    track.style.transform = `translate3d(${x}px,0,0)`;
+  }
 
-    function measure() {
-        const probe = items[0] || realItems[0];
-        if (probe) {
-            const w = probe.getBoundingClientRect().width;
-            if (w) itemWidth = w;
-        }
-    }
+  // Центрируем массив так, чтобы реальный индекс 0 начинался примерно сразу после левых клонов
+  function initialOffset() {
+    // смещение такое, чтобы первый реальный оказался в начале видимой области
+    // позиция элемента 0 (реального) в списке items — domIndexFromRealIndex(0)
+    // нам нужно выставить offsetX, чтобы этот dom элемент был сразу после левого края wrapper с небольшим отступом
+    const xOfDom = xPositionOfDomIndex(domIndexFromRealIndex(0));
+    // хотим чтобы xOfDom относительно wrapper был примерно 0
+    return -xOfDom;
+  }
 
-    function setTransform(x, withTransition = false) {
-        track.style.transition = withTransition ? 'transform 0.28s ease' : 'none';
-        track.style.transform = `translateX(${x}px)`;
-    }
+  function xPositionOfDomIndex(domIdx) {
+    // позиция дом элемента = domIdx * (itemWidth + gap)
+    return domIdx * (itemWidth + gap);
+  }
 
-    // Без клампа — в бесконечной ленте мы не ограничиваем offset жестко,
-    // но при вычислении спозиционированного центра используем "реальные" индексы.
-    function totalWidth(count) {
-        return count * itemWidth + (count - 1) * GAP + LEFT_PAD * 2;
-    }
+  // Обеспечиваем бесконечность: если ушли слишком влево/вправо — переносим
+  function ensureLoopBounds() {
+    // вычислим текущую “виртуальную” позицию левого края в “шаговых” единицах
+    const step = itemWidth + gap;
+    const total = items.length;
+    const realStart = clonesPerSide;
+    const realEnd = clonesPerSide + realCount - 1;
 
-    // Построение клонов слева/справа
-    function buildLoopClones() {
-        // Очистить трек и собрать всё заново
-        track.innerHTML = '';
-        items = [];
+    // вычислим, где находится левый клон и правый клон
+    // Определим индекс ближнего к левому краю элемента
+    const leftEdge = -offsetX;
+    const approxDomIndex = Math.floor(leftEdge / step);
 
-        // Сначала измерим ширину по реальным элементам
-        if (realItems.length === 0) return;
-        // Временно добавим один, чтобы корректно измерить
-        track.appendChild(realItems[0].cloneNode(true));
-        measure();
-        track.innerHTML = '';
-
-        CLONE_COUNT = estimateVisible() + 1;
-
-        // Клоны влево
-        const leftClones = realItems.slice(-CLONE_COUNT).map((el, i) => {
-            const c = el.cloneNode(true);
-            c.dataset.clone = 'left';
-            return c;
-        });
-
-        // Оригиналы
-        const originals = realItems.map(el => {
-            const c = el.cloneNode(true);
-            c.dataset.clone = 'none';
-            return c;
-        });
-
-        // Клоны вправо
-        const rightClones = realItems.slice(0, CLONE_COUNT).map((el, i) => {
-            const c = el.cloneNode(true);
-            c.dataset.clone = 'right';
-            return c;
-        });
-
-        // Наполнить трек
-        const full = [...leftClones, ...originals, ...rightClones];
-        full.forEach((el, idx) => {
-            // гарантируем классы
-            el.classList.add('carousel-2d-item');
-            track.appendChild(el);
-        });
-
-        items = Array.from(track.querySelectorAll('.carousel-2d-item'));
-        // Навесить клики
-        items.forEach((el, i) => {
-            el.onclick = () => { if (!isDragging) snapToDomIndex(i); };
-        });
-    }
-
-    // Перевод DOM-индекса (с учетом клонов) в реальный индекс
-    function realIndexFromDomIndex(domIndex) {
-        const realCount = realItems.length;
-        const firstRealDom = CLONE_COUNT; // первые CLONE_COUNT — левые клоны
-        const lastRealDom = CLONE_COUNT + realCount - 1;
-        if (domIndex < firstRealDom) {
-            // клик по левому клону
-            const rel = domIndex - 0; // позиция среди всех слева
-            const realIdx = (realCount - CLONE_COUNT + rel) % realCount;
-            return (realIdx + realCount) % realCount;
-        }
-        if (domIndex > lastRealDom) {
-            // клик по правому клону
-            const rel = domIndex - (CLONE_COUNT + realCount);
-            const realIdx = (0 + rel) % realCount;
-            return (realIdx + realCount) % realCount;
-        }
-        // внутри реальных
-        return domIndex - CLONE_COUNT;
-    }
-
-    function domIndexFromRealIndex(realIdx) {
-        return CLONE_COUNT + ((realIdx % realItems.length) + realItems.length) % realItems.length;
-    }
-
-    function centerOfDomIndex(domIdx) {
-        let cursor = LEFT_PAD;
-        for (let i = 0; i < domIdx; i++) cursor += itemWidth + GAP;
-        return cursor + itemWidth / 2;
+    // Если слишком ушли влево — переносим вправо соответствующий шаг
+    const minDom = clonesPerSide - realCount; // условный порог
+    if (approxDomIndex < minDom) {
+      const shift = realCount * step;
+      offsetX += shift;
+      setTransform(offsetX, false);
     }
 
-    function containerCenter() {
-        return container.clientWidth / 2;
+    // Если слишком ушли вправо — переносим влево
+    const maxDom = clonesPerSide + realCount * 2; // условный порог
+    if (approxDomIndex > maxDom) {
+      const shift = realCount * step;
+      offsetX -= shift;
+      setTransform(offsetX, false);
     }
+  }
 
-    // Подсветка по realIdx — подсвечиваем ближайший DOM-элемент-оригинал
-    function highlightByRealIndex(realIdx) {
-        items.forEach(el => el.classList.remove('active'));
-        const domIdx = domIndexFromRealIndex(realIdx);
-        const el = items[domIdx];
-        if (!el) return;
-        el.classList.add('active');
+  // Подсветка активного realIdx
+  function highlightRealIndex(realIdx) {
+    items.forEach(el => el.classList.remove('active'));
+    const domIdx = domIndexFromRealIndex(realIdx);
+    const el = items[domIdx];
+    if (el) el.classList.add('active');
+    selectedStyle = styleOf(el);
+    // гарантируем видимость активной карточки (но НЕ центрируем)
+    keepActiveVisible(el);
+  }
 
-        const style = (el.dataset.style || '').toLowerCase();
-        if (style) selectedStyle = style;
+  // Снэп к ближайшей карточке относительно текущего смещения
+  function snapToNearest() {
+    if (isSnapping) return;
+    isSnapping = true;
+
+    const step = itemWidth + gap;
+    // Вычислим, какой элемент сейчас “ближе” к левому краю (или к конкретному ориентиру). 
+    // Мы будем снэпать так, чтобы ближайшая карточка выровнялась ровно на шаг сетки.
+    const leftEdge = -offsetX;
+    const nearestDomIndex = Math.round(leftEdge / step);
+    const targetX = -(nearestDomIndex * step);
+
+    // Плавно
+    track.style.transition = 'transform .22s cubic-bezier(.22,.61,.36,1)';
+    offsetX = targetX;
+    track.style.transform = `translate3d(${offsetX}px,0,0)`;
+
+    track.addEventListener('transitionend', onAfterSnap, { once: true });
+
+    function onAfterSnap() {
+      track.style.transition = 'none';
+      ensureLoopBounds();
+      // Определим реальный индекс и подсветим
+      const realIdx = (nearestDomIndex - clonesPerSide) % realCount;
+      const normalized = (realIdx + realCount) % realCount;
+      highlightRealIndex(normalized);
+      isSnapping = false;
     }
+  }
 
-    // Телепорт, если выехали в буфер
-    function ensureLoopBounds() {
-        const realCount = realItems.length;
-        const totalCount = items.length;
+  // Клик по карточке — снэп к этой карточке
+  function snapToDomIndex(domIdx) {
+    const step = itemWidth + gap;
+    const targetX = -(domIdx * step);
+    track.style.transition = 'transform .22s cubic-bezier(.22,.61,.36,1)';
+    offsetX = targetX;
+    track.style.transform = `translate3d(${offsetX}px,0,0)`;
+    track.addEventListener('transitionend', () => {
+      track.style.transition = 'none';
+      ensureLoopBounds();
+      const realIdx = realIndexFromDomIndex(domIdx);
+      highlightRealIndex(realIdx);
+    }, { once: true });
+  }
 
-        // Посчитать ближайший индекс по текущему offsetX (по DOM)
-        const center = containerCenter();
-        // Перебираем быстро по приблизительной формуле
-        let closest = { idx: 0, dist: Infinity };
-        let cursor = LEFT_PAD + offsetX; // offsetX сдвигает реальную позицию ленты
-        for (let i = 0; i < totalCount; i++) {
-            const itemCenter = cursor + itemWidth / 2;
-            const dist = Math.abs(itemCenter - center);
-            if (dist < closest.dist) closest = { idx: i, dist };
-            cursor += itemWidth + GAP;
-        }
-        const domIdx = closest.idx;
+  // Держим активную карточку видимой внутри wrapper (если уходит за края — мягко подправляем)
+  function keepActiveVisible(el) {
+    if (!el) return;
+    const wRect = wrapper.getBoundingClientRect();
+    const eRect = el.getBoundingClientRect();
+    const overLeft = eRect.left < wRect.left + 8;   // небольшие поля
+    const overRight = eRect.right > wRect.right - 8;
 
-        const firstRealDom = CLONE_COUNT;
-        const lastRealDom = CLONE_COUNT + realCount - 1;
-
-        if (domIdx <= firstRealDom + 1) {
-            // Слишком слева — переносим на эквивалентную позицию в “центре”
-            const realIdx = realIndexFromDomIndex(domIdx);
-            const targetDom = domIndexFromRealIndex(realIdx);
-            // вычисляем новый offsetX так, чтобы targetDom оказался на том же месте
-            const currentCenter = centerOfDomIndex(domIdx) + offsetX;
-            const desiredOffset = containerCenter() - centerOfDomIndex(targetDom);
-            // применяем без анимации
-            offsetX = desiredOffset;
-            setTransform(offsetX, false);
-        } else if (domIdx >= lastRealDom - 1) {
-            // Слишком справа — аналогично
-            const realIdx = realIndexFromDomIndex(domIdx);
-            const targetDom = domIndexFromRealIndex(realIdx);
-            const desiredOffset = containerCenter() - centerOfDomIndex(targetDom);
-            offsetX = desiredOffset;
-            setTransform(offsetX, false);
-        }
+    // если элемент уходит за левый край — немного двигаем трек вправо
+    if (overLeft) {
+      const dx = (wRect.left + 8) - eRect.left;
+      offsetX += dx;
+      setTransform(offsetX, true);
+    } else if (overRight) {
+      const dx = eRect.right - (wRect.right - 8);
+      offsetX -= dx;
+      setTransform(offsetX, true);
     }
+  }
 
-    function snapToRealIndex(realIdx) {
-        if (isAnimating) return;
-        isAnimating = true;
+  // Публичные методы
+  window.getSelectedStyle = function() {
+    return selectedStyle;
+  };
+  window.setCarouselStyle = function(style) {
+    const target = String(style || '').toLowerCase();
+    // найдём realIdx
+    const realIdx = realItems.findIndex(n => styleOf(n) === target);
+    if (realIdx === -1) return;
+    const domIdx = domIndexFromRealIndex(realIdx);
+    snapToDomIndex(domIdx);
+  };
 
-        const domIdx = domIndexFromRealIndex(realIdx);
-        const target = containerCenter() - centerOfDomIndex(domIdx);
-        offsetX = target;
-        setTransform(offsetX, true);
-        highlightByRealIndex(realIdx);
+  // Обработчики pointer
+  track.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    startX = prevX = e.clientX;
+    velocity = 0;
+    lastMoveT = performance.now();
+    track.classList.add('dragging');
+    track.setPointerCapture(e.pointerId);
+    track.style.transition = 'none';
+  });
+  track.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    const now = performance.now();
+    const dx = e.clientX - prevX;
+    prevX = e.clientX;
+    const dt = Math.max(1, now - lastMoveT);
+    lastMoveT = now;
+    velocity = 0.9 * velocity + 0.1 * (dx / dt) * 16.7; // px per frame approx
+    offsetX += dx;
+    setTransform(offsetX, false);
+    ensureLoopBounds();
+  });
+  function endPointer() {
+    if (!isDragging) return;
+    isDragging = false;
+    track.classList.remove('dragging');
+    // небольшой инерционный толчок
+    const bonus = Math.max(-80, Math.min(80, velocity * 120));
+    offsetX += bonus;
+    setTransform(offsetX, true);
+    // после короткой анимации — снэп к сетке
+    track.addEventListener('transitionend', () => {
+      snapToNearest();
+    }, { once: true });
+  }
+  track.addEventListener('pointerup', endPointer);
+  track.addEventListener('pointercancel', endPointer);
+  track.addEventListener('pointerleave', endPointer);
 
-        // webhook после выбора
-        sendWebhook(selectedStyle);
+  // Клик по карточке
+  function onItemClick(e) {
+    const card = e.currentTarget;
+    // Небольшая защита от “клика после драг”: если рука дрогнула сильно — игнор
+    // Можно проверить по velocity, но у нас уже есть снэп после драг. 
+    // Просто снэпнем к этой карточке:
+    const domIdx = items.indexOf(card);
+    if (domIdx >= 0) snapToDomIndex(domIdx);
+  }
 
-        setTimeout(() => {
-            isAnimating = false;
-            ensureLoopBounds();
-        }, 280);
-    }
-
-    function snapToDomIndex(domIdx) {
-        const realIdx = realIndexFromDomIndex(domIdx);
-        snapToRealIndex(realIdx);
-    }
-
-    function snapToNearest() {
-        // Найдём ближайший DOM-индекс, переведём в реальный и щёлкнем
-        const center = containerCenter();
-        let closest = { idx: 0, dist: Infinity };
-        let cursor = LEFT_PAD + offsetX;
-        for (let i = 0; i < items.length; i++) {
-            const itemCenter = cursor + itemWidth / 2;
-            const dist = Math.abs(itemCenter - center);
-            if (dist < closest.dist) closest = { idx: i, dist };
-            cursor += itemWidth + GAP;
-        }
-        snapToDomIndex(closest.idx);
-    }
-
-    function stopInertia() {
-        if (rafId) cancelAnimationFrame(rafId);
-        rafId = 0;
-    }
-
-    function startInertia() {
-        stopInertia();
-        const friction = 0.90;
-        const minVel = 0.09;
-        function step() {
-            velocity *= friction;
-            if (Math.abs(velocity) < minVel) {
-                snapToNearest();
-                return;
-            }
-            offsetX = offsetX + velocity; // без клампа
-            setTransform(offsetX, false);
-            ensureLoopBounds();
-            rafId = requestAnimationFrame(step);
-        }
-        rafId = requestAnimationFrame(step);
-    }
-
-    // Pointer events
-    let touchStartTime = 0;
-
-    track.addEventListener('pointerdown', (e) => {
-        isDragging = true;
-        hasMoved = false;
-        touchStartTime = performance.now();
-
-        track.setPointerCapture(e.pointerId);
-        startX = e.clientX;
-        dragStartOffset = offsetX;
-        velocity = 0;
-        lastMoveX = e.clientX;
-        lastMoveTime = performance.now();
-
-        stopInertia();
-        setTransform(offsetX, false);
+  function bindItemClicks() {
+    items.forEach(el => {
+      el.removeEventListener('click', onItemClick);
+      el.addEventListener('click', onItemClick);
     });
+  }
 
-    track.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
-        const now = performance.now();
-        const dx = e.clientX - startX;
-
-        if (Math.abs(dx) > 7) hasMoved = true;
-
-        offsetX = dragStartOffset + dx; // без клампа
-        setTransform(offsetX, false);
-        ensureLoopBounds();
-
-        const dt = now - lastMoveTime;
-        if (dt > 0) {
-            velocity = (e.clientX - lastMoveX) / dt * 12;
-            lastMoveX = e.clientX;
-            lastMoveTime = now;
-        }
-    });
-
-    function endDrag(e) {
-        if (!isDragging) return;
-        isDragging = false;
-
-        const tapDuration = performance.now() - touchStartTime;
-
-        if (!hasMoved && tapDuration < 220) {
-            // хит-тест по DOM-индексу
-            const rect = track.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            let cursor = LEFT_PAD + offsetX;
-            for (let i = 0; i < items.length; i++) {
-                const left = cursor;
-                const right = cursor + itemWidth;
-                if (clickX >= left && clickX <= right) {
-                    snapToDomIndex(i);
-                    return;
-                }
-                cursor += itemWidth + GAP;
-            }
-            return;
-        }
-
-        if (hasMoved && Math.abs(velocity) > 0.25) {
-            startInertia();
-        } else {
-            snapToNearest();
-        }
-    }
-
-    track.addEventListener('pointerup', endDrag);
-    track.addEventListener('pointerleave', endDrag);
-    track.addEventListener('pointercancel', endDrag);
-
-    // Wheel
-    container.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        stopInertia();
-
-        const delta = (Math.abs(e.deltaY) > Math.abs(e.deltaX)) ? e.deltaY : e.deltaX;
-        offsetX = offsetX - delta * 0.4; // без клампа
-        setTransform(offsetX, false);
-        ensureLoopBounds();
-
-        clearTimeout(container._wheelT);
-        container._wheelT = setTimeout(snapToNearest, 140);
-    }, { passive: false });
-
-    // Public API
-    window.getSelectedStyle = () => selectedStyle;
-    window.setCarouselStyle = (style) => {
-        const target = String(style || '').toLowerCase();
-        const realIdx = realItems.findIndex(item => (item.dataset.style || '').toLowerCase() === target);
-        if (realIdx >= 0) snapToRealIndex(realIdx);
-    };
-    window.refreshCarousel = () => {
-        realItems = Array.from(track.querySelectorAll('.carousel-2d-item')).filter(el => el.dataset.clone !== 'left' && el.dataset.clone !== 'right');
-        buildLoopClones();
-        measure();
-        // Перецентровать на текущий выбранный стиль
-        const ri = Math.max(0, realItems.findIndex(it => (it.dataset.style || '').toLowerCase() === selectedStyle));
-        snapToRealIndex(ri);
-    };
-
-    // Init
-    buildLoopClones();
+  // Инициализация
+  function init() {
     measure();
-    // Стартуем по центру первого реального
-    snapToRealIndex(0);
+    buildClones();
+    bindItemClicks();
+    // стартовая позиция: показываем начало реальных элементов
+    offsetX = initialOffset();
+    setTransform(offsetX, false);
+    // подсветим ближайший к левому краю
+    snapToNearest();
+    // ресайз
+    window.addEventListener('resize', onResize);
+  }
+
+  function onResize() {
+    // Пересобрать с новыми размерами
+    const currentStyle = selectedStyle;
+    measure();
+    buildClones();
+    bindItemClicks();
+    offsetX = initialOffset();
+    setTransform(offsetX, false);
+    // вернуть к выбранному стилю, если можем
+    window.setCarouselStyle(currentStyle);
+  }
+
+  // Запуск
+  // Немного подождём рендера, чтобы размеры были точными
+  requestAnimationFrame(() => {
+    measure();
+    requestAnimationFrame(init);
+  });
 })();
 /*
 const track = document.querySelector('.carousel-track');
