@@ -27,30 +27,31 @@
             'https://unpkg.com/@twa-dev/sdk@7.10.1/dist/index.js',
             'https://cdn.jsdelivr.net/npm/@twa-dev/sdk@7.10.1/dist/index.js'
         ];
-
-        function loadTelegramSDK(index = 0) {
-            return new Promise((resolve, reject) => {
-                if (index >= sources.length) {
-                    reject('❌ All Telegram SDK sources failed');
-                    return;
-                }
-
-                const script = document.createElement('script');
-                script.src = sources[index];
-
-                script.onload = () => {
-                    console.log('✅ Telegram SDK loaded from:', sources[index]);
-                    resolve();
-                };
-
-                script.onerror = () => {
-                    console.warn(`⚠️ Failed to load ${sources[index]}, trying next...`);
-                    resolve(loadTelegramSDK(index + 1));
-                };
-
-                document.head.appendChild(script);
-            });
-        }
+        /*
+                function loadTelegramSDK(index = 0) {
+                    return new Promise((resolve, reject) => {
+                        if (index >= sources.length) {
+                            reject('❌ All Telegram SDK sources failed');
+                            return;
+                        }
+        
+                        const script = document.createElement('script');
+                        script.src = sources[index];
+        
+                        script.onload = () => {
+                            console.log('✅ Telegram SDK loaded from:', sources[index]);
+                            resolve();
+                        };
+        
+                        script.onerror = () => {
+                            console.warn(`⚠️ Failed to load ${sources[index]}, trying next...`);
+                            resolve(loadTelegramSDK(index + 1));
+                        };
+        
+                        document.head.appendChild(script);
+                    });
+                }*/
+        /*
 
         async function initTelegramWebApp() {
             try {
@@ -83,9 +84,7 @@
             } catch (err) {
                 console.error('❌ Ошибка инициализации Telegram WebApp:', err);
             }
-        }
-
-        window.addEventListener('load', initTelegramWebApp);
+        }*/
     </script>
 
     <!-- Yandex.Metrika counter -->
@@ -524,15 +523,19 @@
                             </div>
 
                             <!-- Generate Button -->
-                            <button type="submit" class="generate-btn" id="generateBtn">
-                                <span class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="m176-120-56-56 301-302-181-45 198-123-17-234 179 151 216-88-87 217 151 178-234-16-124 198-45-181-301 301Zm24-520-80-80 80-80 80 80-80 80Zm355 197 48-79 93 7-60-71 35-86-86 35-71-59 7 92-79 49 90 22 23 90Zm165 323-80-80 80-80 80 80-80 80ZM569-570Z" />
-                                    </svg></span>
-                                <span class="btn-text" data-i18n="generate_btn">Generate Image</span>
-                                <div class="btn-ripple"></div>
-                            </button>
+                            <div class="generate-container">
+
+                                <button type="submit" class="generate-btn" id="generateBtn">
+                                    <span class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                                            viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                                            <path
+                                                d="m176-120-56-56 301-302-181-45 198-123-17-234 179 151 216-88-87 217 151 178-234-16-124 198-45-181-301 301Zm24-520-80-80 80-80 80 80-80 80Zm355 197 48-79 93 7-60-71 35-86-86 35-71-59 7 92-79 49 90 22 23 90Zm165 323-80-80 80-80 80 80-80 80ZM569-570Z" />
+                                        </svg></span>
+                                    <span class="btn-text" data-i18n="generate_btn">Generate Image</span>
+                                    <div class="btn-ripple"></div>
+                                </button>
+                            </div>
+
                     </form>
                 </div>
             </div>

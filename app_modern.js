@@ -974,6 +974,13 @@ function startTimer() {
     const elapsedTimeElement = document.getElementById('elapsedTime');
     let step = 1;
 
+    // Сначала очищаем существующий интервал
+    if (appState.timerInterval) {
+        clearInterval(appState.timerInterval);
+        appState.timerInterval = null;
+    }
+
+    // Затем создаем новый
     appState.timerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - appState.startTime) / 1000);
         if (elapsedTimeElement) {
@@ -981,7 +988,6 @@ function startTimer() {
         }
         updateProgressBar(elapsed);
         // Update steps based on time
-
     }, 1000);
 }
 
@@ -1087,7 +1093,7 @@ function showApp() {
     document.getElementById('app').classList.add('loaded');
 }
 
-function getCurrentScreen() {
+/*function getCurrentScreen() {
   const home = document.getElementById('home');
   const processing = document.getElementById('processing');
   const result = document.getElementById('result');
@@ -1096,6 +1102,13 @@ function getCurrentScreen() {
   if (processing && !processing.classList.contains('hidden')) return 'processing';
   if (home && !home.classList.contains('hidden')) return 'home';
   return 'unknown';
+}*/
+function getCurrentScreen() {
+    if (document.getElementById('resultScreen')?.classList.contains('active')) return 'result';
+    if (document.getElementById('processingScreen')?.classList.contains('active')) return 'processing';
+    if (document.getElementById('historyScreen')?.classList.contains('active')) return 'history';
+    if (document.getElementById('generationScreen')?.classList.contains('active')) return 'generation';
+    return 'unknown';
 }
 
 function showScreen(screenId) {
@@ -1729,108 +1742,109 @@ async function sendToWebhook(data) {
 // 2D Carousel functionality
 // Stable 2D Carousel
 // Infinite 2D Carousel (loop, Android-friendly)
-(function() {
-  const track = document.getElementById('carousel2d');
-  const wrapper = track?.closest('.carousel-2d-wrapper');
-  if (!track || !wrapper) return;
+(function () {
+    const track = document.getElementById('carousel2d');
+    const wrapper = track?.closest('.carousel-2d-wrapper');
+    if (!track || !wrapper) return;
 
-  const cards = Array.from(track.querySelectorAll('.carousel-2d-item'));
-  if (!cards.length) return;
+    const cards = Array.from(track.querySelectorAll('.carousel-2d-item'));
+    if (!cards.length) return;
 
-  let selectedStyle = (cards[0].dataset.style || '').toLowerCase();
-  let isPointerDown = false;
-  let startX = 0;
-  let startScroll = 0;
-  let moved = false;
+    let selectedStyle = (cards[0].dataset.style || '').toLowerCase();
+    let isPointerDown = false;
+    let startX = 0;
+    let startScroll = 0;
+    let moved = false;
 
-  // Выделение активной
-  function highlight(card) {
-    cards.forEach(c => c.classList.remove('active'));
-    if (!card) return;
-    card.classList.add('active');
-    // гарантируем видимость, но не центрируем
-    card.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-  }
-
-  // Найти ближайшую карточку к текущему скроллу
-  function nearestCard() {
-    const trackRect = track.getBoundingClientRect();
-    let best = null, bestDist = Infinity;
-    for (const c of cards) {
-      const r = c.getBoundingClientRect();
-      // возьмём расстояние от левого края карточки до левого края трека как метрику
-      const dist = Math.abs(r.left - trackRect.left);
-      if (dist < bestDist) {
-        bestDist = dist;
-        best = c;
-      }
+    // Выделение активной
+    function highlight(card) {
+        cards.forEach(c => c.classList.remove('active'));
+        if (!card) return;
+        card.classList.add('active');
+        appState.selectedStyle = (card.dataset.style || 'realistic');
+        // гарантируем видимость, wqtynhbhetv
+        card.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
     }
-    return best;
-  }
 
-  // Снэпим к ближайшей карточке
-  function snapToNearest() {
-    const card = nearestCard();
-    if (card) highlight(card);
-  }
+    // Найти ближайшую карточку к текущему скроллу
+    function nearestCard() {
+        const trackRect = track.getBoundingClientRect();
+        let best = null, bestDist = Infinity;
+        for (const c of cards) {
+            const r = c.getBoundingClientRect();
+            // возьмём расстояние от левого края карточки до левого края трека как метрику
+            const dist = Math.abs(r.left - trackRect.left);
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = c;
+            }
+        }
+        return best;
+    }
 
-  // Клик по карточке
-  function onCardClick(e) {
-    // если был реальный свайп — не снимать клик
-    if (moved) return;
-    const card = e.currentTarget;
-    highlight(card);
-  }
-  cards.forEach(c => {
-    c.addEventListener('click', onCardClick);
-  });
+    // Снэпим к ближайшей карточке
+    function snapToNearest() {
+        const card = nearestCard();
+        if (card) highlight(card);
+    }
 
-  // Pointer события на треке
-  track.addEventListener('pointerdown', (e) => {
-    isPointerDown = true;
-    moved = false;
-    startX = e.clientX;
-    startScroll = track.scrollLeft;
-    track.setPointerCapture(e.pointerId);
-  });
+    // Клик по карточке
+    function onCardClick(e) {
+        // если был реальный свайп — не снимать клик
+        if (moved) return;
+        const card = e.currentTarget;
+        highlight(card);
+    }
+    cards.forEach(c => {
+        c.addEventListener('click', onCardClick);
+    });
 
-  track.addEventListener('pointermove', (e) => {
-    if (!isPointerDown) return;
-    const dx = e.clientX - startX;
-    if (Math.abs(dx) > 5) moved = true;
-    // инвертируем для скролла
-    track.scrollLeft = startScroll - dx;
-  });
+    // Pointer события на треке
+    track.addEventListener('pointerdown', (e) => {
+        isPointerDown = true;
+        moved = false;
+        startX = e.clientX;
+        startScroll = track.scrollLeft;
+        track.setPointerCapture(e.pointerId);
+    });
 
-  function endPointer(e) {
-    if (!isPointerDown) return;
-    isPointerDown = false;
-    // после свайпа — снэп к ближайшей
-    requestAnimationFrame(snapToNearest);
-  }
+    track.addEventListener('pointermove', (e) => {
+        if (!isPointerDown) return;
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 5) moved = true;
+        // инвертируем для скролла
+        track.scrollLeft = startScroll - dx;
+    });
 
-  track.addEventListener('pointerup', endPointer);
-  track.addEventListener('pointercancel', endPointer);
-  track.addEventListener('pointerleave', endPointer);
+    function endPointer(e) {
+        if (!isPointerDown) return;
+        isPointerDown = false;
+        // после свайпа — снэп к ближайшей
+        requestAnimationFrame(snapToNearest);
+    }
 
-  // Публичные методы для внешней интеграции
-  window.getSelectedStyle = function() {
-    return selectedStyle;
-  };
-  window.setCarouselStyle = function(style) {
-    const target = String(style || '').toLowerCase();
-    const card = cards.find(c => (c.dataset.style || '').toLowerCase() === target);
-    if (card) highlight(card);
-  };
+    track.addEventListener('pointerup', endPointer);
+    track.addEventListener('pointercancel', endPointer);
+    track.addEventListener('pointerleave', endPointer);
 
-  // Инициализация — выделим первую видимую/первую по списку
-  highlight(cards[0]);
+    // Публичные методы для внешней интеграции
+    window.getSelectedStyle = function () {
+        return selectedStyle;
+    };
+    window.setCarouselStyle = function (style) {
+        const target = String(style || '').toLowerCase();
+        const card = cards.find(c => (c.dataset.style || '').toLowerCase() === target);
+        if (card) highlight(card);
+    };
 
-  // На ресайз — удержать активную в видимой области
-  window.addEventListener('resize', () => {
-    const active = track.querySelector('.carousel-2d-item.active');
-    if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-  });
+    // Инициализация — выделим первую видимую/первую по списку
+    highlight(cards[0]);
+
+    // На ресайз — удержать активную в видимой области
+    window.addEventListener('resize', () => {
+        const active = track.querySelector('.carousel-2d-item.active');
+        if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+    });
 })();
 // Выбор стиля — универсальная функция
 /*function selectStyle(element) {

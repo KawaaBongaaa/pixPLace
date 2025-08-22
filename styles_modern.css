@@ -467,6 +467,10 @@ body {
 
 .screen-content {
     max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    /* на всю
 }
 
 .screen-header {
@@ -599,6 +603,10 @@ body {
     gap: var(--space-6);
     padding-left: 10px;
     padding-bottom: 20px;
+    flex: 1;
+    overflow-y: auto;
+    /* скроллим контент */
+    padding: 20px;
 
 }
 
@@ -685,7 +693,9 @@ body {
     display: flex;
     gap: var(--space-1);
     overflow-x: visible;
-    touch-action: pan-y;   /* было overflow-x: auto; */;
+    touch-action: pan-y;
+    /* было overflow-x: auto; */
+    ;
 }
 
 .style-card {
@@ -738,70 +748,85 @@ body {
 /* Обёртка карусели */
 /* Обёртка: только скрыть переполнение по Y */
 .carousel-2d-wrapper {
-  position: relative;
-  overflow: hidden;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Трек: простой горизонтальный список, нативный скролл */
 .carousel-2d {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-  overflow-x: auto;         /* нативный горизонтальный скролл */
-  overflow-y: hidden;
-  scroll-behavior: smooth;  /* плавный скролл */
-  -webkit-overflow-scrolling: touch;
-  user-select: none;
-  touch-action: pan-x;      /* свайп по X */
-  padding: 4px 8px;         /* небольшой внутренний отступ */
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    overflow-x: auto;
+    /* нативный горизонтальный скролл */
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    /* плавный скролл */
+    -webkit-overflow-scrolling: touch;
+    user-select: none;
+    touch-action: pan-x;
+    /* свайп по X */
+    padding: 4px 8px;
+    /* небольшой внутренний отступ */
 }
 
 /* Карточки */
 .carousel-2d-item {
-  flex: 0 0 auto;
-  width: 80px;
-  height: 100px;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.1);
-  background: #1f1f25;
-  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    flex: 0 0 auto;
+    width: 80px;
+    height: 100px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: #1f1f25;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
+
 .carousel-2d-item img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
 }
+
 .carousel-2d-item p {
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  bottom: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #fff;
-  text-align: center;
-  pointer-events: none;
-  /* добавлена более заметная тень под текст */
-  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.6);
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    pointer-events: none;
+    /* добавлена более заметная тень под текст */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 3px rgba(0, 0, 0, 0.6);
 }
 
 /* Активная карточка — лёгкое выделение */
 .carousel-2d-item.active {
-  border-color: #037ec1;
-  box-shadow: 0 8px 14px rgba(3,105,165,0.26);
-  transform: scale(1.06);
-  z-index: 1;
+    border-color: #037ec1;
+    box-shadow: 0 8px 14px rgba(3, 105, 165, 0.26);
+    transform: scale(1.06);
+    z-index: 1;
+}
+
+.generate-container {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    /* фон, чтобы не просвечивал контент */
+    padding: 10px 20px;
+    border-top: 1px solid #eee;
 }
 
 /* Generate Button */
 .generate-btn {
     width: calc(100% - 40px) !important;
-    padding: var(--space-1) var(--space-2);
+    /* padding: var(--space-1) var(--space-2); */
     border: none;
-    border-radius: var(--radius-md);
+    /*border-radius: var(--radius-md);*/
     background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
     color: white;
     font-family: "Shantell Sans", sans-serif;
@@ -821,6 +846,8 @@ body {
     overflow: hidden;
     box-shadow: var(--shadow-lg);
     opacity: 0.9;
+    padding: 12px;
+    border-radius: 12px;
 }
 
 .generate-btn:hover {
