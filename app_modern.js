@@ -1703,9 +1703,51 @@ async function sendToWebhook(data) {
     }
 }
 // 🎨 Style Selection
-// глобальное состояние (если уже есть, не перезаписывает)
-// элементы
-const carousel = document.querySelector('.card-3d');
+const track = document.querySelector('.carousel-track');
+const items = Array.from(track.children);
+const prevBtn = document.querySelector('.prev');
+const nextBtn = document.querySelector('.next');
+
+let index = 0;
+
+function updateCarousel() {
+    const itemWidth = items[0].offsetWidth + 15; // ширина + gap
+    track.style.transform = `translateX(${-index * itemWidth}px)`;
+
+    items.forEach(el => el.classList.remove('active'));
+    if (items[index]) items[index].classList.add('active');
+}
+
+prevBtn.addEventListener('click', () => {
+    index = Math.max(0, index - 1);
+    updateCarousel();
+});
+
+nextBtn.addEventListener('click', () => {
+    index = Math.min(items.length - 1, index + 1);
+    updateCarousel();
+});
+
+items.forEach((item, i) => {
+    item.addEventListener('click', () => {
+        index = i;
+        updateCarousel();
+        console.log("🎨 Selected:", item.dataset.style);
+    });
+});
+
+// свайп для мобильных
+let startX = 0;
+track.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx > 50) prevBtn.click();
+    if (dx < -50) nextBtn.click();
+});
+
+updateCarousel();
+
+/*const carousel = document.querySelector('.card-3d');
 const items = Array.from(carousel.children);
 const totalItems = items.length;
 const stepAngle = 360 / totalItems;
@@ -1858,7 +1900,7 @@ function triggerHaptic(type) {
 
 // инициализация: зафиксировать первую карточку
 snapToNearestCard();
-
+*/
 /*function selectStyle(button) {
     // Remove active class from all style buttons
     document.querySelectorAll('.style-card').forEach(btn => {
@@ -1879,8 +1921,8 @@ snapToNearestCard();
 function newGeneration() {
     showGeneration();
     // Clear form
-    document.getElementById('promptInput').value = '';
-    document.getElementById('charCounter').textContent = '0';
+    //  document.getElementById('promptInput').value = '';
+    //  document.getElementById('charCounter').textContent = '0';
 }
 
 function cancelGeneration() {
@@ -1897,7 +1939,7 @@ function cancelGeneration() {
 }
 
 // 📱 Device Integration
-/* async function downloadImage() {
+async function downloadImage() {
     if (!appState.currentGeneration?.result) return;
 
     try {
@@ -1920,8 +1962,8 @@ function cancelGeneration() {
         console.error("Ошибка при скачивании:", err);
         showToast('error', 'Download failed');
     }
-}*/
-function downloadImage() {
+}
+/*function downloadImage() {
     if (!appState.currentGeneration?.result) return;
 
     const link = document.createElement('a');
@@ -1932,6 +1974,7 @@ function downloadImage() {
     showToast('info', appState.translate('download_started'));
     triggerHaptic('light');
 }
+*/
 
 function shareImage() {
     if (!appState.currentGeneration?.result) return;
