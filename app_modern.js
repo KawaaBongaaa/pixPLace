@@ -1703,31 +1703,188 @@ async function sendToWebhook(data) {
     }
 }
 // 🎨 Style Selection
-const carousel = document.getElementById("styleCarousel");
-const leftBtn = document.getElementById("scrollLeft");
-const rightBtn = document.getElementById("scrollRight");
-const items = document.querySelectorAll(".style-item");
+// 2D Carousel functionality
+(() => {
+  const track = document.getElementById('carousel2d');
+  const items = Array.from(track.querySelectorAll('.carousel-2d-item'));
 
-leftBtn.addEventListener("click", () => {
-  carousel.scrollBy({ left: -150, behavior: "smooth" });
-});
-rightBtn.addEventListener("click", () => {
-  carousel.scrollBy({ left: 150, behavior: "smooth" });
-});
+  // Геометрия
+  const gap = 12; // должен совпадать с CSS gap
+  let itemWidth = 90; // должен совпадать с flex-basis
+  let container = track.parentElement;
+  let offsetX = 0;         // текущий translateX
+  let startX = 0;          // точка начала перетаскивания
+  let dragStartOffset = 0; // translateX на момент pointerdown
+  let isDragging = false;
+  let velocity = 0;        // для инерции
+  let lastMoveTime = 0;
+  let lastMoveX = 0;
+  let rafId = 0;
 
-// Выбор стиля
-items.forEach(item => {
-  item.addEventListener("click", () => {
-    items.forEach(i => i.classList.remove("active"));
-    item.classList.add("active");
+  function measure() {
+    // Если меняете размеры через CSS, можно переопределить тут вычисление
+    const first = items[0];
+    if (first) itemWidth = first.getBoundingClientRect().width;
+  }
 
-    const selectedStyle = item.dataset.style;
-    console.log("Выбран стиль:", selectedStyle);
+  function setTransform(x, withTransition = false) {
+    if (!withTransition) {
+      track.style.transition = 'none';
+    } else {
+      track.style.transition = 'transform 0.3s ease';
+    }
+    track.style.transform = `translateX(${x}px)`;
+  }
 
-    // тут просто выбор! генерация не запускается!
-    appState.selectedStyle = selectedStyle;
+  function clampOffset(x) {
+    const totalWidth = items.length * (itemWidth) + (items.length - 1) * gap + 24; // + паддинги трека
+    const viewport = container.clientWidth;
+    const minX = Math.min(0, viewport - totalWidth);
+    const maxX = 0;
+    return Math.max(minX, Math.min(maxX, x));
+  }
+
+  function activeIndexFromOffset(x) {
+    // центр контейнера
+    const center = container.clientWidth / 2;
+    // позиция каждого элемента относительно translateX
+    let closest = { idx: 0, dist: Infinity };
+    let cursor = 12; // левый паддинг трека = 12px
+    items.forEach((_, i) => {
+      const itemCenter = cursor + itemWidth / 2 + x;
+      const dist = Math.abs(itemCenter - center);
+      if (dist < closest.dist) closest = { idx: i, dist };
+      cursor += itemWidth + gap;
+    });
+    return closest.idx;
+  }
+
+  function highlightActive(idx) {
+    items.forEach(el => el.classList.remove('active'));
+    const el = items[idx];
+    if (el) el.classList.add('active');
+  }
+
+  function snapToNearest() {
+    const idx = activeIndexFromOffset(offsetX);
+    snapToIndex(idx);
+  }
+
+  function snapToIndex(idx) {
+    // Рассчитываем offset, чтобы центр idx попал в центр контейнера
+    const center = container.clientWidth / 2;
+    let cursor = 12; // левый паддинг
+    for (let i = 0; i < idx; i++) cursor += itemWidth + gap;
+    const itemCenter = cursor + itemWidth / 2;
+    const target = clampOffset(center - itemCenter);
+    offsetX = target;
+    setTransform(offsetX, true);
+    highlightActive(idx);
+    triggerHaptic('light');
+  }
+
+  function stopInertia() {
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
+
+  function startInertia() {
+    stopInertia();
+    const friction = 0.92; // затухание
+    function step() {
+      velocity *= friction;
+      if (Math.abs(velocity) < 0.05) {
+        snapToNearest();
+        return;
+      }
+      offsetX = clampOffset(offsetX + velocity);
+      setTransform(offsetX);
+      rafId = requestAnimationFrame(step);
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  // События
+  track.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    track.setPointerCapture(e.pointerId);
+    startX = e.clientX;
+    dragStartOffset = offsetX;
+    velocity = 0;
+    lastMoveX = e.clientX;
+    lastMoveTime = performance.now();
+    stopInertia();
+    setTransform(offsetX); // убрать transition
   });
-});
+
+  track.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    const now = performance.now();
+    const dx = e.clientX - startX;
+    offsetX = clampOffset(dragStartOffset + dx);
+    setTransform(offsetX);
+    // скорость
+    const dt = now - lastMoveTime;
+    if (dt > 0) {
+      velocity = (e.clientX - lastMoveX) / dt * 12; // масштабирование
+      lastMoveX = e.clientX;
+      lastMoveTime = now;
+    }
+  });
+
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    if (Math.abs(velocity) > 0.2) {
+      startInertia();
+    } else {
+      snapToNearest();
+    }
+  }
+
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointerleave', endDrag);
+
+  // Клик по карточке — центрируем её
+  items.forEach((el, i) => {
+    el.addEventListener('click', () => {
+      snapToIndex(i);
+      console.log('🎨 Style selected:', el.dataset.style);
+    });
+  });
+
+  // Колесо мыши — горизонтальная прокрутка
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    stopInertia();
+    offsetX = clampOffset(offsetX - e.deltaY - e.deltaX);
+    setTransform(offsetX);
+    // небольшая задержка и "прилипание"
+    clearTimeout(container._wheelT);
+    container._wheelT = setTimeout(snapToNearest, 120);
+  }, { passive: false });
+
+  // Хаптик
+  function triggerHaptic(type) {
+    if ('vibrate' in navigator) {
+      if (type === 'light') navigator.vibrate(15);
+      else if (type === 'medium') navigator.vibrate([30, 10, 30]);
+      else if (type === 'heavy') navigator.vibrate(60);
+    } else {
+      // no-op
+    }
+  }
+
+  // Ресайз/инициализация
+  window.addEventListener('resize', () => {
+    measure();
+    snapToNearest();
+  });
+
+  measure();
+  // зафиксировать первую карточку в центре
+  snapToIndex(0);
+})();
 /*
 const track = document.querySelector('.carousel-track');
 const items = Array.from(track.children);

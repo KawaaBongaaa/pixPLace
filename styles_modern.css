@@ -680,94 +680,6 @@ body {
 }
 
 /* Style Grid */
-body {
-  font-family: sans-serif;
-  background: #f9f9f9;
-  margin: 0;
-  padding: 20px;
-}
-
-.style-selector {
-  max-width: 100%;
-}
-
-.style-label {
-  font-size: 1.2em;
-  font-weight: bold;
-  margin-bottom: 10px;
-  display: block;
-  text-align: left;
-}
-
-.carousel-wrapper {
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.carousel {
-  display: flex;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  gap: 10px;
-  padding: 10px;
-  scrollbar-width: none; /* Firefox */
-}
-
-.carousel::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-
-.style-item {
-  flex: 0 0 auto;
-  width: 80px;
-  text-align: center;
-  cursor: pointer;
-  border-radius: 12px;
-  padding: 10px;
-  background: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.style-item svg {
-  width: 32px;
-  height: 32px;
-  fill: none;
-  stroke: #333;
-  stroke-width: 2;
-  margin-bottom: 5px;
-}
-
-.style-item span {
-  font-size: 0.8em;
-  display: block;
-}
-
-.style-item:hover {
-  transform: scale(1.05);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-}
-
-.style-item.active {
-  border: 2px solid #007bff;
-}
-
-.arrow {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-  padding: 5px;
-  color: #333;
-  transition: color 0.2s;
-}
-
-.arrow:hover {
-  color: #007bff;
-}
-
-/*
 .style-grid {
     padding-top: 2px;
     display: flex;
@@ -822,65 +734,84 @@ body {
     font-size: var(--font-size-2xl);
 }
 
-.style-carousel {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px auto;
-    max-width: 95%;
-    overflow: hidden;
+.carousel-2d-wrapper {
+  width: 90%;
+  max-width: 640px;
+  margin: 24px auto;
+  overflow: hidden;          /* маска для горизонтального скролла */
+  position: relative;
+  user-select: none;
 }
 
-.carousel-track {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 10px;
+.carousel-2d {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  will-change: transform;
+  cursor: grab;
+  transition: transform 0.3s ease; /* используется для “прилипания” */
+  padding: 8px 12px;
 }
 
-.carousel-track::-webkit-scrollbar {
-    display: none;
+.carousel-2d:active {
+  cursor: grabbing;
 }
 
-
-.style-card img {
-    width: 100%;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
+.carousel-2d-item {
+  flex: 0 0 90px;            /* ширина карточки */
+  height: 120px;
+  background: #1f1f25;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #fff;
+  display: flex;             /* корректно, в отличие от display: relative */
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.carousel-btn {
-    position: absolute;
-    top: 40%;
-    background: rgba(0, 0, 0, 0.4);
-    border: none;
-    color: white;
-    font-size: 22px;
-    padding: 4px 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    z-index: 2;
+.carousel-2d-item p {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  right: 8px;
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
 }
 
-.prev {
-    left: 0;
+.carousel-2d-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* аккуратнее смотрится */
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 1;
+  position: absolute;
+  inset: 0;
 }
 
-.next {
-    right: 0;
+.carousel-2d-item.active {
+  border-color: #037ec1;
+  box-shadow: 0 10px 20px rgba(3, 105, 165, 0.3);
+  transform: scale(1.05);
+  z-index: 1;
 }
 
-.selected-style {
-    margin-top: 5px;
-    font-size: 14px;
-    color: #fff;
-    text-align: center;
+/* Адаптив */
+@media (max-width: 480px) {
+  .carousel-2d-item {
+    flex-basis: 80px;
+    height: 108px;
+  }
 }
-*/
 /* Generate Button */
 .generate-btn {
     width: calc(100% - 40px) !important;
