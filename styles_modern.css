@@ -684,7 +684,8 @@ body {
     padding-top: 2px;
     display: flex;
     gap: var(--space-1);
-    overflow-x: auto;
+    overflow-x: visible;
+    touch-action: pan-y;   /* было overflow-x: auto; */;
 }
 
 .style-card {
@@ -740,6 +741,7 @@ body {
     margin: 16px auto;
     overflow: hidden;
     position: relative;
+    z-index: 1;
     user-select: none;
 }
 
