@@ -1739,8 +1739,6 @@ async function sendToWebhook(data) {
     cards.forEach(c => c.classList.remove('active'));
     if (!card) return;
     card.classList.add('active');
-    selectedStyle = (card.dataset.style || '').toLowerCase();
-
     // гарантируем видимость, но не центрируем
     card.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
   }
@@ -1825,6 +1823,17 @@ async function sendToWebhook(data) {
     if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
   });
 })();
+// Выбор стиля — универсальная функция
+function selectStyle(element) {
+    // очистка
+    items.forEach(el => el.classList.remove('active'));
+
+    // активная карточка
+    element.classList.add('active');
+    appState.selectedStyle = element.dataset.style;
+    triggerHaptic('light');
+    console.log('🎨 Style selected:', appState.selectedStyle);
+}
 /*
 const track = document.querySelector('.carousel-track');
 const items = Array.from(track.children);
@@ -1920,18 +1929,6 @@ items.forEach((el, i) => {
     el.style.setProperty('--angle', `${angle}deg`);
     el.style.transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(150px)`;
 });
-
-// Выбор стиля — универсальная функция
-function selectStyle(element) {
-    // очистка
-    items.forEach(el => el.classList.remove('active'));
-
-    // активная карточка
-    element.classList.add('active');
-    appState.selectedStyle = element.dataset.style;
-    triggerHaptic('light');
-    console.log('🎨 Style selected:', appState.selectedStyle);
-}
 
 // Обновление поворота карусели (прямо ставит)
 function updateRotation(angle) {
