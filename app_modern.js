@@ -1,6 +1,6 @@
 // 🚀 Modern AI Image Generator WebApp
-window.Telegram = window.Telegram || {};
-window.Telegram.WebApp = window.Telegram.WebApp || {};
+//window.Telegram = window.Telegram || {};
+//window.Telegram.WebApp = window.Telegram.WebApp || {};
 /*window.Telegram.WebApp.MainButton = {
     setText: () => console.log('MainButton.setText disabled'),
     show: () => console.log('MainButton.show disabled'),
@@ -9,8 +9,8 @@ window.Telegram.WebApp = window.Telegram.WebApp || {};
 };*/
 
 // Также отключим другие методы Telegram
-window.Telegram.WebApp.ready = () => console.log('Telegram.WebApp.ready disabled');
-window.Telegram.WebApp.expand = () => console.log('Telegram.WebApp.expand disabled');
+//window.Telegram.WebApp.ready = () => console.log('Telegram.WebApp.ready disabled');
+//window.Telegram.WebApp.expand = () => console.log('Telegram.WebApp.expand disabled');
 //window.Telegram.WebApp.close = () => console.log('Telegram.WebApp.close disabled');
 // Configuration
 const CONFIG = {
