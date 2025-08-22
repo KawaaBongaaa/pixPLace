@@ -338,7 +338,7 @@ body {
     padding-right: 0.4rem;
     align-items: center;
     justify-content: flex-end;
-    gap: var(--space-4);
+    gap: var(--space-1);
 }
 
 .control-btn {
@@ -815,11 +815,12 @@ body {
 
 .generate-container {
     position: sticky;
+    display: block;
     bottom: 0;
-    background: white;
+    background: var(--primary-500);
     /* фон, чтобы не просвечивал контент */
     padding: 10px 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--primary-600);
 }
 
 /* Generate Button */
