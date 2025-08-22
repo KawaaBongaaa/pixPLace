@@ -817,7 +817,7 @@ body {
     position: sticky;
     display: block;
     bottom: 0;
-    background: var(--primary-500);
+    background: transparent;
     /* фон, чтобы не просвечивал контент */
     padding: 10px 20px;
     border-top: 1px solid var(--primary-600);

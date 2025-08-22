@@ -1111,7 +1111,7 @@ function getCurrentScreen() {
     return 'unknown';
 }
 
-function showScreen(screenId) {
+/*function showScreen(screenId) {
     // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -1126,8 +1126,18 @@ function showScreen(screenId) {
 
     // Update main button
     //updateMainButton(screenId);
-}
+}*/
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+        screen.setAttribute('hidden', 'true');
+    });
 
+    const targetScreen = document.getElementById(screenId);
+    if (!targetScreen) { console.error('Screen not found:', screenId); return; }
+    targetScreen.classList.add('active');
+    targetScreen.removeAttribute('hidden');
+}
 /*function updateMainButton(screenId) {
     if (!appState.tg?.MainButton) return;
 
@@ -1560,6 +1570,15 @@ async function generateImage(event) {
     appState.isGenerating = true;
     appState.startTime = Date.now();
 
+    // Убедимся что selectedStyle синхронизирован с каруселью
+    const activeCarouselItem = document.querySelector('.carousel-2d-item.active');
+    if (activeCarouselItem) {
+        appState.selectedStyle = activeCarouselItem.dataset.style;
+    } else {
+        // Если нет активного элемента, берем первый или дефолтный
+        appState.selectedStyle = appState.selectedStyle || 'abstract';
+    }
+
     // Create generation record
     appState.currentGeneration = {
         id: Date.now(),
@@ -1632,6 +1651,13 @@ async function generateImage(event) {
             appState.currentGeneration.result = result.image_url || null;
             appState.saveHistory();
 
+            // Показываем результат с изображением (если есть)
+            if (result.image_url) {
+                showResult(result);
+            } else {
+                showGeneration(); // Возвращаемся на главный экран если нет изображения
+            }
+
             // Получаем URL для оплаты из ответа или используем дефолтный
             const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=syDv';
             console.log('🔗 Payment URL:', paymentUrl);
@@ -1672,7 +1698,8 @@ async function generateImage(event) {
 
         showToast('error', appState.translate('error_generation_failed') + ': ' + error.message);
         triggerHaptic('error');
-        showGeneration();
+        // НЕ возвращаемся на главный экран при ошибке - остаемся на processing
+        // showGeneration();
     } finally {
         appState.isGenerating = false;
         stopTimer();
@@ -1843,9 +1870,16 @@ async function sendToWebhook(data) {
     // На ресайз — удержать активную в видимой области
     window.addEventListener('resize', () => {
         const active = track.querySelector('.carousel-2d-item.active');
-        if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+        if (active) active.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
     });
 })();
+const activeCarouselItem = document.querySelector('.carousel-2d-item.active');
+if (activeCarouselItem) {
+    appState.selectedStyle = activeCarouselItem.dataset.style;
+} else {
+    // Если нет активного элемента, берем первый или дефолтный
+    appState.selectedStyle = appState.selectedStyle || 'abstract';
+}
 // Выбор стиля — универсальная функция
 /*function selectStyle(element) {
     // очистка
