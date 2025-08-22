@@ -1603,34 +1603,12 @@ textarea:focus-visible {
     display: none;
 }
 
-.style-card {
-    flex: 0 0 120px;
-    scroll-snap-align: center;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    text-align: center;
-    padding: 6px;
-    cursor: pointer;
-    transition: transform 0.25s ease, background 0.25s ease;
-}
 
 .style-card img {
     width: 100%;
     height: 90px;
     object-fit: cover;
     border-radius: 8px;
-}
-
-.style-card span {
-    display: block;
-    margin-top: 4px;
-    font-size: 13px;
-    color: #fff;
-}
-
-.style-card.active {
-    transform: scale(1.05);
-    background: rgba(255, 255, 255, 0.15);
 }
 
 .carousel-btn {
