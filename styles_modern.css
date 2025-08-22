@@ -829,7 +829,6 @@ body {
     margin: 0 20px 20px;
     position: static;
     /* padding: var(--space-1) var(--space-2); */
-    border: none;
     /*border-radius: var(--radius-md);*/
     background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
     color: white;
@@ -843,7 +842,6 @@ body {
     justify-content: center;
     gap: var(--space-2);
     transition: all var(--transition-fast);
-    bottom: 20px;
     left: 20px;
     right: 20px;
     overflow: hidden;
