@@ -735,83 +735,83 @@ body {
 }
 
 .carousel-2d-wrapper {
-  width: 90%;
-  max-width: 640px;
-  margin: 24px auto;
-  overflow: hidden;          /* маска для горизонтального скролла */
-  position: relative;
-  user-select: none;
+    width: 90%;
+    max-width: 640px;
+    margin: 24px auto;
+    overflow: hidden;
+    position: relative;
+    user-select: none;
 }
 
 .carousel-2d {
-  display: flex;
-  gap: 12px;
-  align-items: stretch;
-  will-change: transform;
-  cursor: grab;
-  transition: transform 0.3s ease; /* используется для “прилипания” */
-  padding: 8px 12px;
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    will-change: transform;
+    cursor: grab;
+    transition: transform 0.3s ease;
+    padding: 8px 12px;
 }
 
 .carousel-2d:active {
-  cursor: grabbing;
+    cursor: grabbing;
 }
 
 .carousel-2d-item {
-  flex: 0 0 90px;            /* ширина карточки */
-  height: 120px;
-  background: #1f1f25;
-  border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  box-sizing: border-box;
-  color: #fff;
-  display: flex;             /* корректно, в отличие от display: relative */
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    flex: 0 0 90px;
+    height: 120px;
+    background: #1f1f25;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .carousel-2d-item p {
-  position: absolute;
-  bottom: 6px;
-  left: 8px;
-  right: 8px;
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-align: center;
-  pointer-events: none;
-  z-index: 2;
+    position: absolute;
+    bottom: 6px;
+    left: 8px;
+    right: 8px;
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-align: center;
+    pointer-events: none;
+    z-index: 2;
 }
 
 .carousel-2d-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;         /* аккуратнее смотрится */
-  border-radius: 6px;
-  pointer-events: none;
-  z-index: 1;
-  position: absolute;
-  inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 1;
+    position: absolute;
+    inset: 0;
 }
 
 .carousel-2d-item.active {
-  border-color: #037ec1;
-  box-shadow: 0 10px 20px rgba(3, 105, 165, 0.3);
-  transform: scale(1.05);
-  z-index: 1;
+    border-color: #037ec1;
+    box-shadow: 0 10px 20px rgba(3, 105, 165, 0.3);
+    transform: scale(1.05);
+    z-index: 1;
 }
 
-/* Адаптив */
 @media (max-width: 480px) {
-  .carousel-2d-item {
-    flex-basis: 80px;
-    height: 108px;
-  }
+    .carousel-2d-item {
+        flex-basis: 80px;
+        height: 108px;
+    }
 }
+
 /* Generate Button */
 .generate-btn {
     width: calc(100% - 40px) !important;
