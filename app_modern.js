@@ -1897,12 +1897,36 @@ function cancelGeneration() {
 }
 
 // 📱 Device Integration
+/* async function downloadImage() {
+    if (!appState.currentGeneration?.result) return;
+
+    try {
+        const response = await fetch(appState.currentGeneration.result);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `ai-generated-${appState.currentGeneration.id}.png`; // лучше оставить .png
+        document.body.appendChild(link); // иногда без этого не работает в Safari
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url); // чистим память
+
+        showToast('info', appState.translate('download_started'));
+        triggerHaptic('light');
+    } catch (err) {
+        console.error("Ошибка при скачивании:", err);
+        showToast('error', 'Download failed');
+    }
+}*/
 function downloadImage() {
     if (!appState.currentGeneration?.result) return;
 
     const link = document.createElement('a');
     link.href = appState.currentGeneration.result;
-    link.download = `ai-generated-${appState.currentGeneration.id}.jpg`;
+    link.download = `ai-generated-${appState.currentGeneration.id}.png`;
     link.click();
 
     showToast('info', appState.translate('download_started'));
