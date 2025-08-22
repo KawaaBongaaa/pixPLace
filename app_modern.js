@@ -1088,8 +1088,14 @@ function showApp() {
 }
 
 function getCurrentScreen() {
-    const activeScreen = document.querySelector('.screen.active');
-    return activeScreen ? activeScreen.id : null;
+  const home = document.getElementById('home');
+  const processing = document.getElementById('processing');
+  const result = document.getElementById('result');
+
+  if (result && !result.classList.contains('hidden')) return 'result';
+  if (processing && !processing.classList.contains('hidden')) return 'processing';
+  if (home && !home.classList.contains('hidden')) return 'home';
+  return 'unknown';
 }
 
 function showScreen(screenId) {
@@ -1103,6 +1109,7 @@ function showScreen(screenId) {
     if (targetScreen) {
         targetScreen.classList.add('active');
     }
+    if (!targetScreen) { console.error('Screen not found:', screenId); return; }
 
     // Update main button
     //updateMainButton(screenId);
@@ -1134,6 +1141,7 @@ function showScreen(screenId) {
 function showProcessing() {
     showScreen('processingScreen');
     updateProcessingSteps(1);
+    console.log('after showProcessing ->', getCurrentScreen());
 }
 
 function showResult(result) {
@@ -1154,8 +1162,9 @@ function showResult(result) {
         const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
         resultTime.textContent = duration + 's';
     }
+    console.log('after showResult ->', getCurrentScreen());
 }
-function showSubscriptionScreen(paymentUrl) {
+/*function showSubscriptionScreen(paymentUrl) {
     // Скрыть все экраны
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -1174,7 +1183,7 @@ function showSubscriptionScreen(paymentUrl) {
             window.open(paymentUrl, '_blank');
         }
     };
-}
+}*/
 function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
     const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=syDv';
@@ -1824,7 +1833,7 @@ async function sendToWebhook(data) {
   });
 })();
 // Выбор стиля — универсальная функция
-function selectStyle(element) {
+/*function selectStyle(element) {
     // очистка
     items.forEach(el => el.classList.remove('active'));
 
@@ -1833,7 +1842,7 @@ function selectStyle(element) {
     appState.selectedStyle = element.dataset.style;
     triggerHaptic('light');
     console.log('🎨 Style selected:', appState.selectedStyle);
-}
+}*/
 /*
 const track = document.querySelector('.carousel-track');
 const items = Array.from(track.children);
@@ -2121,7 +2130,8 @@ window.toggleLanguage = () => appState.toggleLanguage();
 window.toggleTheme = () => appState.toggleTheme();
 window.showHistory = showHistory;
 window.showGeneration = showGeneration;
-window.selectStyle = selectStyle;
+//window.selectStyle = selectStyle;
+window.selectStyle = (s) => window.setCarouselStyle(s).
 window.generateImage = generateImage;
 window.newGeneration = newGeneration;
 window.cancelGeneration = cancelGeneration;
