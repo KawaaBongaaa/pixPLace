@@ -113,9 +113,8 @@
     <div id="loadingScreen" class="loading-screen active">
         <div class="loading-content">
             <div class="loading-logo">
-                <img src="./logo.svg" alt="Logo pixPLace Ai webApp" class="logo-img" style="width:150px; height:150px;"
-                    loading="lazy">
-                <!-- <svg class="logo-img" version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg"
+                <!--<img src="./logo.svg" alt="Logo pixPLace Ai webApp" class="logo-img" style="width:150px; height:150px;" loading="lazy">-->
+                <svg class="logo-img" version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg"
                     xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
                     y="0px" viewBox="0 0 1366 768" style="width:150px; height:150px;" xml:space="preserve">
                     <path d="M664,517c-2.9-52.7-49-126.7-111-115c-16.7,4-58.6,12.4-37,36c15.5,23.5,47.8,53.5,51,7c3.4-5.6,6-0.9,9,2
@@ -159,7 +158,7 @@
 	c7.4,3.7,20.9,27.8,4.9,25.7c-28.7-25.8-58.6-9.7-78-22.4c14-23.8-8.2-46.6-25.3-66.1c2.2-33.2,69.6,25.1,75.7,40.7
 	C884.4,114,930.2,115.5,917.7,130.7z M1062.8,335.2c-79.1-51.1-39.5-95.7-112.3-144.2C945.8,134.7,1104.8,326.4,1062.8,335.2z"
                         fill="currentColor" />
-                </svg> -->
+                </svg>
             </div>
             <h2 data-i18n="loading">Please, Have a Fun!</h2>
             <div class="loading-bar">
@@ -360,9 +359,9 @@
                                 <textarea id="promptInput" class="form-textarea"
                                     data-i18n-placeholder="prompt_placeholder"
                                     placeholder="A beautiful sunset over the ocean..." rows="3"
-                                    maxlength="888"></textarea>
+                                    maxlength="1200"></textarea>
                                 <div class="input-counter">
-                                    <span id="charCounter">0</span>/888
+                                    <span id="charCounter">0</span>/1200
                                 </div>
                             </div>
                         </div>
@@ -396,26 +395,71 @@
                                 </button>
                             </div>
                         </div> -->
-                        <div class="style-carousel">
-                            <button class="carousel-btn prev">‹</button>
-                            <div class="carousel-track">
-                                <div class="style-card" data-style="Realistic">
-                                    <img src="images/realistic.webp" alt="Realistic">
-                                    <span>Realistic</span>
+                        <div class="style-selector">
+                            <label class="style-label">Style</label>
+                            <div class="carousel-wrapper">
+                                <button class="arrow left" id="scrollLeft">◀</button>
+                                <div class="carousel" id="styleCarousel">
+                                    <!-- Стили -->
+                                    <div class="style-item" data-style="Realistic">
+                                        <svg viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="10" />
+                                        </svg>
+                                        <span>Realistic</span>
+                                    </div>
+                                    <div class="style-item" data-style="Cartoon">
+                                        <svg viewBox="0 0 24 24">
+                                            <rect x="4" y="4" width="16" height="16" rx="3" />
+                                        </svg>
+                                        <span>Cartoon</span>
+                                    </div>
+                                    <div class="style-item" data-style="Fantasy">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M12 2 L15 8 L22 9 L17 14 L18 21 L12 18 L6 21 L7 14 L2 9 L9 8 Z" />
+                                        </svg>
+                                        <span>Fantasy</span>
+                                    </div>
+                                    <div class="style-item" data-style="Artistic">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M4 20 C8 4, 16 4, 20 20 Z" />
+                                        </svg>
+                                        <span>Artistic</span>
+                                    </div>
+                                    <div class="style-item" data-style="Anime">
+                                        <svg viewBox="0 0 24 24">
+                                            <circle cx="8" cy="12" r="3" />
+                                            <circle cx="16" cy="12" r="3" />
+                                        </svg>
+                                        <span>Anime</span>
+                                    </div>
+                                    <div class="style-item" data-style="Cyberpunk">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M2 12 H22 M12 2 V22" />
+                                        </svg>
+                                        <span>Cyberpunk</span>
+                                    </div>
+                                    <div class="style-item" data-style="Abstract">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M4 4 H20 V20 H4 Z M9 9 L15 15" />
+                                        </svg>
+                                        <span>Abstract</span>
+                                    </div>
+                                    <div class="style-item" data-style="Sketch">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M4 20 L20 4 M4 4 L20 20" />
+                                        </svg>
+                                        <span>Sketch</span>
+                                    </div>
+                                    <div class="style-item" data-style="3D">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M4 4 L12 2 L20 4 L20 20 L12 22 L4 20 Z" />
+                                        </svg>
+                                        <span>3D</span>
+                                    </div>
                                 </div>
-                                <div class="style-card" data-style="Anime">
-                                    <img src="images/anime.webp" alt="Anime">
-                                    <span>Anime</span>
-                                </div>
-                                <div class="style-card" data-style="Fantasy">
-                                    <img src="images/fantasy.webp" alt="Fantasy">
-                                    <span>Fantasy</span>
-                                </div>
+                                <button class="arrow right" id="scrollRight">▶</button>
                             </div>
-                            <button class="carousel-btn next">›</button>
                         </div>
-
-                        <p class="selected-style">Стиль: <span id="selected-style"></span></p>
 
                         <!--<div class="carousel-wrapper">
                             <div class="card-3d">

@@ -1703,45 +1703,31 @@ async function sendToWebhook(data) {
     }
 }
 // 🎨 Style Selection
-const track = document.querySelector('.carousel-track');
-const cards = document.querySelectorAll('.style-card');
-const selectedStyleText = document.getElementById('selected-style');
-const prevBtn = document.querySelector('.prev');
-const nextBtn = document.querySelector('.next');
+const carousel = document.getElementById("styleCarousel");
+const leftBtn = document.getElementById("scrollLeft");
+const rightBtn = document.getElementById("scrollRight");
+const items = document.querySelectorAll(".style-item");
 
-let currentIndex = 0;
-
-function updateActiveCard(index) {
-  cards.forEach(c => c.classList.remove('active'));
-  const active = cards[index];
-  if (active) {
-    active.classList.add('active');
-    selectedStyleText.textContent = active.dataset.style;
-    appState.currentStyle = active.dataset.style; // ✅ сохраняем прямо в твой AppState
-  }
-}
-
-prevBtn.addEventListener('click', () => {
-  currentIndex = Math.max(0, currentIndex - 1);
-  cards[currentIndex].scrollIntoView({ behavior: "smooth", inline: "center" });
-  updateActiveCard(currentIndex);
+leftBtn.addEventListener("click", () => {
+  carousel.scrollBy({ left: -150, behavior: "smooth" });
+});
+rightBtn.addEventListener("click", () => {
+  carousel.scrollBy({ left: 150, behavior: "smooth" });
 });
 
-nextBtn.addEventListener('click', () => {
-  currentIndex = Math.min(cards.length - 1, currentIndex + 1);
-  cards[currentIndex].scrollIntoView({ behavior: "smooth", inline: "center" });
-  updateActiveCard(currentIndex);
-});
+// Выбор стиля
+items.forEach(item => {
+  item.addEventListener("click", () => {
+    items.forEach(i => i.classList.remove("active"));
+    item.classList.add("active");
 
-cards.forEach((card, i) => {
-  card.addEventListener('click', () => {
-    currentIndex = i;
-    updateActiveCard(i);
+    const selectedStyle = item.dataset.style;
+    console.log("Выбран стиль:", selectedStyle);
+
+    // тут просто выбор! генерация не запускается!
+    appState.selectedStyle = selectedStyle;
   });
 });
-
-// стартовый стиль
-updateActiveCard(0);
 /*
 const track = document.querySelector('.carousel-track');
 const items = Array.from(track.children);
