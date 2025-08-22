@@ -1703,6 +1703,45 @@ async function sendToWebhook(data) {
     }
 }
 // 🎨 Style Selection
+const track = document.querySelector('.carousel-track');
+const cards = document.querySelectorAll('.style-card');
+const selectedStyleText = document.getElementById('selected-style');
+const prevBtn = document.querySelector('.prev');
+const nextBtn = document.querySelector('.next');
+
+let currentIndex = 0;
+
+function updateActiveCard(index) {
+  cards.forEach(c => c.classList.remove('active'));
+  const active = cards[index];
+  if (active) {
+    active.classList.add('active');
+    selectedStyleText.textContent = active.dataset.style;
+    appState.currentStyle = active.dataset.style; // ✅ сохраняем прямо в твой AppState
+  }
+}
+
+prevBtn.addEventListener('click', () => {
+  currentIndex = Math.max(0, currentIndex - 1);
+  cards[currentIndex].scrollIntoView({ behavior: "smooth", inline: "center" });
+  updateActiveCard(currentIndex);
+});
+
+nextBtn.addEventListener('click', () => {
+  currentIndex = Math.min(cards.length - 1, currentIndex + 1);
+  cards[currentIndex].scrollIntoView({ behavior: "smooth", inline: "center" });
+  updateActiveCard(currentIndex);
+});
+
+cards.forEach((card, i) => {
+  card.addEventListener('click', () => {
+    currentIndex = i;
+    updateActiveCard(i);
+  });
+});
+
+// стартовый стиль
+updateActiveCard(0);
 /*
 const track = document.querySelector('.carousel-track');
 const items = Array.from(track.children);

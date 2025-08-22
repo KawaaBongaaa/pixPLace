@@ -195,7 +195,9 @@ body {
 }
 
 .loading-logo {
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+
 }
 
 .logo-circle {
@@ -329,7 +331,6 @@ body {
     width: clamp(100px, 10vw, 150px);
     height: clamp(100px, 10vw, 150px);
     object-fit: contain;
-    color: var(--text-primary);
 }
 
 .header-right {
@@ -480,6 +481,7 @@ body {
     font-weight: 800;
     color: var(--text-primary);
 }
+
 .back-btn {
     position: relative;
     width: 40px;
@@ -489,7 +491,8 @@ body {
     background: var(--bg-secondary);
     color: var(--text-secondary);
     cursor: pointer;
-    display: none; /* по умолчанию скрыта */
+    display: none;
+    /* по умолчанию скрыта */
     align-items: center;
     justify-content: center;
     transition: all var(--transition-fast);
@@ -498,6 +501,7 @@ body {
 .show-back .back-btn {
     display: flex;
 }
+
 /*.back-btn {
     position: relative;
     z-index: 1001;
@@ -1574,6 +1578,87 @@ textarea:focus-visible {
 .mx-2 {
     padding-left: 20;
     padding-bottom: 10;
+}
+
+.style-carousel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    max-width: 95%;
+    overflow: hidden;
+}
+
+.carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 10px;
+}
+
+.carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+.style-card {
+    flex: 0 0 120px;
+    scroll-snap-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    text-align: center;
+    padding: 6px;
+    cursor: pointer;
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.style-card img {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.style-card span {
+    display: block;
+    margin-top: 4px;
+    font-size: 13px;
+    color: #fff;
+}
+
+.style-card.active {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 40%;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    color: white;
+    font-size: 22px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.prev {
+    left: 0;
+}
+
+.next {
+    right: 0;
+}
+
+.selected-style {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
 }
 
 /*.carousel-container {
