@@ -172,7 +172,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: 11000;
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--transition-normal), visibility var(--transition-normal);
@@ -336,9 +336,9 @@ body {
 .header-right {
     display: flex;
     padding-right: 0.4rem;
-    align-items: right;
-    justify-content: flex-start;
-    gap: var(--space-1);
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-4);
 }
 
 .control-btn {
@@ -566,7 +566,7 @@ body {
     font-size: var(--font-size-3xl);
     font-weight: 900;
     color: var(--text-primary);
-    margin-bottom: var(--space-0);
+    margin-bottom: var(--space-1);
     background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -690,7 +690,7 @@ body {
     display: flex;
     gap: var(--space-1);
     overflow-x: auto;
-    touch-action: pan-y;
+    touch-action: pan-x;
     /* было overflow-x: auto; */
     ;
 }
@@ -736,6 +736,10 @@ body {
 [data-theme="auto"] .style-card.active {
     background: var(--primary-900);
     color: var(--primary-200);
+}
+.style-card.active:hover {
+  transform: none;
+  box-shadow: var(--shadow-lg); /* или немного слабее hover */
 }
 
 .style-icon {
@@ -820,7 +824,9 @@ body {
 
 /* Generate Button */
 .generate-btn {
-    width: calc(100% - 40px) !important;
+    width: calc(100% - 40px);
+    margin: 0 20px 20px;
+    position: static;
     /* padding: var(--space-1) var(--space-2); */
     border: none;
     /*border-radius: var(--radius-md);*/
@@ -836,13 +842,12 @@ body {
     justify-content: center;
     gap: var(--space-2);
     transition: all var(--transition-fast);
-    position: relative;
     bottom: 20px;
     left: 20px;
     right: 20px;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
-    opacity: 0.9;
+    opacity: 0.85;
     padding: 12px;
     border-radius: 12px;
 }
@@ -1319,6 +1324,7 @@ body {
     .form-row {
         grid-template-columns: 1fr;
         gap: var(--space-4);
+        display: grid;
     }
 
     .style-grid {
@@ -1367,8 +1373,8 @@ body {
     }
 
     .logo-text {
-        font-size: clamp(2.2rem, 2.5vw, 2.4rem);
-        left: 0;
+        font-size: clamp(1.6rem, 6vw, 2.4rem);
+        left: 0px;
     }
 
     .welcome-section {
@@ -1427,6 +1433,10 @@ textarea:focus-visible {
     }
 }
 
+@media (hover: none) {
+  .image-overlay { opacity: 1; }
+}
+
 
 /* Модальное окно лимита - современный стиль */
 .limit-modal {
@@ -1438,7 +1448,7 @@ textarea:focus-visible {
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 99997;
+    z-index: 9999;
     /* Увеличиваем z-index */
     overflow: hidden;
     font-family: 'Inter', sans-serif;
@@ -1460,7 +1470,7 @@ textarea:focus-visible {
     -webkit-backdrop-filter: blur(6px);
     opacity: 0;
     animation: fadeInBackdrop 0.3s ease forwards;
-    z-index: 99998;
+    z-index: 9998;
     /* Меньше чем у модального окна */
 }
 
@@ -1474,7 +1484,7 @@ textarea:focus-visible {
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
     color: #f0f0f5;
     text-align: center;
-    z-index: 99999;
+    z-index: 10000;
     /* Максимальный z-index */
     transform: translateY(-30px);
     opacity: 0;
@@ -1659,8 +1669,8 @@ textarea:focus-visible {
 }
 
 .mx-2 {
-    padding-left: 20;
-    padding-bottom: 10;
+    padding-left: 20px;
+    padding-bottom: 10px;
 }
 
 
