@@ -38,6 +38,20 @@ const TRANSLATIONS = {
         style_fantasy: 'Fantasy',
         style_anime: 'Anime',
         style_cyberpunk: 'Cyberpunk',
+        style_popart: 'Pop Art',
+        style_abstract: 'Abstract',
+        style_sketch: 'Sketch',
+        style_3d: '3d',
+        style_sticker: 'Sticker',
+        style_vector: 'Vector',
+        style_interior: 'Interior',
+        style_architecture: 'Architecture',
+        style_fashion: 'Fashion',
+        style_tattoo: 'Tattoo',
+        style_print: 'Print',
+        style_logo: 'Logo',
+        style_icon: 'Icon',
+        style_banner: 'Banner',
         mode_label: 'Mode',
         mode_print_maker: 'Print/Stickers',
         mode_fast_generation: 'Fast Generation',
@@ -1705,188 +1719,259 @@ async function sendToWebhook(data) {
 // 🎨 Style Selection
 // 2D Carousel functionality
 // 2D Carousel functionality
+// 2D Carousel functionality
 (() => {
-    const track = document.getElementById('carousel2d');
-    if (!track) return; // защита от ошибок
+  const track = document.getElementById('carousel2d');
+  if (!track) return;
+  
+  let items = Array.from(track.querySelectorAll('.carousel-2d-item'));
+  let selectedStyle = 'realistic'; // глобальная переменная для выбранного стиля
 
-    let items = Array.from(track.querySelectorAll('.carousel-2d-item'));
+  // Геометрия
+  const gap = 12;
+  let itemWidth = 90;
+  let container = track.parentElement;
+  let offsetX = 0;
+  let startX = 0;
+  let dragStartOffset = 0;
+  let isDragging = false;
+  let velocity = 0;
+  let lastMoveTime = 0;
+  let lastMoveX = 0;
+  let rafId = 0;
+  let isAnimating = false;
 
-    // Геометрия
-    const gap = 12;
-    let itemWidth = 90;
-    let container = track.parentElement;
-    let offsetX = 0;
-    let startX = 0;
-    let dragStartOffset = 0;
-    let isDragging = false;
-    let velocity = 0;
-    let lastMoveTime = 0;
-    let lastMoveX = 0;
-    let rafId = 0;
+  function measure() {
+    const first = items[0];
+    if (first) itemWidth = first.getBoundingClientRect().width;
+  }
 
-    function measure() {
-        const first = items[0];
-        if (first) itemWidth = first.getBoundingClientRect().width;
+  function setTransform(x, withTransition = false) {
+    if (!withTransition) {
+      track.style.transition = 'none';
+    } else {
+      track.style.transition = 'transform 0.3s ease';
     }
+    track.style.transform = `translateX(${x}px)`;
+  }
 
-    function setTransform(x, withTransition = false) {
-        if (!withTransition) {
-            track.style.transition = 'none';
-        } else {
-            track.style.transition = 'transform 0.3s ease';
-        }
-        track.style.transform = `translateX(${x}px)`;
+  function clampOffset(x) {
+    const totalWidth = items.length * (itemWidth) + (items.length - 1) * gap + 24;
+    const viewport = container.clientWidth;
+    const minX = Math.min(0, viewport - totalWidth);
+    const maxX = 0;
+    return Math.max(minX, Math.min(maxX, x));
+  }
+
+  function activeIndexFromOffset(x) {
+    const center = container.clientWidth / 2;
+    let closest = { idx: 0, dist: Infinity };
+    let cursor = 12;
+    items.forEach((_, i) => {
+      const itemCenter = cursor + itemWidth / 2 + x;
+      const dist = Math.abs(itemCenter - center);
+      if (dist < closest.dist) closest = { idx: i, dist };
+      cursor += itemWidth + gap;
+    });
+    return closest.idx;
+  }
+
+  function highlightActive(idx) {
+    items.forEach(el => el.classList.remove('active'));
+    const el = items[idx];
+    if (el) {
+      el.classList.add('active');
+      // Обновляем выбранный стиль
+      selectedStyle = el.dataset.style;
+      console.log('🎨 Style selected:', selectedStyle);
+      
+      // Отправляем событие для внешних обработчиков
+      window.dispatchEvent(new CustomEvent('styleSelected', { 
+        detail: { style: selectedStyle, element: el } 
+      }));
     }
+  }
 
-    function clampOffset(x) {
-        const totalWidth = items.length * (itemWidth) + (items.length - 1) * gap + 24;
-        const viewport = container.clientWidth;
-        const minX = Math.min(0, viewport - totalWidth);
-        const maxX = 0;
-        return Math.max(minX, Math.min(maxX, x));
-    }
+  function snapToNearest() {
+    if (isAnimating) return;
+    const idx = activeIndexFromOffset(offsetX);
+    snapToIndex(idx);
+  }
 
-    function activeIndexFromOffset(x) {
-        const center = container.clientWidth / 2;
-        let closest = { idx: 0, dist: Infinity };
-        let cursor = 12;
-        items.forEach((_, i) => {
-            const itemCenter = cursor + itemWidth / 2 + x;
-            const dist = Math.abs(itemCenter - center);
-            if (dist < closest.dist) closest = { idx: i, dist };
-            cursor += itemWidth + gap;
-        });
-        return closest.idx;
-    }
+  function snapToIndex(idx) {
+    if (isAnimating) return;
+    isAnimating = true;
+    
+    const center = container.clientWidth / 2;
+    let cursor = 12;
+    for (let i = 0; i < idx; i++) cursor += itemWidth + gap;
+    const itemCenter = cursor + itemWidth / 2;
+    const target = clampOffset(center - itemCenter);
+    offsetX = target;
+    setTransform(offsetX, true);
+    highlightActive(idx);
+    triggerHaptic('light');
+    
+    // Сброс флага анимации через время transition
+    setTimeout(() => { isAnimating = false; }, 300);
+  }
 
-    function highlightActive(idx) {
-        items.forEach(el => el.classList.remove('active'));
-        const el = items[idx];
-        if (el) el.classList.add('active');
-    }
+  function stopInertia() {
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
 
-    function snapToNearest() {
-        const idx = activeIndexFromOffset(offsetX);
-        snapToIndex(idx);
-    }
-
-    function snapToIndex(idx) {
-        const center = container.clientWidth / 2;
-        let cursor = 12;
-        for (let i = 0; i < idx; i++) cursor += itemWidth + gap;
-        const itemCenter = cursor + itemWidth / 2;
-        const target = clampOffset(center - itemCenter);
-        offsetX = target;
-        setTransform(offsetX, true);
-        highlightActive(idx);
-        triggerHaptic('light');
-    }
-
-    function stopInertia() {
-        cancelAnimationFrame(rafId);
-        rafId = 0;
-    }
-
-    function startInertia() {
-        stopInertia();
-        const friction = 0.92;
-        function step() {
-            velocity *= friction;
-            if (Math.abs(velocity) < 0.05) {
-                snapToNearest();
-                return;
-            }
-            offsetX = clampOffset(offsetX + velocity);
-            setTransform(offsetX);
-            rafId = requestAnimationFrame(step);
-        }
-        rafId = requestAnimationFrame(step);
-    }
-
-    function refreshItems() {
-        items = Array.from(track.querySelectorAll('.carousel-2d-item'));
-        measure();
+  function startInertia() {
+    stopInertia();
+    const friction = 0.88; // чуть больше трения для стабильности
+    function step() {
+      velocity *= friction;
+      if (Math.abs(velocity) < 0.1) { // увеличен порог остановки
         snapToNearest();
-        // Повесить клики на новые элементы
-        items.forEach((el, i) => {
-            el.onclick = () => {
-                snapToIndex(i);
-                console.log('🎨 Style selected:', el.dataset.style);
-            };
-        });
+        return;
+      }
+      offsetX = clampOffset(offsetX + velocity);
+      setTransform(offsetX);
+      rafId = requestAnimationFrame(step);
     }
+    rafId = requestAnimationFrame(step);
+  }
 
-    // События
-    track.addEventListener('pointerdown', (e) => {
-        isDragging = true;
-        track.setPointerCapture(e.pointerId);
-        startX = e.clientX;
-        dragStartOffset = offsetX;
-        velocity = 0;
-        lastMoveX = e.clientX;
-        lastMoveTime = performance.now();
-        stopInertia();
-        setTransform(offsetX);
-    });
-
-    track.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
-        const now = performance.now();
-        const dx = e.clientX - startX;
-        offsetX = clampOffset(dragStartOffset + dx);
-        setTransform(offsetX);
-        const dt = now - lastMoveTime;
-        if (dt > 0) {
-            velocity = (e.clientX - lastMoveX) / dt * 12;
-            lastMoveX = e.clientX;
-            lastMoveTime = now;
-        }
-    });
-
-    function endDrag() {
-        if (!isDragging) return;
-        isDragging = false;
-        if (Math.abs(velocity) > 0.2) {
-            startInertia();
-        } else {
-            snapToNearest();
-        }
-    }
-
-    track.addEventListener('pointerup', endDrag);
-    track.addEventListener('pointerleave', endDrag);
-
-    // Колесо мыши
-    container.addEventListener('wheel', (e) => {
+  function refreshItems() {
+    items = Array.from(track.querySelectorAll('.carousel-2d-item'));
+    measure();
+    snapToNearest();
+    // Повесить клики на новые элементы
+    items.forEach((el, i) => {
+      el.onclick = (e) => {
         e.preventDefault();
-        stopInertia();
-        offsetX = clampOffset(offsetX - e.deltaY - e.deltaX);
-        setTransform(offsetX);
-        clearTimeout(container._wheelT);
-        container._wheelT = setTimeout(snapToNearest, 120);
-    }, { passive: false });
-
-    // Хаптик
-    function triggerHaptic(type) {
-        if ('vibrate' in navigator) {
-            if (type === 'light') navigator.vibrate(15);
-            else if (type === 'medium') navigator.vibrate([30, 10, 30]);
-            else if (type === 'heavy') navigator.vibrate(60);
+        e.stopPropagation();
+        if (!isDragging) {
+          snapToIndex(i);
         }
-    }
-
-    // Ресайз/инициализация
-    window.addEventListener('resize', () => {
-        measure();
-        snapToNearest();
+      };
     });
+  }
 
-    // Инициализация
-    refreshItems();
-    snapToIndex(0);
+  // Улучшенные события для мобильных устройств
+  let touchStartTime = 0;
+  let hasMoved = false;
 
-    // Экспорт функции для динамического добавления элементов
-    window.refreshCarousel = refreshItems;
+  track.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    hasMoved = false;
+    touchStartTime = performance.now();
+    track.setPointerCapture(e.pointerId);
+    startX = e.clientX;
+    dragStartOffset = offsetX;
+    velocity = 0;
+    lastMoveX = e.clientX;
+    lastMoveTime = performance.now();
+    stopInertia();
+    setTransform(offsetX);
+  });
+
+  track.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    
+    const now = performance.now();
+    const dx = e.clientX - startX;
+    
+    // Порог для определения движения
+    if (Math.abs(dx) > 3) {
+      hasMoved = true;
+    }
+    
+    offsetX = clampOffset(dragStartOffset + dx);
+    setTransform(offsetX);
+    
+    const dt = now - lastMoveTime;
+    if (dt > 0) {
+      velocity = (e.clientX - lastMoveX) / dt * 10; // уменьшена чувствительность
+      lastMoveX = e.clientX;
+      lastMoveTime = now;
+    }
+  });
+
+  function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    
+    const touchDuration = performance.now() - touchStartTime;
+    
+    // Если это был быстрый тап без движения - обрабатываем как клик
+    if (!hasMoved && touchDuration < 200) {
+      const rect = track.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      let cursor = 12 + offsetX;
+      
+      items.forEach((el, i) => {
+        const itemLeft = cursor;
+        const itemRight = cursor + itemWidth;
+        if (clickX >= itemLeft && clickX <= itemRight) {
+          snapToIndex(i);
+          return;
+        }
+        cursor += itemWidth + gap;
+      });
+      return;
+    }
+    
+    // Инерция только если было движение
+    if (hasMoved && Math.abs(velocity) > 0.3) {
+      startInertia();
+    } else {
+      snapToNearest();
+    }
+  }
+
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointerleave', endDrag);
+  track.addEventListener('pointercancel', endDrag);
+
+  // Улучшенная поддержка колеса мыши
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    stopInertia();
+    
+    const delta = e.deltaY || e.deltaX;
+    offsetX = clampOffset(offsetX - delta * 0.5); // уменьшена чувствительность
+    setTransform(offsetX);
+    
+    clearTimeout(container._wheelT);
+    container._wheelT = setTimeout(snapToNearest, 150);
+  }, { passive: false });
+
+  // Хаптик
+  function triggerHaptic(type) {
+    if ('vibrate' in navigator) {
+      if (type === 'light') navigator.vibrate(15);
+      else if (type === 'medium') navigator.vibrate([30, 10, 30]);
+      else if (type === 'heavy') navigator.vibrate(60);
+    }
+  }
+
+  // Ресайз/инициализация
+  window.addEventListener('resize', () => {
+    measure();
+    snapToNearest();
+  });
+
+  // Публичные методы
+  window.getSelectedStyle = () => selectedStyle;
+  window.setCarouselStyle = (style) => {
+    const index = items.findIndex(item => item.dataset.style === style);
+    if (index !== -1) {
+      snapToIndex(index);
+    }
+  };
+
+  // Инициализация
+  refreshItems();
+  snapToIndex(0);
+
+  // Экспорт функции для динамического добавления элементов
+  window.refreshCarousel = refreshItems;
 })();
 /*
 const track = document.querySelector('.carousel-track');
