@@ -1720,10 +1720,11 @@ async function sendToWebhook(data) {
 // 2D Carousel functionality
 // 2D Carousel functionality
 // 2D Carousel functionality
+// 2D Carousel functionality
 (() => {
   const track = document.getElementById('carousel2d');
   if (!track) return;
-  
+
   let items = Array.from(track.querySelectorAll('.carousel-2d-item'));
   let selectedStyle = 'realistic'; // глобальная переменная для выбранного стиля
 
@@ -1784,11 +1785,6 @@ async function sendToWebhook(data) {
       // Обновляем выбранный стиль
       selectedStyle = el.dataset.style;
       console.log('🎨 Style selected:', selectedStyle);
-      
-      // Отправляем событие для внешних обработчиков
-      window.dispatchEvent(new CustomEvent('styleSelected', { 
-        detail: { style: selectedStyle, element: el } 
-      }));
     }
   }
 
@@ -1801,7 +1797,7 @@ async function sendToWebhook(data) {
   function snapToIndex(idx) {
     if (isAnimating) return;
     isAnimating = true;
-    
+
     const center = container.clientWidth / 2;
     let cursor = 12;
     for (let i = 0; i < idx; i++) cursor += itemWidth + gap;
@@ -1811,7 +1807,7 @@ async function sendToWebhook(data) {
     setTransform(offsetX, true);
     highlightActive(idx);
     triggerHaptic('light');
-    
+
     // Сброс флага анимации через время transition
     setTimeout(() => { isAnimating = false; }, 300);
   }
@@ -1843,9 +1839,7 @@ async function sendToWebhook(data) {
     snapToNearest();
     // Повесить клики на новые элементы
     items.forEach((el, i) => {
-      el.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      el.onclick = () => {
         if (!isDragging) {
           snapToIndex(i);
         }
@@ -1873,18 +1867,18 @@ async function sendToWebhook(data) {
 
   track.addEventListener('pointermove', (e) => {
     if (!isDragging) return;
-    
+
     const now = performance.now();
     const dx = e.clientX - startX;
-    
+
     // Порог для определения движения
     if (Math.abs(dx) > 3) {
       hasMoved = true;
     }
-    
+
     offsetX = clampOffset(dragStartOffset + dx);
     setTransform(offsetX);
-    
+
     const dt = now - lastMoveTime;
     if (dt > 0) {
       velocity = (e.clientX - lastMoveX) / dt * 10; // уменьшена чувствительность
@@ -1896,15 +1890,15 @@ async function sendToWebhook(data) {
   function endDrag(e) {
     if (!isDragging) return;
     isDragging = false;
-    
+
     const touchDuration = performance.now() - touchStartTime;
-    
+
     // Если это был быстрый тап без движения - обрабатываем как клик
     if (!hasMoved && touchDuration < 200) {
       const rect = track.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       let cursor = 12 + offsetX;
-      
+
       items.forEach((el, i) => {
         const itemLeft = cursor;
         const itemRight = cursor + itemWidth;
@@ -1916,7 +1910,7 @@ async function sendToWebhook(data) {
       });
       return;
     }
-    
+
     // Инерция только если было движение
     if (hasMoved && Math.abs(velocity) > 0.3) {
       startInertia();
@@ -1933,11 +1927,11 @@ async function sendToWebhook(data) {
   container.addEventListener('wheel', (e) => {
     e.preventDefault();
     stopInertia();
-    
+
     const delta = e.deltaY || e.deltaX;
     offsetX = clampOffset(offsetX - delta * 0.5); // уменьшена чувствительность
     setTransform(offsetX);
-    
+
     clearTimeout(container._wheelT);
     container._wheelT = setTimeout(snapToNearest, 150);
   }, { passive: false });
@@ -1959,12 +1953,6 @@ async function sendToWebhook(data) {
 
   // Публичные методы
   window.getSelectedStyle = () => selectedStyle;
-  window.setCarouselStyle = (style) => {
-    const index = items.findIndex(item => item.dataset.style === style);
-    if (index !== -1) {
-      snapToIndex(index);
-    }
-  };
 
   // Инициализация
   refreshItems();
