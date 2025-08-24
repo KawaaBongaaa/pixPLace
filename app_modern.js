@@ -1532,7 +1532,8 @@ async function generateImage(event) {
     const mode = document.getElementById('modeSelect').value;
     const size = document.getElementById('sizeSelect').value;
 
-    console.log('🚀 Starting generation:', { prompt, style: appState.selectedStyle, mode, size });
+    const chosenStyle = (typeof window !== 'undefined' && typeof window.getSelectedStyle === 'function' && window.getSelectedStyle()) || (document.querySelector('.style-card.active')?.dataset?.style) || appState?.selectedStyle || 'realistic';
+    console.log('🚀 Starting generation:', { prompt, style: chosenStyle, mode, size });
 
     // Validation
     if (!prompt) {
@@ -1559,7 +1560,7 @@ async function generateImage(event) {
     appState.currentGeneration = {
     id: Date.now(),
     prompt: prompt,
-    style: appState.selectedStyle,
+    style: chosenStyle,
     mode: mode,
     size: size,
     timestamp: new Date().toISOString(),
@@ -1582,7 +1583,7 @@ async function generateImage(event) {
     const result = await sendToWebhook({
     action: 'Image Generation',
     prompt: prompt,
-    style: appState.selectedStyle,
+    style: chosenStyle,
     mode: mode,
     size: size,
     user_id: appState.userId,
