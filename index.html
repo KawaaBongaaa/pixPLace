@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,110 +14,73 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap"
-        rel="stylesheet">
+    rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
-        rel="stylesheet">
+    rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@453&family=Stalinist+One&display=swap"
-        rel="stylesheet">
+    rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Underdog&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Vinyl&family=Underdog&display=swap" rel="stylesheet">
     <script>
-        const sources = [
-            'https://telegram.org/js/telegram-web-app.js',
-            'https://unpkg.com/@twa-dev/sdk@7.10.1/dist/index.js',
-            'https://cdn.jsdelivr.net/npm/@twa-dev/sdk@7.10.1/dist/index.js'
-        ];
-        
-                function loadTelegramSDK(index = 0) {
-                    return new Promise((resolve, reject) => {
-                        if (index >= sources.length) {
-                            reject('❌ All Telegram SDK sources failed');
-                            return;
-                        }
-        
-                        const script = document.createElement('script');
-                        script.src = sources[index];
-        
-                        script.onload = () => {
-                            console.log('✅ Telegram SDK loaded from:', sources[index]);
-                            resolve();
-                        };
-        
-                        script.onerror = () => {
-                            console.warn(`⚠️ Failed to load ${sources[index]}, trying next...`);
-                            resolve(loadTelegramSDK(index + 1));
-                        };
-        
-                        document.head.appendChild(script);
-                    });
-                }
-        /*
-
-        async function initTelegramWebApp() {
-            try {
-                await loadTelegramSDK();
-
-                let attempts = 0;
-                while (typeof Telegram === 'undefined' || !Telegram.WebApp) {
-                    if (attempts++ > 100) throw new Error('Telegram SDK not available');
-                    await new Promise(resolve => setTimeout(resolve, 50));
-                }
-
-                Telegram.WebApp.ready();
-                Telegram.WebApp.expand();
-                console.log('✅ Telegram WebApp Ready');
-
-                const initData = Telegram.WebApp.initDataUnsafe;
-                console.log('📦 Full initData:', initData);
-
-                if (!initData?.user) {
-                    console.warn('⚠️ Пользователь не определён, возможно WebApp открыт вне Telegram');
-                } else {
-                    console.log('👤 User:', initData.user);
-                }
-
-                // Также можно получить startParam (если использовали startapp=...)
-                if (initData.start_param) {
-                    console.log('🔗 Start Param:', initData.start_param);
-                }
-
-            } catch (err) {
-                console.error('❌ Ошибка инициализации Telegram WebApp:', err);
-            }
-        }*/
+    const sources = [
+    'https://telegram.org/js/telegram-web-app.js',
+    'https://unpkg.com/@twa-dev/sdk@7.10.1/dist/index.js',
+    'https://cdn.jsdelivr.net/npm/@twa-dev/sdk@7.10.1/dist/index.js'
+    ];
+    
+    function loadTelegramSDK(index = 0) {
+    return new Promise((resolve, reject) => {
+    if (index >= sources.length) {
+    reject('❌ All Telegram SDK sources failed');
+    return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = sources[index];
+    
+    script.onload = () => {
+    console.log('✅ Telegram SDK loaded from:', sources[index]);
+    resolve();
+    };
+    
+    script.onerror = () => {
+    console.warn(`⚠️ Failed to load ${sources[index]}, trying next...`);
+    resolve(loadTelegramSDK(index + 1));
+    };
+    
+    document.head.appendChild(script);
+    });
+    }
     </script>
 
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
-        (function (m, e, t, r, i, k, a) {
-            m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
-            m[i].l = 1 * new Date();
-            for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
-            k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-        })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=103591399', 'ym');
+    (function (m, e, t, r, i, k, a) {
+    m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+    m[i].l = 1 * new Date();
+    for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+    k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+    })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=103591399', 'ym');
 
-        ym(103591399, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", accurateTrackBounce: true, trackLinks: true });
+    ym(103591399, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", accurateTrackBounce: true, trackLinks: true });
     </script>
     <noscript>
-        <div><img src="https://mc.yandex.ru/watch/103591399" style="position:absolute; left:-9999px;" alt="" /></div>
+    <div><img src="https://mc.yandex.ru/watch/103591399" style="position:absolute; left:-9999px;" alt="" /></div>
     </noscript>
     <!-- /Yandex.Metrika counter -->
-
-
 
 </head>
 
 <body data-theme="dark" data-lang="ru">
     <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen active">
-        <div class="loading-content">
-            <div class="loading-logo">
-                <!--<img src="./logo.svg" alt="Logo pixPLace Ai webApp" class="logo-img" style="width:150px; height:150px;" loading="lazy">-->
-                <svg class="logo-img" version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg"
-                    xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-                    y="0px" viewBox="0 0 1366 768" style="width:150px; height:150px;" xml:space="preserve">
-                    <path d="M664,517c-2.9-52.7-49-126.7-111-115c-16.7,4-58.6,12.4-37,36c15.5,23.5,47.8,53.5,51,7c3.4-5.6,6-0.9,9,2
+    <div class="loading-content">
+    <div class="loading-logo">
+    <svg class="logo-img" version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg"
+    xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+    y="0px" viewBox="0 0 1366 768" style="width:150px; height:150px;" xml:space="preserve">
+    <path d="M664,517c-2.9-52.7-49-126.7-111-115c-16.7,4-58.6,12.4-37,36c15.5,23.5,47.8,53.5,51,7c3.4-5.6,6-0.9,9,2
 	c8.7,18.6,30.9,29.7,41,47c8.2,5.6,0.7,12.2-5,16c-1.1,14.9,7.1,33.6,1,48c-5.1,14-21.7-9.1-37-4c-19.5,9.5-57,23.3-52,51
 	c-3.1,43.2,35.5,65.3,13,76c-65.2,15.2-83.3-68.7-68-117c10.5-23.9,59.8-38.4,57-68c-12.4-26.6-48.1-37.6-75-31
 	c-11.3,3.7-21.7,8.8-34,10c-9.1-9.5,16.4-13.9,14-25c-6.6-17.5,9.8-31.8,18-45c38.9-120.1,17-35.2,95-41c-11.5-42.1-69-89.5-109-42
@@ -136,8 +100,8 @@
 	c12-10.9,73-64.3,65.5-23c-22.6,16.3-29.3,41.5-25.1,65.2c-18.9,3.8-43,1.1-62.1,11.3c-28.7,19.6-26.2,1.3-9.9-18.6
 	C460.3,138.8,440.9,129.7,450.2,122.3z M296.4,332.7c-13.9-27.1,104-190.3,124.9-143.4c-43.4,27.4-58.1,69.8-69.3,114.2
 	C325,299.2,310.2,346.6,296.4,332.7z" fill="currentColor" />
-                    <path
-                        d="M1113,429c-0.2-24.6-13.1-42.1-22-64c-5.2-44.7-9.1-87.4-35-123c-19.7-37.6-64.3-67.1-95-92c-2.4-3.3-1.3-8.7-4-12
+    <path
+    d="M1113,429c-0.2-24.6-13.1-42.1-22-64c-5.2-44.7-9.1-87.4-35-123c-19.7-37.6-64.3-67.1-95-92c-2.4-3.3-1.3-8.7-4-12
 	C929.7,75.2,854.4,59.9,802,35c-25-5.7-59.4-16.1-80,10c-16.4,33-30.7,140.4,13,160c21.5,5.4,42,19.2,63,27c44.8,9.9,10,22.8-2,45
 	c-16.1,71.3-40.5,2.3-72-18c-31.5-26.8-11.9,115.2-14,141c4.4,11.6-5.1,27.5,11,6c8.9-13.5,38.8-23.4,29-42
 	c-5.9-16.9-21.3-33.5,9-17c31.1,28.6,39.7-21.8,65-39c14-10.2,31.4-24.5,33-42c6.2-29-22.9-54.6-47-67c-22.8-12.2-53.1-19.9-63-48
@@ -156,30 +120,29 @@
 	c-1.9,1.4,0.7,4.6,0,7c1.2,2.2,3.2,4.7,4,7C1114.2,483.4,1115.3,440.5,1113,429z M917.7,130.7c-5.2,3.1-11.8,6.4-18.7,8.3
 	c7.4,3.7,20.9,27.8,4.9,25.7c-28.7-25.8-58.6-9.7-78-22.4c14-23.8-8.2-46.6-25.3-66.1c2.2-33.2,69.6,25.1,75.7,40.7
 	C884.4,114,930.2,115.5,917.7,130.7z M1062.8,335.2c-79.1-51.1-39.5-95.7-112.3-144.2C945.8,134.7,1104.8,326.4,1062.8,335.2z"
-                        fill="currentColor" />
-                </svg>
-            </div>
-            <h2 data-i18n="loading">Please, Have a Fun!</h2>
-            <div class="loading-bar">
-                <div class="loading-progress"></div>
-            </div>
-        </div>
+    fill="currentColor" />
+    </svg>
+    </div>
+    <h2 data-i18n="loading">Please, Have a Fun!</h2>
+    <div class="loading-bar">
+    <div class="loading-progress"></div>
+    </div>
+    </div>
     </div>
 
     <!-- Main App -->
     <div id="app" class="app">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="header-left">
-                    <button class="logo" onclick="showGeneration()"
-                        style="all: unset; display: flex; align-items: center; gap: var(--space-3); cursor: pointer;">
-                        <svg class="logo-img" version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg"
-                            xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"
-                            x="0px" y="0px" viewBox="0 0 1366 768" style="enable-background:new 0 0 1366 768;"
-                            xml:space="preserve">
-                            <!-- Обрати внимание: fill установлен в currentColor -->
-                            <path d="M664,517c-2.9-52.7-49-126.7-111-115c-16.7,4-58.6,12.4-37,36c15.5,23.5,47.8,53.5,51,7c3.4-5.6,6-0.9,9,2
+    <!-- Header -->
+    <header class="header">
+    <div class="header-content">
+    <div class="header-left">
+    <button class="logo" onclick="showGeneration()"
+    style="all: unset; display: flex; align-items: center; gap: var(--space-3); cursor: pointer;">
+    <svg class="logo-img" version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg"
+    xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"
+    x="0px" y="0px" viewBox="0 0 1366 768" style="enable-background:new 0 0 1366 768;"
+    xml:space="preserve">
+    <path d="M664,517c-2.9-52.7-49-126.7-111-115c-16.7,4-58.6,12.4-37,36c15.5,23.5,47.8,53.5,51,7c3.4-5.6,6-0.9,9,2
 	c8.7,18.6,30.9,29.7,41,47c8.2,5.6,0.7,12.2-5,16c-1.1,14.9,7.1,33.6,1,48c-5.1,14-21.7-9.1-37-4c-19.5,9.5-57,23.3-52,51
 	c-3.1,43.2,35.5,65.3,13,76c-65.2,15.2-83.3-68.7-68-117c10.5-23.9,59.8-38.4,57-68c-12.4-26.6-48.1-37.6-75-31
 	c-11.3,3.7-21.7,8.8-34,10c-9.1-9.5,16.4-13.9,14-25c-6.6-17.5,9.8-31.8,18-45c38.9-120.1,17-35.2,95-41c-11.5-42.1-69-89.5-109-42
@@ -199,8 +162,8 @@
 	c12-10.9,73-64.3,65.5-23c-22.6,16.3-29.3,41.5-25.1,65.2c-18.9,3.8-43,1.1-62.1,11.3c-28.7,19.6-26.2,1.3-9.9-18.6
 	C460.3,138.8,440.9,129.7,450.2,122.3z M296.4,332.7c-13.9-27.1,104-190.3,124.9-143.4c-43.4,27.4-58.1,69.8-69.3,114.2
 	C325,299.2,310.2,346.6,296.4,332.7z" fill="currentColor" />
-                            <path
-                                d="M1113,429c-0.2-24.6-13.1-42.1-22-64c-5.2-44.7-9.1-87.4-35-123c-19.7-37.6-64.3-67.1-95-92c-2.4-3.3-1.3-8.7-4-12
+    <path
+    d="M1113,429c-0.2-24.6-13.1-42.1-22-64c-5.2-44.7-9.1-87.4-35-123c-19.7-37.6-64.3-67.1-95-92c-2.4-3.3-1.3-8.7-4-12
 	C929.7,75.2,854.4,59.9,802,35c-25-5.7-59.4-16.1-80,10c-16.4,33-30.7,140.4,13,160c21.5,5.4,42,19.2,63,27c44.8,9.9,10,22.8-2,45
 	c-16.1,71.3-40.5,2.3-72-18c-31.5-26.8-11.9,115.2-14,141c4.4,11.6-5.1,27.5,11,6c8.9-13.5,38.8-23.4,29-42
 	c-5.9-16.9-21.3-33.5,9-17c31.1,28.6,39.7-21.8,65-39c14-10.2,31.4-24.5,33-42c6.2-29-22.9-54.6-47-67c-22.8-12.2-53.1-19.9-63-48
@@ -219,586 +182,337 @@
 	c-1.9,1.4,0.7,4.6,0,7c1.2,2.2,3.2,4.7,4,7C1114.2,483.4,1115.3,440.5,1113,429z M917.7,130.7c-5.2,3.1-11.8,6.4-18.7,8.3
 	c7.4,3.7,20.9,27.8,4.9,25.7c-28.7-25.8-58.6-9.7-78-22.4c14-23.8-8.2-46.6-25.3-66.1c2.2-33.2,69.6,25.1,75.7,40.7
 	C884.4,114,930.2,115.5,917.7,130.7z M1062.8,335.2c-79.1-51.1-39.5-95.7-112.3-144.2C945.8,134.7,1104.8,326.4,1062.8,335.2z"
-                                fill="currentColor" />
-                        </svg>
-                        <span class="logo-text" data-i18n="app_title">pixPLace</span>
-                    </button>
-                </div>
-                <div class="header-right">
-                    <!-- Рядом с кнопками языка/темы -->
-                    <!-- 
-    <button id="musicToggle" class="music-toggle" onclick="toggleMusicDropdown()">
-        <span class="music-icon">🎵</span>
+    fill="currentColor" />
+    </svg>
+    <span class="logo-text">pixPLace</span>
     </button>
-    
-    <div id="musicDropdown" class="music-dropdown" style="display: none;">
-        <div class="music-header">
-            <span><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z"/></svg> Background Music</span>
-        </div>
-        
-        <div class="playlist-list">
-            <div class="playlist-item" onclick="playPlaylist('relax')">
-                <span class="playlist-icon">🎧</span>
-                <span class="playlist-name">Relax</span>
-            </div>
-            
-            <div class="playlist-item" onclick="playPlaylist('ambient')">
-                <span class="playlist-icon">🌙</span>
-                <span class="playlist-name">Ambient</span>
-            </div>
-            
-            <div class="playlist-item" onclick="playPlaylist('jazz')">
-                <span class="playlist-icon">🎷</span>
-                <span class="playlist-name">Jazz</span>
-            </div>
-        </div>
-        
-        <div class="music-player-controls" id="musicControls" style="display: none;">
-            <button id="playPauseBtn" onclick="togglePlayPause()">⏸</button>
-            <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="setVolume(this.value)">
-        </div>
     </div>
-</div> 
+    <div class="header-right">
+    <button class="control-btn" onclick="toggleTheme()" title="Toggle theme">
+    <svg class="theme-icon sun" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+    </path>
+    </svg>
+    <svg class="theme-icon moon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+    </path>
+    </svg>
+    </button>
+    <button class="control-btn" onclick="toggleLanguage()" title="Change language">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129">
+    </path>
+    </svg>
+    </button>
+    </div>
+    </div>
+    </header>
 
-<!-- Скрытый SoundCloud iframe 
-                    <iframe id="musicPlayer" style="display: none;" width="100%" height="166" scrolling="no"
-                        frameborder="no" allow="autoplay"></iframe>-->
-
-                    <button class="back-btn" onclick="showGeneration()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 12H5" />
-                            <path d="M12 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <button class="control-btn" onclick="toggleLanguage()" title="Language">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M2 12h20" />
-                            <path
-                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                        </svg>
-                    </button>
-                    <button class="control-btn" onclick="toggleTheme()" title="Theme">
-                        <svg class="theme-icon sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="12" cy="12" r="5" />
-                            <path
-                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                        </svg>
-                        <svg class="theme-icon moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                        </svg>
-                    </button>
-                    <button class="control-btn" onclick="showHistory()" title="History">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <!-- Иконка "список" из Lucide (аналог истории или лога) -->
-                            <line x1="8" y1="6" x2="21" y2="6"></line>
-                            <line x1="8" y1="12" x2="21" y2="12"></line>
-                            <line x1="8" y1="18" x2="21" y2="18"></line>
-                            <circle cx="4" cy="6" r="1"></circle>
-                            <circle cx="4" cy="12" r="1"></circle>
-                            <circle cx="4" cy="18" r="1"></circle>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Status Bar -->
-        <div id="statusBar" class="status-bar">
-            <div class="status-content">
-                <div class="status-icon">↻</div>
-                <span class="status-text" data-i18n="connecting">Connecting...</span>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Generation Screen -->
-            <div id="generationScreen" class="screen active">
-                <div class="screen-content">
-                    <div class="welcome-section">
-                        <!--<h1 data-i18n="welcome_title">Create Amazing Images</h1>-->
-                        <p data-i18n="welcome_subtitle">Describe your vision and watch AI bring it to life</p>
-                    </div>
-
-                    <form class="generation-form" onsubmit="generateImage(event)">
-                        <!-- Prompt Input -->
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="prompt_label">Describe your image</label>
-                            <div class="input-wrapper">
-                                <textarea id="promptInput" class="form-textarea"
-                                    data-i18n-placeholder="prompt_placeholder"
-                                    placeholder="A beautiful sunset over the ocean..." rows="3"
-                                    maxlength="1200"></textarea>
-                                <div class="input-counter">
-                                    <span id="charCounter">0</span>/1200
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Style Selection
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="style_label">Style</label>
-                            <div class="style-grid">
-                                <button type="button" class="style-card active" data-style="realistic"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_realistic">Realistic</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="artistic"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_artistic">Artistic</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="cartoon"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_cartoon">Cartoon</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="fantasy"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_fantasy">Fantasy</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="anime" onclick="selectStyle(this)">
-                                    <span data-i18n="style_anime">Anime</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="cyberpunk"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_cyberpunk">Cyberpunk</span>
-                                </button>
-                            </div>
-                        </div> -->
-                        <div class="carousel-2d-wrapper">
-                            <div class="carousel-2d" id="carousel2d">
-                                <div class="carousel-2d-item" data-style="realistic">
-                                    <img src="https://i.pinimg.com/1200x/bd/63/9e/bd639e0617cac14d309c4d73bc40fc70.jpg"
-                                        alt="Realistic Style" loading="lazy" />
-                                    <p data-i18n="style_realistic">Realistic</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="logo">
-                                    <img src="https://i.pinimg.com/1200x/81/38/0e/81380e03929b671134338a73884a311f.jpg"
-                                        alt="Logo Design" loading="lazy" />
-                                    <p data-i18n="style_logo">Logo</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="print">
-                                    <img src="https://i.pinimg.com/1200x/81/38/0e/81380e03929b671134338a73884a311f.jpg"
-                                        alt="Print Design, Print on Demand" loading="lazy" />
-                                    <p data-i18n="style_print">Print</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="sketch">
-                                    <img src="https://i.pinimg.com/1200x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg"
-                                        alt="Sketch Art" loading="lazy" />
-                                    <p data-i18n="style_sketch">Sketch</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="sticker">
-                                    <img src="https://i.pinimg.com/1200x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
-                                        alt="Sticker Design" loading="lazy" />
-                                    <p data-i18n="style_sticker">Sticker</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="popart">
-                                    <img src="https://i.pinimg.com/1200x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg"
-                                        alt="Pop Art Style" loading="lazy" />
-                                    <p data-i18n="style_popart">Pop Art</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="abstract">
-                                    <img src="https://i.pinimg.com/1200x/d9/e2/da/d9e2daee378278eb365484f693790813.jpg"
-                                        alt="Abstract Style" loading="lazy" />
-                                    <p data-i18n="style_abstract">Abstract</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="vector">
-                                    <img src="https://i.pinimg.com/1200x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
-                                        alt="Vector Design" loading="lazy" />
-                                    <p data-i18n="style_vector">Vector</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="anime">
-                                    <img src="https://i.pinimg.com/1200x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg"
-                                        alt="Anime Style" loading="lazy" />
-                                    <p data-i18n="style_anime">Anime</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="cartoon">
-                                    <img src="https://i.pinimg.com/1200x/d7/55/ea/d755ea6805ad31473621d0a21a35f0d8.jpg"
-                                        alt="Cartoon Style" loading="lazy" />
-                                    <p data-i18n="style_cartoon">Cartoon</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="fantasy">
-                                    <img src="https://i.pinimg.com/1200x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg"
-                                        alt="Fantasy Style" loading="lazy" />
-                                    <p data-i18n="style_fantasy">Fantasy</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="artistic">
-                                    <img src="https://i.pinimg.com/1200x/69/30/f4/6930f42752c14b5ad3dce15f215344d1.jpg"
-                                        alt="Artistic Style" loading="lazy" />
-                                    <p data-i18n="style_artistic">Artistic</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="cyberpunk">
-                                    <img src="https://i.pinimg.com/736x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
-                                        alt="Cyberpunk Style" loading="lazy" />
-                                    <p data-i18n="style_cyberpunk">Cyberpunk</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="3d">
-                                    <img src="https://i.pinimg.com/1200x/67/15/77/671577e00166b3e1fed8bab82520b970.jpg"
-                                        alt="3D Design" loading="lazy" />
-                                    <p data-i18n="style_3d">3D</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="icon">
-                                    <img src="https://i.pinimg.com/1200x/81/38/0e/81380e03929b671134338a73884a311f.jpg"
-                                        alt="Icon Design" loading="lazy" />
-                                    <p data-i18n="style_icon">Icon</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="interior">
-                                    <img src="https://i.pinimg.com/1200x/fb/8b/d6/fb8bd633ccccc7ed46de6b0a6b8188bd.jpg"
-                                        alt="Interior Design" loading="lazy" />
-                                    <p data-i18n="style_interior">Interior</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="architecture">
-                                    <img src="https://i.pinimg.com/1200x/8a/0d/e8/8a0de899bdb0a2f764b67792940bd0e0.jpg"
-                                        alt="Architecture Design" loading="lazy" />
-                                    <p data-i18n="style_architecture">Architecture</p>
-                                </div>
-                                <div class="carousel-2d-item" data-style="fashion">
-                                    <img src="https://i.pinimg.com/1200x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
-                                        alt="Fashion Design" loading="lazy" />
-                                    <p data-i18n="style_fashion">Fashion</p>
-                                </div>
-
-                                <div class="carousel-2d-item" data-style="banner">
-                                    <img src="https://i.pinimg.com/736x/f8/37/6a/f8376ac4e5e70562061873f02e70a04e.jpg"
-                                        alt="Banner Design" loading="lazy" />
-                                    <p data-i18n="style_banner">Banner</p>
-                                </div>
-                            </div>
-                            <!--<div class="carousel-wrapper">
-                            <div class="card-3d">
-                                <div class="carousel-item" data-style="realistic">
-                                    <img src="https://i.pinimg.com/1200x/a8/a1/4e/a8a14efe1b166ec1471f6f52feeb736c.jpg"
-                                        alt="Realistic" loading="lazy" />
-                                    <p data-i18n="style_realistic">Realistic</p>
-                                </div>
-                                <div class="carousel-item" data-style="cartoon">
-                                    <img src="https://i.pinimg.com/1200x/1c/af/c8/1cafc87c35fc43c9f3a53c499cb3686f.jpg"
-                                        alt="Cartoon" loading="lazy" />
-                                    <p data-i18n="style_cartoon">Cartoon</p>
-                                </div>
-                                <div class="carousel-item" data-style="fantasy">
-                                    <img src="https://i.pinimg.com/736x/f9/a0/29/f9a029438d0d887ef8edee07b971f830.jpg"
-                                        alt="Fantasy" loading="lazy" />
-                                    <p data-i18n="style_fantasy">Fantasy</p>
-                                </div>
-                                <div class="carousel-item" data-style="artistic">
-                                    <img src="https://i.pinimg.com/1200x/95/a8/5e/95a85e0e68ecd8c6435282525bd081c9.jpg"
-                                        alt="Artistic" loading="lazy" />
-                                    <p data-i18n="style_artistic">Artistic</p>
-                                </div>
-                                <div class="carousel-item" data-style="anime">
-                                    <img src="https://i.pinimg.com/736x/3e/7c/9a/3e7c9ad8d04ba3bdc5794efea1239a0e.jpg"
-                                        alt="Anime" loading="lazy" />
-                                    <p data-i18n="style_anime">Anime</p>
-                                </div>
-                                <div class="carousel-item" data-style="cyberpunk">
-                                    <img src="https://i.pinimg.com/736x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
-                                        alt="Cyberpunk" loading="lazy" />
-                                    <p data-i18n="style_cyberpunk">Cyberpunk</p>
-                                </div>
-                            </div>
-                        </div>-->
-                            <!-- Mode & Size -->
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" data-i18n="mode_label">Mode</label>
-                                    <select id="modeSelect" class="form-select">
-                                        <option value="print_maker" data-i18n="mode_print_maker">Print_Maker</option>
-                                        <option value="fast_generation" selected data-i18n="mode_fast_generation">Fast
-                                            Generation</option>
-                                        <option value="pixplace_pro" data-i18n="mode_pixplace_pro">pixPLace Pro (text
-                                            Supported)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" data-i18n="size_label">Size</label>
-                                    <select id="sizeSelect" class="form-select">
-                                        <option value="square" data-i18n="size_square">Square</option>
-                                        <option value="portrait" data-i18n="size_portrait">Portrait</option>
-                                        <option value="landscape" data-i18n="size_landscape">Landscape</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Generate Button -->
-                            <div class="generate-container">
-
-                                <button type="submit" class="generate-btn" id="generateBtn">
-                                    <span class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                            viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                            <path
-                                                d="m176-120-56-56 301-302-181-45 198-123-17-234 179 151 216-88-87 217 151 178-234-16-124 198-45-181-301 301Zm24-520-80-80 80-80 80 80-80 80Zm355 197 48-79 93 7-60-71 35-86-86 35-71-59 7 92-79 49 90 22 23 90Zm165 323-80-80 80-80 80 80-80 80ZM569-570Z" />
-                                        </svg></span>
-                                    <span class="btn-text" data-i18n="generate_btn">Generate Image</span>
-                                    <div class="btn-ripple"></div>
-                                </button>
-                            </div>
-
-                    </form>
-                </div>
-            </div>
-
-            <!-- Processing Screen -->
-            <div id="processingScreen" class="screen">
-                <div class="screen-content">
-                    <div class="processing-animation">
-                        <div class="processing-circle">
-                            <svg class="processing-svg" viewBox="0 0 100 100">
-                                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="none"
-                                    opacity="0.3" />
-                                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="none"
-                                    stroke-dasharray="283" stroke-dashoffset="283" class="progress-circle" />
-                            </svg>
-                            <div class="processing-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                    viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                    <path
-                                        d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z" />
-                                </svg></div>
-                        </div>
-                    </div>
-
-                    <div class="processing-content">
-                        <h2 data-i18n="processing_title">Creating Your Masterpiece</h2>
-                        <p class="processing-subtitle" data-i18n="processing_subtitle">This may take up to 60 seconds
-                        </p>
-
-                        <div class="processing-steps">
-                            <div class="step active" data-step="1">
-                                <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="M42-120v-112q0-33 17-62t47-44q51-26 115-44t141-18q77 0 141 18t115 44q30 15 47 44t17 62v112H42Zm80-80h480v-32q0-11-5.5-20T582-266q-36-18-92.5-36T362-320q-71 0-127.5 18T142-266q-9 5-14.5 14t-5.5 20v32Zm240-240q-66 0-113-47t-47-113h-10q-9 0-14.5-5.5T172-620q0-9 5.5-14.5T192-640h10q0-45 22-81t58-57v38q0 9 5.5 14.5T302-720q9 0 14.5-5.5T322-740v-54q9-3 19-4.5t21-1.5q11 0 21 1.5t19 4.5v54q0 9 5.5 14.5T422-720q9 0 14.5-5.5T442-740v-38q36 21 58 57t22 81h10q9 0 14.5 5.5T552-620q0 9-5.5 14.5T532-600h-10q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T442-600H282q0 33 23.5 56.5T362-520Zm300 160-6-30q-6-2-11.5-4.5T634-402l-28 10-20-36 22-20v-24l-22-20 20-36 28 10q4-4 10-7t12-5l6-30h40l6 30q6 2 12 5t10 7l28-10 20 36-22 20v24l22 20-20 36-28-10q-5 5-10.5 7.5T708-390l-6 30h-40Zm20-70q12 0 21-9t9-21q0-12-9-21t-21-9q-12 0-21 9t-9 21q0 12 9 21t21 9Zm72-130-8-42q-9-3-16.5-7.5T716-620l-42 14-28-48 34-30q-2-5-2-8v-16q0-3 2-8l-34-30 28-48 42 14q6-6 13.5-10.5T746-798l8-42h56l8 42q9 3 16.5 7.5T848-780l42-14 28 48-34 30q2 5 2 8v16q0 3-2 8l34 30-28 48-42-14q-6 6-13.5 10.5T818-602l-8 42h-56Zm28-90q21 0 35.5-14.5T832-700q0-21-14.5-35.5T782-750q-21 0-35.5 14.5T732-700q0 21 14.5 35.5T782-650ZM362-200Z" />
-                                    </svg></div>
-                                <span data-i18n="step_analyzing">Analyzing prompt</span>
-                            </div>
-                            <div class="step" data-step="2">
-                                <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z" />
-                                    </svg></div>
-                                <span data-i18n="step_generating">Generating image</span>
-                            </div>
-                            <div class="step" data-step="3">
-                                <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="M500-413v-147h100l-40-40h-60v-160q0-17 11.5-28.5T540-800h97q11 0 20.5 5.5T672-779l78 139h-58l-40-80h-92v40h68l40 80h104l59 103q-26-11-54-17t-57-6q-67 0-124.5 29T500-413Zm-80 253h-97q-11 0-20.5-5.5T288-181l-78-139h58l40 80h92v-40h-68l-40-80H188l-57-100q-2-5-3.5-10t-1.5-10q0-4 5-20l57-100h104l40-80h68v-40h-92l-40 80h-58l78-139q5-10 14.5-15.5T323-800h97q17 0 28.5 11.5T460-760v160h-60l-40 40h100v120h-88l-40-80h-92l-40 40h108l40 80h112v56q-10 24-15 50t-5 54q0 17 1.5 34t6.5 34q-5 5-12.5 8.5T420-160Zm300 40 120-120-28-28-72 72v-164h-40v164l-72-72-28 28 120 120Zm0 80q-83 0-141.5-58.5T520-240q0-83 58.5-141.5T720-440q83 0 141.5 58.5T920-240q0 83-58.5 141.5T720-40Z" />
-                                    </svg></div>
-                                <span data-i18n="step_finalizing">Finalizing result</span>
-                            </div>
-                        </div>
-
-                        <div class="processing-timer">
-                            <span data-i18n="elapsed_time">Elapsed time:</span>
-                            <span id="elapsedTime">0s</span>
-                        </div>
-                    </div>
-
-                    <button class="cancel-btn" onclick="cancelGeneration()">
-                        <span data-i18n="cancel_btn">Cancel</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Result Screen -->
-            <div id="resultScreen" class="screen">
-                <div class="screen-content">
-                    <div class="result-container">
-                        <div class="result-image-container">
-                            <img id="resultImage" class="result-image" alt="Generated Image" />
-                            <div class="image-overlay">
-                                <button class="overlay-btn download-btn" onclick="downloadImage()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                        <polyline points="7,10 12,15 17,10" />
-                                        <line x1="12" y1="15" x2="12" y2="3" />
-                                    </svg>
-                                </button>
-                                <button class="overlay-btn share-btn" onclick="shareImage()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="18" cy="5" r="3" />
-                                        <circle cx="6" cy="12" r="3" />
-                                        <circle cx="18" cy="19" r="3" />
-                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="result-info">
-                            <div class="result-meta">
-                                <div class="meta-item">
-                                    <span class="meta-label" data-i18n="prompt_label">Prompt:</span>
-                                    <span class="meta-value" id="resultPrompt"></span>
-                                </div>
-                                <div class="meta-item">
-                                    <span class="meta-label" data-i18n="style_label">Style:</span>
-                                    <span class="meta-value" id="resultStyle"></span>
-                                </div>
-                                <div class="meta-item">
-                                    <span class="meta-label" data-i18n="mode_label">Mode:</span>
-                                    <span class="meta-value" id="resultMode"></span>
-                                </div>
-                                <div class="meta-item">
-                                    <span class="meta-label" data-i18n="generation_time">Generation time:</span>
-                                    <span class="meta-value" id="resultTime"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="result-actions">
-                            <button class="action-btn primary" onclick="newGeneration()">
-                                <span class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="m176-120-56-56 301-302-181-45 198-123-17-234 179 151 216-88-87 217 151 178-234-16-124 198-45-181-301 301Zm24-520-80-80 80-80 80 80-80 80Zm355 197 48-79 93 7-60-71 35-86-86 35-71-59 7 92-79 49 90 22 23 90Zm165 323-80-80 80-80 80 80-80 80ZM569-570Z" />
-                                    </svg></span>
-                                <span data-i18n="create_new">Create New</span>
-                            </button>
-                            <button class="action-btn secondary" onclick="showHistory()">
-                                <span class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="m787-145 28-28-75-75v-112h-40v128l87 87Zm-587 25q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v268q-19-9-39-15.5t-41-9.5v-243H200v560h242q3 22 9.5 42t15.5 38H200Zm0-120v40-560 243-3 280Zm80-40h163q3-21 9.5-41t14.5-39H280v80Zm0-160h244q32-30 71.5-50t84.5-27v-3H280v80Zm0-160h400v-80H280v80ZM720-40q-83 0-141.5-58.5T520-240q0-83 58.5-141.5T720-440q83 0 141.5 58.5T920-240q0 83-58.5 141.5T720-40Z" />
-                                    </svg></span>
-                                <span data-i18n="view_history">View History</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- History Screen -->
-            <div id="historyScreen" class="screen">
-                <div class="screen-content">
-                    <div class="screen-header">
-
-                        <h2 class="history_title" data-i18n="history_title">Generation History</h2>
-                        <button class="clear-btn" onclick="clearHistory()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="3,6 5,6 21,6" />
-                                <path
-                                    d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="history-content" id="historyContent">
-                        <div class="empty-history">
-                            <div class="empty-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
-                                    width="24px" fill="#e3e3e3">
-                                    <path
-                                        d="M320-160q-33 0-56.5-23.5T240-240v-120h120v-90q-35-2-66.5-15.5T236-506v-44h-46L60-680q36-46 89-65t107-19q27 0 52.5 4t51.5 15v-55h480v520q0 50-35 85t-85 35H320Zm120-200h240v80q0 17 11.5 28.5T720-240q17 0 28.5-11.5T760-280v-440H440v24l240 240v56h-56L510-514l-8 8q-14 14-29.5 25T440-464v104ZM224-630h92v86q12 8 25 11t27 3q23 0 41.5-7t36.5-25l8-8-56-56q-29-29-65-43.5T256-684q-20 0-38 3t-36 9l42 42Zm376 350H320v40h286q-3-9-4.5-19t-1.5-21Zm-280 40v-40 40Z" />
-                                </svg>
-                            </div>
-                            <h3 data-i18n="empty_history_title">No generations yet</h3>
-                            <p data-i18n="empty_history_subtitle">Create your first AI image to see it here</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+    <!-- Status Bar -->
+    <div id="statusBar" class="status-bar">
+    <div class="status-content">
+    <svg class="status-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+    </path>
+    </svg>
+    <span data-i18n="connecting">Connecting...</span>
+    </div>
     </div>
 
-    <!-- Toast Notifications -->
+    <!-- Main Content -->
+    <main class="main-content">
+    <!-- Generation Screen -->
+    <div id="generationScreen" class="screen active">
+    <div class="screen-content">
+    <div class="screen-header">
+    <h2 data-i18n="app_title">pixPLace</h2>
+    <button class="back-btn" onclick="goBack()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+    </path>
+    </svg>
+    </button>
+    </div>
+
+    <div class="welcome-section">
+    <h1 data-i18n="welcome_title">Create Amazing Images</h1>
+    <p data-i18n="welcome_subtitle">Describe your vision and watch AI bring it to life</p>
+    </div>
+
+    <form class="generation-form" onsubmit="generateImage(event)">
+    <!-- Prompt -->
+    <div class="form-group">
+    <label class="form-label" data-i18n="prompt_label">Prompt</label>
+    <div class="input-wrapper">
+    <textarea id="promptInput" class="form-textarea" data-i18n-placeholder="prompt_placeholder"
+    placeholder="A beautiful sunset over the ocean..." maxlength="500" required></textarea>
+    <div class="input-counter">
+    <span id="promptCounter">0</span>/500
+    </div>
+    </div>
+    </div>
+
+    <!-- Style, Mode, Size Row -->
+    <div class="form-row">
+    <!-- Style -->
+    <div class="form-group">
+    <label class="form-label" data-i18n="style_label">Style</label>
+    <div class="style-grid">
+    <div class="style-card active" data-style="realistic">
+    <span class="style-icon">📸</span>
+    <span data-i18n="style_realistic">Realistic</span>
+    </div>
+    <div class="style-card" data-style="artistic">
+    <span class="style-icon">🎨</span>
+    <span data-i18n="style_artistic">Artistic</span>
+    </div>
+    <div class="style-card" data-style="cartoon">
+    <span class="style-icon">🎭</span>
+    <span data-i18n="style_cartoon">Cartoon</span>
+    </div>
+    <div class="style-card" data-style="fantasy">
+    <span class="style-icon">🧙</span>
+    <span data-i18n="style_fantasy">Fantasy</span>
+    </div>
+    <div class="style-card" data-style="anime">
+    <span class="style-icon">🌸</span>
+    <span data-i18n="style_anime">Anime</span>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="form-row">
+    <!-- Mode -->
+    <div class="form-group">
+    <label class="form-label" data-i18n="mode_label">Mode</label>
+    <select id="modeSelect" class="form-select">
+    <option value="print_maker" data-i18n="mode_print_maker">Print/Stickers</option>
+    <option value="fast_generation" data-i18n="mode_fast_generation">Fast Generation</option>
+    <option value="pixplace_pro" data-i18n="mode_pixplace_pro">pixPLace Pro</option>
+    <option value="pixplace_ultra_pro">pixPLace Ultra Pro</option>
+    <option value="gpt_image">GPT Image</option>
+    <option value="flux_kontext">Flux Kontext</option>
+    </select>
+    </div>
+
+    <!-- Size -->
+    <div class="form-group">
+    <label class="form-label" data-i18n="size_label">Size</label>
+    <select id="sizeSelect" class="form-select">
+    <option value="1:1" data-i18n="size_square">1:1</option>
+    <option value="9:16" data-i18n="size_portrait">9:16</option>
+    <option value="16:9" data-i18n="size_landscape">16:9</option>
+    </select>
+    </div>
+    </div>
+
+    <!-- Generate Button -->
+    <div class="generate-container">
+    <button type="submit" class="generate-btn" id="generateBtn">
+    <span class="btn-icon">✨</span>
+    <span data-i18n="generate_btn">Generate Image</span>
+    <div class="btn-ripple"></div>
+    </button>
+    </div>
+    </form>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+    <button class="action-btn secondary" onclick="showHistory()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <span data-i18n="view_history">View History</span>
+    </button>
+    </div>
+    </div>
+    </div>
+
+    <!-- Processing Screen -->
+    <div id="processingScreen" class="screen">
+    <div class="screen-content">
+    <div class="screen-header">
+    <h2 data-i18n="processing_title">Creating Your Masterpiece</h2>
+    <button class="back-btn" onclick="goBack()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+    </path>
+    </svg>
+    </button>
+    </div>
+
+    <div class="processing-animation">
+    <div class="processing-circle">
+    <svg class="processing-svg" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border-primary)" stroke-width="8" />
+    <circle class="progress-circle" cx="60" cy="60" r="54" fill="none" stroke="var(--primary-500)"
+    stroke-width="8" stroke-linecap="round" stroke-dasharray="339.292"
+    stroke-dashoffset="339.292" />
+    </svg>
+    <div class="processing-icon">🎨</div>
+    </div>
+    </div>
+
+    <div class="processing-content">
+    <p class="processing-subtitle" data-i18n="processing_subtitle">This may take up to 60 seconds</p>
+
+    <div class="processing-steps">
+    <div class="step active" id="step1">
+    <span class="step-icon">🔍</span>
+    <span data-i18n="step_analyzing">Analyzing prompt</span>
+    </div>
+    <div class="step" id="step2">
+    <span class="step-icon">🎨</span>
+    <span data-i18n="step_generating">Generating image</span>
+    </div>
+    <div class="step" id="step3">
+    <span class="step-icon">✨</span>
+    <span data-i18n="step_finalizing">Finalizing result</span>
+    </div>
+    </div>
+
+    <div class="processing-timer">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <span data-i18n="elapsed_time">Elapsed time:</span>
+    <span id="elapsedTime">00:00</span>
+    </div>
+    </div>
+
+    <button class="cancel-btn" onclick="cancelGeneration()" data-i18n="cancel_btn">Cancel</button>
+    </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="screen">
+    <div class="screen-content">
+    <div class="screen-header">
+    <h2 data-i18n="success_generated">Image Generated!</h2>
+    <button class="back-btn" onclick="goBack()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+    </path>
+    </svg>
+    </button>
+    </div>
+
+    <div class="result-container">
+    <div class="result-image-container">
+    <img id="resultImage" class="result-image" alt="Generated image" />
+    <div class="image-overlay">
+    <button class="overlay-btn" onclick="downloadImage()" title="Download">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+    </svg>
+    </button>
+    <button class="overlay-btn" onclick="copyImageUrl()" title="Copy URL">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+    </path>
+    </svg>
+    </button>
+    </div>
+    </div>
+
+    <div class="result-info">
+    <div class="result-prompt" id="resultPrompt"></div>
+    <div class="result-meta">
+    <span class="meta-item">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <span data-i18n="generation_time">Generation time:</span>
+    <span id="resultTime"></span>
+    </span>
+    </div>
+    </div>
+
+    <div class="result-actions">
+    <button class="action-btn primary" onclick="showGeneration()">
+    <span data-i18n="create_new">Create New</span>
+    </button>
+    <button class="action-btn secondary" onclick="showHistory()">
+    <span data-i18n="view_history">View History</span>
+    </button>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- History Screen -->
+    <div id="historyScreen" class="screen">
+    <div class="screen-content">
+    <div class="screen-header">
+    <h2 data-i18n="history_title">Generation History</h2>
+    <button class="back-btn" onclick="goBack()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+    </path>
+    </svg>
+    </button>
+    <button class="clear-btn" onclick="clearHistory()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+    </path>
+    </svg>
+    Clear All
+    </button>
+    </div>
+
+    <div id="historyContainer" class="history-container">
+    <div class="empty-state">
+    <div class="empty-icon">🎨</div>
+    <h3 data-i18n="empty_history_title">No generations yet</h3>
+    <p data-i18n="empty_history_subtitle">Create your first AI image to see it here</p>
+    </div>
+    </div>
+    </div>
+    </div>
+    </main>
+
+    <!-- Limit Modal -->
+    <div id="limitModal" class="modal">
+    <div class="modal-content">
+    <div class="modal-header">
+    <h3 data-i18n="limit_title">Generation Limit Reached</h3>
+    <button class="modal-close" onclick="closeLimitModal()">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+    </path>
+    </svg>
+    </button>
+    </div>
+    <div class="modal-body">
+    <p data-i18n="limit_message">You've reached your free generation limit. Upgrade to continue creating amazing
+    images!</p>
+    </div>
+    <div class="modal-actions">
+    <button class="action-btn secondary" onclick="closeLimitModal()" data-i18n="closeLimitModal">Maybe
+    Later</button>
+    <button class="action-btn primary" onclick="checkSubscription()" data-i18n="check_subsciption">Check
+    Subscription</button>
+    <button class="pay-btn" onclick="upgradeNow()" data-i18n="upgradeBtn">Upgrade Now</button>
+    </div>
+    </div>
+    </div>
+
+    <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
+    </div>
 
     <script src="app_modern.js"></script>
-    <!-- Модальное окно лимита -->
-    <div id="limitModal" class="limit-modal">
-        <div class="limit-modal-backdrop"></div>
-        <div class="limit-modal-content">
-            <div class="limit-icon">⚡</div>
-            <h2 class="limit-title" data-i18n="limit_title">Достигнут Лимит Генераций</h2>
-            <p class="limit-message" data-i18n="limit_message">Токены для генерации Закончились!
-                Вы можете получить Больше Токенов, оплатив подписку на канал pixPLace,
-                Чтобы продолжить создавать Восхитительные Изображения!</p>
-            <div class="limit-buttons">
-                <button target="_blank" class="btn btn-primary" id="upgradeBtn">
-                    <span class="btn-icon">⚡</span>
-                    <span class="btn-text" data-i18n="upgradeBtn">Upgrade Now</span>
-                </button>
-                <button id="closeLimitModal" class="btn btn-secondary">
-                    <span class="btn-icon">❆</span>
-                    <span class="btn-text" data-i18n="closeLimitModal">Maybe Later</span>
-                </button>
-            </div>
-        </div>
-    </div>
 </body>
-
-<footer class="footer pt-8 pb-6 f6 color-fg-muted p-responsive" role="contentinfo">
-    <h2 class="sr-only"></h2>
-
-
-
-
-    <div class="mx-2">
-        <div class="d-flex flex-items-center flex-shrink-0 mx-2">
-            <a aria-label="pixPLace" class="footer-octicon mr-2" href="appLink here put">
-            </a>
-            <span>
-                © 2025 pixPLace,&nbsp;Inc.
-            </span>
-        </div>
-
-        <nav aria-label="Footer">
-            <h3 class="sr-only" id="sr-footer-heading"></h3>
-
-            <ul class="list-style-none d-flex flex-justify-center flex-wrap mb-2 mb-lg-0"
-                aria-labelledby="sr-footer-heading">
-                <!-- 
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to Terms&quot;,&quot;label&quot;:&quot;text:terms&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Terms</a>
-          </li>
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to privacy&quot;,&quot;label&quot;:&quot;text:privacy&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Privacy</a>
-          </li>
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to security&quot;,&quot;label&quot;:&quot;text:security&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Security</a>
-          </li>
--->
-                <li class="mx-2">
-                    <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to status&quot;,&quot;label&quot;:&quot;text:status&quot;}"
-                        href="https://t.me/tribute/app?startapp=syDv" data-view-component="true"
-                        class="Link--secondary Link" data-i18n="check_subsciption">Check Subscription</a>
-                </li>
-                <!-- 
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to docs&quot;,&quot;label&quot;:&quot;text:docs&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Docs</a>
-          </li>
-
-          <li class="mx-2">
-            <a data-analytics-event="{&quot;category&quot;:&quot;Footer&quot;,&quot;action&quot;:&quot;go to contact&quot;,&quot;label&quot;:&quot;text:contact&quot;}" href="insert the link here!!!!!!!" data-view-component="true" class="Link--secondary Link">Contact</a>
-          </li>
-
-          <li class="mx-2">
-  <cookie-consent-link data-catalyst="">
-    <button type="button" class="Link--secondary underline-on-hover border-0 p-0 color-bg-transparent" data-action="click:cookie-consent-link#showConsentManagement" data-analytics-event="{&quot;location&quot;:&quot;footer&quot;,&quot;action&quot;:&quot;cookies&quot;,&quot;context&quot;:&quot;subfooter&quot;,&quot;tag&quot;:&quot;link&quot;,&quot;label&quot;:&quot;cookies_link_subfooter_footer&quot;}">
-       Pay Subscription
-    </button>
-  </cookie-consent-link>
-</li>
-
-<li class="mx-2">
-  <cookie-consent-link data-catalyst="">
-    <button type="button" class="Link--secondary underline-on-hover border-0 p-0 color-bg-transparent text-left" data-action="click:cookie-consent-link#showConsentManagement" data-analytics-event="{&quot;location&quot;:&quot;footer&quot;,&quot;action&quot;:&quot;dont_share_info&quot;,&quot;context&quot;:&quot;subfooter&quot;,&quot;tag&quot;:&quot;link&quot;,&quot;label&quot;:&quot;dont_share_info_link_subfooter_footer&quot;}">
-      Do not share my personal information
-    </button>
-  </cookie-consent-link>
-</li>
--->
-            </ul>
-        </nav>
-    </div>
-</footer>
 
 </html>
