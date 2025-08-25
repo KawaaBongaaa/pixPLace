@@ -2139,7 +2139,7 @@ window.toggleTheme = () => appState.toggleTheme();
 window.showHistory = showHistory;
 window.showGeneration = showGeneration;
 //window.selectStyle = selectStyle;
-window.selectStyle = (s) => window.setCarouselStyle(s).
+window.selectStyle = (s) => window.setCarouselStyle(s);
 window.generateImage = generateImage;
 window.newGeneration = newGeneration;
 window.cancelGeneration = cancelGeneration;
