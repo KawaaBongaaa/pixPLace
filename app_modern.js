@@ -1106,7 +1106,7 @@ function getCurrentScreen() {
     return 'unknown';
 }
 
-
+/*
 function showScreen(screenId) {
     // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {
@@ -1122,6 +1122,26 @@ function showScreen(screenId) {
 
     // Update main button
     //updateMainButton(screenId);
+}
+*/
+
+function showScreen(screenId) {
+    // Сначала ищем нужный экран
+    const targetScreen = document.getElementById(screenId);
+    if (!targetScreen) {
+        console.error('Screen not found:', screenId);
+        return;
+    }
+
+    // Скрываем все экраны
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+        screen.classList.add('hidden'); // гарантированно прячем
+    });
+
+    // Показываем нужный
+    targetScreen.classList.remove('hidden');
+    targetScreen.classList.add('active');
 }
 
 /*function updateMainButton(screenId) {
