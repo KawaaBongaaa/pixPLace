@@ -833,9 +833,8 @@ class AppState {
     saveSettings() {
     try {
     localStorage.setItem('appSettings', JSON.stringify({
-        language: this.currentLanguage,
-        theme: this.currentTheme,
-        selectedStyle: this.selectedStyle
+    language: this.currentLanguage,
+    theme: this.currentTheme
     }));
     } catch (error) {
     console.error('Failed to save settings:', error);
@@ -846,8 +845,7 @@ class AppState {
     try {
     const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
     if (settings.language) this.setLanguage(settings.language);
-        if (settings.theme) this.setTheme(settings.theme);
-        if (settings.selectedStyle) this.selectedStyle = settings.selectedStyle;
+    if (settings.theme) this.setTheme(settings.theme);
     } catch (error) {
     console.error('Failed to load settings:', error);
     }
@@ -1078,13 +1076,11 @@ function showHistory() {
 // 🖼️ UI Initialization
 // 🎬 Screen Management
 function showLoadingScreen() {
-    const el = document.getElementById('loadingScreen');
-    if (el) el.classList.add('active');
+    document.getElementById('loadingScreen').classList.add('active');
 }
 
 function hideLoadingScreen() {
-    const el = document.getElementById('loadingScreen');
-    if (el) el.classList.remove('active');
+    document.getElementById('loadingScreen').classList.remove('active');
 }
 
 function showApp() {
@@ -1092,29 +1088,17 @@ function showApp() {
 }
 
 function getCurrentScreen() {
-  const idsMap = {
-    loading: document.getElementById('loadingScreen'),
-    generation: document.getElementById('generationScreen'),
-    processing: document.getElementById('processingScreen'),
-    result: document.getElementById('resultScreen'),
-    history: document.getElementById('historyScreen'),
-    app: document.getElementById('app')
-  };
+  const homeEl = document.getElementById('home') || document.querySelector('.home, [data-screen="home"]');
+  const processingEl = document.getElementById('processing') || document.querySelector('.processing, [data-screen="processing"]');
+  const resultEl = document.getElementById('result') || document.querySelector('.result, [data-screen="result"]');
 
-  const isVisible = (el) => {
+  const isVisible = el => {
     if (!el) return false;
-    try {
-      const cs = window.getComputedStyle(el);
-      if (el.classList.contains('hidden')) return false;
-      return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0;
-    } catch (e) { return false; }
+    const cs = window.getComputedStyle(el);
+    // учитываем и класс .hidden, и реальные стили
+    if (el.classList.contains('hidden')) return false;
+    return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0';
   };
-
-  for (const key of ['loading','generation','processing','result','history','app']) {
-    if (isVisible(idsMap[key])) return key;
-  }
-  return 'unknown';
-};
 
   if (isVisible(resultEl)) return 'result';
   if (isVisible(processingEl)) return 'processing';
@@ -1548,7 +1532,8 @@ async function generateImage(event) {
     const mode = document.getElementById('modeSelect').value;
     const size = document.getElementById('sizeSelect').value;
 
-    console.log('🚀 Starting generation:', { prompt, style: appState.selectedStyle, mode, size });
+    const chosenStyle = (typeof window !== 'undefined' && typeof window.getSelectedStyle === 'function' && window.getSelectedStyle()) || (document.querySelector('.style-card.active')?.dataset?.style) || appState?.selectedStyle || 'realistic';
+    console.log('🚀 Starting generation:', { prompt, style: chosenStyle, mode, size });
 
     // Validation
     if (!prompt) {
@@ -1575,7 +1560,7 @@ async function generateImage(event) {
     appState.currentGeneration = {
     id: Date.now(),
     prompt: prompt,
-    style: appState.selectedStyle,
+    style: chosenStyle,
     mode: mode,
     size: size,
     timestamp: new Date().toISOString(),
@@ -1598,7 +1583,7 @@ async function generateImage(event) {
     const result = await sendToWebhook({
     action: 'Image Generation',
     prompt: prompt,
-    style: appState.selectedStyle,
+    style: chosenStyle,
     mode: mode,
     size: size,
     user_id: appState.userId,
@@ -2149,52 +2134,13 @@ function shareImage() {
 }
 
 
-
-// --- START: style selection helpers (injected safely) ---
-window.setCarouselStyle = function(styleName) {
-  try {
-    if (!styleName) return;
-    const cards = document.querySelectorAll('.carousel-2d-item, .style-card');
-    if (!cards || cards.length === 0) return;
-    cards.forEach(c => {
-      try { c.classList.toggle('active', (c.dataset && c.dataset.style) ? (c.dataset.style === styleName) : false); }
-      catch(e){/*ignore*/ }
-    });
-    if (typeof appState !== 'undefined' && appState) {
-      appState.selectedStyle = styleName;
-      if (typeof appState.saveSettings === 'function') {
-        try { appState.saveSettings(); } catch(e){ console.warn('saveSettings failed', e); }
-      }
-    }
-    console.log('✅ setCarouselStyle ->', styleName);
-  } catch (e) {
-    console.warn('setCarouselStyle error', e);
-  }
-};
-
-window.selectStyle = function(elOrName) {
-  try {
-    if (!elOrName) return;
-    if (typeof elOrName === 'string') return window.setCarouselStyle(elOrName);
-    // if element passed
-    const el = elOrName;
-    const style = (el.dataset && el.dataset.style) ? el.dataset.style : null;
-    if (style) return window.setCarouselStyle(style);
-    // fallback: find closest carousel item
-    const card = el.closest && el.closest('.carousel-2d-item') ? el.closest('.carousel-2d-item') : null;
-    if (card && card.dataset && card.dataset.style) return window.setCarouselStyle(card.dataset.style);
-  } catch (e) {
-    console.warn('selectStyle error', e);
-  }
-};
-// --- END: style selection helpers ---
 // 🌍 Global Functions
 window.toggleLanguage = () => appState.toggleLanguage();
 window.toggleTheme = () => appState.toggleTheme();
 window.showHistory = showHistory;
 window.showGeneration = showGeneration;
 //window.selectStyle = selectStyle;
-// replaced-broken-selectStyle - corrected below
+window.selectStyle = (s) => window.setCarouselStyle(s).
 window.generateImage = generateImage;
 window.newGeneration = newGeneration;
 window.cancelGeneration = cancelGeneration;
@@ -2314,16 +2260,3 @@ window.closeLimitModal = () => {
     showGeneration();
     }
 };
-
-// Apply persisted selected style after DOM is ready
-window.addEventListener('DOMContentLoaded', () => {
-  try {
-    const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
-    const style = (appState && appState.selectedStyle) || settings.selectedStyle;
-    if (style) {
-      window.setCarouselStyle(style);
-    }
-  } catch (e) {
-    console.warn('apply persisted style failed', e);
-  }
-});
