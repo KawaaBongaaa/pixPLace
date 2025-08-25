@@ -1191,8 +1191,10 @@ function showResult(result) {
         const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
         resultTime.textContent = duration + 's';
     }
+
     console.log('after showResult ->', getCurrentScreen());
 }
+
 /*function showSubscriptionScreen(paymentUrl) {
     // Скрыть все экраны
     document.querySelectorAll('.screen').forEach(screen => {
