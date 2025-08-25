@@ -1089,8 +1089,8 @@ function showApp() {
 
 function getCurrentScreen() {
   const homeEl = document.getElementById('home') || document.querySelector('.home, [data-screen="home"]');
-  const processingEl = document.getElementById('processing') || document.querySelector('.processing, [data-screen="processing"]');
-  const resultEl = document.getElementById('result') || document.querySelector('.result, [data-screen="result"]');
+  const processingEl = document.getElementById('processingScreen') || document.querySelector('.processing, [data-screen="processing"]');
+  const resultEl = document.getElementById('resultScreen') || document.querySelector('.result, [data-screen="result"]');
 
   const isVisible = el => {
     if (!el) return false;
