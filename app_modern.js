@@ -2161,6 +2161,7 @@ window.toggleLanguage = () => appState.toggleLanguage();
 window.toggleTheme = () => appState.toggleTheme();
 window.showHistory = showHistory;
 window.showGeneration = showGeneration;
+window.showProcessing = showProcessing;
 //window.selectStyle = selectStyle;
 window.selectStyle = (s) => window.setCarouselStyle(s);
 window.generateImage = generateImage;
