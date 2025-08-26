@@ -1937,7 +1937,7 @@ async function sendToWebhook(data) {
     window.setCarouselStyle = function (style) {
         const target = String(style || '').toLowerCase();
         const card = cards.find(c => (c.dataset.style || '').toLowerCase() === target);
-        if (card) highlight(card);
+        if (card) highlight(card, { scroll: true });
     };
 
     // Инициализация — выделим первую видимую/первую по списку
