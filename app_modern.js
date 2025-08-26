@@ -1565,9 +1565,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 
-const activeCard = document.querySelector('.carousel-2d-item.active');
-const currentStyle = (activeCard?.dataset.style || '').toLowerCase();
-appState.selectedStyle = currentStyle || appState.selectedStyle; 
+
 // 🖼️ Image Generation - ИСПРАВЛЕННАЯ ВЕРСИЯ
 async function generateImage(event) {
     if (event) {
@@ -1604,6 +1602,11 @@ async function generateImage(event) {
     appState.startTime = Date.now();
 
     // Create generation record
+    // 👉 Берём активную карточку из карусели и обновляем стиль
+    const activeCard = document.querySelector('.carousel-2d-item.active');
+    const currentStyle = (activeCard?.dataset.style || '').toLowerCase();
+    appState.selectedStyle = currentStyle || appState.selectedStyle;
+
     appState.currentGeneration = {
         id: Date.now(),
         prompt: prompt,
