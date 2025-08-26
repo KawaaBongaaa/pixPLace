@@ -1807,6 +1807,8 @@ async function sendToWebhook(data) {
         if (window.appState) {
             window.appState.selectedStyle = selectedStyle;
         }
+        console.log('🎨 Highlighted style:', selectedStyle);
+        console.log('🎨 appState.selectedStyle:', appState?.selectedStyle);
         // гарантируем видимость, но не центрируем
         card.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
     }
