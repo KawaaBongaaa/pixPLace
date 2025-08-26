@@ -1565,7 +1565,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 
-
+const activeCard = document.querySelector('.carousel-2d-item.active');
+const currentStyle = (activeCard?.dataset.style || '').toLowerCase();
+appState.selectedStyle = currentStyle || appState.selectedStyle; 
 // 🖼️ Image Generation - ИСПРАВЛЕННАЯ ВЕРСИЯ
 async function generateImage(event) {
     if (event) {
