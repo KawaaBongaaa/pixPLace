@@ -1170,6 +1170,19 @@ function showScreen(screenId) {
 function showProcessing() {
     showScreen('processingScreen');
     updateProcessingSteps(1);
+    console.log('--- Проверка processingScreen ---');
+    const proc = document.getElementById('processingScreen');
+    if (!proc) {
+        console.error('❌ Нет блока #processingScreen в DOM');
+    } else {
+        console.log('✅ Нашёл processingScreen:', proc);
+        console.log('Классы:', proc.className);
+        console.log('display:', getComputedStyle(proc).display);
+        console.log('opacity:', getComputedStyle(proc).opacity);
+        console.log('transform:', getComputedStyle(proc).transform);
+        console.log('innerHTML длина:', proc.innerHTML.length);
+    }
+
     console.log('after showProcessing ->', getCurrentScreen());
 }
 
