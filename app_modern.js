@@ -1804,9 +1804,9 @@ async function sendToWebhook(data) {
         card.classList.add('active');
 
         selectedStyle = (card.dataset.style || '').toLowerCase();
-    if (window.appState) {
-        window.appState.selectedStyle = selectedStyle;
-    }
+        if (window.appState) {
+            window.appState.selectedStyle = selectedStyle;
+        }
         // гарантируем видимость, но не центрируем
         card.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
     }
