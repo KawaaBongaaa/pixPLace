@@ -1536,6 +1536,15 @@ async function initTelegramApp() {
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('🚀 pixPLace Creator starting...');
 
+    // ✅ Проверка наличия processingScreen
+    const ps = document.getElementById('processingScreen');
+    if (ps) {
+        console.log('✅ Нашёл processingScreen:', ps);
+        console.log('➡️ Дети processingScreen:', ps.children.length);
+    } else {
+        console.error('❌ processingScreen не найден в DOM');
+    }
+
     showLoadingScreen();
     appState.loadSettings();
     appState.loadHistory();
@@ -1554,6 +1563,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         showApp();
     }, 1500);
 });
+
 
 
 // 🖼️ Image Generation - ИСПРАВЛЕННАЯ ВЕРСИЯ
