@@ -1804,7 +1804,7 @@ async function sendToWebhook(data) {
     let moved = false;
 
     // Выделение активной
-    function highlight(card) {
+    /*function highlight(card) {
         cards.forEach(c => c.classList.remove('active'));
         if (!card) return;
         card.classList.add('active');
@@ -1817,9 +1817,46 @@ async function sendToWebhook(data) {
         console.log('🎨 appState.selectedStyle:', appState?.selectedStyle);
         // гарантируем видимость, но не центрируем
         card.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+    }*/
+    function nearestCard() {
+        const trackRect = track.getBoundingClientRect();
+        const center = trackRect.left + trackRect.width / 2;
+        let best = null, bestDist = Infinity;
+
+        for (const c of cards) {
+            const r = c.getBoundingClientRect();
+            const cardCenter = r.left + r.width / 2;
+            const dist = Math.abs(cardCenter - center);
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = c;
+            }
+        }
+        return best;
+    }
+
+    function highlight(card, { scroll = false } = {}) {
+        cards.forEach(c => c.classList.remove('active'));
+        if (!card) return;
+        card.classList.add('active');
+
+        // Обновляем стиль
+        selectedStyle = (card.dataset.style || '').toLowerCase();
+        if (window.appState) {
+            appState.selectedStyle = selectedStyle;
+        }
+
+        console.log('🎨 Highlighted style:', selectedStyle);
+        console.log('🎨 appState.selectedStyle:', appState?.selectedStyle);
+
+        // Прокручиваем только если явно сказано
+        if (scroll) {
+            card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
     }
 
     // Найти ближайшую карточку к текущему скроллу
+    /*
     function nearestCard() {
         const trackRect = track.getBoundingClientRect();
         let best = null, bestDist = Infinity;
@@ -1833,24 +1870,37 @@ async function sendToWebhook(data) {
             }
         }
         return best;
-    }
+    }*/
 
     // Снэпим к ближайшей карточке
-    function snapToNearest() {
-        const card = nearestCard();
-        if (card) highlight(card);
+    function onCardClick(e) {
+        if (moved) return; // свайп — не клик
+        const card = e.currentTarget;
+        highlight(card, { scroll: true });
     }
 
-    // Клик по карточке
-    function onCardClick(e) {
-        // если был реальный свайп — не снимать клик
-        if (moved) return;
-        const card = e.currentTarget;
-        highlight(card);
+    function snapToNearest() {
+        const card = nearestCard();
+        if (card) highlight(card, { scroll: true });
     }
-    cards.forEach(c => {
-        c.addEventListener('click', onCardClick);
-    });
+
+    /*
+        function snapToNearest() {
+            const card = nearestCard();
+            if (card) highlight(card);
+        }
+    
+        // Клик по карточке
+        function onCardClick(e) {
+            // если был реальный свайп — не снимать клик
+            if (moved) return;
+            const card = e.currentTarget;
+            highlight(card);
+        }
+        cards.forEach(c => {
+            c.addEventListener('click', onCardClick);
+        });
+    */
 
     // Pointer события на треке
     track.addEventListener('pointerdown', (e) => {
@@ -1891,7 +1941,8 @@ async function sendToWebhook(data) {
     };
 
     // Инициализация — выделим первую видимую/первую по списку
-    highlight(cards[0]);
+    // highlight(cards[0]);
+    highlight(cards[0], { scroll: false });
 
     // На ресайз — удержать активную в видимой области
     window.addEventListener('resize', () => {
