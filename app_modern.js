@@ -102,6 +102,7 @@ const TRANSLATIONS = {
         style_realistic: 'Реализм',
         style_artistic: 'Арт',
         style_cartoon: 'Мульт',
+        style_sketch: 'Скетч',
         style_fantasy: 'Фэнтэзи',
         style_anime: 'Анимэ',
         style_cyberpunk: 'CyberPunk',
