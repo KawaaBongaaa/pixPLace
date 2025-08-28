@@ -1407,7 +1407,7 @@ async function onUserImageChange(e) {
     if (errorEl) errorEl.textContent = '';
     if (!file) return;
 
-    if (!CONFIG.ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
         if (errorEl) errorEl.textContent = 'Недопустимый формат: JPG, PNG, WEBP, GIF.';
         e.target.value = '';
         return;
@@ -1491,7 +1491,7 @@ function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
 
 // ===== Загрузка на imgbb и получение публичного URL =====
 async function uploadToImgbb(dataUrl, apiKey) {
-    if (!apiKey || apiKey === 'ВСТАВЬ_СВОЙ_IMGBB_API_KEY_ЗДЕСЬ') {
+    if (!apiKey || apiKey === '34627904ae4633713e1fee94a243794e') {
         throw new Error('IMGBB API ключ не задан в CONFIG');
     }
     const base64 = String(dataUrl).split(',')[1];
@@ -1502,6 +1502,7 @@ async function uploadToImgbb(dataUrl, apiKey) {
         method: 'POST',
         body: form
     });
+    console.log('imgbb status:', res.status, res.statusText, json);
     const json = await res.json();
     if (!json.success) {
         const msg = json?.error?.message || 'Upload failed';
