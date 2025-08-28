@@ -95,7 +95,8 @@ const TRANSLATIONS = {
         upgradeBtn: 'Upgrade Now',
         remove_user_image: 'Remove',
         reference_image: 'Reference',
-        optional_choice: 'Optional'
+        optional_choice: '(optional)',
+        upload_image: 'Upload Img'
 
     },
     ru: {
