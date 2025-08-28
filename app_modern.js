@@ -22,8 +22,8 @@ const CONFIG = {
     IMGBB_API_KEY: '34627904ae4633713e1fee94a243794e', // только для тестов/прототипа
     MAX_IMAGE_MB: 10,
     ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-    PREVIEW_MAX_W: 512,
-    PREVIEW_MAX_H: 512,
+    PREVIEW_MAX_W: 1024,
+    PREVIEW_MAX_H: 1024,
     PREVIEW_JPEG_QUALITY: 0.9,
 };
 // 🌍 Translations
@@ -1490,23 +1490,35 @@ function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
 }
 
 // ===== Загрузка на imgbb и получение публичного URL =====
+// Мягкий аплоад: если ключа нет — пропускаем без throw
 async function uploadToImgbb(dataUrl, apiKey) {
-    if (!apiKey || apiKey === '34627904ae4633713e1fee94a243794e') {
-        throw new Error('IMGBB API ключ не задан в CONFIG');
+    const key = (apiKey || '').trim();
+    if (!key) {
+        console.warn('IMGBB API key missing — skipping user image upload');
+        return null; // не ломаем генерацию
     }
+
     const base64 = String(dataUrl).split(',')[1];
     const form = new FormData();
     form.append('image', base64);
 
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(apiKey)}`, {
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(key)}`, {
         method: 'POST',
         body: form
     });
-    console.log('imgbb status:', res.status, res.statusText, json);
-    const json = await res.json();
-    if (!json.success) {
-        const msg = json?.error?.message || 'Upload failed';
-        throw new Error(`imgbb: ${msg}`);
+
+    let json;
+    try {
+        json = await res.json();
+    } catch (e) {
+        console.error('IMGBB: failed to parse JSON', e);
+        return null;
+    }
+    console.debug('imgbb status:', res.status, res.statusText, json);
+
+    if (!res.ok || !json?.success) {
+        console.warn('IMGBB upload failed:', json?.error || json);
+        return null;
     }
     return json.data.url;
 }
@@ -1515,9 +1527,10 @@ async function uploadToImgbb(dataUrl, apiKey) {
 async function uploadUserImageIfAny() {
     if (!userImageState.dataUrl) return null;
     if (userImageState.uploadedUrl) return userImageState.uploadedUrl;
+
     const url = await uploadToImgbb(userImageState.dataUrl, CONFIG.IMGBB_API_KEY);
-    userImageState.uploadedUrl = url;
-    return url;
+    userImageState.uploadedUrl = url || null;
+    return userImageState.uploadedUrl;
 }
 
 // 📱 Telegram WebApp Integration
