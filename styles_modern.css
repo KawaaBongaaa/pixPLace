@@ -558,14 +558,14 @@ body {
 /* Welcome Section */
 .welcome-section {
     text-align: center;
-    margin-bottom: var(--space-0);
+    margin-bottom: var(--space-0.25);
 }
 
 .welcome-section h1 {
     font-size: var(--font-size-3xl);
     font-weight: 900;
     color: var(--text-primary);
-    margin-bottom: var(--space-0);
+    margin-bottom: var(--space-1);
     background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -589,7 +589,7 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: var(--space-0.5);
 }
 
 .form-row {
@@ -598,7 +598,8 @@ body {
     align-items: center;
     gap: var(--space-6);
     padding-left: 10px;
-    padding-bottom: 20px;
+    padding-right: 10px;
+    padding-bottom: 10px;
 
 }
 
@@ -759,7 +760,7 @@ body {
     user-select: none;
     touch-action: pan-x;
     /* свайп по X */
-    padding: 4px 8px;
+    padding: 2px 8px;
     /* небольшой внутренний отступ */
 }
 
@@ -770,7 +771,7 @@ body {
     height: 100px;
     border-radius: 6px;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 3px solid rgba(255, 255, 255, 0.134);
     background: #1f1f25;
     transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
@@ -810,13 +811,13 @@ body {
     padding: var(--space-1) var(--space-2);
     border: none;
     border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-    color: white;
+    background: linear-gradient(135deg, var(--primary-900), var(--primary-800));
+    color: rgb(255, 255, 255);
     font-family: "Shantell Sans", sans-serif;
     font-optical-sizing: auto;
     font-style: bold;
     font-size: var(--font-size-xl);
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     align-items: center;
     justify-content: center;
@@ -828,7 +829,6 @@ body {
     right: 20px;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
-    opacity: 0.9;
 }
 
 .generate-btn:hover {
@@ -847,7 +847,7 @@ body {
 }
 
 .btn-icon {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-l);
 }
 
 .btn-ripple {
@@ -1647,6 +1647,41 @@ textarea:focus-visible {
     padding-bottom: 10;
 }
 
+.hidden {
+    display: none !important;
+}
+
+.user-image-upload {
+    display: grid;
+    gap: 8px;
+}
+
+.user-image-label {
+    font-weight: 600;
+}
+
+.user-image-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border: 1px solid var(--border, #e2e2e2);
+    border-radius: 8px;
+    background: var(--surface, #fafafa);
+}
+
+.user-image-preview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border, #e2e2e2);
+}
+
+.error-msg {
+    color: #d33;
+    font-size: 12px;
+}
 
 /*.carousel-container {
   position: relative;

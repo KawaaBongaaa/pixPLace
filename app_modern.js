@@ -19,6 +19,12 @@ const CONFIG = {
     LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'tr', 'pl'],
     DEFAULT_LANGUAGE: 'en',
     DEFAULT_THEME: 'dark', // 'light', 'dark', 'auto'
+    IMGBB_API_KEY: '34627904ae4633713e1fee94a243794e', // только для тестов/прототипа
+    MAX_IMAGE_MB: 10,
+    ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    PREVIEW_MAX_W: 512,
+    PREVIEW_MAX_H: 512,
+    PREVIEW_JPEG_QUALITY: 0.9,
 };
 // 🌍 Translations
 const TRANSLATIONS = {
@@ -1373,6 +1379,146 @@ function initializeUI() {
     console.log('✅ UI initialized');
 }
 
+// ===== Пользовательское изображение: состояние =====
+const userImageState = {
+    file: null,        // File
+    dataUrl: null,     // data:image/...;base64,...
+    uploadedUrl: null, // публичный URL от imgbb
+};
+
+// ===== Инициализация UI загрузки =====
+function initUserImageUpload() {
+    const input = document.getElementById('userImage');
+    const chooseBtn = document.getElementById('chooseUserImage');
+    const removeBtn = document.getElementById('removeUserImage');
+
+    chooseBtn?.addEventListener('click', () => input?.click());
+    input?.addEventListener('change', onUserImageChange);
+    removeBtn?.addEventListener('click', clearUserImage);
+}
+
+// ===== Обработчик выбора файла =====
+async function onUserImageChange(e) {
+    const file = e.target.files?.[0];
+    const errorEl = document.getElementById('userImageError');
+    const preview = document.getElementById('userImagePreview');
+    const img = document.getElementById('userImagePreviewImg');
+
+    if (errorEl) errorEl.textContent = '';
+    if (!file) return;
+
+    if (!CONFIG.ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        if (errorEl) errorEl.textContent = 'Недопустимый формат: JPG, PNG, WEBP, GIF.';
+        e.target.value = '';
+        return;
+    }
+    const maxBytes = CONFIG.MAX_IMAGE_MB * 1024 * 1024;
+    if (file.size > maxBytes) {
+        if (errorEl) errorEl.textContent = `Файл слишком большой. Максимум ${CONFIG.MAX_IMAGE_MB} MB.`;
+        e.target.value = '';
+        return;
+    }
+
+    try {
+        const dataUrl = await readFileAsDataURL(file);
+        const compressed = await maybeCompressImage(
+            dataUrl,
+            CONFIG.PREVIEW_MAX_W,
+            CONFIG.PREVIEW_MAX_H,
+            CONFIG.PREVIEW_JPEG_QUALITY
+        );
+
+        userImageState.file = file;
+        userImageState.dataUrl = compressed;
+        userImageState.uploadedUrl = null;
+
+        if (img) img.src = compressed;
+        if (preview) preview.classList.remove('hidden');
+    } catch (err) {
+        console.error(err);
+        if (errorEl) errorEl.textContent = 'Не удалось прочитать/обработать изображение.';
+        e.target.value = '';
+    }
+}
+
+// ===== Очистка выбранного изображения =====
+function clearUserImage() {
+    const input = document.getElementById('userImage');
+    const preview = document.getElementById('userImagePreview');
+    const img = document.getElementById('userImagePreviewImg');
+    const errorEl = document.getElementById('userImageError');
+
+    if (input) input.value = '';
+    if (img) img.removeAttribute('src');
+    if (preview) preview.classList.add('hidden');
+    if (errorEl) errorEl.textContent = '';
+
+    userImageState.file = null;
+    userImageState.dataUrl = null;
+    userImageState.uploadedUrl = null;
+}
+
+// ===== Хелперы чтения/сжатия =====
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(fr.result);
+        fr.onerror = reject;
+        fr.readAsDataURL(file);
+    });
+}
+
+function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+            let w = img.width, h = img.height;
+            const ratio = Math.min(maxW / w, maxH / h, 1);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+    });
+}
+
+// ===== Загрузка на imgbb и получение публичного URL =====
+async function uploadToImgbb(dataUrl, apiKey) {
+    if (!apiKey || apiKey === 'ВСТАВЬ_СВОЙ_IMGBB_API_KEY_ЗДЕСЬ') {
+        throw new Error('IMGBB API ключ не задан в CONFIG');
+    }
+    const base64 = String(dataUrl).split(',')[1];
+    const form = new FormData();
+    form.append('image', base64);
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(apiKey)}`, {
+        method: 'POST',
+        body: form
+    });
+    const json = await res.json();
+    if (!json.success) {
+        const msg = json?.error?.message || 'Upload failed';
+        throw new Error(`imgbb: ${msg}`);
+    }
+    return json.data.url;
+}
+
+// Загружает только если выбрано и ещё не загружено
+async function uploadUserImageIfAny() {
+    if (!userImageState.dataUrl) return null;
+    if (userImageState.uploadedUrl) return userImageState.uploadedUrl;
+    const url = await uploadToImgbb(userImageState.dataUrl, CONFIG.IMGBB_API_KEY);
+    userImageState.uploadedUrl = url;
+    return url;
+}
+
 // 📱 Telegram WebApp Integration
 
 async function initTelegramApp() {
@@ -1559,6 +1705,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     initializeUI();
+    initUserImageUpload(); // ← добавь эту строку
     setTimeout(() => {
         hideLoadingScreen();
         showApp();
@@ -1626,6 +1773,17 @@ async function generateImage(event) {
     // Show processing screen
     showProcessing();
     startTimer();
+    // 1) Если выбрано пользовательское изображение — загрузим на imgbb
+    let userImageUrl = null;
+    try {
+        userImageUrl = await uploadUserImageIfAny();
+    } catch (err) {
+        console.warn('User image upload failed:', err);
+        const errorEl = document.getElementById('userImageError');
+        if (errorEl && !errorEl.textContent) {
+            errorEl.textContent = 'Не удалось загрузить изображение. Сгенерируем без него.';
+        }
+    }
 
     try {
         console.log('📤 Sending to webhook...');
@@ -1637,6 +1795,7 @@ async function generateImage(event) {
             style: appState.selectedStyle,
             mode: mode,
             size: size,
+            user_image_url: userImageUrl,
             user_id: appState.userId,
             user_name: appState.userName,
             user_username: appState.userUsername,
@@ -2241,6 +2400,7 @@ function shareImage() {
 
     triggerHaptic('light');
 }
+
 
 
 // 🌍 Global Functions

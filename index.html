@@ -227,43 +227,46 @@
                 </div>
                 <div class="header-right">
                     <!-- Рядом с кнопками языка/темы -->
-                    <!-- 
+                    <!--
     <button id="musicToggle" class="music-toggle" onclick="toggleMusicDropdown()">
         <span class="music-icon">🎵</span>
     </button>
-    
+
     <div id="musicDropdown" class="music-dropdown" style="display: none;">
         <div class="music-header">
-            <span><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z"/></svg> Background Music</span>
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                    <path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z"/>
+                </svg>
+                Background Music
+            </span>
         </div>
-        
+
         <div class="playlist-list">
             <div class="playlist-item" onclick="playPlaylist('relax')">
                 <span class="playlist-icon">🎧</span>
                 <span class="playlist-name">Relax</span>
             </div>
-            
             <div class="playlist-item" onclick="playPlaylist('ambient')">
                 <span class="playlist-icon">🌙</span>
                 <span class="playlist-name">Ambient</span>
             </div>
-            
             <div class="playlist-item" onclick="playPlaylist('jazz')">
                 <span class="playlist-icon">🎷</span>
                 <span class="playlist-name">Jazz</span>
             </div>
         </div>
-        
+
         <div class="music-player-controls" id="musicControls" style="display: none;">
             <button id="playPauseBtn" onclick="togglePlayPause()">⏸</button>
             <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="setVolume(this.value)">
         </div>
-    </div>
-</div> 
-
-<!-- Скрытый SoundCloud iframe 
-                    <iframe id="musicPlayer" style="display: none;" width="100%" height="166" scrolling="no"
-                        frameborder="no" allow="autoplay"></iframe>-->
+    -->
+                    <!-- Скрытый SoundCloud iframe -->
+                    <!--
+    <iframe id="musicPlayer" style="display: none;" width="100%" height="166" scrolling="no"
+        frameborder="no" allow="autoplay"></iframe>
+    -->
 
                     <button class="back-btn" onclick="showGeneration()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -294,7 +297,6 @@
                     <button class="control-btn" onclick="showHistory()" title="History">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <!-- Иконка "список" из Lucide (аналог истории или лога) -->
                             <line x1="8" y1="6" x2="21" y2="6"></line>
                             <line x1="8" y1="12" x2="21" y2="12"></line>
                             <line x1="8" y1="18" x2="21" y2="18"></line>
@@ -472,73 +474,76 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>    
-                            <!--<div class="carousel-wrapper">
-                            <div class="card-3d">
-                                <div class="carousel-item" data-style="realistic">
-                                    <img src="https://i.pinimg.com/1200x/a8/a1/4e/a8a14efe1b166ec1471f6f52feeb736c.jpg"
-                                        alt="Realistic" loading="lazy" />
-                                    <p data-i18n="style_realistic">Realistic</p>
-                                </div>
-                                <div class="carousel-item" data-style="cartoon">
-                                    <img src="https://i.pinimg.com/1200x/1c/af/c8/1cafc87c35fc43c9f3a53c499cb3686f.jpg"
-                                        alt="Cartoon" loading="lazy" />
-                                    <p data-i18n="style_cartoon">Cartoon</p>
-                                </div>
-                                <div class="carousel-item" data-style="fantasy">
-                                    <img src="https://i.pinimg.com/736x/f9/a0/29/f9a029438d0d887ef8edee07b971f830.jpg"
-                                        alt="Fantasy" loading="lazy" />
-                                    <p data-i18n="style_fantasy">Fantasy</p>
-                                </div>
-                                <div class="carousel-item" data-style="artistic">
-                                    <img src="https://i.pinimg.com/1200x/95/a8/5e/95a85e0e68ecd8c6435282525bd081c9.jpg"
-                                        alt="Artistic" loading="lazy" />
-                                    <p data-i18n="style_artistic">Artistic</p>
-                                </div>
-                                <div class="carousel-item" data-style="anime">
-                                    <img src="https://i.pinimg.com/736x/3e/7c/9a/3e7c9ad8d04ba3bdc5794efea1239a0e.jpg"
-                                        alt="Anime" loading="lazy" />
-                                    <p data-i18n="style_anime">Anime</p>
-                                </div>
-                                <div class="carousel-item" data-style="cyberpunk">
-                                    <img src="https://i.pinimg.com/736x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
-                                        alt="Cyberpunk" loading="lazy" />
-                                    <p data-i18n="style_cyberpunk">Cyberpunk</p>
-                                </div>
+                        </div>
+                        <!-- Mode & Size -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="mode_label">Mode</label>
+                                <select id="modeSelect" class="form-select">
+                                    <option value="print_maker" data-i18n="mode_print_maker">Print_Maker</option>
+                                    <option value="fast_generation" selected data-i18n="mode_fast_generation">Fast
+                                        Generation</option>
+                                    <option value="pixplace_pro" data-i18n="mode_pixplace_pro">pixPLace Pro (text
+                                        Supported)</option>
+                                </select>
                             </div>
-                        </div>-->
-                            <!-- Mode & Size -->
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" data-i18n="mode_label">Mode</label>
-                                    <select id="modeSelect" class="form-select">
-                                        <option value="print_maker" data-i18n="mode_print_maker">Print_Maker</option>
-                                        <option value="fast_generation" selected data-i18n="mode_fast_generation">Fast
-                                            Generation</option>
-                                        <option value="pixplace_pro" data-i18n="mode_pixplace_pro">pixPLace Pro (text
-                                            Supported)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" data-i18n="size_label">Size</label>
-                                    <select id="sizeSelect" class="form-select">
-                                        <option value="square" data-i18n="size_square">Square</option>
-                                        <option value="portrait" data-i18n="size_portrait">Portrait</option>
-                                        <option value="landscape" data-i18n="size_landscape">Landscape</option>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="size_label">Size</label>
+                                <select id="sizeSelect" class="form-select">
+                                    <option value="square" data-i18n="size_square">Square</option>
+                                    <option value="portrait" data-i18n="size_portrait">Portrait</option>
+                                    <option value="landscape" data-i18n="size_landscape">Landscape</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="user-image-upload">
+                            <label for="userImage" class="user-image-label">Изображение (опционально)</label>
+
+                            <input type="file" id="userImage" accept="image/png,image/jpeg,image/webp,image/gif"
+                                style="display:none" />
+
+                            <button type="button" id="chooseUserImage" class="btn-secondary">
+                                Загрузить изображение
+                            </button>
+
+                            <div id="userImagePreview" class="user-image-preview hidden">
+                                <img id="userImagePreviewImg" alt="Предпросмотр" />
+                                <button type="button" id="removeUserImage" class="btn-link">
+                                    Удалить
+                                </button>
                             </div>
 
-                            <!-- Generate Button -->
-                            <button type="submit" class="generate-btn" id="generateBtn">
-                                <span class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                            <small id="userImageError" class="error-msg"></small>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <button type="submit" class="generate-btn" id="generateBtn">
+                            <span class="btn-text" data-i18n="generate_btn">Generate Image</span>
+                            <span class="btn-icon">
+                                <svg width="24px" height="24px" viewBox="0 0 1024.00 1024.00" class="icon" version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff"
+                                    transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)" stroke-width="20.48">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke="#CCCCCC" stroke-width="16.384"></g>
+                                    <g id="SVGRepo_iconCarrier">
                                         <path
-                                            d="m176-120-56-56 301-302-181-45 198-123-17-234 179 151 216-88-87 217 151 178-234-16-124 198-45-181-301 301Zm24-520-80-80 80-80 80 80-80 80Zm355 197 48-79 93 7-60-71 35-86-86 35-71-59 7 92-79 49 90 22 23 90Zm165 323-80-80 80-80 80 80-80 80ZM569-570Z" />
-                                    </svg></span>
-                                <span class="btn-text" data-i18n="generate_btn">Generate Image</span>
-                                <div class="btn-ripple"></div>
-                            </button>
+                                            d="M512 960c-92.8 0-160-200-160-448S419.2 64 512 64s160 200 160 448-67.2 448-160 448z m0-32c65.6 0 128-185.6 128-416S577.6 96 512 96s-128 185.6-128 416 62.4 416 128 416z"
+                                            fill="#b0b0b0"></path>
+                                        <path
+                                            d="M124.8 736c-48-80 92.8-238.4 307.2-363.2S852.8 208 899.2 288 806.4 526.4 592 651.2 171.2 816 124.8 736z m27.2-16c33.6 57.6 225.6 17.6 424-97.6S905.6 361.6 872 304 646.4 286.4 448 401.6 118.4 662.4 152 720z"
+                                            fill="#b0b0b0"></path>
+                                        <path
+                                            d="M899.2 736c-46.4 80-254.4 38.4-467.2-84.8S76.8 368 124.8 288s254.4-38.4 467.2 84.8S947.2 656 899.2 736z m-27.2-16c33.6-57.6-97.6-203.2-296-318.4S184 246.4 152 304 249.6 507.2 448 622.4s392 155.2 424 97.6z"
+                                            fill="#b0b0b0"></path>
+                                        <path
+                                            d="M512 592c-44.8 0-80-35.2-80-80s35.2-80 80-80 80 35.2 80 80-35.2 80-80 80zM272 312c-27.2 0-48-20.8-48-48s20.8-48 48-48 48 20.8 48 48-20.8 48-48 48zM416 880c-27.2 0-48-20.8-48-48s20.8-48 48-48 48 20.8 48 48-20.8 48-48 48z m448-432c-27.2 0-48-20.8-48-48s20.8-48 48-48 48 20.8 48 48-20.8 48-48 48z"
+                                            fill="#00bfff"></path>
+                                    </g>
+                                </svg>
+                            </span>
+                            <div class="btn-ripple"></div>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -678,7 +683,6 @@
             <div id="historyScreen" class="screen">
                 <div class="screen-content">
                     <div class="screen-header">
-
                         <h2 class="history_title" data-i18n="history_title">Generation History</h2>
                         <button class="clear-btn" onclick="clearHistory()">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -688,7 +692,6 @@
                             </svg>
                         </button>
                     </div>
-
                     <div class="history-content" id="historyContent">
                         <div class="empty-history">
                             <div class="empty-icon">
