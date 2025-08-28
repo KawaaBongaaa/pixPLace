@@ -495,23 +495,23 @@
                                     <option value="landscape" data-i18n="size_landscape">Landscape</option>
                                 </select>
                             </div>
-                            <div class="user-image-upload">
-                                <label for="userImage" class="user-image-label" data-i18n="reference_image">Reference Image</label>
-
-                                <input type="file" id="userImage" accept="image/png,image/jpeg,image/webp,image/gif"
-                                    style="display:none" />
-
-                                <button type="button" id="chooseUserImage" class="btn-secondary">
-                                    Загрузить изображение
-                                </button>
-                                <label for="under-userImage" class="under-user-image-label" data-i18n="optional_choice">(Optional)</label>
-
-
-                                <div id="userImagePreview" class="user-image-preview hidden">
-                                    <img id="userImagePreviewImg" alt="Preview" />
-                                    <button type="button" id="removeUserImage" class="btn-link" data-i18n="remove_user_image">
-                                        Remove
+                            <div class="form-group">
+                                <div class="user-image-upload" id="userImageWrapper">
+                                    <label for="userImage" class="user-image-label"
+                                        data-i18n="reference_image">Reference</label>
+                                    <input type="file" id="userImage" accept="image/png,image/jpeg,image/webp,image/gif"
+                                        style="display:none" />
+                                    <button type="button" id="chooseUserImage" class="btn-secondary">
+                                        Upload Img (optional)
                                     </button>
+
+                                    <div id="userImagePreview" class="user-image-preview hidden">
+                                        <img id="userImagePreviewImg" alt="Preview" />
+                                        <button type="button" id="removeUserImage" class="btn-link"
+                                            data-i18n="remove_user_image">
+                                            Remove
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <small id="userImageError" class="error-msg"></small>

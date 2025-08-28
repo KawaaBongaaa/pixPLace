@@ -93,8 +93,8 @@ const TRANSLATIONS = {
         check_subsciption: 'Check Subsciption',
         closeLimitModal: 'Maybe Later',
         upgradeBtn: 'Upgrade Now',
-        remove_user_Image: 'Remove',
-        reference_image: 'Reference image',
+        remove_user_image: 'Remove',
+        reference_image: 'Reference',
         optional_choice: 'Optional'
 
     },
@@ -1389,6 +1389,7 @@ const userImageState = {
     uploadedUrl: null, // публичный URL от imgbb
 };
 
+
 // ===== Инициализация UI загрузки =====
 function initUserImageUpload() {
     const input = document.getElementById('userImage');
@@ -1400,6 +1401,14 @@ function initUserImageUpload() {
     removeBtn?.addEventListener('click', clearUserImage);
 }
 
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
 // ===== Обработчик выбора файла =====
 async function onUserImageChange(e) {
     const file = e.target.files?.[0];
@@ -1407,9 +1416,14 @@ async function onUserImageChange(e) {
     const preview = document.getElementById('userImagePreview');
     const img = document.getElementById('userImagePreviewImg');
 
+    const chooseBtn = document.getElementById('chooseUserImage');
+    const optionalLabel = document.querySelector('.under-user-image-label');
+
     if (errorEl) errorEl.textContent = '';
     if (!file) return;
 
+    // Валидация
+    //if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
     if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
         if (errorEl) errorEl.textContent = 'Недопустимый формат: JPG, PNG, WEBP, GIF.';
         e.target.value = '';
@@ -1437,6 +1451,13 @@ async function onUserImageChange(e) {
 
         if (img) img.src = compressed;
         if (preview) preview.classList.remove('hidden');
+        const wrapper = document.getElementById('userImageWrapper');
+        wrapper?.classList.add('has-image');
+
+        // Скрыть кнопку и "(Optional)"
+        if (chooseBtn) chooseBtn.style.display = 'none';
+        if (optionalLabel) optionalLabel.style.display = 'none';
+
     } catch (err) {
         console.error(err);
         if (errorEl) errorEl.textContent = 'Не удалось прочитать/обработать изображение.';
@@ -1444,31 +1465,29 @@ async function onUserImageChange(e) {
     }
 }
 
-// ===== Очистка выбранного изображения =====
 function clearUserImage() {
     const input = document.getElementById('userImage');
     const preview = document.getElementById('userImagePreview');
     const img = document.getElementById('userImagePreviewImg');
     const errorEl = document.getElementById('userImageError');
 
+    const chooseBtn = document.getElementById('chooseUserImage');
+    const optionalLabel = document.querySelector('.under-user-image-label');
+
     if (input) input.value = '';
     if (img) img.removeAttribute('src');
     if (preview) preview.classList.add('hidden');
     if (errorEl) errorEl.textContent = '';
 
+    // Показать кнопку и "(Optional)" обратно
+    if (chooseBtn) chooseBtn.style.display = '';
+    if (optionalLabel) optionalLabel.style.display = '';
+
     userImageState.file = null;
     userImageState.dataUrl = null;
     userImageState.uploadedUrl = null;
-}
-
-// ===== Хелперы чтения/сжатия =====
-function readFileAsDataURL(file) {
-    return new Promise((resolve, reject) => {
-        const fr = new FileReader();
-        fr.onload = () => resolve(fr.result);
-        fr.onerror = reject;
-        fr.readAsDataURL(file);
-    });
+    const wrapper = document.getElementById('userImageWrapper');
+    wrapper?.classList.remove('has-image');
 }
 
 function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
