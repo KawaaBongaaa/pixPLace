@@ -1312,11 +1312,11 @@ function showGeneration() {
     showBackButton(false);
 }
 
-    // Восстановить главную кнопку Telegram
-    //if (appState.tg && appState.tg.MainButton) {
-    //    appState.tg.MainButton.setText(appState.translate('generate_btn'));
-    //    appState.tg.MainButton.show();
-    //}
+// Восстановить главную кнопку Telegram
+//if (appState.tg && appState.tg.MainButton) {
+//    appState.tg.MainButton.setText(appState.translate('generate_btn'));
+//    appState.tg.MainButton.show();
+//}
 
 //old
 /*function showSubscriptionNotice(result) {
@@ -2002,7 +2002,141 @@ async function sendToWebhook(data) {
 // 2D Carousel functionality
 // Stable 2D Carousel
 // Infinite 2D Carousel (loop, Android-friendly)
-(function () {
+(() => {
+    // Находим трек по id или по классу
+    const track = document.getElementById('carousel2d') || document.querySelector('.carousel-2d');
+    if (!track) { console.warn('[carousel2d] трек не найден'); return; }
+    if (track._carouselInited) return; // защита от двойной инициализации
+    track._carouselInited = true;
+
+    const cards = Array.from(track.querySelectorAll('.carousel-2d-item'));
+    if (!cards.length) { console.warn('[carousel2d] карточки не найдены'); return; }
+
+    let selectedStyle = (cards[0].dataset.style || '').toLowerCase();
+    let isPointerDown = false;
+    let moved = false;
+    let startX = 0, startY = 0, startScroll = 0;
+
+    // ===== helpers =====
+    function updateGutters() {
+        const cardW = cards[0]?.offsetWidth || 0;
+        const viewport = track.clientWidth || 0;
+        if (!cardW || !viewport) return;
+        const gutter = Math.max(0, (viewport - cardW) / 2);
+        track.style.paddingLeft = `${gutter}px`;
+        track.style.paddingRight = `${gutter}px`;
+    }
+
+    function centerCard(card, smooth = true) {
+        if (!card) return;
+        const viewport = track.clientWidth;
+        const left = card.offsetLeft - (viewport - card.offsetWidth) / 2;
+        const maxScroll = track.scrollWidth - viewport;
+        const clamped = Math.max(0, Math.min(left, maxScroll));
+        track.scrollTo({ left: clamped, behavior: smooth ? 'smooth' : 'auto' });
+    }
+
+    function highlight(card, { scroll = false } = {}) {
+        cards.forEach(c => c.classList.remove('active'));
+        if (!card) return;
+        card.classList.add('active');
+
+        // Обновляем выбранный стиль
+        selectedStyle = (card.dataset.style || '').toLowerCase();
+        if (window.appState) window.appState.selectedStyle = selectedStyle;
+
+        // Сообщаем наружу (если кто-то слушает)
+        document.dispatchEvent(new CustomEvent('style:change', { detail: { style: selectedStyle } }));
+
+        if (scroll) centerCard(card, true);
+    }
+
+    function nearestCard() {
+        const trackRect = track.getBoundingClientRect();
+        const centerX = trackRect.left + trackRect.width / 2;
+        let best = null, bestDist = Infinity;
+        for (const c of cards) {
+            const r = c.getBoundingClientRect();
+            const cardCenter = r.left + r.width / 2;
+            const dist = Math.abs(cardCenter - centerX);
+            if (dist < bestDist) { bestDist = dist; best = c; }
+        }
+        return best;
+    }
+    // ===== /helpers =====
+
+    // Pointer-события (универсально для мыши/тача/пера)
+    track.addEventListener('pointerdown', (e) => {
+        isPointerDown = true;
+        moved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        startScroll = track.scrollLeft;
+        track.setPointerCapture?.(e.pointerId);
+    });
+
+    track.addEventListener('pointermove', (e) => {
+        if (!isPointerDown) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (!moved && Math.hypot(dx, dy) > 8) moved = true; // чуть больше порог «дрожания»
+        track.scrollLeft = startScroll - dx;
+    });
+
+    function endPointer(e) {
+        if (!isPointerDown) return;
+        isPointerDown = false;
+
+        if (moved) {
+            // после свайпа — снэп к ближайшей
+            requestAnimationFrame(() => {
+                const c = nearestCard();
+                if (c) highlight(c, { scroll: true });
+            });
+        } else {
+            // это «тап»: возьмём элемент под пальцем/мышью
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            const card = el?.closest?.('.carousel-2d-item');
+            if (card && track.contains(card)) {
+                highlight(card, { scroll: true });
+            }
+        }
+    }
+
+    track.addEventListener('pointerup', endPointer);
+    track.addEventListener('pointercancel', endPointer);
+    track.addEventListener('pointerleave', endPointer);
+
+    // Доп. фолбэк: явные клики по карточкам (на случай, если pointer события где-то перехватываются)
+    cards.forEach(c => {
+        c.addEventListener('click', (e) => {
+            // если только что был свайп — не считаем это кликом
+            if (moved) return;
+            highlight(c, { scroll: true });
+        });
+    });
+
+    // Публичный API (если где-то вызывается)
+    window.getSelectedStyle = function () { return selectedStyle; };
+    window.setCarouselStyle = function (style) {
+        const target = String(style || '').toLowerCase();
+        const card = cards.find(c => (c.dataset.style || '').toLowerCase() === target);
+        if (card) highlight(card, { scroll: true });
+    };
+
+    // Инициализация
+    updateGutters();
+    highlight(cards[0], { scroll: false });
+
+    window.addEventListener('resize', () => {
+        updateGutters();
+        const active = track.querySelector('.carousel-2d-item.active');
+        if (active) centerCard(active, true);
+    });
+})();
+
+
+/*(function () {
     const track = document.getElementById('carousel2d');
     const wrapper = track?.closest('.carousel-2d-wrapper');
     if (!track || !wrapper) return;
@@ -2016,367 +2150,108 @@ async function sendToWebhook(data) {
     let startScroll = 0;
     let moved = false;
 
-    // Выделение активной
-    /*function highlight(card) {
-        cards.forEach(c => c.classList.remove('active'));
-        if (!card) return;
-        card.classList.add('active');
-
-        selectedStyle = (card.dataset.style || '').toLowerCase();
-        if (window.appState) {
-            window.appState.selectedStyle = selectedStyle;
-        }
-        console.log('🎨 Highlighted style:', selectedStyle);
-        console.log('🎨 appState.selectedStyle:', appState?.selectedStyle);
-        // гарантируем видимость, но не центрируем
-        card.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-    }*/
-    function nearestCard() {
-        const trackRect = track.getBoundingClientRect();
-        const center = trackRect.left + trackRect.width / 2;
-        let best = null, bestDist = Infinity;
-
-        for (const c of cards) {
-            const r = c.getBoundingClientRect();
-            const cardCenter = r.left + r.width / 2;
-            const dist = Math.abs(cardCenter - center);
-            if (dist < bestDist) {
-                bestDist = dist;
-                best = c;
-            }
-        }
-        return best;
-    }
-
-    function highlight(card, { scroll = false } = {}) {
-        cards.forEach(c => c.classList.remove('active'));
-        if (!card) return;
-        card.classList.add('active');
-
-        // Обновляем стиль
-        selectedStyle = (card.dataset.style || '').toLowerCase();
-        if (window.appState) {
-            appState.selectedStyle = selectedStyle;
-        }
-
-        console.log('🎨 Highlighted style:', selectedStyle);
-        console.log('🎨 appState.selectedStyle:', appState?.selectedStyle);
-
-        // Прокручиваем только если явно сказано
-        if (scroll) {
-            card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }
-    }
-
-    // Найти ближайшую карточку к текущему скроллу
-    /*
-    function nearestCard() {
-        const trackRect = track.getBoundingClientRect();
-        let best = null, bestDist = Infinity;
-        for (const c of cards) {
-            const r = c.getBoundingClientRect();
-            // возьмём расстояние от левого края карточки до левого края трека как метрику
-            const dist = Math.abs(r.left - trackRect.left);
-            if (dist < bestDist) {
-                bestDist = dist;
-                best = c;
-            }
-        }
-        return best;
-    }*/
-
-    // Снэпим к ближайшей карточке
-    function onCardClick(e) {
-        if (moved) return; // свайп — не клик
-        const card = e.currentTarget;
-        highlight(card, { scroll: true });
-    }
-
-    function snapToNearest() {
-        const card = nearestCard();
-        if (card) highlight(card, { scroll: true });
-    }
-
-    /*
-        function snapToNearest() {
-            const card = nearestCard();
-            if (card) highlight(card);
-        }
     
-        // Клик по карточке
-        function onCardClick(e) {
-            // если был реальный свайп — не снимать клик
-            if (moved) return;
-            const card = e.currentTarget;
-            highlight(card);
+function nearestCard() {
+    const trackRect = track.getBoundingClientRect();
+    const center = trackRect.left + trackRect.width / 2;
+    let best = null, bestDist = Infinity;
+
+    for (const c of cards) {
+        const r = c.getBoundingClientRect();
+        const cardCenter = r.left + r.width / 2;
+        const dist = Math.abs(cardCenter - center);
+        if (dist < bestDist) {
+            bestDist = dist;
+            best = c;
         }
-        cards.forEach(c => {
-            c.addEventListener('click', onCardClick);
-        });
-    */
-
-    // Pointer события на треке
-    track.addEventListener('pointerdown', (e) => {
-        isPointerDown = true;
-        moved = false;
-        startX = e.clientX;
-        startScroll = track.scrollLeft;
-        track.setPointerCapture(e.pointerId);
-    });
-
-    track.addEventListener('pointermove', (e) => {
-        if (!isPointerDown) return;
-        const dx = e.clientX - startX;
-        if (Math.abs(dx) > 5) moved = true;
-        // инвертируем для скролла
-        track.scrollLeft = startScroll - dx;
-    });
-
-    function endPointer(e) {
-        if (!isPointerDown) return;
-        isPointerDown = false;
-        // после свайпа — снэп к ближайшей
-        requestAnimationFrame(snapToNearest);
     }
-
-    track.addEventListener('pointerup', endPointer);
-    track.addEventListener('pointercancel', endPointer);
-    track.addEventListener('pointerleave', endPointer);
-
-    // Публичные методы для внешней интеграции
-    window.getSelectedStyle = function () {
-        return selectedStyle;
-    };
-    window.setCarouselStyle = function (style) {
-        const target = String(style || '').toLowerCase();
-        const card = cards.find(c => (c.dataset.style || '').toLowerCase() === target);
-        if (card) highlight(card, { scroll: true });
-    };
-
-    // Инициализация — выделим первую видимую/первую по списку
-    // highlight(cards[0]);
-    highlight(cards[0], { scroll: false });
-
-    // На ресайз — удержать активную в видимой области
-    window.addEventListener('resize', () => {
-        const active = track.querySelector('.carousel-2d-item.active');
-        if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-    });
-})();
-// Выбор стиля — универсальная функция
-/*function selectStyle(element) {
-    // очистка
-    items.forEach(el => el.classList.remove('active'));
-
-    // активная карточка
-    element.classList.add('active');
-    appState.selectedStyle = element.dataset.style;
-    triggerHaptic('light');
-    console.log('🎨 Style selected:', appState.selectedStyle);
-}*/
-/*
-const track = document.querySelector('.carousel-track');
-const items = Array.from(track.children);
-const prevBtn = document.querySelector('.prev');
-const nextBtn = document.querySelector('.next');
-
-let index = 0;
-
-function updateCarousel() {
-    const itemWidth = items[0].offsetWidth + 15; // ширина + gap
-    track.style.transform = `translateX(${-index * itemWidth}px)`;
-
-    items.forEach(el => el.classList.remove('active'));
-    if (items[index]) items[index].classList.add('active');
+    return best;
 }
 
-prevBtn.addEventListener('click', () => {
-    index = Math.max(0, index - 1);
-    updateCarousel();
-});
+function highlight(card, { scroll = false } = {}) {
+    cards.forEach(c => c.classList.remove('active'));
+    if (!card) return;
+    card.classList.add('active');
 
-nextBtn.addEventListener('click', () => {
-    index = Math.min(items.length - 1, index + 1);
-    updateCarousel();
-});
-
-items.forEach((item, i) => {
-    item.addEventListener('click', () => {
-    index = i;
-    updateCarousel();
-    console.log("🎨 Selected:", item.dataset.style);
-    });
-});
-
-// свайп для мобильных
-let startX = 0;
-track.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-track.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (dx > 50) prevBtn.click();
-    if (dx < -50) nextBtn.click();
-});
-
-updateCarousel();
-
-/*const carousel = document.querySelector('.card-3d');
-const items = Array.from(carousel.children);
-const totalItems = items.length;
-const stepAngle = 360 / totalItems;
-
-let isDragging = false;
-let startX = 0;
-let currentRotation = 0;
-let targetRotation = 0;
-let animating = false;
-
-function rotateCarousel(direction) {
-    // Увеличиваем targetRotation на один шаг
-    targetRotation += stepAngle * direction;
-
-    // Запускаем анимацию
-    if (!animating) animateRotation();
-}
-
-function animateRotation() {
-    animating = true;
-
-    const animationSpeed = 0.1; // Чем меньше — тем плавнее
-
-    function step() {
-    const delta = targetRotation - currentRotation;
-    const stepRotation = delta * animationSpeed;
-
-    // Если осталось совсем чуть-чуть — просто добиваем
-    if (Math.abs(delta) < 0.01) {
-    currentRotation = targetRotation;
-    carousel.style.transform = `rotateY(${currentRotation}deg)`;
-    animating = false;
-    return;
+    // Обновляем стиль
+    selectedStyle = (card.dataset.style || '').toLowerCase();
+    if (window.appState) {
+        appState.selectedStyle = selectedStyle;
     }
 
-    currentRotation += stepRotation;
-    carousel.style.transform = `rotateY(${currentRotation}deg)`;
-    requestAnimationFrame(step);
+    console.log('🎨 Highlighted style:', selectedStyle);
+    console.log('🎨 appState.selectedStyle:', appState?.selectedStyle);
+
+    // Прокручиваем только если явно сказано
+    if (scroll) {
+        card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
-
-    requestAnimationFrame(step);
-    snapToNearestCard();
-}
-// Инициализация: разложить карточки по кругу
-items.forEach((el, i) => {
-    const angle = stepAngle * i;
-    el.style.setProperty('--angle', `${angle}deg`);
-    el.style.transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(150px)`;
-});
-
-// Обновление поворота карусели (прямо ставит)
-function updateRotation(angle) {
-    currentRotation = angle;
-    carousel.style.transform = `rotateY(${currentRotation}deg)`;
 }
 
-// Плавное приведение к ближайшей карточке
-function snapToNearestCard() {
-    const normalized = ((currentRotation % 360) + 360) % 360;
-    const nearestStep = Math.round(normalized / stepAngle);
-    const snappedAngle = nearestStep * stepAngle;
+// Найти ближайшую карточку к текущему скроллу
 
-    const delta = snappedAngle - normalized;
-    targetRotation = currentRotation + delta;
-
-    // анимация к targetRotation
-    if (animating) return;
-    animating = true;
-
-    const duration = 300;
-    const start = performance.now();
-    const initial = currentRotation;
-
-    function animate(time) {
-    const t = Math.min(1, (time - start) / duration);
-    const ease = 1 - Math.pow(1 - t, 3);
-    const delta = targetRotation - initial;
-    updateRotation(initial + delta * ease);
-    if (t < 1) {
-    requestAnimationFrame(animate);
-    } else {
-    animating = false;
-    // определяем активную карточку по финальному углу
-    let index = ((360 - (targetRotation % 360)) / stepAngle) % totalItems;
-    index = Math.round(index) % totalItems;
-    if (index < 0) index += totalItems;
-    const selected = items[index];
-    selectStyle(selected);
-    }
-    }
-
-    requestAnimationFrame(animate);
+// Снэпим к ближайшей карточке
+function onCardClick(e) {
+    if (moved) return; // свайп — не клик
+    const card = e.currentTarget;
+    highlight(card, { scroll: true });
 }
-// Клик по карточке — сразу выбрать и зафиксировать
-items.forEach((el, i) => {
-    el.addEventListener('click', () => {
-    const angle = stepAngle * i;
-    targetRotation = -angle;
-    animateRotation(); // мягкий поворот
-    });
-});
-// Pointer (мышь/тач) обработка
-carousel.addEventListener('pointerdown', (e) => {
-    isDragging = true;
+
+function snapToNearest() {
+    const card = nearestCard();
+    if (card) highlight(card, { scroll: true });
+}
+
+
+// Pointer события на треке
+track.addEventListener('pointerdown', (e) => {
+    isPointerDown = true;
+    moved = false;
     startX = e.clientX;
-    carousel.setPointerCapture(e.pointerId);
+    startScroll = track.scrollLeft;
+    track.setPointerCapture(e.pointerId);
 });
 
-carousel.addEventListener('pointermove', (e) => {
-    if (!isDragging) return;
-    const delta = e.clientX - startX;
-    startX = e.clientX;
-    updateRotation(currentRotation + delta * 0.4); // чувствительность
+track.addEventListener('pointermove', (e) => {
+    if (!isPointerDown) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) moved = true;
+    // инвертируем для скролла
+    track.scrollLeft = startScroll - dx;
 });
 
-carousel.addEventListener('pointerup', (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-    snapToNearestCard();
-});
-
-carousel.addEventListener('pointerleave', (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-    snapToNearestCard();
-});
-
-// haptic placeholder / вибро (если поддерживается)
-function triggerHaptic(type) {
-    if ('vibrate' in navigator) {
-    if (type === 'light') navigator.vibrate(15);
-    else if (type === 'medium') navigator.vibrate([30, 10, 30]);
-    else if (type === 'heavy') navigator.vibrate(60);
-    } else {
-    console.log(`[haptic:${type}]`);
-    }
+function endPointer(e) {
+    if (!isPointerDown) return;
+    isPointerDown = false;
+    // после свайпа — снэп к ближайшей
+    requestAnimationFrame(snapToNearest);
 }
 
-// инициализация: зафиксировать первую карточку
-snapToNearestCard();
+track.addEventListener('pointerup', endPointer);
+track.addEventListener('pointercancel', endPointer);
+track.addEventListener('pointerleave', endPointer);
+
+// Публичные методы для внешней интеграции
+window.getSelectedStyle = function () {
+    return selectedStyle;
+};
+window.setCarouselStyle = function (style) {
+    const target = String(style || '').toLowerCase();
+    const card = cards.find(c => (c.dataset.style || '').toLowerCase() === target);
+    if (card) highlight(card, { scroll: true });
+};
+
+// Инициализация — выделим первую видимую/первую по списку
+// highlight(cards[0]);
+highlight(cards[0], { scroll: false });
+
+// На ресайз — удержать активную в видимой области
+window.addEventListener('resize', () => {
+    const active = track.querySelector('.carousel-2d-item.active');
+    if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+});
+}) ();
 */
-/*function selectStyle(button) {
-    // Remove active class from all style buttons
-    document.querySelectorAll('.style-card').forEach(btn => {
-    btn.classList.remove('active');
-    });
-
-    // Add active class to clicked button
-    button.classList.add('active');
-
-    // Update selected style
-    appState.selectedStyle = button.dataset.style;
-
-    triggerHaptic('light');
-    console.log('🎨 Style selected:', appState.selectedStyle);
-}*/
-
 // 🔄 Action Functions
 function newGeneration() {
     showGeneration();
