@@ -495,27 +495,28 @@
                                     <option value="landscape" data-i18n="size_landscape">Landscape</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="user-image-upload">
-                            <label for="userImage" class="user-image-label">Изображение (опционально)</label>
+                            <div class="user-image-upload">
+                                <label for="userImage" class="user-image-label" data-i18n="reference_image">Reference Image</label>
 
-                            <input type="file" id="userImage" accept="image/png,image/jpeg,image/webp,image/gif"
-                                style="display:none" />
+                                <input type="file" id="userImage" accept="image/png,image/jpeg,image/webp,image/gif"
+                                    style="display:none" />
 
-                            <button type="button" id="chooseUserImage" class="btn-secondary">
-                                Загрузить изображение
-                            </button>
-
-                            <div id="userImagePreview" class="user-image-preview hidden">
-                                <img id="userImagePreviewImg" alt="Предпросмотр" />
-                                <button type="button" id="removeUserImage" class="btn-link">
-                                    Удалить
+                                <button type="button" id="chooseUserImage" class="btn-secondary">
+                                    Загрузить изображение
                                 </button>
+                                <label for="under-userImage" class="under-user-image-label" data-i18n="optional_choice">(Optional)</label>
+
+
+                                <div id="userImagePreview" class="user-image-preview hidden">
+                                    <img id="userImagePreviewImg" alt="Preview" />
+                                    <button type="button" id="removeUserImage" class="btn-link" data-i18n="remove_user_image">
+                                        Remove
+                                    </button>
+                                </div>
+
+                                <small id="userImageError" class="error-msg"></small>
                             </div>
-
-                            <small id="userImageError" class="error-msg"></small>
                         </div>
-
                         <!-- Generate Button -->
                         <button type="submit" class="generate-btn" id="generateBtn">
                             <span class="btn-text" data-i18n="generate_btn">Generate Image</span>

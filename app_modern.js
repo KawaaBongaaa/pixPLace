@@ -92,7 +92,10 @@ const TRANSLATIONS = {
         limit_message: 'You\'ve reached your free generation limit. Upgrade to continue creating amazing images!',
         check_subsciption: 'Check Subsciption',
         closeLimitModal: 'Maybe Later',
-        upgradeBtn: 'Upgrade Now'
+        upgradeBtn: 'Upgrade Now',
+        remove_user_Image: 'Remove',
+        reference_image: 'Reference image',
+        optional_choice: 'Optional'
 
     },
     ru: {
