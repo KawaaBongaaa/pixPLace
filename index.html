@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pixPLace App | Image Generator</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
     <link rel="stylesheet" href="styles_modern.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
@@ -114,7 +114,7 @@
         <div class="loading-content">
             <div class="loading-logo">
                 <!--<img src="./logo.svg" alt="Logo pixPLace Ai webApp" class="logo-img" style="width:150px; height:150px;" loading="lazy">-->
-                <svg class="logo-img" version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg"
+                <svg class="logo-img" version="1.1" id="logoSvg" xmlns="http://www.w3.org/2000/svg"
                     xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
                     y="0px" viewBox="0 0 1366 768" style="width:150px; height:150px;" xml:space="preserve">
                     <path d="M664,517c-2.9-52.7-49-126.7-111-115c-16.7,4-58.6,12.4-37,36c15.5,23.5,47.8,53.5,51,7c3.4-5.6,6-0.9,9,2
@@ -175,7 +175,7 @@
                 <div class="header-left">
                     <button class="logo" onclick="showGeneration()"
                         style="all: unset; display: flex; align-items: center; gap: var(--space-3); cursor: pointer;">
-                        <svg class="logo-img" version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg"
+                        <svg class="logo-img" version="1.1" id="logoSvg" xmlns="http://www.w3.org/2000/svg"
                             xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"
                             x="0px" y="0px" viewBox="0 0 1366 768" style="enable-background:new 0 0 1366 768;"
                             xml:space="preserve">
@@ -267,7 +267,6 @@
     <iframe id="musicPlayer" style="display: none;" width="100%" height="166" scrolling="no"
         frameborder="no" allow="autoplay"></iframe>
     -->
-
                     <button class="back-btn" onclick="showGeneration()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 12H5" />
@@ -308,7 +307,6 @@
                 </div>
             </div>
         </header>
-
         <!-- Status Bar -->
         <div id="statusBar" class="status-bar">
             <div class="status-content">
@@ -316,7 +314,6 @@
                 <span class="status-text" data-i18n="connecting">Connecting...</span>
             </div>
         </div>
-
         <!-- Main Content -->
         <main class="main-content">
             <!-- Generation Screen -->
@@ -326,7 +323,6 @@
                         <!--<h1 data-i18n="welcome_title">Create Amazing Images</h1>-->
                         <p data-i18n="welcome_subtitle">Describe your vision and watch AI bring it to life</p>
                     </div>
-
                     <form class="generation-form" onsubmit="generateImage(event)">
                         <!-- Prompt Input -->
                         <div class="form-group">
@@ -341,133 +337,103 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Style Selection
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="style_label">Style</label>
-                            <div class="style-grid">
-                                <button type="button" class="style-card active" data-style="realistic"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_realistic">Realistic</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="artistic"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_artistic">Artistic</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="cartoon"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_cartoon">Cartoon</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="fantasy"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_fantasy">Fantasy</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="anime" onclick="selectStyle(this)">
-                                    <span data-i18n="style_anime">Anime</span>
-                                </button>
-                                <button type="button" class="style-card" data-style="cyberpunk"
-                                    onclick="selectStyle(this)">
-                                    <span data-i18n="style_cyberpunk">Cyberpunk</span>
-                                </button>
-                            </div>
-                        </div> -->
                         <div class="form-group">
                             <label class="form-label" data-i18n="style_label">Style</label>
                             <div class="style-grid">
                                 <div class="carousel-2d-wrapper">
                                     <div class="carousel-2d" id="carousel2d">
                                         <div class="carousel-2d-item" data-style="realistic">
-                                            <img src="https://i.pinimg.com/1200x/bd/63/9e/bd639e0617cac14d309c4d73bc40fc70.jpg"
+                                            <img src="https://i.pinimg.com/236x/bd/63/9e/bd639e0617cac14d309c4d73bc40fc70.jpg"
                                                 alt="Realistic Style" loading="lazy" />
                                             <p data-i18n="style_realistic">Realistic</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="logo">
-                                            <img src="https://i.pinimg.com/736x/c4/eb/83/c4eb83180015de9a80b09dff5d555faa.jpg"
+                                            <img src="https://i.pinimg.com/236x/c4/eb/83/c4eb83180015de9a80b09dff5d555faa.jpg"
                                                 alt="Logo Design" loading="lazy" />
                                             <p data-i18n="style_logo">Logo</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="print">
-                                            <img src="https://i.pinimg.com/1200x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg"
+                                            <img src="https://i.pinimg.com/236x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg"
                                                 alt="Print Design, Print on Demand" loading="lazy" />
                                             <p data-i18n="style_print">Print</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="sketch">
-                                            <img src="https://i.pinimg.com/1200x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg"
+                                            <img src="https://i.pinimg.com/236x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg"
                                                 alt="Sketch Art" loading="lazy" />
                                             <p data-i18n="style_sketch">Sketch</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="sticker">
-                                            <img src="https://i.pinimg.com/1200x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
+                                            <img src="https://i.pinimg.com/236x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
                                                 alt="Sticker Design" loading="lazy" />
                                             <p data-i18n="style_sticker">Sticker</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="popart">
-                                            <img src="https://i.pinimg.com/1200x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg"
+                                            <img src="https://i.pinimg.com/236x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg"
                                                 alt="Pop Art Style" loading="lazy" />
                                             <p data-i18n="style_popart">Pop Art</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="abstract">
-                                            <img src="https://i.pinimg.com/1200x/d9/e2/da/d9e2daee378278eb365484f693790813.jpg"
+                                            <img src="https://i.pinimg.com/236x/d9/e2/da/d9e2daee378278eb365484f693790813.jpg"
                                                 alt="Abstract Style" loading="lazy" />
                                             <p data-i18n="style_abstract">Abstract</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="vector">
-                                            <img src="https://i.pinimg.com/1200x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
+                                            <img src="https://i.pinimg.com/236x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
                                                 alt="Vector Design" loading="lazy" />
                                             <p data-i18n="style_vector">Vector</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="anime">
-                                            <img src="https://i.pinimg.com/1200x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg"
+                                            <img src="https://i.pinimg.com/236x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg"
                                                 alt="Anime Style" loading="lazy" />
                                             <p data-i18n="style_anime">Anime</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="cartoon">
-                                            <img src="https://i.pinimg.com/1200x/d7/55/ea/d755ea6805ad31473621d0a21a35f0d8.jpg"
+                                            <img src="https://i.pinimg.com/236x/d7/55/ea/d755ea6805ad31473621d0a21a35f0d8.jpg"
                                                 alt="Cartoon Style" loading="lazy" />
                                             <p data-i18n="style_cartoon">Cartoon</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="fantasy">
-                                            <img src="https://i.pinimg.com/1200x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg"
+                                            <img src="https://i.pinimg.com/236x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg"
                                                 alt="Fantasy Style" loading="lazy" />
                                             <p data-i18n="style_fantasy">Fantasy</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="artistic">
-                                            <img src="https://i.pinimg.com/1200x/69/30/f4/6930f42752c14b5ad3dce15f215344d1.jpg"
+                                            <img src="https://i.pinimg.com/236x/69/30/f4/6930f42752c14b5ad3dce15f215344d1.jpg"
                                                 alt="Artistic Style" loading="lazy" />
                                             <p data-i18n="style_artistic">Artistic</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="cyberpunk">
-                                            <img src="https://i.pinimg.com/736x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
+                                            <img src="https://i.pinimg.com/236x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
                                                 alt="Cyberpunk Style" loading="lazy" />
                                             <p data-i18n="style_cyberpunk">Cyberpunk</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="3d">
-                                            <img src="https://i.pinimg.com/1200x/67/15/77/671577e00166b3e1fed8bab82520b970.jpg"
+                                            <img src="https://i.pinimg.com/236x/67/15/77/671577e00166b3e1fed8bab82520b970.jpg"
                                                 alt="3D Design" loading="lazy" />
                                             <p data-i18n="style_3d">3D</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="icon">
-                                            <img src="https://i.pinimg.com/1200x/81/38/0e/81380e03929b671134338a73884a311f.jpg"
+                                            <img src="https://i.pinimg.com/236x/81/38/0e/81380e03929b671134338a73884a311f.jpg"
                                                 alt="Icon Design" loading="lazy" />
                                             <p data-i18n="style_icon">Icon</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="interior">
-                                            <img src="https://i.pinimg.com/1200x/fb/8b/d6/fb8bd633ccccc7ed46de6b0a6b8188bd.jpg"
+                                            <img src="https://i.pinimg.com/236x/fb/8b/d6/fb8bd633ccccc7ed46de6b0a6b8188bd.jpg"
                                                 alt="Interior Design" loading="lazy" />
                                             <p data-i18n="style_interior">Interior</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="architecture">
-                                            <img src="https://i.pinimg.com/1200x/8a/0d/e8/8a0de899bdb0a2f764b67792940bd0e0.jpg"
+                                            <img src="https://i.pinimg.com/236x/8a/0d/e8/8a0de899bdb0a2f764b67792940bd0e0.jpg"
                                                 alt="Architecture Design" loading="lazy" />
                                             <p data-i18n="style_architecture">Architecture</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="fashion">
-                                            <img src="https://i.pinimg.com/1200x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
+                                            <img src="https://i.pinimg.com/236x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
                                                 alt="Fashion Design" loading="lazy" />
                                             <p data-i18n="style_fashion">Fashion</p>
                                         </div>
-
                                         <div class="carousel-2d-item" data-style="banner">
-                                            <img src="https://i.pinimg.com/736x/f8/37/6a/f8376ac4e5e70562061873f02e70a04e.jpg"
+                                            <img src="https://i.pinimg.com/236x/f8/37/6a/f8376ac4e5e70562061873f02e70a04e.jpg"
                                                 alt="Banner Design" loading="lazy" />
                                             <p data-i18n="style_banner">Banner</p>
                                         </div>
@@ -547,7 +513,6 @@
                     </form>
                 </div>
             </div>
-
             <!-- Processing Screen -->
             <div id="processingScreen" class="screen">
                 <div class="screen-content">
@@ -566,12 +531,10 @@
                                 </svg></div>
                         </div>
                     </div>
-
                     <div class="processing-content">
                         <h2 data-i18n="processing_title">Creating Your Masterpiece</h2>
                         <p class="processing-subtitle" data-i18n="processing_subtitle">This may take up to 60 seconds
                         </p>
-
                         <div class="processing-steps">
                             <div class="step active" data-step="1">
                                 <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
@@ -598,19 +561,16 @@
                                 <span data-i18n="step_finalizing">Finalizing result</span>
                             </div>
                         </div>
-
                         <div class="processing-timer">
                             <span data-i18n="elapsed_time">Elapsed time:</span>
                             <span id="elapsedTime">0s</span>
                         </div>
                     </div>
-
                     <button class="cancel-btn" onclick="cancelGeneration()">
                         <span data-i18n="cancel_btn">Cancel</span>
                     </button>
                 </div>
             </div>
-
             <!-- Result Screen -->
             <div id="resultScreen" class="screen">
                 <div class="screen-content">
@@ -656,7 +616,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="result-actions">
                             <button class="action-btn primary" onclick="newGeneration()">
                                 <span class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
@@ -678,7 +637,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- History Screen -->
             <div id="historyScreen" class="screen">
                 <div class="screen-content">
@@ -709,10 +667,8 @@
             </div>
         </main>
     </div>
-
     <!-- Toast Notifications -->
     <div id="toastContainer" class="toast-container"></div>
-
     <!-- Модальное окно лимита -->
     <div id="limitModal" class="limit-modal">
         <div class="limit-modal-backdrop"></div>
@@ -736,10 +692,6 @@
     </div>
     <footer class="footer pt-8 pb-6 f6 color-fg-muted p-responsive" role="contentinfo">
         <h2 class="sr-only"></h2>
-
-
-
-
         <div class="mx-2">
             <div class="d-flex flex-items-center flex-shrink-0 mx-2">
                 <a aria-label="pixPLace" class="footer-octicon mr-2" href="appLink here put">
@@ -748,7 +700,6 @@
                     © 2025 pixPLace,&nbsp;Inc.
                 </span>
             </div>
-
             <nav aria-label="Footer">
                 <h3 class="sr-only" id="sr-footer-heading"></h3>
 
@@ -804,9 +755,6 @@
         </div>
     </footer>
     <script src="app_modern.js"></script>
-
 </body>
-
-
 
 </html>

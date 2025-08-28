@@ -1286,20 +1286,38 @@ function showSubscriptionNotice(result) {
     }
 }
 
-function showGeneration() {
+/*function showGeneration() {
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
     });
     document.getElementById('generationScreen').classList.add('active');
     showBackButton(false);
+*/
+function showGeneration() {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(s => {
+        s.classList.remove('active');
+        s.classList.add('hidden');
+    });
 
+    const gen = document.getElementById('generationScreen');
+    if (!gen) {
+        console.warn('generationScreen не найден');
+        return;
+    }
+
+    gen.classList.remove('hidden');
+    gen.classList.add('active');
+
+    showBackButton(false);
+}
 
     // Восстановить главную кнопку Telegram
     //if (appState.tg && appState.tg.MainButton) {
     //    appState.tg.MainButton.setText(appState.translate('generate_btn'));
     //    appState.tg.MainButton.show();
     //}
-}
+
 //old
 /*function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
