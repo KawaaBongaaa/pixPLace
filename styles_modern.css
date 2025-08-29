@@ -760,7 +760,7 @@ body {
     gap: 8px;
     align-items: stretch;
     /* нативный горизонтальный скролл */
-    scroll-behavior: auto;
+    scroll-behavior: smooth;
     /*scroll-snap-type: x proximity;*/
     /* мягкий снап*/
     /* плавный скролл */
