@@ -1,17 +1,5 @@
 // 🚀 Modern AI Image Generator WebApp
-//window.Telegram = window.Telegram || {};
-//window.Telegram.WebApp = window.Telegram.WebApp || {};
-/*window.Telegram.WebApp.MainButton = {
-    setText: () => console.log('MainButton.setText disabled'),
-    show: () => console.log('MainButton.show disabled'),
-    hide: () => console.log('MainButton.hide disabled'),
-    onClick: () => console.log('MainButton.onClick disabled')
-};*/
 
-// Также отключим другие методы Telegram
-//window.Telegram.WebApp.ready = () => console.log('Telegram.WebApp.ready disabled');
-//window.Telegram.WebApp.expand = () => console.log('Telegram.WebApp.expand disabled');
-//window.Telegram.WebApp.close = () => console.log('Telegram.WebApp.close disabled');
 // Configuration
 const CONFIG = {
     WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
@@ -60,6 +48,7 @@ const TRANSLATIONS = {
         style_banner: 'Banner',
         mode_label: 'Mode',
         mode_print_maker: 'Print/Stickers',
+        mode_photo_session: 'Photo Session',
         mode_fast_generation: 'Fast Generation',
         mode_pixplace_pro: 'pixPLace Pro (Logo/Text/Photo Supported)',
         size_label: 'Size',
@@ -1155,28 +1144,6 @@ function showScreen(screenId) {
     targetScreen.classList.add('active');
 }
 
-/*function updateMainButton(screenId) {
-    if (!appState.tg?.MainButton) return;
-
-    switch (screenId) {
-    case 'generationScreen':
-    appState.tg.MainButton.setText(appState.translate('generate_btn'));
-    appState.tg.MainButton.show();
-    break;
-    case 'processingScreen':
-    appState.tg.MainButton.hide();
-    break;
-    case 'resultScreen':
-    appState.tg.MainButton.setText(appState.translate('create_new'));
-    appState.tg.MainButton.show();
-    break;
-    case 'historyScreen':
-    appState.tg.MainButton.setText('← ' + appState.translate('create_new'));
-    appState.tg.MainButton.show();
-    break;
-    }
-}*/
-
 
 function showProcessing() {
     showScreen('processingScreen');
@@ -1219,26 +1186,6 @@ function showResult(result) {
     console.log('after showResult ->', getCurrentScreen());
 }
 
-/*function showSubscriptionScreen(paymentUrl) {
-    // Скрыть все экраны
-    document.querySelectorAll('.screen').forEach(screen => {
-    screen.classList.remove('active');
-    });
-
-    // Показать экран подписки
-    const subscriptionScreen = document.getElementById('subscriptionScreen');
-    subscriptionScreen.classList.add('active');
-
-    // Настроить кнопку оплаты
-    const upgradeBtn = document.getElementById('upgradeBtn');
-    upgradeBtn.onclick = () => {
-    if (window.Telegram?.WebApp?.openLink) {
-    window.Telegram.WebApp.openLink(paymentUrl);
-    } else {
-    window.open(paymentUrl, '_blank');
-    }
-    };
-}*/
 function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
     const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=syDv';
@@ -1313,65 +1260,6 @@ function showGeneration() {
     showBackButton(false);
 }
 
-// Восстановить главную кнопку Telegram
-//if (appState.tg && appState.tg.MainButton) {
-//    appState.tg.MainButton.setText(appState.translate('generate_btn'));
-//    appState.tg.MainButton.show();
-//}
-
-//old
-/*function showSubscriptionNotice(result) {
-    console.log('🔗 Full result object:', result);
-    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=swcr';
-    console.log('🔗 Payment URL from result:', result.payment_url);
-
-    const modal = document.getElementById('limitModal');
-    if (!modal) {
-    console.error('❌ Modal not found!');
-    return;
-    }
-
-    // Показать модальное окно
-    modal.classList.add('show');
-
-    // Настроить кнопку оплаты
-    const upgradeBtn = document.getElementById('upgradeBtn');
-    console.log('🔘 Upgrade button found:', !!upgradeBtn);
-    if (upgradeBtn) {
-    console.log('🔘 Setting up button click handler');
-    upgradeBtn.onclick = () => {
-    console.log('🔘 Button clicked! Opening:', paymentUrl);
-    try {
-    if (window.Telegram?.WebApp?.openLink) {
-    console.log('🔗 Using Telegram.WebApp.openLink');
-    window.Telegram.WebApp.openLink(paymentUrl);
-    } else {
-    console.log('🔗 Using window.open (fallback)');
-    window.open(paymentUrl, '_blank');
-    }
-    console.log('✅ Link opening attempted');
-
-    // Закрыть модальное окно ПОСЛЕ успешного открытия ссылки
-    setTimeout(() => {
-    modal.classList.remove('show');
-    }, 500);
-
-    } catch (error) {
-    console.error('❌ Error opening payment link:', error);
-    alert('Error opening payment link. Please try again.');
-    }
-    };
-    }
-
-    // Настроить кнопку закрытия
-    const closeBtn = document.getElementById('closeLimitModal');
-    if (closeBtn) {
-    closeBtn.onclick = () => {
-    modal.classList.remove('show');
-    showGeneration();
-    };
-    }
-}*/
 
 // 🎨 UI Initialization
 function initializeUI() {
@@ -1705,20 +1593,7 @@ async function initTelegramApp() {
             appState.telegramPlatform = appState.tg?.platform || 'unknown';
             appState.telegramVersion = appState.tg?.version || 'unknown';
         }
-        // Setup main button
-        /*if (appState.tg.MainButton) {
-        appState.tg.MainButton.setText(appState.translate('generate_btn'));
-        appState.tg.MainButton.onClick(() => {
-        if (getCurrentScreen() === 'generationScreen') {
-        generateImage();
-        } else if (getCurrentScreen() === 'resultScreen') {
-        showGeneration();
-        } else if (getCurrentScreen() === 'historyScreen') {
-        showGeneration();
-        }
-        });
-        appState.tg.MainButton.show();
-        }*/
+
 
         // Auto-detect language
         const tgLang = appState.tg.initDataUnsafe?.user?.language_code;
@@ -2000,9 +1875,7 @@ async function sendToWebhook(data) {
     }
 }
 // 🎨 Style Selection
-// 2D Carousel functionality
-// Stable 2D Carousel
-// Infinite 2D Carousel (loop, Android-friendly)
+//  2D Carousel (loop, Android-friendly)
 (() => {
     // Находим трек по id или по классу
     const track = document.getElementById('carousel2d') || document.querySelector('.carousel-2d');
