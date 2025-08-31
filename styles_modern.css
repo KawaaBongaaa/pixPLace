@@ -744,6 +744,7 @@ body {
 .carousel-2d-wrapper {
     position: relative;
     overflow: hidden;
+
 }
 
 /* Трек: простой горизонтальный список, нативный скролл */
@@ -761,10 +762,23 @@ body {
     align-items: stretch;
     /* нативный горизонтальный скролл */
     scroll-behavior: smooth;
+    /* если картинка одна, а не текстура:
+     background-repeat: no-repeat;
+     background-size: cover; */
     /*scroll-snap-type: x proximity;*/
     /* мягкий снап*/
     /* плавный скролл */
     /* свайп по X */
+    /*background-image: url("https://i.ibb.co/8gVLs5n5/10.png");
+    /* твой PNG */
+    /*background-repeat:no-repeat
+    /* для текстуры */
+    /*background-size: 200px auto;
+    /* подгони размер тайла */
+    /*background-position: center;
+    /* если картинка одна, а не текстура:
+     background-repeat: no-repeat;
+     background-size: cover; */
 }
 
 /* Карточки */
@@ -812,7 +826,8 @@ body {
 
 /* Generate Button */
 .generate-btn {
-    display: inline-flex; /* вот этого не хватало */
+    display: inline-flex;
+    /* вот этого не хватало */
     width: calc(100% - 40px) !important;
     padding: var(--space-1) var(--space-2);
     border: none;
@@ -856,6 +871,7 @@ body {
     display: flex;
     align-items: center;
 }
+
 .btn-icon svg {
     width: 1em;
     height: 0.9em;
@@ -1657,8 +1673,9 @@ textarea:focus-visible {
 }
 
 .mx-2 {
-    padding-left: 20px;
-    padding-bottom: 20px;
+    padding-left: 9px;
+    padding-bottom: 6px;
+
 }
 
 .hidden {
