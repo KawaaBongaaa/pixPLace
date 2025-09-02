@@ -1332,11 +1332,11 @@ async function onUserImageChange(e) {
     // Валидация
     //if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
     if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
-        if (errorEl) errorEl.textContent = 'Недопустимый формат: JPG, PNG, WEBP, GIF.';
+        if (errorEl) errorEl.textContent = 'formats Allowed to upload: JPG, PNG, WEBP, GIF.';
         e.target.value = '';
         return;
     }
-    const maxBytes = CONFIG.MAX_IMAGE_MB * 1024 * 1024;
+    const maxBytes = CONFIG.MAX_IMAGE_MB * 2048 * 2048;
     if (file.size > maxBytes) {
         if (errorEl) errorEl.textContent = `Файл слишком большой. Максимум ${CONFIG.MAX_IMAGE_MB} MB.`;
         e.target.value = '';
