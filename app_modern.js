@@ -91,7 +91,7 @@ const TRANSLATIONS = {
         reference_image: 'Reference',
         optional_choice: 'optional',
         upload_image: 'Upload Img',
-        please_upload_photo_session: 'Please upload your Face Image for Photo Session mode.',
+        please_upload_photo_session: 'Please upload your Face Image for Photo Session mode. Or just choice another Mode',
         upload_failed: 'Failed to upload the image. Please try again.'
     },
     ru: {
@@ -164,7 +164,7 @@ const TRANSLATIONS = {
         upgradeBtn: 'Оплатить сейчас',
         remove_user_image: 'Удалить',
         upload_image: 'Залить фотку',
-        please_upload_photo_session: 'Закинь свою фотку с Лицом для Режима Фотосессии.',
+        please_upload_photo_session: 'Закинь свою фотку с Лицом для Режима Фотосессии! Или выбери другой Режим Генерации',
         upload_failed: 'Не получилось залить фотку. Попробуй ещё раз.'
 
     },
