@@ -1778,7 +1778,7 @@ textarea:focus-visible {
 
 @keyframes need-image-pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(58, 192, 237, 0.75);
+        box-shadow: 0 0 0 0 rgba(58, 192, 237, 0.9);
     }
 
     70% {
@@ -1808,10 +1808,10 @@ textarea:focus-visible {
 .btn-link {
     padding: 2%;
     max-block-size: auto;
-    min-width: fit-content;
+    min-width: 2cap;
     background: #2e2e3e;
     border-radius: 6px;
-    color: #c5a3a3;
+    color: #badcea;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     object-fit: cover;
     position: relative;
