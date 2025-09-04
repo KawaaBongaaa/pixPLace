@@ -89,64 +89,10 @@ const TRANSLATIONS = {
         upgradeBtn: 'Upgrade Now',
         remove_user_image: 'Remove',
         reference_image: 'Reference',
-        optional_choice: '(optional)',
-        upload_image: 'Upload Img'
-    },
-
-
-    ru: {
-        loading: 'Творите с Удовольствием!',
-        app_title: 'pixPLace',
-        connecting: 'Подключение...',
-        connected: 'Подключено к Telegram',
-        welcome_title: 'Создавайте Потрясающие Изображения',
-        welcome_subtitle: 'Опишите свое видение и наблюдайте, как pixPLace воплощает его в жизнь',
-        prompt_label: 'Prompt',
-        prompt_placeholder: 'Красивый закат над океаном...',
-        style_label: 'Стиль',
-        style_realistic: 'Реализм',
-        style_artistic: 'Арт',
-        style_cartoon: 'Мульт',
-        style_sketch: 'Скетч',
-        style_fantasy: 'Фэнтэзи',
-        style_anime: 'Анимэ',
-        style_cyberpunk: 'CyberPunk',
-        mode_label: 'Режим генерации',
-        mode_print_maker: 'Принты/Стикеры',
-        mode_fast_generation: 'Быстрая генерация',
-        mode_pixplace_pro: 'pixPLace Pro (Logo/Text/Photo)',
-        size_label: 'Размер',
-        size_square: '1:1',
-        size_portrait: '9:16',
-        size_landscape: '16:9',
-        generate_btn: 'Создать Изображение',
-        processing_title: 'Создаем Ваш Шедевр',
-        processing_subtitle: 'Это может занять до 60 секунд',
-        step_analyzing: 'Анализируем промпт',
-        step_generating: 'Генерируем изображение',
-        step_finalizing: 'Завершаем результат',
-        elapsed_time: 'Прошло времени:',
-        cancel_btn: 'Отменить',
-        create_new: 'Создать Новое',
-        view_history: 'Посмотреть Историю',
-        history_title: 'История Генераций',
-        empty_history_title: 'Пока нет генераций',
-        empty_history_subtitle: 'Создайте первое ИИ изображение, чтобы увидеть его здесь',
-        generation_time: 'Время генерации',
-        error_prompt_required: 'Пожалуйста, опишите изображение',
-        error_prompt_too_short: 'Описание слишком короткое (минимум 5 символов)',
-        error_webhook_not_configured: 'Webhook URL не настроен',
-        error_generation_failed: 'Генерация не удалась',
-        error_timeout: 'Превышено время ожидания. Попробуйте еще раз.',
-        success_generated: 'Изображение успешно создано!',
-        copied_to_clipboard: 'Скопировано в буфер обмена',
-        download_started: 'Загрузка началась',
-        limit_title: 'Лимит Генераций Исчерпан',
-        limit_message: 'Токены для генерации Закончились! Вы можете получить Больше Токенов, оплатив подписку на канал pixPLace',
-        check_subsciption: 'проверить Подписку',
-        closeLimitModal: 'Может Позже',
-        upgradeBtn: 'Оплатить Сейчас'
-
+        optional_choice: 'optional',
+        upload_image: 'Upload Img',
+        please_upload_photo_session: 'Please upload your Face Image for Photo Session mode.',
+        upload_failed: 'Failed to upload the image. Please try again.'
     },
     ru: {
         loading: 'Творите с Удовольствием!',
@@ -217,9 +163,10 @@ const TRANSLATIONS = {
         closeLimitModal: 'Может позже',
         upgradeBtn: 'Оплатить сейчас',
         remove_user_image: 'Удалить',
-        reference_image: 'Референс',
-        optional_choice: '(необязательно)',
-        upload_image: 'Загрузить Изображение'
+        upload_image: 'Залить фотку',
+        please_upload_photo_session: 'Закинь свою фотку с Лицом для Режима Фотосессии.',
+        upload_failed: 'Не получилось залить фотку. Попробуй ещё раз.'
+
     },
 
     es: {
@@ -1703,6 +1650,7 @@ async function onUserImageChange(e) {
         if (preview) preview.classList.remove('hidden');
         const wrapper = document.getElementById('userImageWrapper');
         wrapper?.classList.add('has-image');
+        wrapper?.classList.remove('need-image');
 
         // Скрыть кнопку и "(Optional)"
         if (chooseBtn) chooseBtn.style.display = 'none';
@@ -1738,6 +1686,7 @@ function clearUserImage() {
     userImageState.uploadedUrl = null;
     const wrapper = document.getElementById('userImageWrapper');
     wrapper?.classList.remove('has-image');
+    wrapper?.classList.remove('need-image');
 }
 
 function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
@@ -1940,7 +1889,8 @@ async function initTelegramApp() {
 
         // Auto-detect language
         // Auto-detect language, но не перетирать вручную сохранённый
-        const tgLang = appState.tg.initDataUnsafe?.user?.language_code;
+        const tgLangRaw = appState.tg.initDataUnsafe?.user?.language_code;
+        const tgLang = tgLangRaw?.split('-')[0]; // "ru-RU" → "ru"
         const saved = JSON.parse(localStorage.getItem('appSettings') || '{}');
         if (!saved.language && tgLang && CONFIG.LANGUAGES.includes(tgLang)) {
             appState.setLanguage(tgLang);
@@ -2071,6 +2021,21 @@ async function generateImage(event) {
         return;
     }
 
+    // === GUARD: photo_session требует загруженное фото ===
+    const isPhotoSession = (mode === 'photo_session');
+    if (isPhotoSession) {
+        const wrapper = document.getElementById('userImageWrapper');
+        const hasLocalImage =
+            !!userImageState?.file || !!userImageState?.dataUrl || !!userImageState?.uploadedUrl;
+
+        if (!hasLocalImage) {
+            wrapper?.classList.add('need-image');
+            showToast('error', appState.translate('please_upload_photo_session'));
+            triggerHaptic('error');
+            return; // не начинаем процесс и НЕ отправляем webhook
+        }
+    }
+
     appState.isGenerating = true;
     appState.startTime = Date.now();
 
@@ -2109,7 +2074,18 @@ async function generateImage(event) {
             errorEl.textContent = 'Не удалось загрузить изображение. Сгенерируем без него.';
         }
     }
-
+    // === Если режим photo_session — без валидного URL дальше не идём ===
+    if (mode === 'photo_session' && !userImageUrl) {
+        const wrapper = document.getElementById('userImageWrapper');
+        wrapper?.classList.add('need-image');
+        showToast('error', appState.translate('upload_failed'));
+        triggerHaptic('error');
+        // Откатываем состояние и возвращаем экран генерации
+        appState.isGenerating = false;
+        stopTimer();
+        showGeneration();
+        return; // НЕ отправляем webhook
+    }
     try {
         console.log('📤 Sending to webhook...');
 
