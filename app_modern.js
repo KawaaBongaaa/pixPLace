@@ -1598,8 +1598,10 @@ async function initTelegramApp() {
 
 
         // Auto-detect language
+        // Auto-detect language, но не перетирать вручную сохранённый
         const tgLang = appState.tg.initDataUnsafe?.user?.language_code;
-        if (tgLang && CONFIG.LANGUAGES.includes(tgLang)) {
+        const saved = JSON.parse(localStorage.getItem('appSettings') || '{}');
+        if (!saved.language && tgLang && CONFIG.LANGUAGES.includes(tgLang)) {
             appState.setLanguage(tgLang);
         }
 
@@ -1609,6 +1611,48 @@ async function initTelegramApp() {
         console.error('❌ Telegram initialization error:', error);
         showStatus('error', 'Telegram connection error');
     }
+}
+
+function initLanguageDropdown() {
+    const btn = document.getElementById('langBtn');
+    const menu = document.getElementById('langMenu');
+    if (!btn || !menu) return;
+
+    // Заполнить меню языками
+    menu.innerHTML = '';
+    CONFIG.LANGUAGES.forEach(l => {
+        const li = document.createElement('li');
+        li.textContent = l; // можно заменить на красивое имя, если нужно
+        li.addEventListener('click', (evt) => {
+            evt.stopPropagation();
+            appState.setLanguage(l);        // сохранится в localStorage через saveSettings()
+            menu.style.display = 'none';    // скрыть после выбора
+        });
+        menu.appendChild(li);
+    });
+
+    // Изначально скрыто (дублируем CSS на случай задержки стилей)
+    menu.style.display = 'none';
+
+    // Открыть/закрыть по кнопке
+    btn.addEventListener('click', (evt) => {
+        evt.stopPropagation();
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    });
+
+    // Закрыть при клике вне
+    document.addEventListener('click', (evt) => {
+        if (!menu.contains(evt.target) && !btn.contains(evt.target)) {
+            menu.style.display = 'none';
+        }
+    });
+
+    // Закрыть по Esc
+    document.addEventListener('keydown', (evt) => {
+        if (evt.key === 'Escape') {
+            menu.style.display = 'none';
+        }
+    });
 }
 
 // 🚀 App Initialization
@@ -1638,6 +1682,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     initializeUI();
     initUserImageUpload(); // ← добавь эту строку
+    initLanguageDropdown();
+
+    const carouselImages = document.querySelectorAll('.carousel-2d-item img');
+    carouselImages.forEach(img => {
+        img.loading = 'lazy';
+        img.decoding = 'async';
+    });
+
     setTimeout(() => {
         hideLoadingScreen();
         showApp();
