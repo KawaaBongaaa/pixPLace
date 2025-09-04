@@ -449,12 +449,12 @@
                             <div class="form-group">
                                 <label class="form-label" data-i18n="mode_label">Mode</label>
                                 <select id="modeSelect" class="form-select">
-                                    <option value="fast_generation" selected data-i18n="mode_fast_generation">Fast
+                                    <option value="fast_generation" data-i18n="mode_fast_generation">Fast
                                         Generation</option>
                                     <option value="print_maker" data-i18n="mode_print_maker">Print_Maker</option>
                                     <option value="pixplace_pro" data-i18n="mode_pixplace_pro">pixPLace Pro (text
                                         Supported)</option>
-                                    <option value="photo_session" data-i18n="mode_photo_session">Photo Session</option>
+                                    <option value="photo_session" selected data-i18n="mode_photo_session">Photo Session</option>
                                     <option value="background_removal" data-i18n="mode_background_removal">Background
                                         removal</option>
                                     <!--<option value="upscale_image" data-i18n="mode_upscale_image">Upscale Image</option>-->
@@ -470,12 +470,10 @@
                             </div>
                             <div class="form-group">
                                 <div class="user-image-upload form-label" id="userImageWrapper">
-                                    <label for="userImage" class="user-image-label"
-                                        data-i18n="reference_image">Reference</label>
                                     <input type="file" id="userImage" class="user-image-label"
                                         accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" />
-                                    <button type="button" id="chooseUserImage" class="btn-link">
-                                        <p class="btn-link" data-i18n="upload_image"> Upload Img </p>
+                                    <button type="button" id="chooseUserImage" class="btn-link form-label">
+                                        <p class="btn-link" data-i18n="upload_image"> Upload Img (optional)</p>
                                         <p class="btn-link" data-i18n="optional_choice">
                                             (optional) </p>
 
