@@ -663,8 +663,6 @@ body {
     font-style: normal;
     font-weight: 600;
     display: flex;
-    justify-content: center;
-    align-items: center;
     font-size: var(--font-size-sm);
     width: 100%;
     padding: var(--space-1);
@@ -1815,7 +1813,6 @@ textarea:focus-visible {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     object-fit: cover;
     position: relative;
-    margin-top: auto;
 
 }
 
