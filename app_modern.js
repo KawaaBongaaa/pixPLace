@@ -92,7 +92,9 @@ const TRANSLATIONS = {
         optional_choice: 'optional',
         upload_image: 'Upload Img',
         please_upload_photo_session: 'Please upload your Face Image for Photo Session mode. Or just choice another Mode',
-        upload_failed: 'Failed to upload the image. Please try again.'
+        upload_failed: 'Failed to upload the image. Please try again.',
+        please_upload_for_upscale: 'Please upload an image to Upscale.',
+        please_upload_for_background_removal: 'Please upload an image for Background removal.'
     },
     ru: {
         loading: 'Творите с Удовольствием!',
@@ -163,9 +165,12 @@ const TRANSLATIONS = {
         closeLimitModal: 'Может позже',
         upgradeBtn: 'Оплатить сейчас',
         remove_user_image: 'Удалить',
-        upload_image: 'Залить фотку',
+        upload_image: 'Загрузить изображение',
         please_upload_photo_session: 'Закинь свою фотку с Лицом для Режима Фотосессии! Или выбери другой Режим Генерации',
-        upload_failed: 'Не получилось залить фотку. Попробуй ещё раз.'
+        upload_failed: 'Не получилось загрузить фотку. Попробуй ещё раз',
+        please_upload_for_upscale: 'Загрузите изображение для Улучшения Качества',
+        please_upload_for_background_removal: 'Загрузите изображение для удаления фона'
+
 
     },
 
@@ -2022,7 +2027,7 @@ async function generateImage(event) {
     }
 
     // === GUARD: photo_session требует загруженное фото ===
-    const isPhotoSession = (mode === 'photo_session');
+    /*const isPhotoSession = (mode === 'photo_session');
     if (isPhotoSession) {
         const wrapper = document.getElementById('userImageWrapper');
         const hasLocalImage =
@@ -2031,6 +2036,25 @@ async function generateImage(event) {
         if (!hasLocalImage) {
             wrapper?.classList.add('need-image');
             showToast('error', appState.translate('please_upload_photo_session'));
+            triggerHaptic('error');
+            return; // не начинаем процесс и НЕ отправляем webhook
+        }
+    }*/
+    // === GUARD: photo_session, upscale, background_removal требуют загруженного фото ===
+    const requiresImage = ['photo_session', 'upscale_image', 'background_removal'].includes(mode);
+    if (requiresImage) {
+        const wrapper = document.getElementById('userImageWrapper');
+        const hasLocalImage =
+            !!userImageState?.file || !!userImageState?.dataUrl || !!userImageState?.uploadedUrl;
+
+        if (!hasLocalImage) {
+            wrapper?.classList.add('need-image');
+            const messageKey = mode === 'upscale_image'
+                ? 'please_upload_for_upscale'
+                : mode === 'background_removal'
+                    ? 'please_upload_for_background_removal'
+                    : 'please_upload_photo_session';
+            showToast('error', appState.translate(messageKey));
             triggerHaptic('error');
             return; // не начинаем процесс и НЕ отправляем webhook
         }

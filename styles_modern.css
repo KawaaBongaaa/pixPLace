@@ -684,7 +684,8 @@ body {
 /* Style Grid */
 
 .style-grid {
-    display: center;
+    display: flex;
+    align-items: center;
     gap: var(--space-1);
     overflow-x: visible;
     /* было overflow-x: auto; */
@@ -1768,10 +1769,16 @@ textarea:focus-visible {
     display: none !important;
 }
 
-#userImageWrapper.need-image {
+/*#userImageWrapper.need-image {
     outline: 3px dashed var(--accent);
     border-radius: 10px;
     animation: need-image-pulse 2.2s ease-in-out infinite;
+}*/
+#userImageWrapper.need-image {
+    border: 2px dashed var(--error-400);
+    background-color: rgba(255, 0, 0, 0.05);
+    border-radius: 8px;
+    animation: need-image-pulse 2.4s infinite;
 }
 
 @keyframes need-image-pulse {
@@ -1806,7 +1813,7 @@ textarea:focus-visible {
 .btn-link {
     padding: 2%;
     max-block-size: auto;
-    min-width: 2cap;
+    min-width: 1cap;
     background: #2e2e3e;
     border-radius: 6px;
     color: #badcea;
