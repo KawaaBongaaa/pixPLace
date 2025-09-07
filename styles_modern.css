@@ -1921,6 +1921,9 @@ textarea:focus-visible {
 }
 
 
+.history-screen {
+padding-top: 40px;
+}
 /* Music Widget 
 .music-widget {
     position: relative;
