@@ -561,7 +561,7 @@ body {
     margin-bottom: var(--space-0.25);
 }
 
-.welcome-section h1 {
+/*.welcome-section h1 {
     font-size: var(--font-size-3xl);
     font-weight: 900;
     color: var(--text-primary);
@@ -577,17 +577,17 @@ body {
     color: var(--text-secondary);
     max-width: 500px;
     margin: 0 auto;
-}
+}*/
 
 /* Form Styles */
 .generation-form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-3);
 }
 
 .form-group {
-    display: flex;
+    display: column;
     flex-direction: column;
     gap: var(--space-2);
 }
@@ -617,7 +617,7 @@ body {
 
 .input-wrapper {
     position: relative;
-    padding: var(--space-0) var(--space-1);
+    padding: var(--space-1) var(--space-2);
 }
 
 .form-textarea {
@@ -625,7 +625,7 @@ body {
     font-weight: 400;
     font-style: normal;
     width: 100%;
-    padding: var(--space-3) var(--space-3);
+    padding: var(--space-2) var(--space-3);
     border: 2px solid var(--border-primary);
     border-radius: var(--radius-xl);
     font-size: var(--font-size-base);
@@ -663,6 +663,7 @@ body {
     font-style: normal;
     font-weight: 600;
     display: flex;
+    position: relative;
     font-size: var(--font-size-sm);
     width: 100%;
     padding: var(--space-1);
@@ -676,9 +677,15 @@ body {
 }
 
 .form-select:focus {
-    outline: none;
+    outline: #0369a1;
     border-color: var(--primary-500);
     box-shadow: 0 0 0 3px rgb(14 165 233 / 0.1);
+}
+
+.size-text {
+    display: flex;
+    font-weight: 600;
+
 }
 
 /* Style Grid */
@@ -832,7 +839,7 @@ body {
     padding: var(--space-1) var(--space-2);
     border: none;
     border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--primary-900), var(--primary-800));
+    background: linear-gradient(135deg, var(--primary-300), var(--primary-400));
     color: rgb(255, 255, 255);
     font-family: "Shantell Sans", sans-serif;
     font-optical-sizing: auto;
@@ -848,7 +855,7 @@ body {
     bottom: 20px;
     left: 20px;
     right: 20px;
-    top: 15px;
+    top: 2px;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
 }
@@ -1748,10 +1755,8 @@ textarea:focus-visible {
 
 
 .user-image-upload {
-    display: block;
-    justify-content: flex-end;
-    margin-top: auto;
-
+    display: flex;
+    position: relative;
 
 }
 
@@ -1797,12 +1802,13 @@ textarea:focus-visible {
 
 .user-image-label {
     font-size: var(--font-size-xs);
-    position: relative;
+    position: fixed;
     padding-left: 3px;
     letter-spacing: 1px;
     font-weight: 300;
     opacity: 0.85;
     color: var(--text-primary);
+
 }
 
 .form-row>.form-group:last-child {
@@ -1811,15 +1817,15 @@ textarea:focus-visible {
 }
 
 .btn-link {
-    padding: 2%;
-    max-block-size: auto;
-    min-width: 1cap;
+    padding: 4%;
+    font-weight: 600;
+    left: 5px;
+    min-width: 50px;
     background: #2e2e3e;
     border-radius: 6px;
     color: #badcea;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     object-fit: cover;
-    position: relative;
 
 }
 
@@ -1856,6 +1862,7 @@ textarea:focus-visible {
     color: var(--error-500);
     font-size: var(--font-size-sm);
     margin-top: 6px;
+
 }
 
 #userImagePreview {
