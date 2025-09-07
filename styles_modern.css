@@ -150,6 +150,7 @@ html {
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    height: 100%;
 }
 
 body {
@@ -159,6 +160,9 @@ body {
     color: var(--text-primary);
     background: var(--bg-primary);
     transition: background-color var(--transition-normal), color var(--transition-normal);
+    height: 100%;
+    overflow: hidden;
+    /* предотвращаем прокрутку */
 }
 
 /* Loading Screen */
@@ -270,12 +274,16 @@ body {
 
 /* App Layout */
 .app {
+    /* Используем CSS-переменную для корректной высоты на мобилках */
+    height: calc(var(--vh, 1vh) * 100);
     min-height: 100vh;
+    /* запасной вариант */
     display: flex;
     flex-direction: column;
     opacity: 0;
     transform: translateY(20px);
     transition: opacity var(--transition-slow), transform var(--transition-slow);
+    overflow: hidden;
 }
 
 .app.loaded {
