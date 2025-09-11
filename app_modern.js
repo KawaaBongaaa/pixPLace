@@ -1416,7 +1416,7 @@ function toggleHistoryList() {
     }
 }
 
-function updateHistoryDisplay() {
+function updateHistoryDisplay(limit = 15) {
     const historyList = document.getElementById('historyList');
     if (!historyList) return;
 
@@ -1431,9 +1431,11 @@ function updateHistoryDisplay() {
         return;
     }
 
-    // ⚡ Оптимизация: показываем только последние 15-20 элементов
-    const visibleItems = HistoryManager.getVisibleItems(15);
-    const hasMore = HistoryManager.needsShowMore(15);
+    // Получаем элементы с учетом пагинации
+    const visibleItems = HistoryManager.getVisibleItems(limit);
+    const totalValidCount = HistoryManager.getValidTotalCount();
+    const needsMore = totalValidCount > limit;
+    const remainingCount = totalValidCount - limit;
 
     historyList.innerHTML = visibleItems.map(item => `
         <div class="history-mini" onclick="viewHistoryItem('${item.id}')">
@@ -1447,24 +1449,31 @@ function updateHistoryDisplay() {
         </div>
     `).join('');
 
-    // Добавляем кнопку "Показать больше" если нужно
-    if (hasMore) {
-        const showMoreBtn = document.createElement('button');
-        showMoreBtn.className = 'show-more-btn';
-        showMoreBtn.textContent = `Показать ещё ${appState.generationHistory.length - 15}...`;
-        showMoreBtn.onclick = showAllHistory;
-        historyList.appendChild(showMoreBtn);
-    }
+    // Добавляем управляющие кнопки пагинации
+    if (needsMore) {
+        const paginationControls = document.createElement('div');
+        paginationControls.className = 'pagination-controls';
 
-    // ⚡ Подключаем Intersection Observer для lazy loading
-    const images = historyList.querySelectorAll('img[data-src]');
-    images.forEach(img => {
-        // Добавляем fallback src на случай проблем с загрузкой
-        if (!img.src || img.src === '') {
-            img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PC9zdmc+';
-        }
-        historyLoader.observe(img);
-    });
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.className = 'show-more-btn';
+        loadMoreBtn.textContent = `Показать ещё +15`;
+        loadMoreBtn.onclick = () => loadMoreHistory(limit);
+
+        const showAllBtn = document.createElement('button');
+        showAllBtn.className = 'show-all-btn';
+        showAllBtn.textContent = `Показать все (${remainingCount})`;
+        showAllBtn.onclick = () => showAllHistory();
+
+        paginationControls.appendChild(loadMoreBtn);
+        paginationControls.appendChild(showAllBtn);
+        historyList.appendChild(paginationControls);
+    }
+}
+
+// Функция для загрузки следующей порции элементов
+function loadMoreHistory(currentLimit) {
+    const newLimit = currentLimit + 15;
+    updateHistoryDisplay(newLimit);
 }
 
 // Функция для показа всей истории
@@ -1597,7 +1606,7 @@ function showHistory() {
 }
 
 // Функция плавной прокрутки к истории и открытия списка
-function showHistoryWithScroll() {
+async function showHistoryWithScroll() {
     const historyBtn = document.getElementById('historyToggleBtn');
     const historyList = document.getElementById('historyList');
 
@@ -1610,12 +1619,19 @@ function showHistoryWithScroll() {
         });
     }
 
-    // Автоматически открываем список истории через небольшую задержку
-    setTimeout(() => {
-        if (historyList && historyList.classList.contains('hidden')) {
-            toggleHistoryList();
-        }
-    }, 300);
+    // Подождем завершения прокрутки
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Автоматически открываем список истории если он закрыт
+    if (historyList && historyList.classList.contains('hidden')) {
+        const btn = document.getElementById('historyToggleBtn');
+        historyList.classList.remove('hidden');
+        btn.classList.add('active');
+        updateHistoryDisplay();
+
+        // Ждем пока DOM обновится после открытия
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
 }
 
 // Функция для создания placeholder'а загрузки в истории
@@ -2430,8 +2446,8 @@ async function generateImage(event) {
     startTimer();
 
     // Добавляем плавную прокрутку к истории и автоматическое открытие
-    setTimeout(() => {
-        showHistoryWithScroll();
+    setTimeout(async () => {
+        await showHistoryWithScroll();
         createLoadingHistoryItem(appState.currentGeneration);
     }, 100);
 
