@@ -1217,8 +1217,9 @@ body {
 }
 
 .history-list:not(.hidden) {
-    max-height: 600px;
+    max-height: 800px;
     opacity: 1;
+    overflow-y: auto;
 }
 
 .history-mini {
@@ -1901,6 +1902,30 @@ textarea:focus-visible {
 
 .history-screen {
 padding-top: 40px;
+}
+
+
+
+/* Анимация для миниатюр истории */
+.loading-image-placeholder {
+    animation: image-loading 2s infinite ease-in-out;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+@keyframes image-loading {
+    0%, 100% {
+        opacity: 1;
+        filter: brightness(1);
+    }
+    50% {
+        opacity: 0.7;
+        filter: brightness(0.8);  
+    }
+}
+
+.history-loading {
+    position: relative;
 }
 /* Music Widget 
 .music-widget {
