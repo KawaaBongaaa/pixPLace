@@ -1172,114 +1172,92 @@ body {
     border-color: var(--border-secondary);
 }
 
-/* History */
-.history-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-}
-
-.history_title {
-    align-items: end;
-    position: relative;
-}
-
-.empty-history {
-    text-align: center;
-    padding: var(--space-16) var(--space-8);
-    color: var(--text-secondary);
-}
-
-.empty-icon {
-    font-size: 4rem;
-    margin-bottom: var(--space-4);
-}
-
-.empty-history h3 {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    margin-bottom: var(--space-2);
-    color: var(--text-primary);
-}
-
-.history-item {
+.history-toggle-btn {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
     background: var(--bg-secondary);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    transition: all var(--transition-fast);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-weight: 600;
     cursor: pointer;
-}
-
-.history-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.history-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-4);
+    transition: all var(--transition-fast);
+    margin-top: var(--space-4);
 }
 
-.history-date {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
+.history-toggle-btn:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-500);
 }
 
-.history-status {
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
+.toggle-icon {
+    transition: transform var(--transition-fast);
 }
 
-.history-status.success {
-    background: var(--success-500);
-    color: white;
+.history-toggle-btn.active .toggle-icon {
+    transform: rotate(180deg);
 }
 
-.history-status.error {
-    background: var(--error-500);
-    color: white;
-}
-
-.history-prompt {
-    font-size: var(--font-size-base);
-    color: var(--text-primary);
-    margin-bottom: var(--space-3);
-    line-height: 1.5;
-}
-
-.history-details {
-    display: flex;
-    position: relative;
-    gap: var(--space-4);
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
-    margin-bottom: var(--space-4);
-}
-
-.history-image {
-    width: 100%;
-    max-width: 200px;
+.history-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+    background: var(--bg-secondary);
     border-radius: var(--radius-lg);
+    border: 1px solid var(--border-primary);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.history-list:not(.hidden) {
+    max-height: 600px;
+    opacity: 1;
+}
+
+.history-mini {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-secondary);
+}
+
+.history-mini:hover {
+    transform: scale(1.05);
     box-shadow: var(--shadow-md);
 }
 
-.info-pair {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    /* или по твоему дизайну */
+.history-mini img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
 }
 
-.info-pair svg {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    display: block;
+.history-mini p {
+    padding: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .history-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2);
+    }
+
+    .history-mini img {
+        height: 100px;
+    }
 }
 
 /* Toast Notifications */

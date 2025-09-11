@@ -1334,7 +1334,79 @@ function showBackButton(show) {
         body.classList.remove('show-back');
     }
 }
+
+function toggleHistoryList() {
+    const list = document.getElementById('historyList');
+    const btn = document.getElementById('historyToggleBtn');
+    if (list.classList.contains('hidden')) {
+        list.classList.remove('hidden');
+        btn.classList.add('active');
+        updateHistoryDisplay();
+    } else {
+        list.classList.add('hidden');
+        btn.classList.remove('active');
+    }
+}
+
 function updateHistoryDisplay() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+
+    if (appState.generationHistory.length === 0) {
+        historyList.innerHTML = `
+    <div class="empty-history">
+    <div class="empty-icon">📋</div>
+    <h3 data-i18n="empty_history_title">${appState.translate('empty_history_title')}</h3>
+    <p data-i18n="empty_history_subtitle">${appState.translate('empty_history_subtitle')}</p>
+    </div>
+    `;
+        return;
+    }
+
+    historyList.innerHTML = appState.generationHistory.map(item => `
+    <div class="history-mini" onclick="viewHistoryItem('${item.id}')">
+    <img src="${item.result}" alt="Generated" loading="lazy" />
+    <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)}</p>
+    </div>
+    `).join('');
+}
+
+function getStatusText(status) {
+    switch (status) {
+        case 'processing': return '⏳';
+        case 'success': return '✅';
+        case 'error': return '❌';
+        default: return status;
+    }
+}
+
+function viewHistoryItem(id) {
+    const item = appState.generationHistory.find(h => h.id == id);
+    if (item && item.result) {
+        appState.currentGeneration = item;
+        showResult({ image_url: item.result });
+    }
+}
+
+function clearHistory() {
+    if (confirm('Clear all generation history?')) {
+        appState.generationHistory = [];
+        appState.saveHistory();
+        if (!document.getElementById('historyList').classList.contains('hidden')) {
+            updateHistoryDisplay();
+        }
+        triggerHaptic('medium');
+    }
+}
+
+function showHistory() {
+    toggleHistoryList();
+}
+
+window.toggleHistoryList = toggleHistoryList;
+
+// Функция для полного экрана истории
+function updateHistoryDisplayFullScreen() {
     const historyContent = document.getElementById('historyContent');
     if (!historyContent) return;
 
