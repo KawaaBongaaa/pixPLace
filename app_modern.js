@@ -20,7 +20,7 @@ const CONFIG = {
 const TRANSLATIONS = {
 
     en: {
-        loading: "Please, Have a Fun",
+        loading: "The pixPLace",
         app_title: "pixPLace",
         connecting: "Connecting...",
         connected: "Connected to Telegram",
@@ -97,7 +97,7 @@ const TRANSLATIONS = {
     },
 
     ru: {
-        loading: "Творите с Удовольствием!",
+        loading: "The pixPLace",
         app_title: "pixPLace",
         connecting: "Подключение...",
         connected: "Подключено к Telegram",
@@ -174,7 +174,7 @@ const TRANSLATIONS = {
     },
 
     es: {
-        loading: "Por favor, ¡diviértete!",
+        loading: "The pixPLace",
         app_title: "pixPLace",
         connecting: "Conectando...",
         connected: "Conectado a Telegram",
