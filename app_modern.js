@@ -1205,6 +1205,74 @@ class AppState {
 // 🎯 Global state
 const appState = new AppState();
 
+// ⚡ Enhanced Image Loading for GitHub Pages hosting
+class EnhancedHistoryLoader {
+    constructor() {
+        this.imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src && !img.src) {
+                        img.src = img.dataset.src;
+                        img.classList.add('loaded');
+                    }
+                    this.imageObserver.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '100px', // Начать загрузку за 100px до видимости
+            threshold: 0.1 // Загружать при 10% видимости
+        });
+    }
+
+    observe(img) {
+        this.imageObserver.observe(img);
+    }
+
+    disconnect() {
+        this.imageObserver.disconnect();
+    }
+}
+
+const historyLoader = new EnhancedHistoryLoader();
+
+// ⚡ Smart History Management for Performance
+class HistoryManager {
+    static getVisibleItems(limit = 15) {
+        // Фильтруем только элементы с валидными результатами (исключаем undefined/null)
+        const validItems = appState.generationHistory.filter(item =>
+            item.result &&
+            typeof item.result === 'string' &&
+            item.result.trim() !== '' &&
+            item.result !== 'undefined'
+        );
+
+        return validItems.slice(0, limit);
+    }
+
+    static getValidItemsOnly() {
+        return appState.generationHistory.filter(item =>
+            item.result &&
+            typeof item.result === 'string' &&
+            item.result.trim() !== '' &&
+            item.result !== 'undefined'
+        );
+    }
+
+    static getTotalCount() {
+        return appState.generationHistory.length;
+    }
+
+    static needsShowMore(limit = 15) {
+        const validCount = this.getValidItemsOnly().length;
+        return validCount > limit;
+    }
+
+    static getValidTotalCount() {
+        return this.getValidItemsOnly().length;
+    }
+}
+
 
 
 // 🎯 Utility Functions
@@ -1363,12 +1431,63 @@ function updateHistoryDisplay() {
         return;
     }
 
-    historyList.innerHTML = appState.generationHistory.map(item => `
-    <div class="history-mini" onclick="viewHistoryItem('${item.id}')">
-    <img src="${item.result}" alt="Generated" loading="lazy" />
-    <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)}</p>
-    </div>
+    // ⚡ Оптимизация: показываем только последние 15-20 элементов
+    const visibleItems = HistoryManager.getVisibleItems(15);
+    const hasMore = HistoryManager.needsShowMore(15);
+
+    historyList.innerHTML = visibleItems.map(item => `
+        <div class="history-mini" onclick="viewHistoryItem('${item.id}')">
+            <img src="${item.result || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PC9zdmc+'}"
+                 alt="Generated"
+                 class="lazy-loading"
+                 loading="lazy"
+                 decoding="async"
+                 />
+            <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)}</p>
+        </div>
     `).join('');
+
+    // Добавляем кнопку "Показать больше" если нужно
+    if (hasMore) {
+        const showMoreBtn = document.createElement('button');
+        showMoreBtn.className = 'show-more-btn';
+        showMoreBtn.textContent = `Показать ещё ${appState.generationHistory.length - 15}...`;
+        showMoreBtn.onclick = showAllHistory;
+        historyList.appendChild(showMoreBtn);
+    }
+
+    // ⚡ Подключаем Intersection Observer для lazy loading
+    const images = historyList.querySelectorAll('img[data-src]');
+    images.forEach(img => {
+        // Добавляем fallback src на случай проблем с загрузкой
+        if (!img.src || img.src === '') {
+            img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PC9zdmc+';
+        }
+        historyLoader.observe(img);
+    });
+}
+
+// Функция для показа всей истории
+function showAllHistory() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+
+    // Показываем все элементы
+    historyList.innerHTML = appState.generationHistory.map(item => `
+        <div class="history-mini" onclick="viewHistoryItem('${item.id}')">
+            <img data-src="${item.result}"
+                 alt="Generated"
+                 class="lazy-loading"
+                 loading="lazy"
+                 decoding="async"
+                 />
+            <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)}</p>
+        </div>
+    `).join('');
+
+    // Подключаем Observer ко всем картинкам
+    const images = historyList.querySelectorAll('img[data-src]');
+    images.forEach(img => historyLoader.observe(img));
 }
 
 function getStatusText(status) {
