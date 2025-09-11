@@ -1111,14 +1111,19 @@ body {
 
 .result-meta {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: flex-start;
 }
 
 .meta-item {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
+    min-width: 200px;
+    max-width: 350px;
+    flex: 1 1 200px;
 }
 
 .meta-label {
@@ -1130,6 +1135,12 @@ body {
 .meta-value {
     font-size: var(--font-size-base);
     color: var(--text-primary);
+    word-wrap: break-word;
+    line-height: 1.4;
+    max-height: 120px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-primary) transparent;
 }
 
 .result-actions {
@@ -1246,10 +1257,18 @@ body {
 }
 
 .history-mini p {
-    padding: var(--space-2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: var(--font-size-sm);
     color: var(--text-secondary);
     text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-weight: 600;
+    z-index: 2;
+    width: 100%;
+    padding: 0 2px;
 }
 
 @media (max-width: 480px) {
@@ -1326,6 +1345,17 @@ body {
         flex-wrap: wrap;
         /* 🔥 перенос элементов на новую строку */
         gap: var(--space-1);
+    }
+
+    .result-meta {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .meta-item {
+        min-width: unset;
+        max-width: unset;
+        flex: 1;
     }
 
     .result-actions {
@@ -2097,6 +2127,68 @@ img.lazy-loaded[data-src] {
     background: var(--primary-900);
     color: var(--primary-200);
     border-color: var(--primary-500);
+}
+
+/* ✨ Новые стили для центрированного текста генерации */
+.generation-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: inline-block;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+/* Тематические background для разных тем */
+[data-theme="light"] .generation-text {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Dark тема */
+[data-theme="dark"] .generation-text {
+    background: rgba(20, 20, 25, 0.95);
+    color: #ffffff;
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+/* Auto тему */
+[data-theme="auto"] .generation-text {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-primary);
+}
+
+/* Анимированная иконка молнии */
+.generation-text::before {
+    content: '⚡';
+    display: block;
+    font-size: 1.5em;
+    animation: pulse-icon 2s infinite ease-in-out;
+    margin-bottom: 4px;
+}
+
+@keyframes pulse-icon {
+    0%, 100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
 }
 
 /* 📱 Responsive оптимизация для истории */

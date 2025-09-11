@@ -73,7 +73,7 @@ const TRANSLATIONS = {
         history_title: "Generation History",
         empty_history_title: "No generations yet",
         empty_history_subtitle: "Create your first AI image to see it here",
-        generation_time: "Generation time",
+        generation_cost: "Generation cost",
         error_prompt_required: "Please describe your image",
         error_prompt_too_short: "Prompt too short (minimum 5 characters)",
         error_webhook_not_configured: "Webhook URL not configured",
@@ -150,7 +150,7 @@ const TRANSLATIONS = {
         history_title: "История генераций",
         empty_history_title: "Пока нет генераций",
         empty_history_subtitle: "Создайте первое изображение, чтобы увидеть его здесь",
-        generation_time: "Время генерации",
+        generation_cost: "Стоимость генерации",
         error_prompt_required: "Пожалуйста, опишите изображение",
         error_prompt_too_short: "Описание слишком короткое (минимум 5 символов)",
         error_webhook_not_configured: "Webhook URL не настроен",
@@ -227,7 +227,7 @@ const TRANSLATIONS = {
         history_title: "Historial de generaciones",
         empty_history_title: "Aún no hay generaciones",
         empty_history_subtitle: "Crea tu primera imagen AI para verla aquí",
-        generation_time: "Tiempo de generación",
+        generation_cost: "Costo de generación",
         error_prompt_required: "Por favor describe tu imagen",
         error_prompt_too_short: "Prompt demasiado corto (mínimo 5 caracteres)",
         error_webhook_not_configured: "URL de webhook no configurada",
@@ -1098,7 +1098,6 @@ const TRANSLATIONS = {
     }
 };
 
-// 🎯 App State
 class AppState {
     constructor() {
         this.tg = null;
@@ -1112,6 +1111,9 @@ class AppState {
         this.currentGeneration = null;
         this.startTime = null;
         this.timerInterval = null;
+        // Добавлено отображение баланса пользователя
+        this.userCredits = null; // текущий баланс кредитов
+        this.lastBalanceUpdate = null; // время последнего обновления баланса
     }
 
     // Language methods
@@ -1445,7 +1447,7 @@ function updateHistoryDisplay(limit = 15) {
                  loading="lazy"
                  decoding="async"
                  />
-            <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)}</p>
+            <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)} | ${appState.translate('mode_' + item.mode)}</p>
         </div>
     `).join('');
 
@@ -1490,7 +1492,7 @@ function showAllHistory() {
                  loading="lazy"
                  decoding="async"
                  />
-            <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)}</p>
+            <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)} | ${appState.translate('mode_' + item.mode)}</p>
         </div>
     `).join('');
 
@@ -1651,15 +1653,12 @@ function createLoadingHistoryItem(generation) {
     loadingImage.alt = 'Generating...';
 
     // Добавляем анимацию пульсации
-
     loadingImage.style.animation = 'image-loading 2s infinite';
 
-
-    // Создаём подпись с промптом и статусом
+    // Создаём подпись с промптом и статусом - НОВЫЙ СТИЛЬ С ИКОНКОЙ
     const loadingCaption = document.createElement('p');
     loadingCaption.innerHTML = `
-        <span class="loading-text">⏳ Generating</span><br/>
-        <small>${new Date(generation.timestamp).toLocaleDateString()} | ${appState.translate('style_' + generation.style)}</small>
+        <span class="generation-text">⚡ Generating...</span>
     `;
 
     // Собираем элемент
@@ -1703,8 +1702,12 @@ function updateHistoryItemWithImage(generationId, imageUrl) {
     // Обновляем подпись - показываем завершение генерации
     const loadingCaption = loadingItem.querySelector('p');
     if (loadingCaption) {
+        // Найдем объект генерации по ID
+        const generation = appState.generationHistory.find(g => g.id == generationId);
+        const mode = generation ? generation.mode : 'unknown';
+
         loadingCaption.innerHTML = `
-            <span class="success-text">✅ Complete</span><br/>
+            <span class="success-text">✅ Complete - ${appState.translate('mode_' + mode)}</span><br/>
             <small>${new Date().toLocaleDateString()}</small>
         `;
 
@@ -1829,12 +1832,42 @@ function showResult(result) {
     if (resultPrompt) resultPrompt.textContent = appState.currentGeneration.prompt;
     if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
     if (resultMode) resultMode.textContent = appState.translate('mode_' + appState.currentGeneration.mode);
+
+    // Обновлено: отображаем стоимость генерации вместо времени
     if (resultTime) {
-        const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
-        resultTime.textContent = duration + 's';
+        const cost = result.cost || result.generation_cost;
+        if (cost && !isNaN(cost)) {
+            const formattedCost = parseFloat(cost).toFixed(2);
+            const currency = result.cost_currency || 'cr';
+            resultTime.textContent = `${formattedCost} ${currency}`;
+        } else {
+            // Fallback если стоимость не пришла
+            const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
+            resultTime.textContent = `${duration}s`;
+        }
     }
 
     console.log('after showResult ->', getCurrentScreen());
+}
+
+// Функция обновления баланса пользователя в header
+function updateUserBalance(credits) {
+    // Обновляем баланс в appState
+    if (credits !== null && credits !== undefined) {
+        appState.userCredits = parseFloat(credits);
+        appState.lastBalanceUpdate = Date.now();
+        appState.saveSettings(); // Сохраняем в localStorage
+
+        // Обновляем отображение в header
+        const balanceElement = document.getElementById('userCreditsDisplay');
+        if (balanceElement) {
+            if (!isNaN(credits) && credits !== null) {
+                balanceElement.textContent = parseFloat(credits).toLocaleString('en-US');
+            } else {
+                balanceElement.textContent = '--';
+            }
+        }
+    }
 }
 
 function showSubscriptionNotice(result) {
@@ -2345,6 +2378,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     setTimeout(() => {
         hideLoadingScreen();
         showApp();
+
+        // Инициализируем баланс пользователя
+        updateUserBalance(appState.userCredits);
     }, 1500);
 });
 
@@ -2545,6 +2581,13 @@ async function generateImage(event) {
             appState.currentGeneration.status = 'success';
             appState.currentGeneration.result = result.image_url;
             appState.saveHistory();
+
+            // Обновляем баланс пользователя из ответа
+            if (result.remaining_credits !== undefined || result.credit_balance !== undefined || result.cost_balance !== undefined) {
+                const balance = result.remaining_credits || result.credit_balance || result.cost_balance;
+                updateUserBalance(balance);
+                console.log('💳 Updated user balance:', balance);
+            }
 
             // Обновляем миниатюру в истории с новым изображением
             updateHistoryItemWithImage(appState.currentGeneration.id, result.image_url);
