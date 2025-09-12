@@ -3,6 +3,7 @@
 // Configuration
 const CONFIG = {
     WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
+    CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6', // ⚠️ ЗАМЕНИТЕ НА WEBHOOK ДЛЯ ЧАТА!
     TIMEOUT: 120000, // 120 секунд
     LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'tr', 'pl'],
     DEFAULT_LANGUAGE: 'en',
@@ -2737,14 +2738,6 @@ function initLanguageDropdown() {
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('🚀 pixPLace Creator starting...');
 
-    // ✅ Проверка наличия processingScreen
-    const ps = document.getElementById('processingScreen');
-    if (ps) {
-        console.log('✅ Нашёл processingScreen:', ps);
-        console.log('➡️ Дети processingScreen:', ps.children.length);
-    } else {
-        console.error('❌ processingScreen не найден в DOM');
-    }
 
     showLoadingScreen();
     appState.loadSettings();
@@ -2774,6 +2767,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Инициализируем баланс пользователя
         updateUserBalance(appState.userCredits);
+        
+        // AI Coach initialization
+        initAICoach();
     }, 1500);
 });
 
@@ -3653,3 +3649,100 @@ window.closeLimitModal = () => {
         showGeneration();
     }
 };
+
+ // ========== AI COACH INTEGRATION ==========
+function createCoachButton() {
+    // Create button
+    const coachButton = document.createElement('button');
+    coachButton.innerHTML = '🧠 AI Coach';
+    coachButton.className = 'ai-coach-btn fixed top-4 right-4 z-40 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-200';
+    coachButton.onclick = () => {
+        if (window.AICoach) {
+            window.AICoach.show();
+        } else {
+            console.warn('AI Coach not loaded');
+        }
+    };
+
+    // Add to body (fixed position for easy access)
+    document.body.appendChild(coachButton);
+
+    // Style injection for button (minimal)
+    const style = document.createElement('style');
+    style.textContent = `
+        .ai-coach-btn {
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+        }
+        .ai-coach-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+    `;
+    document.head.appendChild(style);
+
+    console.log('🧠 AI Coach button created');
+}
+
+async function initAICoach() {
+    try {
+        // Проверить, что AICoach доступен (уже загружен из HTML)
+        if (!window.AICoach) {
+            console.warn('AI Coach not loaded from HTML');
+            return;
+        }
+
+        createCoachButton();
+        // Дополнительно можно прослушать событие, если нужно
+        window.addEventListener('ai-coach-ready', createCoachButton);
+    } catch (error) {
+        console.error('Failed to init AI Coach:', error);
+    }
+}
+
+function createChatButton() {
+    // Create floating chat button
+    const chatBtn = document.createElement('button');
+    chatBtn.id = 'ai-chat-float-btn';
+    chatBtn.innerHTML = '🧠 AI Чат';
+    chatBtn.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+
+    chatBtn.onmouseenter = () => {
+        chatBtn.style.transform = 'scale(1.05)';
+        chatBtn.style.boxShadow = '0 6px 25px rgba(99, 102, 241, 0.6)';
+    };
+
+    chatBtn.onmouseleave = () => {
+        chatBtn.style.transform = 'scale(1)';
+        chatBtn.style.boxShadow = '0 4px 20px rgba(99, 102, 241, 0.4)';
+    };
+
+    chatBtn.onclick = () => {
+        if (window.AICoach) {
+            window.AICoach.show();
+            triggerHaptic('light');
+        }
+    };
+
+    document.body.appendChild(chatBtn);
+    console.log('🧠 AI Chat floating button created');
+}

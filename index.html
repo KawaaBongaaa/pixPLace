@@ -284,7 +284,7 @@
             </div>
         </div>
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-content" data-current-screen="generation">
             <!-- Generation Screen -->
             <div id="generationScreen" class="screen active">
                 <div class="screen-content">
@@ -566,6 +566,25 @@
                     </div>
                 </div>
             </div>
+            <!-- AI Chat Screen -->
+            <div id="chatScreen" class="screen">
+                <div class="screen-content">
+                    <div class="ai-chat-container">
+                        <div class="ai-chat-messages" id="ai-chat-messages"></div>
+                        <div class="ai-chat-input-area">
+                            <div class="ai-chat-input-container">
+                                <input type="text" id="ai-chat-input" placeholder="Спросите AI ассистента..." />
+                                <button class="ai-chat-send-btn" id="ai-chat-send-btn">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
     <!-- Toast Notifications -->
@@ -612,6 +631,7 @@
         </div>
     </footer>
     <script src="app_modern.js"></script>
+    <script src="ai-coach.js"></script>
 </body>
 
 </html>
