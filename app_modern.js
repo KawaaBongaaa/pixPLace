@@ -50,27 +50,18 @@ const TRANSLATIONS = {
         style_icon: "Icon",
         style_banner: "Banner",
         mode_label: "Mode",
-        mode_background_removal: "BackGround Removal | ~1cr",
+        mode_background_removal: "Remove Background",
         mode_upscale_image: "Upscale Image | ~5cr",
-        mode_print_maker: "Print | Sticker | PoD Helper | ~2cr",
-        mode_photo_session: "Photo Session | Kontext Model | ~5cr",
-        mode_fast_generation: "Fastest pixPlace | Simple Pictures | ~1cr",
-        mode_pixplace_pro: "Pro pixPLace | Logo | Text | ~5cr",
+        mode_print_maker: "SDXL T-Shirt Print | PoD Helper | ~2cr",
+        mode_photo_session: "Nano Banana | Photo Editing by Kontext Explaining",
+        mode_fast_generation: "Fastest pixPlace | Simple Pictures",
+        mode_pixplace_pro: "Flux Krea | Logo | Text(eng)",
         size_label: "Size",
         size_square: "1:1",
         size_portrait: "9:16",
         size_landscape: "16:9",
         generate_btn: "Generate Image",
-        processing_title: "Creating Your Masterpiece",
-        processing_subtitle: "This may take up to 60 seconds",
-        step_analyzing: "Analyzing prompt",
-        step_generating: "Generating image",
-        step_finalizing: "Finalizing result",
-        elapsed_time: "Elapsed time:",
-        cancel_btn: "Cancel",
         create_new: "Create New",
-        view_history: "View History",
-        history_title: "Generation History",
         empty_history_title: "No generations yet",
         empty_history_subtitle: "Create your first AI image to see it here",
         generation_cost: "Generation cost",
@@ -1447,7 +1438,7 @@ function updateHistoryDisplay(limit = 15) {
                  loading="lazy"
                  decoding="async"
                  />
-            <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)} | ${appState.translate('mode_' + item.mode)}</p>
+            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)} | ${appState.translate('mode_' + item.mode)}</p>
         </div>
     `).join('');
 
@@ -1645,21 +1636,22 @@ function createLoadingHistoryItem(generation) {
     const loadingItem = document.createElement('div');
     loadingItem.className = 'history-mini history-loading';
     loadingItem.id = `loading-${generation.id}`;
+    // Добавляем onclick сразу
+    loadingItem.onclick = () => console.log('Loading item clicked, but still processing...');
 
-    // Создаём полупрозрачное изображение для анимации загрузки
+    // Создаём полупрозрачное изображение для анимации загрузки (без src - только placeholder)
     const loadingImage = document.createElement('img');
     loadingImage.className = 'loading-image-placeholder';
-    loadingImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjIi8+Cjwvc3ZnPg=='; // полупрозрачный placeholder
+    // убираем src чтобы не было иконки
     loadingImage.alt = 'Generating...';
 
     // Добавляем анимацию пульсации
     loadingImage.style.animation = 'image-loading 2s infinite';
 
-    // Создаём подпись с промптом и статусом - НОВЫЙ СТИЛЬ С ИКОНКОЙ
+    // Создаём подпись для широких экранов - будем заполнять при готовности
     const loadingCaption = document.createElement('p');
-    loadingCaption.innerHTML = `
-        <span class="generation-text">⚡ Generating...</span>
-    `;
+    loadingCaption.classList.add('history-caption');
+    loadingCaption.innerHTML = ` `; // Пусто, заполним позднее
 
     // Собираем элемент
     loadingItem.appendChild(loadingImage);
@@ -1705,11 +1697,12 @@ function updateHistoryItemWithImage(generationId, imageUrl) {
         // Найдем объект генерации по ID
         const generation = appState.generationHistory.find(g => g.id == generationId);
         const mode = generation ? generation.mode : 'unknown';
+        const style = generation ? generation.style : 'realistic';
 
         loadingCaption.innerHTML = `
-            <span class="success-text">✅ Complete - ${appState.translate('mode_' + mode)}</span><br/>
-            <small>${new Date().toLocaleDateString()}</small>
-        `;
+    <span class="complete-status">✅ Complete</span><br>
+    <small class="history-date">${new Date().toLocaleDateString()} | ${appState.translate('style_' + style)} | ${appState.translate('mode_' + mode)}</small>
+`;
 
         // Добавляем мягкую анимацию изменения текста
         loadingCaption.style.opacity = '0';
@@ -1723,6 +1716,9 @@ function updateHistoryItemWithImage(generationId, imageUrl) {
     setTimeout(() => {
         loadingItem.classList.remove('history-loading');
     }, 300);
+
+    // Добавляем onclick для просмотра результата
+    loadingItem.onclick = () => viewHistoryItem(generationId);
 
     console.log('🖼️ Updated history item with generated image:', generationId, imageUrl);
 }
@@ -2153,12 +2149,34 @@ async function uploadUserImageIfAny() {
 async function initTelegramApp() {
     console.log('🔍 Initializing Telegram WebApp...');
 
-    // Ждем загрузки Telegram SDK дольше
-    let attempts = 0;
-    while (typeof window.Telegram === 'undefined' && attempts < 100) {
-        await new Promise(resolve => setTimeout(resolve, 50)); // ждем 50мс
-        attempts++;
-    }
+    // 🚀 ВАРИАНТ 3: Умное ожидание Telegram SDK
+    const waitForTelegram = async (timeoutMs = 3000) => {
+        return new Promise((resolve, reject) => {
+            let elapsed = 0;
+            const checkInterval = 100; // проверяем каждые 100мс
+
+            const check = () => {
+                if (typeof window.Telegram !== 'undefined') {
+                    resolve(window.Telegram);
+                    return;
+                }
+
+                elapsed += checkInterval;
+                if (elapsed >= timeoutMs) {
+                    resolve(null); // возвращаем null если не загрузился
+                    return;
+                }
+
+                setTimeout(check, checkInterval);
+            };
+
+            check(); // первый запуск сразу
+        });
+    };
+
+    const telegram = await waitForTelegram();
+    const isAvailable = telegram?.WebApp;
+    console.log('📱 Telegram SDK loaded:', !!isAvailable);
 
     console.log('📱 After waiting - Telegram available:', !!window.Telegram?.WebApp);
 
@@ -2413,25 +2431,13 @@ async function generateImage(event) {
         return;
     }
 
-    if (CONFIG.WEBHOOK_URL === 'YOUR_MAKE_WEBHOOK_URL_HERE') {
+    if (!CONFIG.WEBHOOK_URL || CONFIG.WEBHOOK_URL.includes('WEBHOOK')) {
         showToast('error', appState.translate('error_webhook_not_configured'));
         return;
     }
 
-    // === GUARD: photo_session требует загруженное фото ===
-    /*const isPhotoSession = (mode === 'photo_session');
-    if (isPhotoSession) {
-        const wrapper = document.getElementById('userImageWrapper');
-        const hasLocalImage =
-            !!userImageState?.file || !!userImageState?.dataUrl || !!userImageState?.uploadedUrl;
 
-        if (!hasLocalImage) {
-            wrapper?.classList.add('need-image');
-            showToast('error', appState.translate('please_upload_photo_session'));
-            triggerHaptic('error');
-            return; // не начинаем процесс и НЕ отправляем webhook
-        }
-    }*/
+
     // === GUARD: photo_session, upscale, background_removal требуют загруженного фото ===
     const requiresImage = ['photo_session', 'upscale_image', 'background_removal'].includes(mode);
     if (requiresImage) {
@@ -2650,19 +2656,33 @@ async function sendToWebhook(data) {
         console.log('📄 Response content-type:', contentType);
 
         let result;
-        if (contentType && contentType.includes('application/json')) {
-            result = await response.json();
-        } else {
-            // Если не JSON, пробуем получить как текст
-            const text = await response.text();
-            console.log('📄 Response text:', text);
-
-            // Пробуем парсить как JSON
-            try {
-                result = JSON.parse(text);
-            } catch (e) {
-                throw new Error('Response is not valid JSON: ' + text);
+        try {
+            if (contentType && contentType.includes('application/json')) {
+                const jsonText = await response.text();
+                result = JSON.parse(jsonText);
+                console.log('✅ Parsed webhook response:', result);
+            } else if (contentType && contentType.includes('text/')) {
+                // Сервер вернул текст (например, ошибку)
+                const textResponse = await response.text();
+                console.log('📄 Server returned text:', textResponse);
+                throw new Error('Server returned text instead of JSON: ' + textResponse);
+            } else {
+                // Неопределённый content-type — пытаемся парсить как JSON
+                const textResponse = await response.text();
+                console.log('📄 Unexpected content-type, trying to parse as JSON:', textResponse);
+                try {
+                    result = JSON.parse(textResponse);
+                } catch (parseError) {
+                    console.error('❌ Failed to parse response:', textResponse);
+                    throw new Error('Server returned invalid format: ' + textResponse.substring(0, 100));
+                }
             }
+        } catch (error) {
+            console.error('❌ Response parsing error:', error);
+            if (error instanceof SyntaxError) {
+                throw new Error('Server returned malformed JSON');
+            }
+            throw error;
         }
 
         console.log('✅ Parsed webhook response:', result);

@@ -44,8 +44,15 @@
 
         async function initTelegramWebApp() {
             try {
-                await loadTelegramSDK();
+                // Добавляем timeout для всей инициализации
+                const timeout = setTimeout(() => {
+                    throw new Error('Telegram SDK loading timeout');
+                }, 3000); // 3 секунд
 
+                await loadTelegramSDK();
+                clearTimeout(timeout);
+
+                // Если SDK загрузился, проверяем готовность
                 let attempts = 0;
                 while (typeof Telegram === 'undefined' || !Telegram.WebApp) {
                     if (attempts++ > 100) throw new Error('Telegram SDK not available');
@@ -60,20 +67,28 @@
                 console.log('📦 Full initData:', initData);
 
                 if (!initData?.user) {
-                    console.warn('⚠️ Пользователь не определён, возможно WebApp открыт вне Telegram');
+                    showToast('warning', 'WebApp запущен вне Telegram - некоторые функции недоступны');
                 } else {
                     console.log('👤 User:', initData.user);
                 }
 
-                // Также можно получить startParam (если использовали startapp=...)
                 if (initData.start_param) {
                     console.log('🔗 Start Param:', initData.start_param);
                 }
 
             } catch (err) {
                 console.error('❌ Ошибка инициализации Telegram WebApp:', err);
+                // Fallback: показать предупреждение, но продолжить работу
+                setTimeout(() => {
+                    showToast('warning', 'Telegram интеграция недоступна. Приложение работает в режиме просмотра.');
+                }, 1000);
+
+                // Продолжаем инициализацию JavaScript
+                appState.userId = 'fallback_' + Date.now();
+                appState.userName = 'Fallback User';
             }
         }
+
 
         window.addEventListener('load', initTelegramWebApp);
     </script>
@@ -217,8 +232,8 @@
                     <!-- Отображение баланса пользователя -->
                     <div class="user-balance" id="userBalance">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="9" cy="12" r="4"/>
-                            <path d="M16 4v6l2 2"/>
+                            <circle cx="9" cy="12" r="4" />
+                            <path d="M16 4v6l2 2" />
                         </svg>
                         <span id="userCreditsDisplay">--</span>
                     </div>
@@ -559,65 +574,7 @@
                         </div> -->
                     </form>
                 </div>
-            </div>
-            <!-- Processing Screen -->
-            <div id="processingScreen" class="screen">
-                <div class="screen-content">
-                    <div class="processing-animation">
-                        <div class="processing-circle">
-                            <svg class="processing-svg" viewBox="0 0 100 100">
-                                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="none"
-                                    opacity="0.3" />
-                                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="none"
-                                    stroke-dasharray="283" stroke-dashoffset="283" class="progress-circle" />
-                            </svg>
-                            <div class="processing-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                    viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                    <path
-                                        d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z" />
-                                </svg></div>
-                        </div>
-                    </div>
-                    <div class="processing-content">
-                        <h2 data-i18n="processing_title">Creating Your Masterpiece</h2>
-                        <p class="processing-subtitle" data-i18n="processing_subtitle">This may take up to 60 seconds
-                        </p>
-                        <div class="processing-steps">
-                            <div class="step active" data-step="1">
-                                <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="M42-120v-112q0-33 17-62t47-44q51-26 115-44t141-18q77 0 141 18t115 44q30 15 47 44t17 62v112H42Zm80-80h480v-32q0-11-5.5-20T582-266q-36-18-92.5-36T362-320q-71 0-127.5 18T142-266q-9 5-14.5 14t-5.5 20v32Zm240-240q-66 0-113-47t-47-113h-10q-9 0-14.5-5.5T172-620q0-9 5.5-14.5T192-640h10q0-45 22-81t58-57v38q0 9 5.5 14.5T302-720q9 0 14.5-5.5T322-740v-54q9-3 19-4.5t21-1.5q11 0 21 1.5t19 4.5v54q0 9 5.5 14.5T422-720q9 0 14.5-5.5T442-740v-38q36 21 58 57t22 81h10q9 0 14.5 5.5T552-620q0 9-5.5 14.5T532-600h-10q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T442-600H282q0 33 23.5 56.5T362-520Zm300 160-6-30q-6-2-11.5-4.5T634-402l-28 10-20-36 22-20v-24l-22-20 20-36 28 10q4-4 10-7t12-5l6-30h40l6 30q6 2 12 5t10 7l28-10 20 36-22 20v24l22 20-20 36-28-10q-5 5-10.5 7.5T708-390l-6 30h-40Zm20-70q12 0 21-9t9-21q0-12-9-21t-21-9q-12 0-21 9t-9 21q0 12 9 21t21 9Zm72-130-8-42q-9-3-16.5-7.5T716-620l-42 14-28-48 34-30q-2-5-2-8v-16q0-3 2-8l-34-30 28-48 42 14q6-6 13.5-10.5T746-798l8-42h56l8 42q9 3 16.5 7.5T848-780l42-14 28 48-34 30q2 5 2 8v16q0 3-2 8l34 30-28 48-42-14q-6 6-13.5 10.5T818-602l-8 42h-56Zm28-90q21 0 35.5-14.5T832-700q0-21-14.5-35.5T782-750q-21 0-35.5 14.5T732-700q0 21 14.5 35.5T782-650ZM362-200Z" />
-                                    </svg></div>
-                                <span data-i18n="step_analyzing">Analyzing prompt</span>
-                            </div>
-                            <div class="step" data-step="2">
-                                <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z" />
-                                    </svg></div>
-                                <span data-i18n="step_generating">Generating image</span>
-                            </div>
-                            <div class="step" data-step="3">
-                                <div class="step-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="M500-413v-147h100l-40-40h-60v-160q0-17 11.5-28.5T540-800h97q11 0 20.5 5.5T672-779l78 139h-58l-40-80h-92v40h68l40 80h104l59 103q-26-11-54-17t-57-6q-67 0-124.5 29T500-413Zm-80 253h-97q-11 0-20.5-5.5T288-181l-78-139h58l40 80h92v-40h-68l-40-80H188l-57-100q-2-5-3.5-10t-1.5-10q0-4 5-20l57-100h104l40-80h68v-40h-92l-40 80h-58l78-139q5-10 14.5-15.5T323-800h97q17 0 28.5 11.5T460-760v160h-60l-40 40h100v120h-88l-40-80h-92l-40 40h108l40 80h112v56q-10 24-15 50t-5 54q0 17 1.5 34t6.5 34q-5 5-12.5 8.5T420-160Zm300 40 120-120-28-28-72 72v-164h-40v164l-72-72-28 28 120 120Zm0 80q-83 0-141.5-58.5T520-240q0-83 58.5-141.5T720-440q83 0 141.5 58.5T920-240q0 83-58.5 141.5T720-40Z" />
-                                    </svg></div>
-                                <span data-i18n="step_finalizing">Finalizing result</span>
-                            </div>
-                        </div>
-                        <div class="processing-timer">
-                            <span data-i18n="elapsed_time">Elapsed time:</span>
-                            <span id="elapsedTime">0s</span>
-                        </div>
-                    </div>
-                    <button class="cancel-btn" onclick="cancelGeneration()">
-                        <span data-i18n="cancel_btn">Cancel</span>
-                    </button>
-                </div>
-            </div>
+            </div>           
             <!-- Result Screen -->
             <div id="resultScreen" class="screen">
                 <div class="screen-content">
@@ -705,7 +662,8 @@
         <h2 class="sr-only"></h2>
         <div class="mx-2">
             <div class="d-flex flex-items-center flex-shrink-0 mx-2">
-                <a aria-label="pixPLace" class="footer-octicon mr-2" href="appLink here put">
+                <a aria-label="pixPLace" class="footer-octicon mr-2"
+                    href="https://t.me/pixPLaceBot?start=footer_placeholder">
                 </a>
                 <span>
                     © 2025 pixPLace,&nbsp;Inc.
