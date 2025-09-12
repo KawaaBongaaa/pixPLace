@@ -184,48 +184,42 @@ body {
 }
 
 .loading-content {
-    width: 100%;
+    width: 90%;
     margin: 0 auto;
     /* Центрирование */
     word-wrap: break-word;
     font-size: 1.2rem;
     text-align: center;
     max-width: 800px;
-    padding: var(--space-4);
+    padding: var(--space-1);
 }
 
 .loading-logo {
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-1);
     color: var(--text-primary);
 
 }
 
-.logo-circle {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto var(--space-4);
-    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: pulse 2s infinite;
-}
+.user-balance {
+    position: relative;
+    margin: 0 auto;
+    font-family: var(--font-family);
+    font-weight: 700;
+    right: 10px;
+    opacity: 0.7;
 
-.logo-circle svg {
-    width: 32px;
-    height: 32px;
-    color: white;
+
+
 }
 
 .loading-content h2 {
     font-optical-sizing: auto;
-    font-weight: 800;
+    font-weight: 900;
     font-style: normal;
-    letter-spacing: 1px;
     display: flex;
+    font-size: 2rem;
     justify-content: space-around;
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-1);
     color: var(--text-primary);
 }
 
@@ -330,8 +324,8 @@ body {
 }
 
 .logo-img {
-    width: clamp(100px, 10vw, 150px);
-    height: clamp(100px, 10vw, 150px);
+    width: clamp(250px, 10vw, 400px);
+    height: clamp(250px, 10vw, 400px);
     object-fit: contain;
 }
 
@@ -1259,7 +1253,8 @@ body {
 }
 
 .history-mini p {
-    margin-top: -24px; /* Перекрываем нижний край картинки */
+    margin-top: -24px;
+    /* Перекрываем нижний край картинки */
     z-index: 1;
     position: relative;
     font-size: var(--font-size-sm);
@@ -2000,10 +1995,12 @@ img.lazy-loaded[data-src] {
     background: linear-gradient(90deg,
             transparent 25%,
             rgba(255, 255, 255, 0.1) 50%,
-            transparent 75%); /* Более прозрачная градиент */
+            transparent 75%);
+    /* Более прозрачная градиент */
     background-size: 200% 100%;
     transition: all 0.3s ease-in-out;
-    border: none; /* Убираем возможную черную рамку */
+    border: none;
+    /* Убираем возможную черную рамку */
 }
 
 @keyframes loading-pulse {
@@ -2033,13 +2030,15 @@ img.lazy-loaded[data-src] {
     bottom: 0;
     left: -100%;
     width: 100%;
-    height: 4px; /* Только нижняя полоска, не весь контейнер */
+    height: 4px;
+    /* Только нижняя полоска, не весь контейнер */
     background: linear-gradient(90deg,
             transparent,
             rgba(255, 255, 255, 0.8),
             transparent);
     animation: shimmer 1.8s infinite;
-    z-index: 3; /* Еще выше, чтобы не перекрывать текст */
+    z-index: 3;
+    /* Еще выше, чтобы не перекрывать текст */
 }
 
 @keyframes shimmer {
