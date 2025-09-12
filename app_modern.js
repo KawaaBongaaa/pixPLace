@@ -1198,39 +1198,238 @@ class AppState {
 // 🎯 Global state
 const appState = new AppState();
 
-// ⚡ Enhanced Image Loading for GitHub Pages hosting
-class EnhancedHistoryLoader {
+// ⚡ Ultra-Fast Global Image Loading Manager - Max Performance
+class GlobalHistoryLoader {
     constructor() {
-        this.imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    if (img.dataset.src && !img.src) {
-                        img.src = img.dataset.src;
-                        img.classList.add('loaded');
-                    }
-                    this.imageObserver.unobserve(img);
-                }
-            });
-        }, {
-            rootMargin: '100px', // Начать загрузку за 100px до видимости
-            threshold: 0.1 // Загружать при 10% видимости
+        // Singleton pattern - only one Observer per app
+        if (GlobalHistoryLoader.instance) {
+            return GlobalHistoryLoader.instance;
+        }
+
+        this.imageObserver = new IntersectionObserver(
+            this.handleIntersection.bind(this),
+            {
+                rootMargin: '150px', // больше margin для плавной загрузки
+                threshold: 0.01, // совсем малый threshold для ранней загрузки
+                root: null, // viewport
+            }
+        );
+
+        // Оптимизированные registry с Map для O(1) доступа
+        this.observedImages = new Map();
+        this.loadingQueue = new Set();
+        this.logout = false;
+
+        GlobalHistoryLoader.instance = this;
+        console.log('🚀 Ultra-Fast Global History Loader initialized with max performance');
+    }
+
+    handleIntersection(entries, observer) {
+        if (this.logout) return;
+
+        // Оптимизированная обработка (без фильтрации в цикле)
+        const visibleEntries = [];
+        const invisibleEntries = [];
+
+        for (const entry of entries) {
+            if (entry.isIntersecting) {
+                visibleEntries.push(entry);
+            } else {
+                invisibleEntries.push(entry);
+            }
+        }
+
+        // Обрабатываем видимые изображения с высоким приоритетом
+        if (visibleEntries.length > 0) {
+            this.processVisibleImages(visibleEntries);
+        }
+
+        // Очищаем невидимые изображения (низкий приоритет)
+        if (invisibleEntries.length > 0) {
+            setTimeout(() => {
+                this.cleanupInvisibleImages(invisibleEntries);
+            }, 1000); // отложенная очистка
+        }
+    }
+
+    processVisibleImages(entries) {
+        console.log(`👁️ Processing ${entries.length} visible images`);
+
+        for (const entry of entries) {
+            const img = entry.target;
+
+            // Быстрая проверка через Map
+            if (!this.observedImages.has(img)) continue;
+
+            // Уже загруженные пропускаем
+            if (img.src && !img.dataset.src) {
+                this.safeUnobserve(img);
+                continue;
+            }
+
+            // Ленивая загрузка только если есть src для загрузки
+            if (img.dataset.src && !this.loadingQueue.has(img)) {
+                this.startLoading(img);
+            }
+        }
+    }
+
+    startLoading(img) {
+        const container = img.closest('.history-mini');
+
+        // Пропускаем загрузку если контейнер поврежден или еще загружается
+        if (!container || container.classList.contains('history-loading')) {
+            return;
+        }
+
+        this.loadingQueue.add(img);
+
+        // Установка src с обработкой ошибок
+        const loadPromise = new Promise((resolve, reject) => {
+            img.onload = () => {
+                img.classList.add('loaded');
+                delete img.dataset.src; // очищаем data-src
+                console.log('✅ Image loaded successfully');
+                resolve();
+            };
+
+            img.onerror = () => {
+                console.warn('❌ Image load failed');
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PC9zdmc+';
+                resolve();
+            };
+
+            // Запуск загрузки
+            img.src = img.dataset.src;
+        });
+
+        loadPromise.finally(() => {
+            this.loadingQueue.delete(img);
+            this.safeUnobserve(img);
         });
     }
 
-    observe(img) {
-        this.imageObserver.observe(img);
+    cleanupInvisibleImages(entries) {
+        for (const entry of entries) {
+            const img = entry.target;
+
+            // Оставляем наблюдаемыми если изображение еще не загрузилось
+            if (img.dataset.src && !img.src) {
+                continue;
+            }
+
+            // Оставляем наблюдаемыми если они в очереди загрузки
+            if (this.loadingQueue.has(img)) {
+                continue;
+            }
+
+            // Безопасное отключение наблюдения
+            this.safeUnobserve(img);
+        }
     }
 
-    disconnect() {
+    observe(img) {
+        if (!img || img.nodeType !== 1) return; // проверка что элемент существует
+
+        // Быстрая проверка через Map
+        if (this.observedImages.has(img)) return;
+
+        this.imageObserver.observe(img);
+        this.observedImages.set(img, true);
+
+        console.log(`👁️ Started observing image: ${img.src || img.dataset.src}`);
+    }
+
+    safeUnobserve(img) {
+        if (!img || !this.observedImages.has(img)) return;
+
+        try {
+            this.imageObserver.unobserve(img);
+            this.observedImages.delete(img);
+        } catch (error) {
+            console.warn('Failed to unobserve image:', error);
+        }
+    }
+
+    // 🔧 ДОБАВЛЕНИЕ: Оптимизированная массовая очистка с улучшенной проверкой
+    massCleanup() {
+        const historyList = document.getElementById('historyList');
+        if (!historyList) return;
+
+        const currentImages = historyList.querySelectorAll('.history-mini img');
+        const validImageSet = new WeakSet(Array.from(currentImages));
+
+        let cleanupCount = 0;
+        let maxObserversExceeded = 0;
+
+        // 🔧 ИСПРАВЛЕНИЕ: Ограничение количества активных наблюдателей для производительности
+        const MAX_ACTIVE_OBSERVERS = 20; // максимум 20 активных наблюдателей одновременно
+
+        // Проходим по всем наблюдаемым элементам
+        for (const [img] of this.observedImages) {
+            // Удаляем если элемент больше не существует или не в истории
+            if (!img || !img.isConnected || !validImageSet.has(img)) {
+                this.safeUnobserve(img);
+                cleanupCount++;
+            } else if (this.observedImages.size > MAX_ACTIVE_OBSERVERS && !img.dataset.src) {
+                // 🔧 ИСПРАВЛЕНИЕ: Уменьшаем количество активных наблюдателей для производительности
+                this.safeUnobserve(img);
+                maxObserversExceeded++;
+            }
+        }
+
+        // Очищаем очередь загрузки от несуществующих элементов
+        for (const img of this.loadingQueue) {
+            if (!img || !img.isConnected) {
+                this.loadingQueue.delete(img);
+                cleanupCount++;
+            }
+        }
+
+        if (cleanupCount > 0 || maxObserversExceeded > 0) {
+            console.log(`🧹 Enhanced Mass cleanup: ${cleanupCount} elements removed, ${maxObserversExceeded} observers trimmed`);
+        }
+    }
+
+    // Полная очистка при завершении работы
+    destroy() {
+        this.logout = true;
+
+        // Отключаем все наблюдения
         this.imageObserver.disconnect();
+
+        // Очищаем все коллекции
+        this.observedImages.clear();
+        this.loadingQueue.clear();
+
+        GlobalHistoryLoader.instance = null;
+        console.log('💣 Ultra-Fast Global History Loader destroyed completely');
+    }
+
+    // Статистика работы
+    getStats() {
+        return {
+            observedImages: this.observedImages.size,
+            loadingQueue: this.loadingQueue.size,
+            total: this.observedImages.size + this.loadingQueue.size
+        };
     }
 }
 
-const historyLoader = new EnhancedHistoryLoader();
+// Global instance
+const globalHistoryLoader = new GlobalHistoryLoader();
 
-// ⚡ Smart History Management for Performance
+// ⚡ Smart History Management with Virtualization
 class HistoryManager {
+    static PAGE_SIZE = 20; // количество элементов на страницу
+    static CACHE_SIZE = 100; // размер кэша DOM элементов
+
+    // Кэш DOM элементов для переиспользования
+    static elementCache = new Map();
+    static currentPage = 0;
+    static maxLoadedPage = 0;
+    static isLoadingPage = false;
+
     static getVisibleItems(limit = 15) {
         // Фильтруем только элементы с валидными результатами (исключаем undefined/null)
         const validItems = appState.generationHistory.filter(item =>
@@ -1252,6 +1451,22 @@ class HistoryManager {
         );
     }
 
+    static getItemsForPage(page) {
+        const validItems = this.getValidItemsOnly();
+        const start = page * this.PAGE_SIZE;
+        const end = start + this.PAGE_SIZE;
+        return validItems.slice(start, end);
+    }
+
+    static getTotalPages() {
+        const validCount = this.getValidItemsOnly().length;
+        return Math.ceil(validCount / this.PAGE_SIZE);
+    }
+
+    static hasMorePages(page) {
+        return page < this.getTotalPages() - 1;
+    }
+
     static getTotalCount() {
         return appState.generationHistory.length;
     }
@@ -1263,6 +1478,94 @@ class HistoryManager {
 
     static getValidTotalCount() {
         return this.getValidItemsOnly().length;
+    }
+
+    // Метод для создания/получения кэшированного DOM элемента с защитой от утечек
+    static createHistoryItemElement(item, forceNoCache = false) {
+        // 🔧 ИСПРАВЛЕНИЕ: Улучшенная генерация cacheKey с учетом timestamp и дополнительных параметров
+        // Предыдущая версия использовала только ID и статус, что приводило к коллизиям
+        const cacheKey = `hist_${item.id}_${item.status}_${item.timestamp}_${item.prompt?.slice(0, 10) || ''}`;
+
+        console.log(`🔑 Generated cacheKey: ${cacheKey} for item ${item.id}`);
+
+        // Сначала проверяем кэш (если кэширование не отключено)
+        if (!forceNoCache && this.elementCache.has(cacheKey)) {
+            console.log(`✅ Cache hit for item ${item.id}`);
+            return this.elementCache.get(cacheKey).cloneNode(true);
+        }
+
+        console.log(`📦 Cache miss for item ${item.id}, creating new element`);
+
+        // Создаем новый элемент
+        const element = this.createHistoryItemElementFromScratch(item);
+
+        // Добавляем в кэш если статус финальный (success/error) и кэширование не отключено
+        if (!forceNoCache && (item.status === 'success' || item.status === 'error')) {
+            // 🔧 ИСПРАВЛЕНИЕ: Автоматическая очистка при 80% заполнения (раньше было > CACHE_SIZE)
+            if (this.elementCache.size >= Math.floor(this.CACHE_SIZE * 0.8)) {
+                this.autoCleanupCache();
+            }
+
+            this.elementCache.set(cacheKey, element.cloneNode(true));
+
+            // 🔧 ИСПРАВЛЕНИЕ: Очищаем уже существующие кэшированные элементы чтобы избежать переполнения
+            if (this.elementCache.size > this.CACHE_SIZE) {
+                this.forceCleanupOldElements(5); // очищаем 5 самых старых элементов
+            }
+
+            console.log(`💾 Cached element for ${cacheKey}, cache size: ${this.elementCache.size}/${this.CACHE_SIZE}`);
+        }
+
+        return element;
+    }
+
+    // 🔧 ДОБАВЛЕНИЕ: Автоматическая очистка кэша элементов по LRU принципу
+    static autoCleanupCache() {
+        const currentSize = this.elementCache.size;
+        if (currentSize < Math.floor(this.CACHE_SIZE * 0.7)) return; // не очищаем если меньше 70%
+
+        const keysToRemove = Math.floor(currentSize * 0.2); // очищаем 20% самых старых
+        this.forceCleanupOldElements(keysToRemove);
+
+        console.log(`🧹 Auto-cleaned history cache: ${currentSize} → ${this.elementCache.size}`);
+    }
+
+    // 🔧 ДОБАВЛЕНИЕ: Принудительная очистка старых элементов кэша
+    static forceCleanupOldElements(count = 1) {
+        const keys = Array.from(this.elementCache.keys());
+        for (let i = 0; i < Math.min(count, keys.length); i++) {
+            this.elementCache.delete(keys[i]);
+        }
+    }
+
+    static createHistoryItemElementFromScratch(item) {
+        const element = document.createElement('div');
+        element.className = 'history-mini';
+        element.id = `history-${item.id}`;
+        element.onclick = () => viewHistoryItem(item.id);
+
+        element.innerHTML = `
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L3JlY3Q+PC9zdmc+"
+                 data-src="${item.result || ''}"
+                 alt="Generated"
+                 class="lazy-loading"
+                 loading="lazy"
+                 decoding="async"
+                 ${item.result ? '' : 'style="opacity: 0.7;"'}
+                 />
+            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)} | ${appState.translate('mode_' + item.mode)}</p>
+        `;
+
+        return element;
+    }
+
+    // Метод для очистки кэша
+    static clearCache() {
+        this.elementCache.clear();
+        this.currentPage = 0;
+        this.maxLoadedPage = 0;
+        this.isLoadingPage = false;
+        console.log('🧹 History cache cleared');
     }
 }
 
@@ -1409,11 +1712,12 @@ function toggleHistoryList() {
     }
 }
 
-function updateHistoryDisplay(limit = 15) {
+function updateHistoryDisplay(page = 0) {
     const historyList = document.getElementById('historyList');
     if (!historyList) return;
 
-    if (appState.generationHistory.length === 0) {
+    const validItems = HistoryManager.getValidItemsOnly();
+    if (validItems.length === 0) {
         historyList.innerHTML = `
     <div class="empty-history">
     <div class="empty-icon">📋</div>
@@ -1424,72 +1728,116 @@ function updateHistoryDisplay(limit = 15) {
         return;
     }
 
-    // Получаем элементы с учетом пагинации
-    const visibleItems = HistoryManager.getVisibleItems(limit);
-    const totalValidCount = HistoryManager.getValidTotalCount();
-    const needsMore = totalValidCount > limit;
-    const remainingCount = totalValidCount - limit;
-
-    historyList.innerHTML = visibleItems.map(item => `
-        <div class="history-mini" onclick="viewHistoryItem('${item.id}')">
-            <img src="${item.result || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PC9zdmc+'}"
-                 alt="Generated"
-                 class="lazy-loading"
-                 loading="lazy"
-                 decoding="async"
-                 />
-            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)} | ${appState.translate('mode_' + item.mode)}</p>
-        </div>
-    `).join('');
-
-    // Добавляем управляющие кнопки пагинации
-    if (needsMore) {
-        const paginationControls = document.createElement('div');
-        paginationControls.className = 'pagination-controls';
-
-        const loadMoreBtn = document.createElement('button');
-        loadMoreBtn.className = 'show-more-btn';
-        loadMoreBtn.textContent = `Показать ещё +15`;
-        loadMoreBtn.onclick = () => loadMoreHistory(limit);
-
-        const showAllBtn = document.createElement('button');
-        showAllBtn.className = 'show-all-btn';
-        showAllBtn.textContent = `Показать все (${remainingCount})`;
-        showAllBtn.onclick = () => showAllHistory();
-
-        paginationControls.appendChild(loadMoreBtn);
-        paginationControls.appendChild(showAllBtn);
-        historyList.appendChild(paginationControls);
+    // Если это первая страница - очищаем список
+    if (page === 0) {
+        historyList.innerHTML = '';
+        HistoryManager.clearCache();
+        console.log('📋 Cleared history list for fresh display');
     }
+
+    // Загружаем элементы страницы
+    if (HistoryManager.isLoadingPage) {
+        console.log('⚡ Page already loading, skipping...');
+        return;
+    }
+
+    HistoryManager.isLoadingPage = true;
+    const pageItems = HistoryManager.getItemsForPage(page);
+
+    if (pageItems.length > 0) {
+        console.log(`📄 Loading page ${page} with ${pageItems.length} items`);
+
+        // Добавляем элементы страницы
+        pageItems.forEach(item => {
+            const element = HistoryManager.createHistoryItemElement(item);
+            if (element) {
+                historyList.appendChild(element);
+                // Подключаем к Observer для ленивой загрузки
+                const img = element.querySelector('img[data-src]');
+                if (img) globalHistoryLoader.observe(img);
+            }
+        });
+
+        HistoryManager.maxLoadedPage = page;
+        HistoryManager.currentPage = page;
+
+        // Добавляем кнопку загрузки следующей страницы
+        if (HistoryManager.hasMorePages(page)) {
+            const loadMoreBtn = document.createElement('button');
+            loadMoreBtn.className = 'load-more-btn';
+            loadMoreBtn.id = 'loadMoreHistoryBtn';
+            // Добавляем иконку стрелки вниз
+            loadMoreBtn.innerHTML = `
+                <span>Загрузить ещё...</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="btn-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                <span class="btn-ripple"></span>
+            `;
+
+            loadMoreBtn.onclick = () => loadNextHistoryPage();
+
+            // 🔧 ИСПРАВЛЕНИЕ: Добавляем кнопку ВНУТРЬ списка истории вместо afterend
+            // Это обеспечит правильное позиционирование кнопки в видимой области
+            historyList.appendChild(loadMoreBtn);
+        } else {
+            // Удаляем кнопку если достигли конца
+            const oldBtn = document.getElementById('loadMoreHistoryBtn');
+            if (oldBtn) {
+                oldBtn.remove();
+            }
+        }
+    }
+
+    HistoryManager.isLoadingPage = false;
 }
 
-// Функция для загрузки следующей порции элементов
-function loadMoreHistory(currentLimit) {
-    const newLimit = currentLimit + 15;
-    updateHistoryDisplay(newLimit);
+// Функция для загрузки следующей страницы истории
+function loadNextHistoryPage() {
+    const nextPage = HistoryManager.currentPage + 1;
+    if (!HistoryManager.hasMorePages(HistoryManager.currentPage)) {
+        console.log('📄 No more pages to load');
+        return;
+    }
+
+    console.log(`📄 Loading next history page: ${nextPage}`);
+    updateHistoryDisplay(nextPage);
+
+    // Обновляем текст кнопки загрузки
+    setTimeout(() => {
+        const btn = document.getElementById('loadMoreHistoryBtn');
+        if (btn) {
+            if (!HistoryManager.hasMorePages(nextPage)) {
+                btn.textContent = 'Все загружено! 🎉';
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            } else {
+                btn.textContent = 'Загрузить ещё...';
+                btn.disabled = false;
+            }
+        }
+    }, 300);
 }
 
-// Функция для показа всей истории
+// Функция для показа всей истории без виртуализации (для совместимости)
 function showAllHistory() {
     const historyList = document.getElementById('historyList');
     if (!historyList) return;
 
-    // Показываем все элементы
-    historyList.innerHTML = appState.generationHistory.map(item => `
-        <div class="history-mini" onclick="viewHistoryItem('${item.id}')">
-            <img data-src="${item.result}"
-                 alt="Generated"
-                 class="lazy-loading"
-                 loading="lazy"
-                 decoding="async"
-                 />
-            <p>${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)} | ${appState.translate('mode_' + item.mode)}</p>
-        </div>
-    `).join('');
+    // Отключаем виртуализацию для полного показа
+    HistoryManager.clearCache();
 
-    // Подключаем Observer ко всем картинкам
-    const images = historyList.querySelectorAll('img[data-src]');
-    images.forEach(img => historyLoader.observe(img));
+    // Показываем все элементы
+    historyList.innerHTML = HistoryManager.getValidItemsOnly().map(item => {
+        const element = HistoryManager.createHistoryItemElement(item);
+        return element.outerHTML;
+    }).join('');
+
+    // Подключаем Observer ко всем новым картинкам
+    const newImages = historyList.querySelectorAll('img[data-src]');
+    newImages.forEach(img => globalHistoryLoader.observe(img));
+
+    console.log('📄 All history loaded without virtualization');
 }
 
 function getStatusText(status) {
@@ -1724,7 +2072,9 @@ function updateHistoryItemWithImage(generationId, imageUrl) {
 }
 
 // 🖼️ UI Initialization
-// 🎬 Screen Management
+// 🎬 Screen Management with cleanup
+let carouselCleanup = null;
+
 function showLoadingScreen() {
     document.getElementById('loadingScreen').classList.add('active');
 }
@@ -1732,6 +2082,31 @@ function showLoadingScreen() {
 function hideLoadingScreen() {
     document.getElementById('loadingScreen').classList.remove('active');
 }
+
+// Cleanup function for memory leaks
+function cleanupMemoryLeaks() {
+    // Disconnect Global History Loader
+    if (globalHistoryLoader) {
+        globalHistoryLoader.destroy();
+    }
+
+    // Clear any pending timers
+    if (appState.timerInterval) {
+        clearInterval(appState.timerInterval);
+        appState.timerInterval = null;
+    }
+
+    // Remove carousel event listeners
+    if (carouselCleanup) {
+        carouselCleanup();
+        carouselCleanup = null;
+    }
+
+    console.log('🧹 Memory leaks cleaned up successfully - including global history loader');
+}
+
+// Call cleanup on page unload
+window.addEventListener('beforeunload', cleanupMemoryLeaks);
 
 function showApp() {
     document.getElementById('app').classList.add('loaded');
@@ -3205,6 +3580,59 @@ document.addEventListener('click', function (event) {
     dropdown.style.display = 'none';
     }
 });*/
+// 🔗 Telegram SDK Loader
+async function loadTelegramSDK() {
+    console.log('📱 Loading Telegram WebApp SDK...');
+
+    // Если уже загружен - сразу возвращаем
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        console.log('✅ Telegram SDK already loaded');
+        return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            console.warn('⚠️ Telegram SDK load timeout - using fallback mode');
+            resolve(); // разрешаем продолжить без SDK
+        }, 5000); // 5 секунд таймут
+
+        // Проверяем наличие скрипта Telegram
+        const existingScript = document.querySelector('script[src*="telegram-web-app.js"]');
+        if (existingScript) {
+            console.log('✅ Telegram script already exists');
+            clearTimeout(timeout);
+            resolve();
+            return;
+        }
+
+        // Создаём и загружаем скрипт
+        const script = document.createElement('script');
+        script.src = 'https://telegram.org/js/telegram-web-app.js';
+        script.async = true;
+        script.defer = true;
+
+        script.onload = () => {
+            console.log('✅ Telegram SDK loaded successfully');
+            clearTimeout(timeout);
+
+            // Подождём небольшую задержку для инициализации SDK
+            setTimeout(() => {
+                resolve();
+            }, 100);
+        };
+
+        script.onerror = (error) => {
+            console.error('❌ Failed to load Telegram SDK:', error);
+            clearTimeout(timeout);
+            resolve(); // разрешаем продолжить без SDK
+        };
+
+        // Добавляем скрипт в head
+        document.head.appendChild(script);
+        console.log('📱 Telegram SDK loading started...');
+    });
+}
+
 // 🧪 Debug Functions
 window.getAppState = () => appState;
 window.setWebhookUrl = (url) => {

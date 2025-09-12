@@ -203,10 +203,10 @@ body {
 .user-balance {
     position: relative;
     margin: 0 auto;
-    font-family: var(--font-family);
-    font-weight: 700;
+    font-family: "WDXL Lubrifont JP N", sans-serif;
+    font-weight: 300;
     right: 10px;
-    opacity: 0.7;
+    opacity: 0.6;
 
 
 
@@ -498,22 +498,6 @@ body {
     display: flex;
 }
 
-/*.back-btn {
-    position: relative;
-    z-index: 1001;
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: var(--radius-lg);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-fast);
-    display: none; /* по умолчанию скрыта 
-
-}*/
 
 .back-btn:hover {
     background: var(--bg-tertiary);
@@ -896,24 +880,6 @@ body {
 .generate-btn:active .btn-ripple {
     width: 300px;
     height: 300px;
-}
-
-.pay-btn {
-    display: inline-block;
-    padding: 12px 20px;
-    margin-top: 20px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.pay-btn:hover {
-    background-color: #0056b3;
 }
 
 /* Processing Screen */
@@ -2156,6 +2122,96 @@ img.lazy-loaded[data-src] {
     background: var(--primary-900);
     color: var(--primary-200);
     border-color: var(--primary-500);
+}
+
+/* ✨ Кнопка "Загрузить ещё" с тем же стилем что и основная кнопка */
+.load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border: none;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+    color: white;
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: var(--font-size-base);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
+    margin: var(--space-4) auto;
+    /* центрирование */
+    position: relative;
+    overflow: hidden;
+    width: fit-content;
+    /* размер по контенту */
+    min-width: 200px;
+    /* минимальная ширина */
+    text-decoration: none;
+}
+
+.load-more-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-400));
+}
+
+.load-more-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.load-more-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.load-more-btn .btn-icon {
+    display: flex;
+    align-items: center;
+}
+
+.load-more-btn .btn-icon svg {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+.load-more-btn .btn-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.load-more-btn:active .btn-ripple {
+    width: 300px;
+    height: 300px;
+}
+
+/* Адаптивность кнопки загрузки */
+@media (max-width: 768px) {
+    .load-more-btn {
+        padding: var(--space-2) var(--space-4);
+        font-size: var(--font-size-sm);
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .load-more-btn {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-sm);
+        min-width: 160px;
+    }
 }
 
 /* ✨ Новые стили для центрированного текста генерации */
