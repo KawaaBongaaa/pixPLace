@@ -3654,7 +3654,7 @@ window.closeLimitModal = () => {
 function createCoachButton() {
     // Create button
     const coachButton = document.createElement('button');
-    coachButton.textContent = '🧠 AI Coach';
+    coachButton.textContent = 'AI Assist Chat';
     coachButton.className = 'ai-coach-btn';
 
     // Ванильные CSS стили вместо Tailwind классов (проект не использует Tailwind)
@@ -3663,7 +3663,7 @@ function createCoachButton() {
         top: '6rem',         // top-4 = 16px
         right: '1rem',       // right-4 = 16px
         zIndex: '40',        // z-40
-        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', // blue-600 to blue-700
+        background: 'linear-gradient(135deg, #173565ff, #2f3032ff)', // blue-600 to blue-700
         color: 'white',
         padding: '0.5rem 1rem', // px-4 py-2
         borderRadius: '0.5rem',   // rounded-lg
