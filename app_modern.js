@@ -3660,7 +3660,7 @@ function createCoachButton() {
     // Ванильные CSS стили вместо Tailwind классов (проект не использует Tailwind)
     Object.assign(coachButton.style, {
         position: 'fixed',
-        top: '8rem',         // top-4 = 16px
+        top: '6rem',         // top-4 = 16px
         right: '1rem',       // right-4 = 16px
         zIndex: '40',        // z-40
         background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', // blue-600 to blue-700
