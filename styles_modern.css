@@ -1691,6 +1691,7 @@ textarea:focus-visible {
 }
 
 /* AI Chat Screen - Modern WhatsApp-style design */
+
 .ai-chat-container {
     display: flex;
     flex-direction: column;
@@ -1698,7 +1699,7 @@ textarea:focus-visible {
     background: linear-gradient(135deg, #0f172a, #1e293b);
     border-radius: 1rem;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     margin: var(--space-4);
     margin-top: 0;
     flex: 1;
@@ -1724,7 +1725,7 @@ textarea:focus-visible {
     position: relative;
     animation: slideIn 0.3s ease-out;
     word-wrap: break-word;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .ai-chat-message.user {
@@ -1753,7 +1754,7 @@ textarea:focus-visible {
     font-size: 1rem;
     color: white;
     background: linear-gradient(135deg, #f59e0b, #f97316);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .user .message-avatar {
@@ -1779,6 +1780,7 @@ textarea:focus-visible {
         opacity: 0;
         transform: translateY(20px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -1868,14 +1870,36 @@ textarea:focus-visible {
     animation: typing 1.4s infinite;
 }
 
-.typing-dots span:nth-child(1) { animation-delay: 0s; }
-.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+.typing-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
 
 @keyframes typing {
-    0%, 20% { opacity: 0; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1); }
-    80%, 100% { opacity: 0; transform: scale(0.8); }
+
+    0%,
+    20% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    80%,
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
 }
 
 /* Mobile optimizations */
@@ -1905,7 +1929,8 @@ textarea:focus-visible {
     }
 
     #ai-chat-input {
-        font-size: 16px; /* Prevents zoom on iOS */
+        font-size: 16px;
+        /* Prevents zoom on iOS */
     }
 }
 

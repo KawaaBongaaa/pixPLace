@@ -3654,8 +3654,26 @@ window.closeLimitModal = () => {
 function createCoachButton() {
     // Create button
     const coachButton = document.createElement('button');
-    coachButton.innerHTML = '🧠 AI Coach';
-    coachButton.className = 'ai-coach-btn fixed top-4 right-4 z-40 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-200';
+    coachButton.textContent = '🧠 AI Coach';
+    coachButton.className = 'ai-coach-btn';
+
+    // Ванильные CSS стили вместо Tailwind классов (проект не использует Tailwind)
+    Object.assign(coachButton.style, {
+        position: 'fixed',
+        top: '8rem',         // top-4 = 16px
+        right: '1rem',       // right-4 = 16px
+        zIndex: '40',        // z-40
+        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', // blue-600 to blue-700
+        color: 'white',
+        padding: '0.5rem 1rem', // px-4 py-2
+        borderRadius: '0.5rem',   // rounded-lg
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', // shadow-lg
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '0.875rem',   // text-sm
+        fontWeight: '600',
+        transition: 'all 0.2s ease' // transition-all duration-200
+    });
     coachButton.onclick = () => {
         if (window.AICoach) {
             window.AICoach.show();
