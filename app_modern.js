@@ -20,6 +20,8 @@ const CONFIG = {
 // 🌍 Translations
 const TRANSLATIONS = {
 
+
+    
     en: {
         loading: "The pixPLace",
         app_title: "pixPLace",
@@ -76,9 +78,8 @@ const TRANSLATIONS = {
         download_started: "Download started",
         limit_title: "Generation Limit Reached",
         limit_message: "Your credits for generation have run out.\nYou can get more credits by paying for one of the subscription plans for our private channel.\n\nPayment by any card or crypto, through the Tribute Telegram payment service.",
-        check_subsciption: "Check Subsciption",
         closeLimitModal: "Maybe Later",
-        upgradeBtn: "to Pay",
+        upgradeBtn: "Pay",
         remove_user_image: "Remove",
         reference_image: "Reference",
         upload_image: "Upload Image",
@@ -96,7 +97,42 @@ const TRANSLATIONS = {
         ai_send_button: "Send",
         ai_close_button: "Close",
         ai_thinking_indicator: "🤖 pixPLace Assistant is thinking...",
-        ai_error_message: "Sorry, there was an error. Please try again."
+        ai_error_message: "Sorry, there was an error. Please try again.",
+
+    // ==============TARIFFS MODAL ENGLISH TRANSLATIONS ==============
+    plan_lite_title: "LITE Plan",
+    plan_lite_price: "2.99",
+    plan_lite_currency: "$",
+    plan_lite_desc: "Perfect for casual users",
+    plan_lite_credits: "500 credits",
+    plan_lite_feature1: "• Fast generation",
+    plan_lite_feature2: "• Standard models",
+    plan_lite_feature3: "• Per month",
+    plan_lite_select: "SELECT LITE",
+
+    plan_pro_title: "PRO Plan",
+    plan_pro_price: "4.99",
+    plan_pro_currency: "$",
+    plan_pro_desc: "Best for enthusiasts",
+    plan_pro_credits: "1000 credits",
+    plan_pro_feature1: "• FLUX models",
+    plan_pro_feature2: "• AI Assistant included",
+    plan_pro_feature3: "• HD quality",
+    plan_pro_select: "SELECT PRO",
+
+    plan_studio_title: "STUDIO Plan",
+    plan_studio_price: "9.99",
+    plan_studio_currency: "$",
+    plan_studio_desc: "Full creative power",
+    plan_studio_credits: "2000 credits",
+    plan_studio_feature1: "• Max performance",
+    plan_studio_feature2: "• All premium models",
+    plan_studio_feature3: "• Priority support",
+    plan_studio_select: "SELECT STUDIO",
+
+    // Additional AI Chat translations for english
+    ai_placeholder_modal: "Write to your AI assistant...",
+    ai_chat_title: "AI Assistant"
     },
 
     ru: {
@@ -141,7 +177,6 @@ const TRANSLATIONS = {
         size_portrait: "9:16",
         size_landscape: "16:9",
         generate_btn: "Создать изображение",
-        processing_title: "Создаём ваш шедевр",
         processing_subtitle: "Это может занять до 60 секунд",
         step_analyzing: "Анализируем промпт",
         step_generating: "Генерируем изображение",
@@ -1151,14 +1186,22 @@ class AppState {
     }
 
     updateTranslations() {
+        // Обычные элементы с data-i18n
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n');
             element.textContent = this.translate(key);
         });
 
+        // Элементы с placeholder
         document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
             const key = element.getAttribute('data-i18n-placeholder');
             element.placeholder = this.translate(key);
+        });
+
+        // Элементы с data-i18n-price для ценовых данных
+        document.querySelectorAll('[data-i18n-price]').forEach(element => {
+            const key = element.getAttribute('data-i18n-price');
+            element.textContent = this.translate(key);
         });
     }
 
@@ -1252,7 +1295,10 @@ class GlobalHistoryLoader {
     handleIntersection(entries, observer) {
         if (this.logout) return;
 
-        console.log('👁️ IntersectionObserver triggered:', entries.length, 'entries');
+        // Убираем спам - логируем только если много записей (предупреждение о перегрузке)
+        if (entries.length > 10) {
+            console.warn('⚡ IntersectionObserver triggered:', entries.length, 'entries - performance warning');
+        }
 
         // Оптимизированная обработка с улучшенными порогами
         const highPriorityEntries = [];
@@ -1261,23 +1307,22 @@ class GlobalHistoryLoader {
         const invisibleEntries = [];
 
         for (const entry of entries) {
-            console.log('📊 Entry:', {
-                img: entry.target.src || entry.target.dataset.src,
-                isIntersecting: entry.isIntersecting,
-                intersectionRatio: entry.intersectionRatio
-            });
+            // Убираем спам - логируем только в 2% случаев и только базовую информацию
+            if (Math.random() < 0.02) {
+                console.log('📊 Entry intersection:', entry.intersectionRatio.toFixed(2));
+            }
 
             if (entry.isIntersecting) {
-                // Высокий приоритет - изображения в центре экрана (50%+ видимости)
-                if (entry.intersectionRatio >= 0.5) {
+                // Высокий приоритет - изображения в центре экрана (40%+ видимости, снижен для скорости)
+                if (entry.intersectionRatio >= 0.4) {
                     highPriorityEntries.push(entry);
                 }
-                // Нормальный приоритет - достаточная видимость (20%+ видимости)
-                else if (entry.intersectionRatio >= 0.2) {
+                // Нормальный приоритет - достаточная видимость (15%+ видимости, снижен для скорости)
+                else if (entry.intersectionRatio >= 0.15) {
                     normalPriorityEntries.push(entry);
                 }
                 // Низкий приоритет - слабая видимость (для предзагрузки)
-                else if (entry.intersectionRatio > 0) {
+                else if (entry.intersectionRatio > 0.1) {
                     lowPriorityEntries.push(entry);
                 }
             } else {
@@ -1549,19 +1594,28 @@ class HistoryManager {
 
     // Метод для создания/получения кэшированного DOM элемента с защитой от утечек
     static createHistoryItemElement(item, forceNoCache = false) {
-        // 🔧 ИСПРАВЛЕНИЕ: Улучшенная генерация cacheKey с учетом timestamp и дополнительных параметров
-        // Предыдущая версия использовала только ID и статус, что приводило к коллизиям
-        const cacheKey = `hist_${item.id}_${item.status}_${item.timestamp}_${item.prompt?.slice(0, 10) || ''}`;
+        // 🔧 ИСПРАВЛЕНИЕ: Упрощенная генерация cacheKey для избежания лишних промахов кеша
+        // Используем только основные данные: ID и результат (без лишних параметров)
+        const cacheKey = `hist_${item.id}_${item.result || 'no-result'}`;
 
-        console.log(`🔑 Generated cacheKey: ${cacheKey} for item ${item.id}`);
+        // Убираем спам логирования - логируем только в 1% случаев для отладки
+        if (Math.random() < 0.01) {
+            console.log(`🔑 Generated cacheKey: ${cacheKey} for item ${item.id}`);
+        }
 
         // Сначала проверяем кэш (если кэширование не отключено)
         if (!forceNoCache && this.elementCache.has(cacheKey)) {
-            console.log(`✅ Cache hit for item ${item.id}`);
+            // Убираем спам в консоль - логируем только в 1% случаев
+            if (Math.random() < 0.01) {
+                console.log(`✅ Cache hit for item ${item.id}`);
+            }
             return this.elementCache.get(cacheKey).cloneNode(true);
         }
 
-        console.log(`📦 Cache miss for item ${item.id}, creating new element`);
+        // Убираем спам логирования - только в 5% случаев для отслеживания промахов
+        if (Math.random() < 0.05) {
+            console.log(`📦 Cache miss for item ${item.id}, creating new element`);
+        }
 
         // Создаем новый элемент
         const element = this.createHistoryItemElementFromScratch(item);
@@ -2070,30 +2124,33 @@ async function scrollToLatestImage() {
     const historyList = document.getElementById('historyList');
     if (!historyList) return;
 
-    // Ждем еще немного пока изображение точно появится в DOM
-    await new Promise(resolve => setTimeout(resolve, 150));
+    // Убираем излишнюю задержку - она только замедляет
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     // Ищем первый элемент истории (это будет крайнее/новое изображение)
     const firstHistoryItem = historyList.querySelector('.history-mini');
     if (firstHistoryItem) {
-        console.log('🚀 Быстрая прокрутка к крайнему изображению');
+        // Убираем спам логирования - логируем только в 5% случаев
+        if (Math.random() < 0.05) {
+            console.log('🚀 Быстрая прокрутка к крайнему изображению');
+        }
 
         // Быстрая прокрутка без плавности для мгновенного показа
         firstHistoryItem.scrollIntoView({
             behavior: 'instant', // 'instant' для быстрой прокрутки
-            block: 'center',
+            block: 'start', // scroll to top of the element instead of center
             inline: 'nearest'
         });
 
-        // Дополнительная визуальная подсветка нового изображения
-        firstHistoryItem.style.animation = 'newImageHighlight 0.5s ease-in-out';
-        setTimeout(() => {
-            firstHistoryItem.style.animation = '';
-        }, 500);
-
-        console.log('✅ Прокрутка к крайнему изображению завершена');
+        // Убираем анимацию и подсветку - они бесполезны и замедляют
+        if (Math.random() < 0.05) {
+            console.log('✅ Прокрутка к крайнему изображению завершена');
+        }
     } else {
-        console.warn('⚠️ Не найдено крайнее изображение для прокрутки');
+        // Убираем спам логирования
+        if (Math.random() < 0.01) {
+            console.warn('⚠️ Не найдено крайнее изображение для прокрутки');
+        }
     }
 }
 
@@ -2102,15 +2159,19 @@ async function scrollToBottomImage() {
     const historyList = document.getElementById('historyList');
     if (!historyList) return;
 
-    // Ждем еще немного пока история загрузится в DOM
-    await new Promise(resolve => setTimeout(resolve, 150));
+    // Убираем задержку - она замедляет
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     // Ищем все элементы истории
     const historyItems = historyList.querySelectorAll('.history-mini');
     if (historyItems.length > 0) {
         // Берем последний элемент (самое нижнее изображение)
         const lastHistoryItem = historyItems[historyItems.length - 1];
-        console.log('🚀 Быстрая прокрутка к последнему изображению');
+
+        // Убираем спам логирования
+        if (Math.random() < 0.05) {
+            console.log('🚀 Быстрая прокрутка к последнему изображению');
+        }
 
         // Быстрая прокрутка без плавности для мгновенного показа
         lastHistoryItem.scrollIntoView({
@@ -2119,15 +2180,15 @@ async function scrollToBottomImage() {
             inline: 'nearest'
         });
 
-        // Дополнительная визуальная подсветка последнего изображения
-        lastHistoryItem.style.animation = 'newImageHighlight 0.5s ease-in-out';
-        setTimeout(() => {
-            lastHistoryItem.style.animation = '';
-        }, 500);
-
-        console.log('✅ Прокрутка к последнему изображению завершена');
+        // Убираем анимацию и подсветку - они бесполезны
+        if (Math.random() < 0.05) {
+            console.log('✅ Прокрутка к последнему изображению завершена');
+        }
     } else {
-        console.warn('⚠️ Не найдены элементы истории для прокрутки');
+        // Убираем спам логирования
+        if (Math.random() < 0.01) {
+            console.warn('⚠️ Не найдены элементы истории для прокрутки');
+        }
     }
 }
 
@@ -2399,8 +2460,7 @@ function updateUserBalance(credits) {
 
 function showSubscriptionNotice(result) {
     console.log('🔗 Full result object:', result);
-    const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=syDv';
-    console.log('🔗 Payment URL from result:', paymentUrl);
+    console.log('🔗 Payment URLs from result:', result.payment_urls);
 
     const modal = document.getElementById('limitModal');
     if (!modal) {
@@ -2411,27 +2471,60 @@ function showSubscriptionNotice(result) {
     // Показать модальное окно
     modal.classList.add('show');
 
-    // Настроить кнопку оплаты
-    const upgradeBtn = document.getElementById('upgradeBtn');
-    console.log('🔘 Upgrade button found:', !!upgradeBtn);
-    if (upgradeBtn) {
-        console.log('🔘 Setting up button click handler');
-        upgradeBtn.onclick = () => {
-            console.log('🔘 Upgrade button clicked');
-
-            // Сначала закрываем модальное окно
-            modal.classList.remove('show');
-            showGeneration();
-            // Затем с небольшой задержкой открываем ссылку
-            setTimeout(() => {
-                try {
-                    console.log('🔗 Redirecting to payment URL...');
-                    window.location.href = paymentUrl;
-                } catch (error) {
-                    console.error('❌ Error redirecting to payment link:', error);
-                    alert('Error opening payment link. Please try again.');
+    // Helper function for safe redirections with error handling
+    const safeRedirect = (url, planName) => {
+        modal.classList.remove('show');
+        showGeneration();
+        setTimeout(() => {
+            try {
+                console.log(`🔗 Redirecting to ${planName} payment URL: ${url}`);
+                // Try modern way first
+                if (appState.tg && appState.tg.openLink) {
+                    appState.tg.openLink(url);
+                } else {
+                    // Fallback to regular navigation
+                    window.open(url, '_blank');
                 }
-            }, 100); // 100 мс для плавности UI
+            } catch (error) {
+                console.error(`❌ Error redirecting to ${planName} payment link:`, error);
+                showToast('error', `Ошибка перехода к ${planName}. Попробуйте снова.`);
+                // Fallback to popup
+                window.open(url, '_blank', 'noopener,noreferrer');
+            }
+        }, 100);
+    };
+
+    // Настроить обработчики для трех кнопок тарифов
+    const upgradeBtn = document.getElementById('upgradeBtn'); // ЛИТЕ планируется как существующий
+    const upgradeBtnPro = document.getElementById('upgradebtn_pro'); // ПРО новый
+    const upgradeBtnStudio = document.getElementById('upgradebtn_studio'); // СТУДИО новый
+
+    console.log('🔘 Upgrade buttons found:', !!upgradeBtn, !!upgradeBtnPro, !!upgradeBtnStudio);
+
+    // Обработчик для ЛИТЕ тарифа (использует существующую кнопку upgradeBtn)
+    if (upgradeBtn) {
+        upgradeBtn.onclick = () => {
+            console.log('🔘 LITE Upgrade button clicked');
+            const paymentUrl = result.payment_urls?.lite || 'https://t.me/tribute/app?startapp=syDv';
+            safeRedirect(paymentUrl, 'LITE');
+        };
+    }
+
+    // Обработчик для ПРО тарифа (новая кнопка)
+    if (upgradeBtnPro) {
+        upgradeBtnPro.onclick = () => {
+            console.log('🔘 PRO Upgrade button clicked');
+            const paymentUrl = result.payment_urls?.pro || 'https://t.me/tribute/app?startapp=syDv';
+            safeRedirect(paymentUrl, 'PRO');
+        };
+    }
+
+    // Обработчик для СТУДИО тарифа (новая кнопка)
+    if (upgradeBtnStudio) {
+        upgradeBtnStudio.onclick = () => {
+            console.log('🔘 STUDIO Upgrade button clicked');
+            const paymentUrl = result.payment_urls?.studio || 'https://t.me/tribute/app?startapp=syDv';
+            safeRedirect(paymentUrl, 'STUDIO');
         };
     }
 
@@ -3927,3 +4020,216 @@ function createChatButton() {
     document.body.appendChild(chatBtn);
     console.log('🧠 AI Chat floating button created');
 }
+
+// 🔥 КАРУСЕЛЬ ПЛАНОВ В ЛИМИТ МОДАЛ
+// Глобальные переменные для управления каруселью планов
+let planCarouselInterval = null;
+let currentPlanSlide = 0;
+
+function initPlansCarousel() {
+    const carousel = document.querySelector('.plans-carousel');
+    const indicators = document.querySelectorAll('.indicator');
+
+    if (!carousel || !indicators.length) {
+        console.log('Plans carousel not found, skipping init');
+        return;
+    }
+
+    const cards = document.querySelectorAll('.plan-card');
+    const totalSlides = Math.ceil(cards.length / 3); // 3 карточки на слайд
+
+    // Функция для обновления индикаторов
+    function updateIndicators(activeIndex) {
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === activeIndex);
+        });
+    }
+
+    // Функция для прокрутки к слайду
+    function scrollToSlide(slideIndex) {
+        currentPlanSlide = slideIndex;
+        const cardWidth = cards[0].offsetWidth;
+        const gap = 16; // Расстояние между карточками в px
+        const scrollLeft = slideIndex * (cardWidth * 3 + gap * 2);
+        carousel.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+        });
+        updateIndicators(slideIndex);
+    }
+
+    // Автопрокрутка - только если пользователь не взаимодействует
+    let userIsInteracting = false; // флаг взаимодействия пользователя
+
+    function startAutoScroll() {
+        stopAutoScroll(); // Остановка предыдущего интервала
+        planCarouselInterval = setInterval(() => {
+            // НЕ прокручиваем автоматически, если пользователь взаимодействует
+            if (!userIsInteracting) {
+                currentPlanSlide = (currentPlanSlide + 1) % totalSlides;
+                scrollToSlide(currentPlanSlide);
+            }
+        }, 5000); // Увеличили интервал до 5 секунд для плавности
+    }
+
+    function stopAutoScroll() {
+        if (planCarouselInterval) {
+            clearInterval(planCarouselInterval);
+            planCarouselInterval = null;
+        }
+    }
+
+    // Пауза при наведении
+    carousel.addEventListener('mouseenter', stopAutoScroll);
+    carousel.addEventListener('mouseleave', startAutoScroll);
+
+    // Клик по индикаторам
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            scrollToSlide(index);
+            stopAutoScroll();
+            setTimeout(startAutoScroll, 2000);
+        });
+    });
+
+    // Свайпы для мобильных
+    let touchStartX = 0;
+    carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        stopAutoScroll();
+    });
+
+    carousel.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+
+        if (Math.abs(diff) > 50) {
+            if (diff > 0 && currentPlanSlide < totalSlides - 1) {
+                scrollToSlide(currentPlanSlide + 1);
+            } else if (diff < 0 && currentPlanSlide > 0) {
+                scrollToSlide(currentPlanSlide - 1);
+            }
+        }
+        setTimeout(startAutoScroll, 3000);
+    });
+
+    // ИНИЦИАЛИЗАЦИЯ - ФОРСИРОВАННО ЦЕНТРИРУЕМ PRO КАРТУ (индекс 1)
+    const centerCardIndex = 1; // Про = индекс 1 (для 3 карт: 0=LITE, 1=PRO, 2=STUDIO)
+    const centerCard = cards[centerCardIndex];
+
+    if (centerCard) {
+        // Полностью центрируем PRO карту по центру экрана
+        setTimeout(() => {
+            const containerWidth = carousel.offsetWidth;
+            const cardWidth = centerCard.offsetWidth;
+            const cardLeft = centerCard.offsetLeft;
+            const containerLeft = carousel.offsetLeft;
+            const scrollPosition = cardLeft - (containerWidth / 2) + (cardWidth / 2);
+            carousel.scrollLeft = Math.max(0, scrollPosition);
+
+            // Второе центрирование через 100мс для точности
+            setTimeout(() => {
+                centerCard.scrollIntoView({
+                    behavior: 'instant',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }, 100);
+        }, 50);
+    }
+
+    highlight(cards[centerCardIndex], { scroll: false });
+    updateIndicators(centerCardIndex);
+    startAutoScroll();
+    console.log('🔥 🔥 Plans carousel initialized - forced center on PRO card (index', centerCardIndex, ')');
+}
+
+// 🎯 ОБРАБОТЧИКИ ДЛЯ КАРТОЧЕК ПЛАНОВ
+function initPlanCards() {
+    const cards = document.querySelectorAll('.plan-card');
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            const planType = card.className.includes('lite') ? 'lite' :
+                           card.className.includes('pro') ? 'pro' : 'studio';
+
+            // Анимация выбора
+            cards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+
+            card.style.animation = 'pulse 0.6s ease-out';
+            setTimeout(() => {
+                card.style.animation = '';
+            }, 600);
+
+            console.log('Selected plan:', planType);
+        });
+
+        // Эффекты при наведении
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-12px) scale(1.03)';
+        });
+
+        card.addEventListener('mouseleave', () => {
+            if (!card.classList.contains('selected')) {
+                card.style.transform = '';
+            }
+        });
+    });
+}
+
+// 🎨 ЭФФЕКТЫ СТЕКЛА
+function initGlassmorphismEffects() {
+    const cards = document.querySelectorAll('.plan-card');
+
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.2}s`;
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+}
+
+// ИНИЦИАЛИЗАЦИЯ КАРУСЕЛИ ПРИ ПОКАЗЕ МОДАЛА
+document.addEventListener('DOMContentLoaded', function() {
+    // Наблюдатель за появлением модала лимита
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const modal = document.getElementById('limitModal');
+                if (modal && modal.classList.contains('show')) {
+                    // Модал появился - инициализируем карусель
+                    setTimeout(() => {
+                        initPlansCarousel();
+                        initPlanCards();
+                        initGlassmorphismEffects();
+                    }, 100);
+                }
+            }
+        });
+    });
+
+    const modal = document.getElementById('limitModal');
+    if (modal) {
+        observer.observe(modal, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+});
+
+// Экспорт функций для использования
+window.plansCarousel = {
+    init: initPlansCarousel,
+    stopAutoScroll: function() {
+        if (planCarouselInterval) {
+            clearInterval(planCarouselInterval);
+            planCarouselInterval = null;
+        }
+    }
+};

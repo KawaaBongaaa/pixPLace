@@ -1518,6 +1518,8 @@ textarea:focus-visible {
     left: 0;
     right: 0;
     bottom: 0;
+    width: 85%;
+    height: auto;
     display: none;
     align-items: center;
     justify-content: center;
@@ -2172,6 +2174,42 @@ textarea:focus-visible {
 
 
 
+/* 🔥 🔥 🔥 ОПТИМИЗИРОВАННЫЕ СТИЛИ ДЛЯ КАРУСЕЛИ ПЛАНОВ */
+.plans-carousel {
+    display: flex;
+    gap: 0.25rem !important;
+    /* Минимальный */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 1rem 30vw !important;
+    /* Большие края для показа боковых карточек */
+    width: 160vw !important;
+    /* Достаточно широкая для центрирования PRO */
+    max-width: none !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start;
+    /* Начиная с левой стороны */
+}
+
+/* Скрываем скролл всем браузерам */
+.plans-carousel::-webkit-scrollbar {
+    display: none !important;
+}
+
+.plan-card {
+    flex: 0 0 240px !important;
+    /* МЕНЬШЕ КАРТОЧКИ ДЛЯ ПОКАЗА КРАЕВ */
+    min-height: 280px !important;
+    /* МЕНЬШЕ ВЫСОТА */
+    padding: 1.8rem 1.3rem !important;
+    /* МЕНЬШЕ ВНУТРЕННИЙ ОТСТУП */
+    font-size: 1.3rem !important;
+    /* МЕНЬШЕ ШРИФТ */
+}
+
+/* 🔥 🔥 🔥 /КОНЕЦ ОПТИМИЗАЦИИ КАРУСЕЛИ ПЛАНОВ */
+
 /* 🔄 Анимации загрузки для History */
 /* Плавная загрузка изображений */
 img[data-src] {
@@ -2368,6 +2406,271 @@ img.lazy-loaded[data-src] {
     border-color: var(--primary-500);
 }
 
+/* 🔥 СОВРЕМЕННЫЕ СТИЛИ КАРУСЕЛИ ПЛАНОВ В ЛИМИТ МОДАЛ */
+.plans-carousel-container {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    margin: 0.5rem 0;
+}
+
+.plans-carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.plans-carousel {
+    display: flex;
+    gap: 0.15rem;
+    /* МИНИМАЛЬНЫЙ отступ */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 1rem 25%;
+    /* ОЧЕНЬ БОЛЬШИЕ Края для показа краев */
+    /* Увеличиваем общую ширину контейнера */
+    width: 120vw;
+    max-width: 1400px;
+
+}
+
+.plan-card {
+    flex: 0 0 280px;
+    min-height: 280px;
+    background: linear-gradient(135deg, #2a2a3e 0%, #1e1e2f 100%);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    cursor: pointer;
+    text-align: center;
+    overflow: hidden;
+}
+
+/* Эффект glassmorphism для карточек */
+.plan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+            rgba(138, 43, 226, 0.05) 0%,
+            rgba(30, 144, 255, 0.05) 50%,
+            rgba(255, 20, 147, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.plan-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    border-color: rgba(138, 43, 226, 0.3);
+}
+
+.plan-card:hover::before {
+    opacity: 1;
+}
+
+.plan-card.lite-plan {
+    border-left: 4px solid #00d4ff;
+    border-left: 2px solid #0fd6fe;
+}
+
+.plan-card.pro-plan {
+    border-left: 4px solid #ff6b35;
+    border-left: 2px solid #f57546;
+
+}
+
+.plan-card.studio-plan {
+    border-left: 4px solid #ff4081;
+    border-left: 2px solid #f74983;
+
+}
+
+.plan-header {
+    margin-bottom: 1.5rem;
+}
+
+.plan-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.plan-card:hover .plan-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.plan-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.plan-price {
+    margin-bottom: 1.5rem;
+}
+
+.price {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, #00d4ff, #ff6b35);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.credits {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
+}
+
+.plan-features {
+    margin-bottom: 2rem;
+}
+
+.feature {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.plan-card:hover .feature {
+    color: #ffffff;
+    border-color: rgba(138, 43, 226, 0.3);
+}
+
+.plan-card .btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Анимация пульсации для популярного плана */
+.plan-card.pro-plan .btn:hover {
+    animation: pulse-btn 2s infinite;
+}
+
+@keyframes pulse-btn {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 20px rgba(238, 9, 121, 0.6);
+    }
+
+    50% {
+        box-shadow: 0 4px 20px rgba(238, 9, 121, 1);
+    }
+}
+
+/* Индикаторы карусели */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.indicator.active {
+    background: #ffffff;
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.indicator:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(1.1);
+}
+
+/* Responsive адаптивность */
+@media (max-width: 768px) {
+    .plans-carousel {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+
+    .plan-card {
+        flex: 0 0 260px;
+        min-height: 240px;
+        padding: 1.5rem 1rem;
+    }
+
+    .plan-title {
+        font-size: 1.5rem;
+    }
+
+    .price {
+        font-size: 2rem;
+    }
+
+    .plan-icon {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-card {
+        flex: 0 0 230px;
+        min-height: 220px;
+        padding: 1rem 0.75rem;
+    }
+
+    .plan-title {
+        font-size: 1.3rem;
+    }
+
+    .price {
+        font-size: 1.8rem;
+    }
+
+    .plan-icon {
+        font-size: 2rem;
+    }
+
+    .feature {
+        font-size: 0.85rem;
+    }
+
+    .plan-card .btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+    }
+}
+
 /* ✨ Кнопка "Загрузить ещё" с тем же стилем что и основная кнопка */
 .load-more-btn {
     display: inline-flex;
@@ -2561,7 +2864,7 @@ img.lazy-loaded[data-src] {
     }
 }
 
-/* Music Widget 
+/* Music Widget
 .music-widget {
     position: relative;
     display: inline-block;
