@@ -1230,21 +1230,51 @@ class GlobalHistoryLoader {
     handleIntersection(entries, observer) {
         if (this.logout) return;
 
-        // Оптимизированная обработка (без фильтрации в цикле)
-        const visibleEntries = [];
+        console.log('👁️ IntersectionObserver triggered:', entries.length, 'entries');
+
+        // Оптимизированная обработка с улучшенными порогами
+        const highPriorityEntries = [];
+        const normalPriorityEntries = [];
+        const lowPriorityEntries = [];
         const invisibleEntries = [];
 
         for (const entry of entries) {
+            console.log('📊 Entry:', {
+                img: entry.target.src || entry.target.dataset.src,
+                isIntersecting: entry.isIntersecting,
+                intersectionRatio: entry.intersectionRatio
+            });
+
             if (entry.isIntersecting) {
-                visibleEntries.push(entry);
+                // Высокий приоритет - изображения в центре экрана (80%+ видимости)
+                if (entry.intersectionRatio >= 0.8) {
+                    highPriorityEntries.push(entry);
+                }
+                // Нормальный приоритет - достаточная видимость (30%+ видимости)
+                else if (entry.intersectionRatio >= 0.3) {
+                    normalPriorityEntries.push(entry);
+                }
+                // Низкий приоритет - слабая видимость (для предзагрузки)
+                else if (entry.intersectionRatio > 0) {
+                    lowPriorityEntries.push(entry);
+                }
             } else {
                 invisibleEntries.push(entry);
             }
         }
 
-        // Обрабатываем видимые изображения с высоким приоритетом
-        if (visibleEntries.length > 0) {
-            this.processVisibleImages(visibleEntries);
+        // Обрабатываем с высоким приоритетом вначале
+        if (highPriorityEntries.length > 0 || normalPriorityEntries.length > 0) {
+            console.log('🎯 Processing high/normal priority images:', highPriorityEntries.length + normalPriorityEntries.length);
+            this.processVisibleImages([...highPriorityEntries, ...normalPriorityEntries]);
+        }
+
+        // Низкий приоритет обрабатываем с задержкой
+        if (lowPriorityEntries.length > 0) {
+            setTimeout(() => {
+                console.log('🎯 Processing low priority images:', lowPriorityEntries.length);
+                this.processVisibleImages(lowPriorityEntries);
+            }, 200);
         }
 
         // Очищаем невидимые изображения (низкий приоритет)
