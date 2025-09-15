@@ -1216,12 +1216,12 @@ class GlobalHistoryLoader {
             }
         );
 
-    // Оптимизированные registry с Map для O(1) доступа
-    this.observedImages = new Map();
-    this.loadingQueue = new Set();
-    this.maxConcurrent = 6; // ограничиваем одновременные загрузки (увеличено с 3)
-    this.pendingQueue = []; // очередь ожидающих загрузки
-    this.logout = false;
+        // Оптимизированные registry с Map для O(1) доступа
+        this.observedImages = new Map();
+        this.loadingQueue = new Set();
+        this.maxConcurrent = 6; // ограничиваем одновременные загрузки (увеличено с 3)
+        this.pendingQueue = []; // очередь ожидающих загрузки
+        this.logout = false;
 
         GlobalHistoryLoader.instance = this;
         console.log('🚀 Ultra-Fast Global History Loader initialized with max performance');
@@ -1780,6 +1780,9 @@ function updateHistoryDisplay(page = 0) {
         console.log('📋 Cleared history list for fresh display');
     }
 
+    // Устанавливаем лимит загрузки в зависимости от страницы
+    const itemsPerPage = page === 0 ? 8 : 15; // первый раз 8 изображений, потом 15
+
     // Загружаем элементы страницы
     if (HistoryManager.isLoadingPage) {
         console.log('⚡ Page already loading, skipping...');
@@ -2029,6 +2032,41 @@ async function showHistoryWithScroll() {
 
         // Ждем пока DOM обновится после открытия
         await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // Дополнительная прокрутка к крайнему (новому) изображению после открытия истории
+    await scrollToLatestImage();
+}
+
+// Функция быстрой прокрутки к крайнему (новому) изображению в истории
+async function scrollToLatestImage() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+
+    // Ждем еще немного пока изображение точно появится в DOM
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    // Ищем первый элемент истории (это будет крайнее/новое изображение)
+    const firstHistoryItem = historyList.querySelector('.history-mini');
+    if (firstHistoryItem) {
+        console.log('🚀 Быстрая прокрутка к крайнему изображению');
+
+        // Быстрая прокрутка без плавности для мгновенного показа
+        firstHistoryItem.scrollIntoView({
+            behavior: 'instant', // 'instant' для быстрой прокрутки
+            block: 'center',
+            inline: 'nearest'
+        });
+
+        // Дополнительная визуальная подсветка нового изображения
+        firstHistoryItem.style.animation = 'newImageHighlight 0.5s ease-in-out';
+        setTimeout(() => {
+            firstHistoryItem.style.animation = '';
+        }, 500);
+
+        console.log('✅ Прокрутка к крайнему изображению завершена');
+    } else {
+        console.warn('⚠️ Не найдено крайнее изображение для прокрутки');
     }
 }
 
@@ -2823,7 +2861,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Инициализируем баланс пользователя
         updateUserBalance(appState.userCredits);
-        
+
         // AI Coach initialization
         initAICoach();
     }, 1500);
@@ -3714,11 +3752,11 @@ window.closeLimitModal = () => {
     }
 };
 
- // ========== COGNITIVE ASSISTANT INTEGRATION ==========
+// ========== COGNITIVE ASSISTANT INTEGRATION ==========
 function createCoachButton() {
     // Create button
     const coachButton = document.createElement('button');
-    coachButton.textContent = 'AI Cognitive Assistant';
+    coachButton.textContent = 'AI Prompt Assistant';
     coachButton.className = 'ai-coach-btn';
 
     // Ванильные CSS стили вместо Tailwind классов (проект не использует Tailwind)
