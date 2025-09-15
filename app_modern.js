@@ -173,7 +173,18 @@ const TRANSLATIONS = {
         please_upload_photo_session: "Загрузите изображение, чтобы использовать данный режим",
         upload_failed: "Не получилось загрузить изображение. Попробуй ещё раз",
         please_upload_for_upscale: "Загрузите изображение, чтобы использовать данный режим (Улучшение Качества)",
-        please_upload_for_background_removal: "Загрузите изображение, чтобы использовать данный режим (Удаление заднего фона)"
+        please_upload_for_background_removal: "Загрузите изображение, чтобы использовать данный режим (Удаление заднего фона)",
+
+        // ========== AI CHAT TRANSLATIONS ==========
+        ai_coach_ready: "✨ Ai Prompt Helper готов помочь с ИИ генерацией!",
+        ai_welcome_intro: "AI Prompt Helper: Добро пожаловать! Я ваш AI помощник промптов для повышения качества результатов генерации изображений. Задайте любой вопрос о создании промптов! Или коротко опишите свое видение, и я создам для Вас профессиональный Prompt.",
+        ai_welcome_chat: "AI Prompt Helper: Добро пожаловать в чат! Я ваш AI помощник промптов для помощи с созданием изобщений. Скажите, что вы хотите сгенерировать и я помогу Вам создать качественный промпт. Или же просто задайте мне любой вопрос, буду помогать с генерацией!",
+        ai_placeholder_modal: "Напишите своему AI ассистенту...",
+        ai_placeholder_chat: "Напишите своё сообщение...",
+        ai_send_button: "Отправить",
+        ai_close_button: "Закрыть",
+        ai_thinking_indicator: "🤖 pixPLace Assistant думает...",
+        ai_error_message: "Извините, произошла ошибка. Повторите пожалуйста."
     },
 
     es: {
@@ -1762,6 +1773,11 @@ function toggleHistoryList() {
         list.classList.remove('hidden');
         btn.classList.add('active');
         updateHistoryDisplay();
+
+        // Дополнительная быстрая прокрутка к последнему (нижнему) изображению после открытия истории
+        setTimeout(async () => {
+            await scrollToBottomImage();
+        }, 150);
     } else {
         list.classList.add('hidden');
         btn.classList.remove('active');
@@ -2078,6 +2094,40 @@ async function scrollToLatestImage() {
         console.log('✅ Прокрутка к крайнему изображению завершена');
     } else {
         console.warn('⚠️ Не найдено крайнее изображение для прокрутки');
+    }
+}
+
+// Функция быстрой прокрутки к последнему (нижнему) изображению в истории
+async function scrollToBottomImage() {
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+
+    // Ждем еще немного пока история загрузится в DOM
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    // Ищем все элементы истории
+    const historyItems = historyList.querySelectorAll('.history-mini');
+    if (historyItems.length > 0) {
+        // Берем последний элемент (самое нижнее изображение)
+        const lastHistoryItem = historyItems[historyItems.length - 1];
+        console.log('🚀 Быстрая прокрутка к последнему изображению');
+
+        // Быстрая прокрутка без плавности для мгновенного показа
+        lastHistoryItem.scrollIntoView({
+            behavior: 'instant', // 'instant' для быстрой прокрутки
+            block: 'center',
+            inline: 'nearest'
+        });
+
+        // Дополнительная визуальная подсветка последнего изображения
+        lastHistoryItem.style.animation = 'newImageHighlight 0.5s ease-in-out';
+        setTimeout(() => {
+            lastHistoryItem.style.animation = '';
+        }, 500);
+
+        console.log('✅ Прокрутка к последнему изображению завершена');
+    } else {
+        console.warn('⚠️ Не найдены элементы истории для прокрутки');
     }
 }
 
