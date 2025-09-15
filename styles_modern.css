@@ -2654,12 +2654,9 @@ img.lazy-loaded[data-src] {
     }
 }
 
-/* Индикаторы карусели */
+/* Индикаторы карусели - скрыты */
 .carousel-indicators {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    display: none;
 }
 
 .indicator {
