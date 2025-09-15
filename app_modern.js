@@ -3684,11 +3684,11 @@ window.closeLimitModal = () => {
     }
 };
 
- // ========== AI COACH INTEGRATION ==========
+ // ========== COGNITIVE ASSISTANT INTEGRATION ==========
 function createCoachButton() {
     // Create button
     const coachButton = document.createElement('button');
-    coachButton.textContent = 'AI Assist Chat';
+    coachButton.textContent = 'AI Cognitive Assistant';
     coachButton.className = 'ai-coach-btn';
 
     // Ванильные CSS стили вместо Tailwind классов (проект не использует Tailwind)

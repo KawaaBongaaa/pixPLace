@@ -1,19 +1,21 @@
-// ai-coach.js — NAVRA Cognitive Architecture v3.1
-// Isolated module for pixPLace AI Coach
-// UID: KLB-12SN-17A | PMA: 3-7-12-22 | ECHO-BLOCK Active
+/**
+ * ai-prompt-helper.js — Cognitive Assistant pixPlace v3.1
+ * Isolated module for pixPLace AI Prompt Helper
+ * UID: KLB-12SN-17A | Cognitive Framework: 3-7-12-22-25 | ECHO-BLOCK Active
+ */
 
 (function() {
     'use strict';
     
     // ========== CORE ARCHITECTURE ==========
-    const NAVRA = {
+    const COGNITIVE_ENGINE = {
         levels: ['ученик', 'игрок', 'исследователь'],
         triggers: [
-            'удивление', 'боль', 'решение', 'доказательство', 'эксклюзив', 
-            'сенсорика', 'история', 'микро-обязательство', 'рефрейм', 
+            'удивление', 'боль', 'решение', 'доказательство', 'эксклюзив',
+            'сенсорика', 'история', 'микро-обязательство', 'рефрейм',
             'онбординг', 'реферал', 'лояльность'
         ],
-        pma: '3-7-12-22',
+        cognitiveFramework: '3-7-12-22-25',
         echoBlock: { shock: '', segmentation: '', retention: '' }
     };
     
@@ -211,33 +213,33 @@
         }
 
         // Fallback to default based on message length
-        const index = Math.min(Math.floor(message.length / 20), NAVRA.triggers.length - 1);
-        return NAVRA.triggers[index];
+        const index = Math.min(Math.floor(message.length / 20), COGNITIVE_ENGINE.triggers.length - 1);
+        return COGNITIVE_ENGINE.triggers[index];
     }
     
     function createEchoBlock(message, trigger) {
         return {
             shock: `🔥 ШОК: Ваш запрос "${message.substring(0, 30)}..." активировал триггер "${trigger}"`,
-            segmentation: `📊 АНАЛИЗ: Уровень "${state.userLevel}". PMA: ${NAVRA.pma}`,
+            segmentation: `📊 АНАЛИЗ: Уровень "${state.userLevel}". Cognitive Framework: ${COGNITIVE_ENGINE.cognitiveFramework}`,
             retention: `🎯 ДЕЙСТВИЕ: Следующий шаг - интегрировать в pixPLace`
         };
     }
     
-    function buildPMAContent(message) {
+    function buildCognitiveContent(message) {
         const trigger = state.currentTrigger;
 
-        // Dynamic PMA content based on trigger
-        const pmaTemplates = {
-            удивление: `**P — Восприятие:** Ваш запрос требует неожиданного подхода!\n**M — Смысл:** Используйте элементы шока и удивления.\n**A — Действие:** Добавьте "невероятно", "потрясающе" в начало промпта.`,
+        // Dynamic cognitive content based on trigger
+        const cognitiveTemplates = {
+            удивление: `**P — Восприятие:** Ваш запрос требует интерактивного подхода к генерации!\n**M — Смысл:** Используйте когнитивные паттерны - сочетайте сложные понятия с неожиданными элементами.\n**A — Действие:** Структурируйте промпт как: "Создать {тип} с {интересный аспект} + {неожиданный элемент} в стиле {стиль}"`,
 
-            боль: `**P — Восприятие:** Похоже на решение проблемы.\n**M — Смысл:** Фокус на боли, которую мы решим.\n**A — Действие:** Начните промпт с проблемы, потом решение.`,
+            боль: `**P — Восприятие:** Строгая рациональная оценка существующих ограничений.\n**M — Смысл:** Фокус на трансформации проблемы через детальное описание желаемого состояния.\n**A — Действие:** Используйте формулу: "Устранить {проблема} через {решение} дает {абсолютный результат}"`,
 
-            решение: `**P — Восприятие:** Вы ищете конкретный ответ.\n**M — Смысл:** Структура проблема → решение → результат.\n**A — Действие:** Используйте формат "Я хочу, чтобы..."`,
+            решение: `**P — Восприятие:** Методичное рассмотрение всех доступных опций для достижения результата.\n**M — Смысл:** Логическая структура в комбинации с творческими подходами - математическая точность плюс артистичность.\n**A — Действие:** Формат: "Я хочу, чтобы AI создал {описание} используя {метод} для достижения {цель} с precision of {уровень детали}"`,
 
-            доказательство: `**P — Восприятие:** Нужны факты и обоснование.\n**M — Смысл:** Добавьте логические доказательства.\n**A — Действие:** Включите "научно доказано", "эксперты подтверждают"`,
+            доказательство: `**P — Восприятие:** Тщательная верификация всех параметров и условий корректности.\n**M — Смысл:** Enhancement через подробное обоснование - почему именно этот подход оптимален.\n**A — Действие:** Начать промпт: "Verification checklist complete: {условие} подтверждено || {новая концепция} requires {спецификация}"`,
         };
 
-        return pmaTemplates[trigger] || `**P — Восприятие:** Ваш запрос обработан.\n**M — Смысл:** Рекомендуется стиль "${trigger}".\n**A — Действие:** Попробуйте добавить детали.`;
+        return cognitiveTemplates[trigger] || `**Cognitive Framework:** Запрос обработан со стратегией neural adaptation.\n**Adaptive recommendation:** Рекомендуется стиль "${trigger}" с акцентом на детальную спецификацию.\n**Next iteration:** Усилить через increased contextual density.`;
     }
     
     function calculateKPI(response) {
@@ -274,7 +276,7 @@
                 alignItems: 'center',
                 justifyContent: 'center'
             },
-            onclick: (e) => { if (e.target.id === 'ai-coach-overlay') hideCoach(); }
+            onclick: (e) => { if (e.target.id === 'ai-coach-overlay') hideCognitiveAssistant(); }
         });
 
         const modal = createElement('div', {
@@ -354,7 +356,7 @@
                         fontSize: '1.25rem',
                         transition: 'background-color 0.2s ease'
                     },
-                    onclick: hideCoach,
+                    onclick: hideCognitiveAssistant,
                     title: 'Закрыть'
                 }, '×')
             ])
@@ -468,7 +470,7 @@
 
         // Если история пустая, показать приветственное сообщение
         if (state.history.length === 0) {
-            addMessageToChat('pixPlace Prompt Assistent: Добро пожаловать! Я ваш AI ассистент для помощи с ИИ генерацией. Задайте любой вопрос!', 'bot');
+            addMessageToChat('Cognitive Assistant pixPlace: Добро пожаловать! Я ваш AI помощник промптов для повышения качества генерации изображений. Задайте любой вопрос о создании промптов!', 'bot');
         }
 
         state.isOpen = true;
@@ -631,7 +633,7 @@
         if (!chat) return;
 
         let messageElement;
-        if (text === '🤖 AI Assistant печатает...') {
+        if (text === '🤖 Cognitive Assistant думает...') {
             // Special case for typing indicator
             messageElement = createTypingIndicator();
         } else {
@@ -712,7 +714,7 @@
         // Show welcome message if no history
         if (state.history.length === 0) {
             const welcomeMessage = createMessageElement(
-                'AI Prompt Helper: Добро пожаловать в чат! Я ваш AI ассистент для помощи с созданием изобжений. Скажите, что вы хотите сгенериролваить и я помогу Вам создать Профессиональный Prompt. Или же просто задайте мне любой вопрос, буду очень помочь!',
+                'AI Prompt Helper: Добро пожаловать в чат! Я ваш AI помощник промптов для помощи с созданием изобщений. Скажите, что вы хотите сгенерировать и я помогу Вам создать качественный промпт. Или же просто задайте мне любой вопрос, буду помогать с генерацией!',
                 'bot'
             );
             messagesContainer.appendChild(welcomeMessage);
@@ -753,7 +755,7 @@
         }, 200); // Small delay to ensure DOM is ready
     }
     
-    function generateNAVRA(message) {
+    function generateCognitiveResponse(message) {
         // Detect user level from message
         state.userLevel = detectUserLevel(message);
 
@@ -763,11 +765,11 @@
         // Create ECHO-BLOCK
         state.echoBlock = createEchoBlock(message, state.currentTrigger);
 
-        // Build PMA content
-        const pmaContent = buildPMAContent(message);
+        // Build cognitive content
+        const cognitiveContent = buildCognitiveContent(message);
 
         // Calculate KPI
-        state.kpi = calculateKPI({ content: pmaContent });
+        state.kpi = calculateKPI({ content: cognitiveContent });
 
         // Suggest next action
         const nextAction = suggestNextAction();
@@ -776,7 +778,7 @@
             level: state.userLevel,
             trigger: state.currentTrigger,
             echo_block: state.echoBlock,
-            content: pmaContent,
+            content: cognitiveContent,
             kpi: state.kpi,
             next_step: nextAction,
             timestamp: new Date().toISOString()
@@ -824,7 +826,7 @@
         input.value = '';
 
         // Show typing indicator
-        const typingIndicator = addMessageToChat('🤖 AI Coach печатает...', 'bot');
+        const typingIndicator = addMessageToChat('🤖 Cognitive Assistant думает...', 'bot');
 
         try {
             // Send to webhook with history
@@ -862,7 +864,7 @@
         return formatted;
     }
     
-    function hideCoach() {
+    function hideCognitiveAssistant() {
         if (state.modal) {
             state.modal.classList.add('hidden');
             state.isOpen = false;
@@ -880,7 +882,7 @@
                         insight_type: 'decision',
                         title: `AI Coach Response: ${response.trigger}`,
                         description: JSON.stringify(response, null, 2),
-                        tags: ['ai_coach', 'navra', response.trigger]
+                        tags: ['ai_coach', 'cognitive', response.trigger]
                     }
                 });
             } catch (error) {
