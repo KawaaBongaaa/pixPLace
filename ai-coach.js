@@ -712,7 +712,7 @@
         // Show welcome message if no history
         if (state.history.length === 0) {
             const welcomeMessage = createMessageElement(
-                '🧠 AI Prompt Helper: Добро пожаловать в чат! Я ваш AI ассистент для помощи с созданием изобжений. Скажите, что вы хотите сгенериролваить и я помогу Вам создать Профессиональный Prompt. Или же просто задайте мне любой вопрос, буду очень помочь!',
+                'AI Prompt Helper: Добро пожаловать в чат! Я ваш AI ассистент для помощи с созданием изобжений. Скажите, что вы хотите сгенериролваить и я помогу Вам создать Профессиональный Prompt. Или же просто задайте мне любой вопрос, буду очень помочь!',
                 'bot'
             );
             messagesContainer.appendChild(welcomeMessage);

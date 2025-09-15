@@ -1790,7 +1790,12 @@ function updateHistoryDisplay(page = 0) {
                 <span class="btn-ripple"></span>
             `;
 
-            loadMoreBtn.onclick = () => loadNextHistoryPage();
+            // Исправляем обработчик: только загрузка истории, без генерации
+            loadMoreBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                loadNextHistoryPage();
+            };
 
             // 🔧 ИСПРАВЛЕНИЕ: Добавляем кнопку ВНУТРЬ списка истории вместо afterend
             // Это обеспечит правильное позиционирование кнопки в видимой области
