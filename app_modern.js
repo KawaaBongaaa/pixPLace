@@ -1216,10 +1216,12 @@ class GlobalHistoryLoader {
             }
         );
 
-        // Оптимизированные registry с Map для O(1) доступа
-        this.observedImages = new Map();
-        this.loadingQueue = new Set();
-        this.logout = false;
+    // Оптимизированные registry с Map для O(1) доступа
+    this.observedImages = new Map();
+    this.loadingQueue = new Set();
+    this.maxConcurrent = 3; // ограничиваем одновременные загрузки
+    this.pendingQueue = []; // очередь ожидающих загрузки
+    this.logout = false;
 
         GlobalHistoryLoader.instance = this;
         console.log('🚀 Ultra-Fast Global History Loader initialized with max performance');
@@ -1283,6 +1285,12 @@ class GlobalHistoryLoader {
             return;
         }
 
+        // Если превышен лимит параллельных загрузок - добавляем в очередь
+        if (this.loadingQueue.size >= this.maxConcurrent) {
+            this.pendingQueue.push(img);
+            return;
+        }
+
         this.loadingQueue.add(img);
 
         // Установка src с обработкой ошибок
@@ -1307,6 +1315,12 @@ class GlobalHistoryLoader {
         loadPromise.finally(() => {
             this.loadingQueue.delete(img);
             this.safeUnobserve(img);
+
+            // Обработать следующий из очереди, если есть место
+            if (this.pendingQueue.length > 0 && this.loadingQueue.size < this.maxConcurrent) {
+                const nextImg = this.pendingQueue.shift();
+                this.startLoading(nextImg);
+            }
         });
     }
 
@@ -1364,7 +1378,7 @@ class GlobalHistoryLoader {
         let maxObserversExceeded = 0;
 
         // 🔧 ИСПРАВЛЕНИЕ: Ограничение количества активных наблюдателей для производительности
-        const MAX_ACTIVE_OBSERVERS = 40; // максимум 20 активных наблюдателей одновременно
+        const MAX_ACTIVE_OBSERVERS = 40; // увеличено до 40 для больших страниц
 
         // Проходим по всем наблюдаемым элементам
         for (const [img] of this.observedImages) {
@@ -1373,7 +1387,7 @@ class GlobalHistoryLoader {
                 this.safeUnobserve(img);
                 cleanupCount++;
             } else if (this.observedImages.size > MAX_ACTIVE_OBSERVERS && !img.dataset.src) {
-                // 🔧 ИСПРАВЛЕНИЕ: Уменьшаем количество активных наблюдателей для производительности
+                // 🔧 ИСПРАВЛЕНИЕ: Уменьшаем количество активных наблюдателей для производительности (только загруженные)
                 this.safeUnobserve(img);
                 maxObserversExceeded++;
             }
@@ -1388,7 +1402,7 @@ class GlobalHistoryLoader {
         }
 
         if (cleanupCount > 0 || maxObserversExceeded > 0) {
-            console.log(`🧹 Enhanced Mass cleanup: ${cleanupCount} elements removed, ${maxObserversExceeded} observers trimmed`);
+            console.log(`🧹 Enhanced Mass cleanup: ${cleanupCount} elements removed, ${maxObserversExceeded} observers trimmed (max: ${MAX_ACTIVE_OBSERVERS})`);
         }
     }
 
@@ -1816,6 +1830,8 @@ function loadNextHistoryPage() {
                 btn.textContent = 'Загрузить ещё...';
                 btn.disabled = false;
             }
+            // Прокрутка к новой кнопке для активации загрузки изображений
+            btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, 300);
 }
