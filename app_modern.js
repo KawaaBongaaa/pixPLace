@@ -1210,7 +1210,7 @@ class GlobalHistoryLoader {
         this.imageObserver = new IntersectionObserver(
             this.handleIntersection.bind(this),
             {
-                rootMargin: '150px', // больше margin для плавной загрузки
+                rootMargin: '300px', // больше margin для плавной загрузки
                 threshold: 0.01, // совсем малый threshold для ранней загрузки
                 root: null, // viewport
             }
@@ -3723,7 +3723,7 @@ function createChatButton() {
     // Create floating chat button
     const chatBtn = document.createElement('button');
     chatBtn.id = 'ai-chat-float-btn';
-    chatBtn.innerHTML = '🧠 AI Чат';
+    chatBtn.innerHTML = 'AI Chat';
     chatBtn.style.cssText = `
         position: fixed;
         bottom: 20px;

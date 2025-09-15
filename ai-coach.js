@@ -468,7 +468,7 @@
 
         // Если история пустая, показать приветственное сообщение
         if (state.history.length === 0) {
-            addMessageToChat('🧠 AI Coach: Добро пожаловать! Я ваш AI ассистент для помощи с ИИ генерацией. Задайте любой вопрос!', 'bot');
+            addMessageToChat('pixPlace Prompt Assistent: Добро пожаловать! Я ваш AI ассистент для помощи с ИИ генерацией. Задайте любой вопрос!', 'bot');
         }
 
         state.isOpen = true;
