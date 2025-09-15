@@ -380,7 +380,7 @@
                     fontSize: '0.875rem',
                     marginTop: '2rem'
                 }
-            }, '✨ Ai Prompt Helper готов помочь с ИИ генерацией!')
+            }, (typeof appState !== 'undefined' ? appState.translate('ai_coach_ready') : '✨ AI Prompt Helper is ready to help with AI generation!'))
         ]);
 
         // Input area with modern design
@@ -397,7 +397,7 @@
                 createElement('input', {
                     id: 'ai-coach-input',
                     type: 'text',
-                    placeholder: 'Напишите своему AI ассистенту...',
+                    placeholder: (typeof appState !== 'undefined' ? appState.translate('ai_placeholder_modal') : 'Write to your AI assistant...'),
                     style: {
                         flex: '1',
                         backgroundColor: '#374151',
@@ -470,7 +470,8 @@
 
         // Если история пустая, показать приветственное сообщение
         if (state.history.length === 0) {
-            addMessageToChat('Prompt Assistant: Добро пожаловать! Я ваш AI помощник промптов для повышения качества результатов генерации изображений. Задайте любой вопрос о создании промптов! Или коротко опишите свое видение, и я создам для Вас профессиональный Prompt', 'bot');
+            const introKey = typeof appState !== 'undefined' ? appState.translate('ai_welcome_intro') : 'AI Prompt Helper: Welcome! I am your AI assistant for improving the quality of image generation results. Ask any question about creating prompts! Or briefly describe your vision, and I will create a professional prompt for you.';
+            addMessageToChat(introKey, 'bot');
         }
 
         state.isOpen = true;
@@ -713,10 +714,8 @@
 
         // Show welcome message if no history
         if (state.history.length === 0) {
-            const welcomeMessage = createMessageElement(
-                'AI Prompt Helper: Добро пожаловать в чат! Я ваш AI помощник промптов для помощи с созданием изобщений. Скажите, что вы хотите сгенерировать и я помогу Вам создать качественный промпт. Или же просто задайте мне любой вопрос, буду помогать с генерацией!',
-                'bot'
-            );
+            const chatKey = typeof appState !== 'undefined' ? appState.translate('ai_welcome_chat') : 'AI Prompt Helper: Welcome to the chat! I am your AI assistant for help with creating images. Tell me what you want to generate and I will help you create a quality prompt. Or just ask me any question, I\'ll help with generation!';
+            const welcomeMessage = createMessageElement(chatKey, 'bot');
             messagesContainer.appendChild(welcomeMessage);
         }
 
@@ -826,7 +825,8 @@
     input.value = '';
 
     // Show typing indicator AND get a reference to it immediately
-    const typingIndicator = addMessageToChat('🤖 pixPLace Assistant думает...', 'bot');
+    const typingKey = typeof appState !== 'undefined' ? appState.translate('ai_thinking_indicator') : '🤖 pixPLace Assistant is thinking...';
+    const typingIndicator = addMessageToChat(typingKey, 'bot');
     console.log('🎭 Typing indicator created:', !!typingIndicator);
 
     try {
@@ -858,7 +858,8 @@
             console.log('🗑️ Removing typing indicator after error');
             typingIndicator.parentNode.removeChild(typingIndicator);
         }
-        addMessageToChat('Извините, произошла ошибка. Повторите пожалуйста.', 'bot');
+        const errorKey = typeof appState !== 'undefined' ? appState.translate('ai_error_message') : 'Sorry, there was an error. Please try again.';
+        addMessageToChat(errorKey, 'bot');
     } finally {
         console.log('🏁 Processing finished, setting isProcessing = false');
         state.isProcessing = false;

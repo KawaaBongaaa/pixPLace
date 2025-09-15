@@ -85,7 +85,18 @@ const TRANSLATIONS = {
         please_upload_photo_session: "Please upload Your image for Photo Session mode. \nOr just choice another Mode",
         upload_failed: "Failed to upload the image. \nPlease try again.",
         please_upload_for_upscale: "Please upload an image to Upscale.",
-        please_upload_for_background_removal: "Please upload an image for Background removal."
+        please_upload_for_background_removal: "Please upload an image for Background removal.",
+
+        // ========== AI CHAT TRANSLATIONS ==========
+        ai_coach_ready: "✨ AI Prompt Helper is ready to help with AI generation!",
+        ai_welcome_intro: "AI Prompt Helper: Welcome! I am your AI assistant for improving the quality of image generation results. Ask any question about creating prompts! Or briefly describe your vision, and I will create a professional prompt for you.",
+        ai_welcome_chat: "AI Prompt Helper: Welcome to the chat! I am your AI assistant for help with creating images. Tell me what you want to generate and I will help you create a quality prompt. Or just ask me any question, I'll help with generation!",
+        ai_placeholder_modal: "Write to your AI assistant...",
+        ai_placeholder_chat: "Write your message...",
+        ai_send_button: "Send",
+        ai_close_button: "Close",
+        ai_thinking_indicator: "🤖 pixPLace Assistant is thinking...",
+        ai_error_message: "Sorry, there was an error. Please try again."
     },
 
     ru: {
