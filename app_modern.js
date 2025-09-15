@@ -1776,35 +1776,40 @@ function updateHistoryDisplay(page = 0) {
         HistoryManager.maxLoadedPage = page;
         HistoryManager.currentPage = page;
 
-        // Добавляем кнопку загрузки следующей страницы
+        // Управляем кнопкой загрузки следующей страницы
+        const existingBtn = document.getElementById('loadMoreHistoryBtn');
+
         if (HistoryManager.hasMorePages(page)) {
-            const loadMoreBtn = document.createElement('button');
-            loadMoreBtn.className = 'load-more-btn';
-            loadMoreBtn.id = 'loadMoreHistoryBtn';
-            // Добавляем иконку стрелки вниз
-            loadMoreBtn.innerHTML = `
-                <span>Загрузить ещё...</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="btn-icon">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-                <span class="btn-ripple"></span>
-            `;
+            if (existingBtn) {
+                // Если кнопка уже существует - переносим её в конец списка
+                historyList.appendChild(existingBtn);
+            } else {
+                // Создаём новую кнопку
+                const loadMoreBtn = document.createElement('button');
+                loadMoreBtn.className = 'load-more-btn';
+                loadMoreBtn.id = 'loadMoreHistoryBtn';
+                // Добавляем иконку стрелки вниз
+                loadMoreBtn.innerHTML = `
+                    <span>Загрузить ещё...</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="btn-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                    <span class="btn-ripple"></span>
+                `;
 
-            // Исправляем обработчик: только загрузка истории, без генерации
-            loadMoreBtn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                loadNextHistoryPage();
-            };
+                // Исправляем обработчик: только загрузка истории, без генерации
+                loadMoreBtn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    loadNextHistoryPage();
+                };
 
-            // 🔧 ИСПРАВЛЕНИЕ: Добавляем кнопку ВНУТРЬ списка истории вместо afterend
-            // Это обеспечит правильное позиционирование кнопки в видимой области
-            historyList.appendChild(loadMoreBtn);
+                historyList.appendChild(loadMoreBtn);
+            }
         } else {
-            // Удаляем кнопку если достигли конца
-            const oldBtn = document.getElementById('loadMoreHistoryBtn');
-            if (oldBtn) {
-                oldBtn.remove();
+            // Удаляем кнопку если достигли конца истории
+            if (existingBtn) {
+                existingBtn.remove();
             }
         }
     }
