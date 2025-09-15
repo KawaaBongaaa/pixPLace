@@ -1364,7 +1364,7 @@ class GlobalHistoryLoader {
         let maxObserversExceeded = 0;
 
         // 🔧 ИСПРАВЛЕНИЕ: Ограничение количества активных наблюдателей для производительности
-        const MAX_ACTIVE_OBSERVERS = 20; // максимум 20 активных наблюдателей одновременно
+        const MAX_ACTIVE_OBSERVERS = 40; // максимум 20 активных наблюдателей одновременно
 
         // Проходим по всем наблюдаемым элементам
         for (const [img] of this.observedImages) {
