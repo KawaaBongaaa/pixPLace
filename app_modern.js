@@ -1210,7 +1210,7 @@ class GlobalHistoryLoader {
         this.imageObserver = new IntersectionObserver(
             this.handleIntersection.bind(this),
             {
-                rootMargin: '80px', // уменьшен для точности (было 300px)
+                rootMargin: '100px', // уменьшен для точности (было 300px)
                 threshold: 0.1, // повышен для точности (было 0.01)
                 root: null, // viewport
             }
@@ -1246,12 +1246,12 @@ class GlobalHistoryLoader {
             });
 
             if (entry.isIntersecting) {
-                // Высокий приоритет - изображения в центре экрана (80%+ видимости)
-                if (entry.intersectionRatio >= 0.8) {
+                // Высокий приоритет - изображения в центре экрана (50%+ видимости)
+                if (entry.intersectionRatio >= 0.5) {
                     highPriorityEntries.push(entry);
                 }
-                // Нормальный приоритет - достаточная видимость (30%+ видимости)
-                else if (entry.intersectionRatio >= 0.3) {
+                // Нормальный приоритет - достаточная видимость (20%+ видимости)
+                else if (entry.intersectionRatio >= 0.2) {
                     normalPriorityEntries.push(entry);
                 }
                 // Низкий приоритет - слабая видимость (для предзагрузки)

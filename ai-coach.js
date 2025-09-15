@@ -1,5 +1,5 @@
 /**
- * ai-prompt-helper.js — Cognitive Assistant pixPlace v3.1
+ * ai-prompt-helper.js — Ai Assistant pixPlace
  * Isolated module for pixPLace AI Prompt Helper
  * UID: KLB-12SN-17A | Cognitive Framework: 3-7-12-22-25 | ECHO-BLOCK Active
  */
@@ -470,7 +470,7 @@
 
         // Если история пустая, показать приветственное сообщение
         if (state.history.length === 0) {
-            addMessageToChat('Cognitive Assistant pixPlace: Добро пожаловать! Я ваш AI помощник промптов для повышения качества генерации изображений. Задайте любой вопрос о создании промптов!', 'bot');
+            addMessageToChat('Prompt Assistant: Добро пожаловать! Я ваш AI помощник промптов для повышения качества результатов генерации изображений. Задайте любой вопрос о создании промптов! Или коротко опишите свое видение, и я создам для Вас профессиональный Prompt', 'bot');
         }
 
         state.isOpen = true;
@@ -633,7 +633,7 @@
         if (!chat) return;
 
         let messageElement;
-        if (text === '🤖 Cognitive Assistant думает...') {
+        if (text === '🤖 pixPLace Assistant думает...') {
             // Special case for typing indicator
             messageElement = createTypingIndicator();
         } else {
@@ -826,7 +826,7 @@
         input.value = '';
 
         // Show typing indicator
-        const typingIndicator = addMessageToChat('🤖 Cognitive Assistant думает...', 'bot');
+        const typingIndicator = addMessageToChat('🤖 pixPLace Assistant думает...', 'bot');
 
         try {
             // Send to webhook with history
