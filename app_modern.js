@@ -21,7 +21,7 @@ const CONFIG = {
 const TRANSLATIONS = {
 
 
-    
+
     en: {
         loading: "The pixPLace",
         app_title: "pixPLace",
@@ -99,40 +99,37 @@ const TRANSLATIONS = {
         ai_thinking_indicator: "🤖 pixPLace Assistant is thinking...",
         ai_error_message: "Sorry, there was an error. Please try again.",
 
-    // ==============TARIFFS MODAL ENGLISH TRANSLATIONS ==============
-    plan_lite_title: "LITE Plan",
-    plan_lite_price: "2.99",
-    plan_lite_currency: "$",
-    plan_lite_desc: "Perfect for casual users",
-    plan_lite_credits: "500 credits",
-    plan_lite_feature1: "• Fast generation",
-    plan_lite_feature2: "• Standard models",
-    plan_lite_feature3: "• Per month",
-    plan_lite_select: "SELECT LITE",
+        // ==============TARIFFS MODAL ENGLISH TRANSLATIONS ==============
+        plan_lite_title: "LITE",
+        plan_lite_price: "€12",
+        plan_lite_desc: "Perfect for casual users",
+        plan_lite_credits: "500 credits",
+        plan_lite_feature1: "• Fast generation",
+        plan_lite_feature2: "• Standard models",
+        plan_lite_feature3: "• Best Quality ",
+        plan_lite_select: "Subscribe",
 
-    plan_pro_title: "PRO Plan",
-    plan_pro_price: "4.99",
-    plan_pro_currency: "$",
-    plan_pro_desc: "Best for enthusiasts",
-    plan_pro_credits: "1000 credits",
-    plan_pro_feature1: "• FLUX models",
-    plan_pro_feature2: "• AI Assistant included",
-    plan_pro_feature3: "• HD quality",
-    plan_pro_select: "SELECT PRO",
+        plan_pro_title: "PRO",
+        plan_pro_price: "€17",
+        plan_pro_desc: "Best for enthusiasts",
+        plan_pro_credits: "1000 credits",
+        plan_pro_feature1: "• FLUX models",
+        plan_pro_feature2: "• AI Assistant included",
+        plan_pro_feature3: "• HD quality",
+        plan_pro_select: "Subscribe",
 
-    plan_studio_title: "STUDIO Plan",
-    plan_studio_price: "9.99",
-    plan_studio_currency: "$",
-    plan_studio_desc: "Full creative power",
-    plan_studio_credits: "2000 credits",
-    plan_studio_feature1: "• Max performance",
-    plan_studio_feature2: "• All premium models",
-    plan_studio_feature3: "• Priority support",
-    plan_studio_select: "SELECT STUDIO",
+        plan_studio_title: "STUDIO",
+        plan_studio_price: "€31",
+        plan_studio_desc: "Full creative power",
+        plan_studio_credits: "2000 credits",
+        plan_studio_feature1: "• Max performance",
+        plan_studio_feature2: "• All premium models",
+        plan_studio_feature3: "• Priority support",
+        plan_studio_select: "Subscribe",
 
-    // Additional AI Chat translations for english
-    ai_placeholder_modal: "Write to your AI assistant...",
-    ai_chat_title: "AI Assistant"
+        // Additional AI Chat translations for english
+        ai_placeholder_modal: "Write to your AI assistant...",
+        ai_chat_title: "AI Assistant"
     },
 
     ru: {
@@ -219,7 +216,35 @@ const TRANSLATIONS = {
         ai_send_button: "Отправить",
         ai_close_button: "Закрыть",
         ai_thinking_indicator: "🤖 pixPLace Assistant думает...",
-        ai_error_message: "Извините, произошла ошибка. Повторите пожалуйста."
+        ai_error_message: "Извините, произошла ошибка. Повторите пожалуйста.",
+        // ==============TARIFFS MODAL RUSSIAN TRANSLATIONS ==============
+        plan_lite_title: "LITE",
+        plan_lite_price: "1100₽",
+        plan_lite_desc: "Идеально для редкого использования",
+        plan_lite_credits: "500 кредитов",
+        plan_lite_feature1: "• Быстрая генерация",
+        plan_lite_feature2: "• Стандартные модели",
+        plan_lite_feature3: "• Высокое качество",
+        plan_lite_select: "Оплатить подписку",
+
+        plan_pro_title: "PRO",
+        plan_pro_price: "1700₽",
+        plan_pro_desc: "Лучший выбор для увлечённых пользователей",
+        plan_pro_credits: "1000 кредитов",
+        plan_pro_feature1: "• Модели FLUX",
+        plan_pro_feature2: "• Включен AI ассистент",
+        plan_pro_feature3: "• Качество HD",
+        plan_pro_select: "Оплатить подписку",
+
+        plan_studio_title: "STUDIO",
+        plan_studio_price: "2900₽",
+        plan_studio_desc: "Максимальная творческая свобода",
+        plan_studio_credits: "2000 кредитов",
+        plan_studio_feature1: "• Максимальная производительность",
+        plan_studio_feature2: "• Все премиум фитчи",
+        plan_studio_feature3: "• Приоритетная поддержка",
+        plan_studio_select: "Оплатить подписку",
+
     },
 
     es: {
@@ -4151,7 +4176,7 @@ function initPlanCards() {
     cards.forEach(card => {
         card.addEventListener('click', () => {
             const planType = card.className.includes('lite') ? 'lite' :
-                           card.className.includes('pro') ? 'pro' : 'studio';
+                card.className.includes('pro') ? 'pro' : 'studio';
 
             // Анимация выбора
             cards.forEach(c => c.classList.remove('selected'));
@@ -4196,10 +4221,10 @@ function initGlassmorphismEffects() {
 }
 
 // ИНИЦИАЛИЗАЦИЯ КАРУСЕЛИ ПРИ ПОКАЗЕ МОДАЛА
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Наблюдатель за появлением модала лимита
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
+    const observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                 const modal = document.getElementById('limitModal');
                 if (modal && modal.classList.contains('show')) {
@@ -4226,7 +4251,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Экспорт функций для использования
 window.plansCarousel = {
     init: initPlansCarousel,
-    stopAutoScroll: function() {
+    stopAutoScroll: function () {
         if (planCarouselInterval) {
             clearInterval(planCarouselInterval);
             planCarouselInterval = null;

@@ -1518,8 +1518,6 @@ textarea:focus-visible {
     left: 0;
     right: 0;
     bottom: 0;
-    width: 85%;
-    height: auto;
     display: none;
     align-items: center;
     justify-content: center;
@@ -1553,9 +1551,8 @@ textarea:focus-visible {
     position: relative;
     background: #1e1e2f;
     border-radius: 16px;
-    padding: 2.5rem 3rem;
-    max-width: 420px;
-    width: 90%;
+    padding: 1.5rem 2rem;
+    width: 99%;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
     color: #f0f0f5;
     text-align: center;
@@ -1933,6 +1930,75 @@ textarea:focus-visible {
     #ai-chat-input {
         font-size: 16px;
         /* Prevents zoom on iOS */
+    }
+
+    /* Modal optimizations for mobile */
+    .limit-modal-content {
+        width: 100%;
+        padding: 1rem 0.5rem;
+        max-width: none;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: none;
+    }
+
+    .plans-carousel {
+        padding: 0.5rem;
+        gap: 0.25rem;
+    }
+
+    .plan-card {
+        flex: 0 0 240px;
+        min-height: 220px;
+        padding: 1rem 1rem;
+    }
+
+    .plan-title {
+        font-size: 1.4rem;
+    }
+
+    .price {
+        font-size: 1.6rem;
+    }
+
+    .limit-icon {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .limit-modal-content {
+        width: 100%;
+        padding: 1.5rem 1rem;
+        transform: none;
+        margin: 1rem auto;
+    }
+
+    .limit-description {
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+
+    .plan-card {
+        flex: 0 0 200px;
+        min-height: 200px;
+        padding: 0.75rem 0.5rem;
+    }
+
+    .plan-title {
+        font-size: 1.2rem;
+    }
+
+    .price {
+        font-size: 1.4rem;
+    }
+
+    .credits {
+        font-size: 0.9rem;
+    }
+
+    .limit-icon {
+        font-size: 2rem;
     }
 }
 
