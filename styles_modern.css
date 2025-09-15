@@ -2548,18 +2548,18 @@ img.lazy-loaded[data-src] {
 
 .plan-card.lite-plan {
     border-left: 4px solid #00d4ff;
-    border-left: 2px solid #0fd6fe;
+    border-top: 2px solid #03b8dc;
 }
 
 .plan-card.pro-plan {
     border-left: 4px solid #ff6b35;
-    border-left: 2px solid #f57546;
+    border-top: 2px solid #cf5124;
 
 }
 
 .plan-card.studio-plan {
     border-left: 4px solid #ff4081;
-    border-left: 2px solid #f74983;
+    border-top: 2px solid #c62d60;
 
 }
 

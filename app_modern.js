@@ -3365,6 +3365,8 @@ async function sendToWebhook(data) {
 
     let selectedStyle = (cards[0].dataset.style || '').toLowerCase();
     let isPointerDown = false;
+    let isPointerInteracting = false;
+    let isHighlighting = false;
     let moved = false;
     let startX = 0, startY = 0, startScroll = 0;
 
@@ -3419,6 +3421,7 @@ async function sendToWebhook(data) {
     // Pointer-события (универсально для мыши/тача/пера)
     track.addEventListener('pointerdown', (e) => {
         isPointerDown = true;
+        isPointerInteracting = true;
         moved = false;
         startX = e.clientX;
         startY = e.clientY;
@@ -3437,6 +3440,10 @@ async function sendToWebhook(data) {
     function endPointer(e) {
         if (!isPointerDown) return;
         isPointerDown = false;
+
+        requestAnimationFrame(() => {
+            isPointerInteracting = false;
+        });
 
         if (moved) {
             // после свайпа — снэп к ближайшей
@@ -3457,6 +3464,18 @@ async function sendToWebhook(data) {
     track.addEventListener('pointerup', endPointer);
     track.addEventListener('pointercancel', endPointer);
     track.addEventListener('pointerleave', endPointer);
+
+    // ADD THIS: scroll event listener for manual scroll selection
+    track.addEventListener('scroll', () => {
+        if (isPointerInteracting) return; // Don't update during pointer interaction
+
+        const card = nearestCard();
+        if (card && !card.classList.contains('active')) {
+            requestAnimationFrame(() => {
+                highlight(card, { scroll: false }); // Select without scrolling to prevent infinite loop
+            });
+        }
+    });
 
     // Доп. фолбэк: явные клики по карточкам (на случай, если pointer события где-то перехватываются)
     cards.forEach(c => {
