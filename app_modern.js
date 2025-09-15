@@ -1211,7 +1211,7 @@ class GlobalHistoryLoader {
             this.handleIntersection.bind(this),
             {
                 rootMargin: '100px', // уменьшен для точности (было 300px)
-                threshold: 0.1, // повышен для точности (было 0.01)
+                threshold: 0.4, // повышен для точности (было 0.01)
                 root: null, // viewport
             }
         );
