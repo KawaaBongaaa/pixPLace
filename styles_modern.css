@@ -2503,11 +2503,13 @@ img.lazy-loaded[data-src] {
 }
 
 .plan-card {
-    flex: 0 0 280px;
-    min-height: 280px;
+    flex: 0 0 250px;
+    min-height: 250px;
     background: linear-gradient(135deg, #2a2a3e 0%, #1e1e2f 100%);
     border-radius: 16px;
-    padding: 2rem 1.5rem;
+    padding: 1rem 0.5rem;
+    margin-left: 2px;
+    margin-right: 2px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -2557,6 +2559,60 @@ img.lazy-loaded[data-src] {
 
 }
 
+/* Шильдик "Most Popular" для Pro карты */
+.plan-badge {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    background: linear-gradient(135deg, #ff6b35, #f7931e, #ff4081);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+    border: 2px solid #ffffff;
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    text-transform: uppercase;
+    animation: badgeGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes badgeGlow {
+    0% {
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4),
+                    0 0 20px rgba(255, 107, 53, 0.3),
+                    0 0 30px rgba(255, 107, 53, 0.2);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 4px 20px rgba(255, 107, 53, 0.6),
+                    0 0 30px rgba(255, 107, 53, 0.5),
+                    0 0 40px rgba(255, 107, 53, 0.4);
+        transform: scale(1.05);
+    }
+}
+
+/* Адаптивность шильдика */
+@media (max-width: 768px) {
+    .plan-badge {
+        font-size: 11px;
+        padding: 6px 10px;
+        right: -6px;
+        top: -6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-badge {
+        font-size: 10px;
+        padding: 5px 9px;
+        right: -4px;
+        top: -4px;
+    }
+}
+
 .plan-card.studio-plan {
     border-left: 4px solid #ff4081;
     border-top: 2px solid #c62d60;
@@ -2596,7 +2652,7 @@ img.lazy-loaded[data-src] {
     font-weight: 900;
     color: #ffffff;
     margin-bottom: 0.25rem;
-    background: linear-gradient(135deg, #00d4ff, #ff6b35);
+    background: linear-gradient(135deg, #0ddbff, #33f94a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
