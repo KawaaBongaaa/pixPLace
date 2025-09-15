@@ -1210,8 +1210,8 @@ class GlobalHistoryLoader {
         this.imageObserver = new IntersectionObserver(
             this.handleIntersection.bind(this),
             {
-                rootMargin: '300px', // больше margin для плавной загрузки
-                threshold: 0.01, // совсем малый threshold для ранней загрузки
+                rootMargin: '100px', // уменьшен для точности (было 300px)
+                threshold: 0.1, // повышен для точности (было 0.01)
                 root: null, // viewport
             }
         );
@@ -1219,7 +1219,7 @@ class GlobalHistoryLoader {
     // Оптимизированные registry с Map для O(1) доступа
     this.observedImages = new Map();
     this.loadingQueue = new Set();
-    this.maxConcurrent = 3; // ограничиваем одновременные загрузки
+    this.maxConcurrent = 6; // ограничиваем одновременные загрузки (увеличено с 3)
     this.pendingQueue = []; // очередь ожидающих загрузки
     this.logout = false;
 
