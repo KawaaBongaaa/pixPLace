@@ -1210,8 +1210,8 @@ class GlobalHistoryLoader {
         this.imageObserver = new IntersectionObserver(
             this.handleIntersection.bind(this),
             {
-                rootMargin: '100px', // уменьшен для точности (было 300px)
-                threshold: 0.4, // повышен для точности (было 0.01)
+                rootMargin: '80px', // уменьшен для точности (было 300px)
+                threshold: 0.1, // повышен для точности (было 0.01)
                 root: null, // viewport
             }
         );
@@ -2994,6 +2994,14 @@ async function generateImage(event) {
 
             // Обновляем миниатюру в истории с новым изображением
             updateHistoryItemWithImage(appState.currentGeneration.id, result.image_url);
+
+            // 🔧 ДОБАВЛЕНИЕ: Обновляем отображение истории, если она уже открыта
+            // Это исправит проблему, когда история не прогружается до первой генерации
+            const historyList = document.getElementById('historyList');
+            if (historyList && !historyList.classList.contains('hidden')) {
+                console.log('📋 History is open, updating display after generation');
+                updateHistoryDisplay();
+            }
 
             showResult(result);
             showToast('success', appState.translate('success_generated'));
