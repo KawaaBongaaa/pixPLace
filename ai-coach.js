@@ -111,7 +111,7 @@
                 : 'Unknown';
 
         const payload = {
-            action: 'AI Coach Chat Message',
+            action: 'AI Prompt Helper Chat Message',
             message: message,
             conversation_id: state.conversationId,
             history: trimmedHistory,
@@ -328,7 +328,7 @@
                                 fontWeight: 'bold',
                                 margin: '0'
                             }
-                        }, 'AI Coach NAVRA'),
+                        }, 'AI Prompt Helper'),
                         createElement('p', {
                             style: {
                                 color: '#c7d2fe',
@@ -378,7 +378,7 @@
                     fontSize: '0.875rem',
                     marginTop: '2rem'
                 }
-            }, '✨ AI Coach NAVRA готов помочь с ИИ генерацией!')
+            }, '✨ Ai Prompt Helper готов помочь с ИИ генерацией!')
         ]);
 
         // Input area with modern design
@@ -631,7 +631,7 @@
         if (!chat) return;
 
         let messageElement;
-        if (text === '🤖 AI Coach печатает...') {
+        if (text === '🤖 AI Assistant печатает...') {
             // Special case for typing indicator
             messageElement = createTypingIndicator();
         } else {
@@ -712,7 +712,7 @@
         // Show welcome message if no history
         if (state.history.length === 0) {
             const welcomeMessage = createMessageElement(
-                '🧠 AI Coach: Добро пожаловать в чат! Я ваш AI ассистент для помощи с ИИ генерацией. Задайте любой вопрос!',
+                '🧠 AI Prompt Helper: Добро пожаловать в чат! Я ваш AI ассистент для помощи с созданием изобжений. Скажите, что вы хотите сгенериролваить и я помогу Вам создать Профессиональный Prompt. Или же просто задайте мне любой вопрос, буду очень помочь!',
                 'bot'
             );
             messagesContainer.appendChild(welcomeMessage);
@@ -892,7 +892,7 @@
     // ========== PUBLIC API ==========
     window.AICoach = {
         init: function() {
-            console.log('🧠 AI Coach NAVRA v3.1 initialized');
+            console.log('🧠 AI Prompt Helper initialized');
             // Setup event listeners
             window.addEventListener('ai-coach-show', () => window.AICoach.show());
             // Dispatch ready event
@@ -932,5 +932,5 @@
     window.showAICoach = () => window.AICoach.show();
     window.hideAICoach = () => window.AICoach.hide();
     
-    console.log('🧠 AI Coach module loaded - isolated and ready');
+    console.log('🧠 AI Prompt Helper module loaded - isolated and ready');
 })();
