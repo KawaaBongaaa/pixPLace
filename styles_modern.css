@@ -1511,20 +1511,25 @@ textarea:focus-visible {
 }
 
 
-/* Модальное окно лимита - современный стиль */
+/* 🔥 🔥 🔥 FULLSCREEN МОДАЛЬНОЕ ОКНО ЛИМИТА */
 .limit-modal {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100vw !important;
+    height: 100vh !important;
     display: none;
-    align-items: center;
+    align-items: flex-start;
+    /* Поменяли с center на flex-start для большего пространства */
     justify-content: center;
+    padding-top: 2vh;
+    /* Отступ сверху для предотвращения касания экрана */
     z-index: 99997;
-    /* Увеличиваем z-index */
     overflow: hidden;
     font-family: 'Inter', sans-serif;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .limit-modal.show {
@@ -1544,23 +1549,30 @@ textarea:focus-visible {
     opacity: 0;
     animation: fadeInBackdrop 0.3s ease forwards;
     z-index: 99998;
-    /* Меньше чем у модального окна */
 }
 
 .limit-modal-content {
     position: relative;
-    background: #1e1e2f;
-    border-radius: 16px;
-    padding: 1.5rem 2rem;
-    width: 99%;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #191719 0%, #0f172a 50%, #1e293b 100%);
+    border-radius: 20px 20px 0 0;
+    /* Только верхние углы для постоянного эффекта full-screen */
+    padding: 2rem 3rem;
+    width: 95vw !important;
+    /* Максимальная ширина */
+    max-width: none !important;
+    height: 90vh !important;
+    /* Максимальная высота */
+    max-height: none !important;
+    /* Убираем max-height для растяжки */
+    overflow-y: auto;
+    /* Добавляем скролл если потребуется */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
     color: #f0f0f5;
     text-align: center;
     z-index: 99999;
-    /* Максимальный z-index */
-    transform: translateY(-30px);
+    transform: translateY(-50px);
     opacity: 0;
-    animation: slideInContent 0.4s ease forwards 0.1s;
+    animation: slideInFullscreen 0.5s ease-out forwards;
 }
 
 .limit-icon {
@@ -1672,6 +1684,22 @@ textarea:focus-visible {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes slideInFullscreen {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
     }
 }
 
@@ -2562,13 +2590,13 @@ img.lazy-loaded[data-src] {
 /* Шильдик "Most Popular" для Pro карты */
 .plan-badge {
     position: absolute;
-    top: -6px;
+    top: -5px;
     right: -4px;
     background: linear-gradient(135deg, #ff6b35, #f7931e, #ff4081);
     color: white;
-    padding: 8px 14px;
+    padding: 6px 12px;
     border-radius: 20px;
-    font-size: 10px;
+    font-size: 10сpx;
     font-weight: 700;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
@@ -2582,14 +2610,15 @@ img.lazy-loaded[data-src] {
 @keyframes badgeGlow {
     0% {
         box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4),
-                    0 0 20px rgba(255, 107, 53, 0.3),
-                    0 0 30px rgba(255, 107, 53, 0.2);
+            0 0 20px rgba(255, 107, 53, 0.3),
+            0 0 30px rgba(255, 107, 53, 0.2);
         transform: scale(1);
     }
+
     100% {
         box-shadow: 0 4px 20px rgba(255, 107, 53, 0.6),
-                    0 0 30px rgba(255, 107, 53, 0.5),
-                    0 0 40px rgba(255, 107, 53, 0.4);
+            0 0 30px rgba(255, 107, 53, 0.5),
+            0 0 40px rgba(255, 107, 53, 0.4);
         transform: scale(1.05);
     }
 }
@@ -2599,8 +2628,8 @@ img.lazy-loaded[data-src] {
     .plan-badge {
         font-size: 11px;
         padding: 6px 10px;
-        right: -6px;
-        top: -6px;
+        right: -4px;
+        top: -4px;
     }
 }
 
@@ -2746,6 +2775,8 @@ img.lazy-loaded[data-src] {
         flex: 0 0 260px;
         min-height: 240px;
         padding: 1.5rem 1rem;
+        margin: 4px;
+
     }
 
     .plan-title {
@@ -2766,6 +2797,7 @@ img.lazy-loaded[data-src] {
         flex: 0 0 230px;
         min-height: 220px;
         padding: 1rem 0.75rem;
+        margin: 5px;
     }
 
     .plan-title {

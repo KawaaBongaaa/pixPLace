@@ -4125,6 +4125,23 @@ function initPlansCarousel() {
     const carousel = document.querySelector('.plans-carousel');
     const indicators = document.querySelectorAll('.indicator');
 
+    // Добавляем функцию highlight для работы с карточками планов
+    function highlight(card, options = {}) {
+        if (!card) return;
+
+        // Убираем активный класс со всех карточек планов
+        document.querySelectorAll('.plan-card').forEach(c => {
+            c.classList.remove('active');
+        });
+
+        // Добавляем активный класс выбранной карточке
+        if (card && typeof card.classList !== 'undefined') {
+            card.classList.add('active');
+        }
+
+        console.log('Карточка плана выделена:', card ? 'OK' : 'null');
+    }
+
     if (!carousel || !indicators.length) {
         console.log('Plans carousel not found, skipping init');
         return;
@@ -4153,60 +4170,147 @@ function initPlansCarousel() {
         updateIndicators(slideIndex);
     }
 
-    // Автопрокрутка - только если пользователь не взаимодействует
-    let userIsInteracting = false; // флаг взаимодействия пользователя
+    // Улучшенная система автопрокрутки с надежной защитой
+    let autoScrollEnabled = true; // Основной флаг активации автопрокрутки
+    let userIsInteracting = false;
 
     function startAutoScroll() {
-        stopAutoScroll(); // Остановка предыдущего интервала
+        // Не запускаем если отключена
+        if (!autoScrollEnabled) return;
+
+        stopAutoScroll();
         planCarouselInterval = setInterval(() => {
-            // НЕ прокручиваем автоматически, если пользователь взаимодействует
-            if (!userIsInteracting) {
+            // Проверяем все условия: взаимодействие, активация, отсутствие прокрутки
+            if (!userIsInteracting && autoScrollEnabled && !carousel.classList.contains('scrolling')) {
                 currentPlanSlide = (currentPlanSlide + 1) % totalSlides;
                 scrollToSlide(currentPlanSlide);
             }
-        }, 5000); // Увеличили интервал до 5 секунд для плавности
+        }, 5000); // 5 секунд - оптимальный баланс
     }
 
     function stopAutoScroll() {
+        autoScrollEnabled = false;
         if (planCarouselInterval) {
             clearInterval(planCarouselInterval);
             planCarouselInterval = null;
         }
     }
 
-    // Пауза при наведении
-    carousel.addEventListener('mouseenter', stopAutoScroll);
-    carousel.addEventListener('mouseleave', startAutoScroll);
+    // Глобальная функция для включения автопрокрутки
+    function enableAutoScroll() {
+        autoScrollEnabled = true;
+        setTimeout(startAutoScroll, 2000); // Запускаем через задержку
+    }
 
-    // Клик по индикаторам
+    // Отключаем автопрокрутку навсегда (можно вызвать из консоли)
+    window.disablePlansAutoScroll = () => {
+        stopAutoScroll();
+        console.log('⏹️ Автопрокрутка планов отключена');
+    };
+
+    // Включаем обратно
+    window.enablePlansAutoScroll = () => {
+        enableAutoScroll();
+        console.log('▶️ Автопрокрутка планов включена');
+    };
+
+    // Прерываем только на время взаимодействия
+    carousel.addEventListener('mouseenter', () => {
+        userIsInteracting = true;
+        stopAutoScroll(); // Останавливаем на время наведения
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+        userIsInteracting = false;
+        // Не включаем немедленно - ждем чтобы избежать抖动
+        setTimeout(() => {
+            if (!userIsInteracting && autoScrollEnabled) {
+                startAutoScroll();
+            }
+        }, 3000);
+    });
+
+    // Клик по индикаторам с защитой от двойных кликов
     indicators.forEach((indicator, index) => {
-        indicator.addEventListener('click', () => {
+        let lastClickTime = 0;
+
+        indicator.addEventListener('click', (e) => {
+            e.preventDefault();
+            const now = Date.now();
+            if (now - lastClickTime < 800) return; // предотвращаем спам клики
+            lastClickTime = now;
+
+            userIsInteracting = true;
+            stopAutoScroll(); // Останавливаем полностью на время
             scrollToSlide(index);
-            stopAutoScroll();
-            setTimeout(startAutoScroll, 2000);
+
+            // Полностью восстанавливаем через длительную задержку
+            setTimeout(() => {
+                userIsInteracting = false;
+                if (autoScrollEnabled) {
+                    startAutoScroll();
+                }
+            }, 5000); // 5 секунд задержки для комфортного просмотра
         });
     });
 
-    // Свайпы для мобильных
+    // Свайпы с защитой от ложных срабатываний
     let touchStartX = 0;
+    let touchStartTime = 0;
+
     carousel.addEventListener('touchstart', (e) => {
+        touchStartTime = Date.now();
         touchStartX = e.changedTouches[0].screenX;
-        stopAutoScroll();
+        userIsInteracting = true;
+        stopAutoScroll(); // Останавливаем на время свайпа
     });
 
     carousel.addEventListener('touchend', (e) => {
+        const touchDuration = Date.now() - touchStartTime;
         const touchEndX = e.changedTouches[0].screenX;
         const diff = touchStartX - touchEndX;
 
-        if (Math.abs(diff) > 50) {
+        // Анализируем свайп только если он был достаточно длинным но не слишком быстрым
+        if (Math.abs(diff) > 60 && touchDuration > 100 && touchDuration < 1500) {
             if (diff > 0 && currentPlanSlide < totalSlides - 1) {
                 scrollToSlide(currentPlanSlide + 1);
             } else if (diff < 0 && currentPlanSlide > 0) {
                 scrollToSlide(currentPlanSlide - 1);
             }
         }
-        setTimeout(startAutoScroll, 3000);
+
+        // Восстанавливаем через достаточную задержку
+        setTimeout(() => {
+            userIsInteracting = false;
+            if (autoScrollEnabled) {
+                startAutoScroll();
+            }
+        }, 6000); // 6 секунд - комфортный время для изучения слайда
     });
+
+    // Кнопка отключения автопрокрутки (для удобства)
+    const stopAutoBtn = document.createElement('button');
+    stopAutoBtn.textContent = '⏹';
+    stopAutoBtn.title = 'Отключить автопрокрутку';
+    Object.assign(stopAutoBtn.style, {
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        background: 'rgba(0,0,0,0.5)',
+        color: 'white',
+        border: 'none',
+        borderRadius: '50%',
+        width: '30px',
+        height: '30px',
+        cursor: 'pointer',
+        zIndex: '100'
+    });
+    stopAutoBtn.onclick = window.disablePlansAutoScroll;
+
+    if (carousel.parentElement) {
+        carousel.parentElement.style.position = 'relative';
+        carousel.parentElement.appendChild(stopAutoBtn);
+    }
 
     // ИНИЦИАЛИЗАЦИЯ - ФОРСИРОВАННО ЦЕНТРИРУЕМ PRO КАРТУ (индекс 1)
     const centerCardIndex = 1; // Про = индекс 1 (для 3 карт: 0=LITE, 1=PRO, 2=STUDIO)
