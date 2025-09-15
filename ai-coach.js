@@ -825,18 +825,26 @@
     input.style.opacity = '0.5';
     input.value = '';
 
-    // Show typing indicator
+    // Show typing indicator AND get a reference to it immediately
     const typingIndicator = addMessageToChat('🤖 pixPLace Assistant думает...', 'bot');
+    console.log('🎭 Typing indicator created:', !!typingIndicator);
 
     try {
         // Send to webhook with history
         const aiResponse = await sendToWebhook(message, state.history.slice(0, -1)); // Exclude current message from history
 
-        // Remove typing indicator from DOM
+        console.log('📨 AI Response received:', aiResponse.substring(0, 50));
+
+        // Remove typing indicator from DOM immediately before adding new message
         if (typingIndicator && typingIndicator.parentNode) {
+            console.log('🗑️ Removing typing indicator from DOM');
             typingIndicator.parentNode.removeChild(typingIndicator);
+        } else {
+            console.warn('⚠️ Typing indicator not found or already removed:', typingIndicator);
         }
 
+        // Add AI response message immediately
+        console.log('✉️ Adding AI response message');
         addMessageToChat(aiResponse, 'bot');
 
         // Add AI response to history
@@ -847,10 +855,12 @@
         console.error('Chat processing failed:', error);
         // Remove typing indicator from DOM
         if (typingIndicator && typingIndicator.parentNode) {
+            console.log('🗑️ Removing typing indicator after error');
             typingIndicator.parentNode.removeChild(typingIndicator);
         }
         addMessageToChat('Извините, произошла ошибка. Повторите пожалуйста.', 'bot');
     } finally {
+        console.log('🏁 Processing finished, setting isProcessing = false');
         state.isProcessing = false;
         input.style.opacity = '';
     }
