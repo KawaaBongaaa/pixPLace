@@ -812,43 +812,48 @@
             return;
         }
 
-        const message = input.value.trim();
-        console.log('📝 Adding user message to chat:', message);
-        addMessageToChat(message, 'user');
+    const message = input.value.trim();
+    console.log('📝 Adding user message to chat:', message);
+    addMessageToChat(message, 'user');
 
-        // Add to history
-        state.history.push({ role: 'user', content: message, timestamp: new Date().toISOString() });
+    // Add to history
+    state.history.push({ role: 'user', content: message, timestamp: new Date().toISOString() });
+    saveChatHistory();
+
+    console.log('🔄 Setting isProcessing = true');
+    state.isProcessing = true;
+    input.style.opacity = '0.5';
+    input.value = '';
+
+    // Show typing indicator
+    const typingIndicator = addMessageToChat('🤖 pixPLace Assistant думает...', 'bot');
+
+    try {
+        // Send to webhook with history
+        const aiResponse = await sendToWebhook(message, state.history.slice(0, -1)); // Exclude current message from history
+
+        // Remove typing indicator from DOM
+        if (typingIndicator && typingIndicator.parentNode) {
+            typingIndicator.parentNode.removeChild(typingIndicator);
+        }
+
+        addMessageToChat(aiResponse, 'bot');
+
+        // Add AI response to history
+        state.history.push({ role: 'assistant', content: aiResponse, timestamp: new Date().toISOString() });
         saveChatHistory();
 
-        console.log('🔄 Setting isProcessing = true');
-        state.isProcessing = true;
-        input.style.opacity = '0.5';
-        input.value = '';
-
-        // Show typing indicator
-        const typingIndicator = addMessageToChat('🤖 pixPLace Assistant думает...', 'bot');
-
-        try {
-            // Send to webhook with history
-            const aiResponse = await sendToWebhook(message, state.history.slice(0, -1)); // Exclude current message from history
-
-            // Remove typing indicator
-            if (typingIndicator) typingIndicator.remove();
-
-            addMessageToChat(aiResponse, 'bot');
-
-            // Add AI response to history
-            state.history.push({ role: 'assistant', content: aiResponse, timestamp: new Date().toISOString() });
-            saveChatHistory();
-
-        } catch (error) {
-            console.error('Chat processing failed:', error);
-            if (typingIndicator) typingIndicator.remove();
-            addMessageToChat('Извините, произошла ошибка. Повторите пожалуйста.', 'bot');
-        } finally {
-            state.isProcessing = false;
-            input.style.opacity = '';
+    } catch (error) {
+        console.error('Chat processing failed:', error);
+        // Remove typing indicator from DOM
+        if (typingIndicator && typingIndicator.parentNode) {
+            typingIndicator.parentNode.removeChild(typingIndicator);
         }
+        addMessageToChat('Извините, произошла ошибка. Повторите пожалуйста.', 'bot');
+    } finally {
+        state.isProcessing = false;
+        input.style.opacity = '';
+    }
     }
     
     function formatResponse(response) {
