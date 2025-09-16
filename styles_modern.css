@@ -2626,19 +2626,19 @@ img.lazy-loaded[data-src] {
 /* Адаптивность шильдика */
 @media (max-width: 768px) {
     .plan-badge {
-        font-size: 11px;
-        padding: 6px 10px;
-        right: -4px;
-        top: -4px;
+        font-size: 10px;
+        padding: 2px 4px;
+        right: 2px;
+        top: 2px;
     }
 }
 
 @media (max-width: 480px) {
     .plan-badge {
-        font-size: 10px;
-        padding: 5px 9px;
-        right: -4px;
-        top: -4px;
+        font-size: 9px;
+        padding: 2px 2px;
+        right: 6px;
+        top: -3px;
     }
 }
 

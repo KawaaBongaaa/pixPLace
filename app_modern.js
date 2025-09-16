@@ -99,28 +99,34 @@ const TRANSLATIONS = {
         ai_chat_title: "AI Assistant",
         plan_lite_title: "LITE",
         plan_lite_price: "€12",
-        plan_lite_desc: "Perfect for casual users",
-        plan_lite_credits: "500 credits",
-        plan_lite_feature1: "• Fast generation",
-        plan_lite_feature2: "• Standard models",
-        plan_lite_feature3: "• Best Quality ",
-        plan_lite_select: "Subscribe",
+        plan_lite_desc: "Perfect for personal use",
+        plan_lite_credits: "500 Credits",
+        plan_lite_feature1: "• Premium Models",
+        plan_lite_feature2: "• AI Assistant (light limits)",
+        plan_lite_feature3: "• Usage License included",
+        plan_lite_feature4: "• Fast Gen",
+        plan_lite_select: "Pay Now",
+
         plan_pro_title: "PRO",
         plan_pro_price: "€17",
-        plan_pro_desc: "Best for enthusiasts",
-        plan_pro_credits: "1000 credits",
-        plan_pro_feature1: "• FLUX models",
-        plan_pro_feature2: "• AI Assistant included",
-        plan_pro_feature3: "• HD quality",
-        plan_pro_select: "Subscribe",
+        plan_pro_desc: "Best pick for power users & pros",
+        plan_pro_credits: "1000 Credits",
+        plan_pro_feature1: "• Everything in Lite..+",
+        plan_pro_feature2: "• AI Assistant (higher limits)",
+        plan_pro_feature3: "• Priority Care from pixPLace team",
+        plan_pro_feature4: "• 25% Off pixPLace Credits",
+        plan_pro_select: "Pay Now",
+
         plan_studio_title: "STUDIO",
         plan_studio_price: "€31",
-        plan_studio_desc: "Full creative power",
-        plan_studio_credits: "2000 credits",
-        plan_studio_feature1: "• Max performance",
-        plan_studio_feature2: "• All premium models",
-        plan_studio_feature3: "• Priority support",
-        plan_studio_select: "Subscribe"
+        plan_studio_desc: "Max creative freedom — great for teams",
+        plan_studio_credits: "2000 Credits",
+        plan_studio_feature1: "• Everything in Pro..+",
+        plan_studio_feature2: "• AI Assistant (no limits)",
+        plan_studio_feature3: "• Early Access to new features",
+        plan_studio_feature4: "• 30%+ Off pixPLace Credits",
+        plan_studio_select: "Pay Now"
+
     },
     ru: {
         loading: "The pixPLace",
@@ -2544,6 +2550,87 @@ function showSubscriptionNotice(result) {
         return;
     }
 
+    // 🔍 ДИАГНОСТИКА: Проверяем все элементы которые могут быть поверх модального окна
+    console.log('🔍 DIAGNOSING modal overlay elements...');
+
+    // Проверяем Z-index всех элементов
+    const allElements = document.querySelectorAll('*');
+    const highZIndexElements = [];
+    const suspiciousElements = [];
+
+    allElements.forEach(el => {
+        const zIndex = window.getComputedStyle(el).zIndex;
+        if (zIndex !== 'auto' && parseInt(zIndex) > 99995) { // Выше модального окна
+            highZIndexElements.push({
+                element: el,
+                zIndex: zIndex,
+                tagName: el.tagName,
+                id: el.id,
+                className: el.className,
+                position: window.getComputedStyle(el).position,
+                display: window.getComputedStyle(el).display,
+                visibility: window.getComputedStyle(el).visibility
+            });
+        }
+
+        // Ищем подозрительные элементы с fixed позиционированием в центре
+        if (window.getComputedStyle(el).position === 'fixed' && el !== modal) {
+            const rect = el.getBoundingClientRect();
+            if (rect.width < 100 && rect.height < 100 && // Маленький размер
+                Math.abs(rect.left + rect.width / 2 - window.innerWidth / 2) < 50 && // Центр по X
+                Math.abs(rect.top + rect.height / 2 - window.innerHeight / 2) < 50) { // Центр по Y
+                suspiciousElements.push({
+                    element: el,
+                    rect: rect,
+                    styles: window.getComputedStyle(el),
+                    html: el.outerHTML.substring(0, 200) + '...'
+                });
+            }
+        }
+    });
+
+    // ✋ РАСШИРЕННАЯ ДИАГНОСТИКА: ПОДРОБНАЯ ИНФОРМАЦИЯ О ВЫСОКИХ ЭЛЕМЕНТАХ
+    console.error('🚨 ПРОБЛЕМА ВЫЯВЛЕНА: 7 элементов с высоким Z-INDEX мешают модальному окну!');
+    console.table(highZIndexElements.map((el, index) => ({
+        '№': index + 1,
+        'Элемент': el.element.tagName,
+        'Z-Index': el.zIndex,
+        'ID': el.element.id || 'без ID',
+        'Классы': el.element.className || 'без классов',
+        'Position': el.element.style ? el.element.style.position : 'не определено',
+        'Display': el.element.style ? el.element.style.display : 'не определено',
+        'Visibility': el.element.style ? el.element.style.visibility : 'не определено',
+        'Содержимое': el.element.innerText ? el.element.innerText.substring(0, 50) + '...' : 'пустой элемент',
+        'HTML': el.element.outerHTML.substring(0, 100) + '...'
+    })));
+
+    console.log('🔍 SUSPICIOUS Fixed Elements in center:', suspiciousElements);
+
+    // Ищем элементы с классом 'touch-action' или похожим
+    const touchElements = document.querySelectorAll('[class*="touch"], [class*="finger"], [class*="joystick"]');
+    console.log('🔍 TOUCH-related elements:', touchElements);
+
+    // Проверяем viewport meta-tag
+    const viewport = document.querySelector('meta[name="viewport"]');
+    console.log('🔍 Viewport meta:', viewport ? viewport.content : 'NOT FOUND');
+
+    // Проверяем наличие системных overlays
+    console.log('🔍 User agent:', navigator.userAgent);
+    console.log('🔍 Touch capabilities:', {
+        touchscreen: navigator.maxTouchPoints > 0,
+        ontouchstart: 'ontouchstart' in window,
+        pointerEvent: 'onpointerdown' in window
+    });
+
+    // Уведомляем пользователя о начале диагностики
+    console.warn('🔍 SYSTEM OVERLAY DETECTION STARTED');
+    console.warn('Если видим оранжевый квадратик/джостик, это может быть:');
+    console.warn('1. Touch Action Indicator (системный оверлей сеанса)');
+    console.warn('2. Pointer Events Hover (CSS hover эффекты)');
+    console.warn('3. Browser Gesture Recognition (системное поведение)');
+    console.warn('4. Mobile System UI (тпанель навигации)');
+    console.warn('5. Input Method Editor (экранная клавиатура)');
+
     // Показать модальное окно
     modal.classList.add('show');
 
@@ -4170,67 +4257,9 @@ function initPlansCarousel() {
         updateIndicators(slideIndex);
     }
 
-    // Улучшенная система автопрокрутки с надежной защитой
-    let autoScrollEnabled = true; // Основной флаг активации автопрокрутки
-    let userIsInteracting = false;
+    // Убираем автопрокрутку полностью, оставляем только пользовательское управление
 
-    function startAutoScroll() {
-        // Не запускаем если отключена
-        if (!autoScrollEnabled) return;
-
-        stopAutoScroll();
-        planCarouselInterval = setInterval(() => {
-            // Проверяем все условия: взаимодействие, активация, отсутствие прокрутки
-            if (!userIsInteracting && autoScrollEnabled && !carousel.classList.contains('scrolling')) {
-                currentPlanSlide = (currentPlanSlide + 1) % totalSlides;
-                scrollToSlide(currentPlanSlide);
-            }
-        }, 5000); // 5 секунд - оптимальный баланс
-    }
-
-    function stopAutoScroll() {
-        autoScrollEnabled = false;
-        if (planCarouselInterval) {
-            clearInterval(planCarouselInterval);
-            planCarouselInterval = null;
-        }
-    }
-
-    // Глобальная функция для включения автопрокрутки
-    function enableAutoScroll() {
-        autoScrollEnabled = true;
-        setTimeout(startAutoScroll, 2000); // Запускаем через задержку
-    }
-
-    // Отключаем автопрокрутку навсегда (можно вызвать из консоли)
-    window.disablePlansAutoScroll = () => {
-        stopAutoScroll();
-        console.log('⏹️ Автопрокрутка планов отключена');
-    };
-
-    // Включаем обратно
-    window.enablePlansAutoScroll = () => {
-        enableAutoScroll();
-        console.log('▶️ Автопрокрутка планов включена');
-    };
-
-    // Прерываем только на время взаимодействия
-    carousel.addEventListener('mouseenter', () => {
-        userIsInteracting = true;
-        stopAutoScroll(); // Останавливаем на время наведения
-    });
-
-    carousel.addEventListener('mouseleave', () => {
-        userIsInteracting = false;
-        // Не включаем немедленно - ждем чтобы избежать抖动
-        setTimeout(() => {
-            if (!userIsInteracting && autoScrollEnabled) {
-                startAutoScroll();
-            }
-        }, 3000);
-    });
-
-    // Клик по индикаторам с защитой от двойных кликов
+    // Клик по индикаторам (остался функционал)
     indicators.forEach((indicator, index) => {
         let lastClickTime = 0;
 
@@ -4240,29 +4269,17 @@ function initPlansCarousel() {
             if (now - lastClickTime < 800) return; // предотвращаем спам клики
             lastClickTime = now;
 
-            userIsInteracting = true;
-            stopAutoScroll(); // Останавливаем полностью на время
             scrollToSlide(index);
-
-            // Полностью восстанавливаем через длительную задержку
-            setTimeout(() => {
-                userIsInteracting = false;
-                if (autoScrollEnabled) {
-                    startAutoScroll();
-                }
-            }, 5000); // 5 секунд задержки для комфортного просмотра
         });
     });
 
-    // Свайпы с защитой от ложных срабатываний
+    // Свайпы - чистое пользовательское управление (без задержек)
     let touchStartX = 0;
     let touchStartTime = 0;
 
     carousel.addEventListener('touchstart', (e) => {
         touchStartTime = Date.now();
         touchStartX = e.changedTouches[0].screenX;
-        userIsInteracting = true;
-        stopAutoScroll(); // Останавливаем на время свайпа
     });
 
     carousel.addEventListener('touchend', (e) => {
@@ -4270,63 +4287,29 @@ function initPlansCarousel() {
         const touchEndX = e.changedTouches[0].screenX;
         const diff = touchStartX - touchEndX;
 
-        // Анализируем свайп только если он был достаточно длинным но не слишком быстрым
-        if (Math.abs(diff) > 60 && touchDuration > 100 && touchDuration < 1500) {
+        // Простая обработка свайпа
+        if (Math.abs(diff) > 60 && touchDuration > 100) {
             if (diff > 0 && currentPlanSlide < totalSlides - 1) {
                 scrollToSlide(currentPlanSlide + 1);
             } else if (diff < 0 && currentPlanSlide > 0) {
                 scrollToSlide(currentPlanSlide - 1);
             }
         }
-
-        // Восстанавливаем через достаточную задержку
-        setTimeout(() => {
-            userIsInteracting = false;
-            if (autoScrollEnabled) {
-                startAutoScroll();
-            }
-        }, 6000); // 6 секунд - комфортный время для изучения слайда
     });
 
-    // Кнопка отключения автопрокрутки (для удобства)
-    const stopAutoBtn = document.createElement('button');
-    stopAutoBtn.textContent = '⏹';
-    stopAutoBtn.title = 'Отключить автопрокрутку';
-    Object.assign(stopAutoBtn.style, {
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        background: 'rgba(0,0,0,0.5)',
-        color: 'white',
-        border: 'none',
-        borderRadius: '50%',
-        width: '30px',
-        height: '30px',
-        cursor: 'pointer',
-        zIndex: '100'
-    });
-    stopAutoBtn.onclick = window.disablePlansAutoScroll;
-
-    if (carousel.parentElement) {
-        carousel.parentElement.style.position = 'relative';
-        carousel.parentElement.appendChild(stopAutoBtn);
-    }
-
-    // ИНИЦИАЛИЗАЦИЯ - ФОРСИРОВАННО ЦЕНТРИРУЕМ PRO КАРТУ (индекс 1)
-    const centerCardIndex = 1; // Про = индекс 1 (для 3 карт: 0=LITE, 1=PRO, 2=STUDIO)
+    // ИНИЦИАЛИЗАЦИЯ - ПРОСТО ЦЕНТРИРУЕМ PRO КАРТУ (индекс 1)
+    const centerCardIndex = 1; // Про = индекс 1 (самый популярный план)
     const centerCard = cards[centerCardIndex];
 
     if (centerCard) {
-        // Полностью центрируем PRO карту по центру экрана
         setTimeout(() => {
             const containerWidth = carousel.offsetWidth;
             const cardWidth = centerCard.offsetWidth;
             const cardLeft = centerCard.offsetLeft;
-            const containerLeft = carousel.offsetLeft;
             const scrollPosition = cardLeft - (containerWidth / 2) + (cardWidth / 2);
             carousel.scrollLeft = Math.max(0, scrollPosition);
 
-            // Второе центрирование через 100мс для точности
+            // Простое центрирование одной строкой
             setTimeout(() => {
                 centerCard.scrollIntoView({
                     behavior: 'instant',
@@ -4339,8 +4322,7 @@ function initPlansCarousel() {
 
     highlight(cards[centerCardIndex], { scroll: false });
     updateIndicators(centerCardIndex);
-    startAutoScroll();
-    console.log('🔥 🔥 Plans carousel initialized - forced center on PRO card (index', centerCardIndex, ')');
+    console.log('🔥 Plans carousel initialized - centered on PRO plan, auto-scroll REMOVED');
 }
 
 // 🎯 ОБРАБОТЧИКИ ДЛЯ КАРТОЧЕК ПЛАНОВ
