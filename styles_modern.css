@@ -2590,12 +2590,12 @@ img.lazy-loaded[data-src] {
 /* Шильдик "Most Popular" для Pro карты */
 .plan-badge {
     position: absolute;
-    top: -5px;
-    right: -4px;
+    top: -8px;
+    right: 9px;
     background: linear-gradient(135deg, #ff6b35, #f7931e, #ff4081);
     color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
+    padding: 0px 4px;
+    border-radius: 10px;
     font-size: 10сpx;
     font-weight: 700;
     letter-spacing: 0.5px;
