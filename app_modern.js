@@ -108,7 +108,7 @@ const TRANSLATIONS = {
         plan_lite_select: "Pay Now",
 
         plan_pro_title: "PRO",
-        plan_pro_price: "€17",
+        plan_pro_price: "€19",
         plan_pro_desc: "Best pick for power users & pros",
         plan_pro_credits: "1000 Credits",
         plan_pro_feature1: "• Everything in Lite..+",

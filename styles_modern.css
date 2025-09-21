@@ -1532,6 +1532,21 @@ textarea:focus-visible {
     -webkit-backdrop-filter: blur(6px);
 }
 
+/* Улучшенная адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .limit-modal {
+        padding-top: 1vh;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .limit-modal {
+        padding-top: 0.5vh;
+        align-items: flex-start;
+    }
+}
+
 .limit-modal.show {
     display: flex;
     animation: fadeInModal 0.3s ease forwards;
@@ -1556,12 +1571,12 @@ textarea:focus-visible {
     background: linear-gradient(135deg, #191719 0%, #0f172a 50%, #1e293b 100%);
     border-radius: 20px 20px 0 0;
     /* Только верхние углы для постоянного эффекта full-screen */
-    padding: 2rem 3rem;
+    padding: 1.5rem 2rem;
     width: 95vw !important;
     /* Максимальная ширина */
     max-width: none !important;
-    height: 90vh !important;
-    /* Максимальная высота */
+    height: 85vh !important;
+    /* Сниженная высота для мобильных */
     max-height: none !important;
     /* Убираем max-height для растяжки */
     overflow-y: auto;
@@ -1575,9 +1590,24 @@ textarea:focus-visible {
     animation: slideInFullscreen 0.5s ease-out forwards;
 }
 
+/* Улучшение видимости текста на мобильных */
+@media (max-width: 768px) {
+    .limit-modal-content {
+        padding: 1rem 1.5rem;
+        height: 85vh !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .limit-modal-content {
+        padding: 0.75rem 1rem;
+        height: 82vh !important;
+    }
+}
+
 .limit-icon {
     font-size: 3.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     color: #ffbb33;
     animation: pulseIcon 2s infinite ease-in-out;
 }
@@ -1594,6 +1624,43 @@ textarea:focus-visible {
     margin-bottom: 2rem;
     line-height: 1.4;
     color: #cfcfd4;
+}
+
+/* Оптимизация элементов верхней части для мобильных */
+@media (max-width: 768px) {
+    .limit-icon {
+        font-size: 2.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .limit-title {
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .limit-message {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 480px) {
+    .limit-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .limit-title {
+        font-size: 1.4rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .limit-message {
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+        line-height: 1.2;
+    }
 }
 
 .limit-buttons {
@@ -2549,6 +2616,25 @@ img.lazy-loaded[data-src] {
     overflow: hidden;
 }
 
+/* Оптимизация размеров карточек для мобильных */
+@media (max-width: 768px) {
+    .plan-card {
+        flex: 0 0 240px;
+        min-height: 220px;
+        padding: 0.8rem 0.4rem;
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-card {
+        flex: 0 0 220px;
+        min-height: 210px;
+        padding: 0.6rem 0.4rem;
+        border-radius: 12px;
+    }
+}
+
 /* Эффект glassmorphism для карточек */
 .plan-card::before {
     content: '';
@@ -2784,11 +2870,16 @@ img.lazy-loaded[data-src] {
     }
 
     .price {
-        font-size: 2rem;
+        font-size: 2rem !important;
+        margin-bottom: 0.5rem;
     }
 
     .plan-icon {
         font-size: 2.5rem;
+    }
+
+    .credits {
+        font-size: 1.3rem;
     }
 }
 
@@ -2805,7 +2896,8 @@ img.lazy-loaded[data-src] {
     }
 
     .price {
-        font-size: 1.8rem;
+        font-size: 1.8rem !important;
+        margin-bottom: 0.4rem;
     }
 
     .plan-icon {
@@ -2819,6 +2911,10 @@ img.lazy-loaded[data-src] {
     .plan-card .btn {
         font-size: 0.9rem;
         padding: 0.6rem 1.2rem;
+    }
+
+    .credits {
+        font-size: 1.1rem;
     }
 }
 
