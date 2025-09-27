@@ -321,35 +321,28 @@
                             <div class="form-group">
                                 <label class="form-label" data-i18n="mode_label">Model</label>
                                 <select id="modeSelect" class="form-select">
-                                    <option value="fast_generation" data-i18n="mode_fast_generation">FLUX Fast
-                                        Generation</option>
-                                    <option value="print_maker" data-i18n="mode_print_maker">SDXL T-shirt print |
-                                        Print_Maker</option>
-                                    <option value="pixplace_pro" data-i18n="mode_pixplace_pro">FLUX Krea (text
-                                        Supported)</option>
-                                    <option value="photo_session" selected data-i18n="mode_photo_session">Nano Banana |
-                                        Photo Editing
-                                    </option>
-                                    <option value="background_removal" data-i18n="mode_background_removal">Background
-                                        removal</option>
-                                    <option value="upscale_image" data-i18n="mode_upscale_image">Upscale Image</option>
+                                    <option value="photo_session" selected data-i18n="mode_photo_session">🔧 Nano Banana | Photo Editing by Kontext Explaining</option>
+                                    <option value="fast_generation" data-i18n="mode_fast_generation">⚡ Flux Shnel | Fastest | Simple Pictures</option>
+                                    <option value="pixplace_pro" data-i18n="mode_pixplace_pro">✨ Flux Krea | Logo | Text Supported</option>
+                                    <option value="print_maker" data-i18n="mode_print_maker">👕 SDXL T-Shirt Print | PoD Helper</option>
+                                    <option value="background_removal" data-i18n="mode_background_removal">✂️ Background removal</option>
+                                    <option value="upscale_image" data-i18n="mode_upscale_image">🔍 Upscale Image</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <div class="user-image-upload" id="userImageWrapper">
-                                    <input type="file" id="userImage" class="user-image-label"
-                                        accept="image/png,image/jpeg,image/webp,image/gif" style="display: none;" />
-                                    <button type="button" id="chooseUserImage" class="btn-link">
-                                        <p class="btn-link-text" data-i18n="upload_image">Upload Img</p>
-                                    </button>
-                                    <div id="userImagePreview" class="user-image-preview hidden">
-                                        <img id="userImagePreviewImg" alt="Preview" />
-                                        <button type="button" id="removeUserImage" class="remove-user-image"
-                                            data-i18n="remove_user_image">
-                                            Remove
-                                        </button>
-                                    </div>
-                                </div>
+            <div class="user-image-upload" id="userImageWrapper">
+                <input type="file" id="userImage" class="user-image-label" multiple
+                    accept="image/png,image/jpeg,image/webp,image/gif" style="display: none;" />
+                <button type="button" id="chooseUserImage" class="btn-link">
+                    <p class="btn-link-text" data-i18n="upload_image">Upload Img</p>
+                </button>
+                <div id="userImagePreview" class="user-image-preview hidden">
+                    <!-- Контейнер для множественных превью -->
+                    <div id="previewContainer" class="preview-container">
+                        <!-- Изображения будут добавляться динамически -->
+                    </div>
+                </div>
+            </div>
                                 <small id="userImageError" class="error-msg"></small>
                             </div>
                         </div>

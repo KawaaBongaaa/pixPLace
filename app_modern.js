@@ -1370,6 +1370,9 @@ class GlobalHistoryLoader {
         this.pendingQueue = []; // очередь ожидающих загрузки
         this.logout = false;
 
+        // Новое: конфигурация для eager loading маленьких списков
+        this.eagerLoadingLimit = 25; // для списков до 25 изображений - eager loading
+
         GlobalHistoryLoader.instance = this;
         console.log('🚀 Ultra-Fast Global History Loader initialized with max performance');
     }
@@ -1482,8 +1485,9 @@ class GlobalHistoryLoader {
             };
 
             img.onerror = () => {
-                console.warn('❌ Image load failed');
-                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PC9zdmc+';
+                console.warn('❌ Image load failed - showing placeholder');
+                const placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbGw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+';
+                img.src = placeholder;
                 resolve();
             };
 
@@ -1520,6 +1524,19 @@ class GlobalHistoryLoader {
             // Безопасное отключение наблюдения
             this.safeUnobserve(img);
         }
+    }
+
+    // 🔧 ДОБАВЛЕНИЕ: Метод для eager загрузки изображений на первой странице
+    loadEagerForElement(element) {
+        if (!element) return;
+
+        const img = element.querySelector('img[data-src]');
+        if (!img || !img.dataset.src) return;
+
+        // Немедленная загрузка без IntersectionObserver
+        this.startLoading(img);
+
+        console.log(`⚡ Eager loaded image: ${img.dataset.src}`);
     }
 
     observe(img) {
@@ -1584,30 +1601,6 @@ class GlobalHistoryLoader {
             console.log(`🧹 Enhanced Mass cleanup: ${cleanupCount} elements removed, ${maxObserversExceeded} observers trimmed (max: ${MAX_ACTIVE_OBSERVERS})`);
         }
     }
-
-    // Полная очистка при завершении работы
-    destroy() {
-        this.logout = true;
-
-        // Отключаем все наблюдения
-        this.imageObserver.disconnect();
-
-        // Очищаем все коллекции
-        this.observedImages.clear();
-        this.loadingQueue.clear();
-
-        GlobalHistoryLoader.instance = null;
-        console.log('💣 Ultra-Fast Global History Loader destroyed completely');
-    }
-
-    // Статистика работы
-    getStats() {
-        return {
-            observedImages: this.observedImages.size,
-            loadingQueue: this.loadingQueue.size,
-            total: this.observedImages.size + this.loadingQueue.size
-        };
-    }
 }
 
 // Global instance
@@ -1659,6 +1652,12 @@ class HistoryManager {
 
     static hasMorePages(page) {
         return page < this.getTotalPages() - 1;
+    }
+
+    // 🔧 ДОБАВЛЕНИЕ: функция для проверки, есть ли еще элементы после текущей страницы для показа кнопки
+    static hasMoreItemsAfter(page, itemsPerPage, validItems) {
+        const currentEndIndex = (page + 1) * itemsPerPage; // индекс конца текущей страницы (например page=0, itemsPerPage=6 -> индекс 6)
+        return currentEndIndex < validItems.length; // проверяем есть ли элементы дальше
     }
 
     static getTotalCount() {
@@ -1943,8 +1942,8 @@ function updateHistoryDisplay(page = 0) {
         console.log('📋 Cleared history list for fresh display');
     }
 
-    // Устанавливаем лимит загрузки в зависимости от страницы
-    const itemsPerPage = page === 0 ? 8 : 15; // первый раз 8 изображений, потом 15
+    // 🔥 НОВОЕ: Изменен лимит для показа только 6 изображений при первом заходе
+    const itemsPerPage = page === 0 ? 6 : 15; // первый раз ТОЛЬКО 6 изображений, потом 15
 
     // Загружаем элементы страницы
     if (HistoryManager.isLoadingPage) {
@@ -1953,7 +1952,11 @@ function updateHistoryDisplay(page = 0) {
     }
 
     HistoryManager.isLoadingPage = true;
-    const pageItems = HistoryManager.getItemsForPage(page);
+
+    // 🔥 НОВОЕ: Для первой страницы ограничиваем до 6 элементов (независимо от размера страницы)
+    const pageItems = page === 0
+        ? validItems.slice(0, 6)  // первые 6 элементов для первой страницы
+        : HistoryManager.getItemsForPage(page);
 
     if (pageItems.length > 0) {
         console.log(`📄 Loading page ${page} with ${pageItems.length} items`);
@@ -1963,9 +1966,15 @@ function updateHistoryDisplay(page = 0) {
             const element = HistoryManager.createHistoryItemElement(item);
             if (element) {
                 historyList.appendChild(element);
-                // Подключаем к Observer для ленивой загрузки
-                const img = element.querySelector('img[data-src]');
-                if (img) globalHistoryLoader.observe(img);
+                // 🔧 ДОБАВЛЕНИЕ: Используем eager loading для первых 6 изображений
+                if (page === 0 && validItems.length <= globalHistoryLoader.eagerLoadingLimit) {
+                    // Для маленьких списков (до 25 изображений) - eager loading всех изображений на первой странице
+                    globalHistoryLoader.loadEagerForElement(element);
+                } else {
+                    // Для больших списков или последующих страниц - ленивая загрузка
+                    const img = element.querySelector('img[data-src]');
+                    if (img) globalHistoryLoader.observe(img);
+                }
             }
         });
 
@@ -1975,7 +1984,11 @@ function updateHistoryDisplay(page = 0) {
         // Управляем кнопкой загрузки следующей страницы
         const existingBtn = document.getElementById('loadMoreHistoryBtn');
 
-        if (HistoryManager.hasMorePages(page)) {
+        // Проверяем, есть ли еще элементы после текущей страницы
+        const currentEndIndex = (page + 1) * itemsPerPage;
+        const hasMoreItems = currentEndIndex < validItems.length;
+
+        if (hasMoreItems) {
             if (existingBtn) {
                 // Если кнопка уже существует - переносим её в конец списка
                 historyList.appendChild(existingBtn);
@@ -2011,6 +2024,7 @@ function updateHistoryDisplay(page = 0) {
     }
 
     HistoryManager.isLoadingPage = false;
+    console.log(`📄 History display updated: showing ${pageItems.length} items from page ${page}`);
 }
 
 // Функция для загрузки следующей страницы истории
@@ -2758,9 +2772,7 @@ function initializeUI() {
 
 // ===== Пользовательское изображение: состояние =====
 const userImageState = {
-    file: null,        // File
-    dataUrl: null,     // data:image/...;base64,...
-    uploadedUrl: null, // публичный URL от imgbb
+    images: [] // массив объектов {id, file, dataUrl, uploadedUrl} - до 4 изображений
 };
 
 
@@ -2785,85 +2797,179 @@ function readFileAsDataURL(file) {
 }
 // ===== Обработчик выбора файла =====
 async function onUserImageChange(e) {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files || []);
     const errorEl = document.getElementById('userImageError');
     const preview = document.getElementById('userImagePreview');
-    const img = document.getElementById('userImagePreviewImg');
-
+    const previewContainer = document.getElementById('previewContainer');
     const chooseBtn = document.getElementById('chooseUserImage');
     const optionalLabel = document.querySelector('.under-user-image-label');
 
     if (errorEl) errorEl.textContent = '';
-    if (!file) return;
+    if (!files.length) return;
 
-    // Валидация
-    //if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
-    if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
-        if (errorEl) errorEl.textContent = 'formats Allowed to upload: JPG, PNG, WEBP, GIF.';
-        e.target.value = '';
-        return;
-    }
-    const maxBytes = CONFIG.MAX_IMAGE_MB * 2048 * 2048;
-    if (file.size > maxBytes) {
-        if (errorEl) errorEl.textContent = `Файл слишком большой. Максимум ${CONFIG.MAX_IMAGE_MB} MB.`;
-        e.target.value = '';
+    // Проверка лимита (до 4 изображений)
+    const currentCount = userImageState.images.length;
+    const newCount = currentCount + files.length;
+    if (newCount > 4) {
+        if (errorEl) errorEl.textContent = 'Максимум 4 изображения. Вы можете загрузить ещё ' + (4 - currentCount) + '.';
         return;
     }
 
-    try {
-        const dataUrl = await readFileAsDataURL(file);
-        const compressed = await maybeCompressImage(
-            dataUrl,
-            CONFIG.PREVIEW_MAX_W,
-            CONFIG.PREVIEW_MAX_H,
-            CONFIG.PREVIEW_JPEG_QUALITY
-        );
+    // Валидация каждого файла
+    const validFiles = [];
+    for (let file of files) {
+        if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
+            if (errorEl) errorEl.textContent = 'Недопустимый формат: только JPG, PNG, WEBP, GIF.';
+            continue;
+        }
+        const maxBytes = CONFIG.MAX_IMAGE_MB * 1024 * 1024; // МБ в байты
+        if (file.size > maxBytes) {
+            if (errorEl) errorEl.textContent = `Файл ${file.name} слишком большой (макс ${CONFIG.MAX_IMAGE_MB} MB).`;
+            continue;
+        }
+        validFiles.push(file);
+    }
 
-        userImageState.file = file;
-        userImageState.dataUrl = compressed;
-        userImageState.uploadedUrl = null;
+    if (!validFiles.length) return;
 
-        if (img) img.src = compressed;
-        if (preview) preview.classList.remove('hidden');
-        const wrapper = document.getElementById('userImageWrapper');
-        wrapper?.classList.add('has-image');
-        wrapper?.classList.remove('need-image');
+    // Обработка каждого файла
+    for (let file of validFiles) {
+        try {
+            const dataUrl = await readFileAsDataURL(file);
+            const compressed = await maybeCompressImage(
+                dataUrl,
+                CONFIG.PREVIEW_MAX_W,
+                CONFIG.PREVIEW_MAX_H,
+                CONFIG.PREVIEW_JPEG_QUALITY
+            );
 
-        // Скрыть кнопку и "(Optional)"
+            // Добавить в массив
+            const imageId = Date.now() + Math.random().toString(36).substr(2, 9);
+            userImageState.images.push({
+                id: imageId,
+                file: file,
+                dataUrl: compressed,
+                uploadedUrl: null
+            });
+
+            // Создать превью элемент
+            createPreviewItem(imageId, compressed, file.name);
+
+        } catch (err) {
+            console.error('Ошибка обработки файла:', file.name, err);
+            if (errorEl) errorEl.textContent = `Ошибка обработки ${file.name}.`;
+        }
+    }
+
+    if (preview) preview.classList.remove('hidden');
+    const wrapper = document.getElementById('userImageWrapper');
+    wrapper?.classList.add('has-image');
+    wrapper?.classList.remove('need-image');
+
+    // Обновление видимости выбора размеров
+    toggleSizeSelectVisibility();
+
+    // Скрыть кнопку если достигнут лимит 4
+    if (userImageState.images.length >= 4) {
         if (chooseBtn) chooseBtn.style.display = 'none';
-        if (optionalLabel) optionalLabel.style.display = 'none';
-
-    } catch (err) {
-        console.error(err);
-        if (errorEl) errorEl.textContent = 'Не удалось прочитать/обработать изображение.';
-        e.target.value = '';
     }
 }
 
-function clearUserImage() {
-    const input = document.getElementById('userImage');
-    const preview = document.getElementById('userImagePreview');
-    const img = document.getElementById('userImagePreviewImg');
-    const errorEl = document.getElementById('userImageError');
+// ===== Создание превью элемента =====
+function createPreviewItem(imageId, dataUrl, fileName) {
+    const previewContainer = document.getElementById('previewContainer');
+    if (!previewContainer) return;
 
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'preview-item';
+    itemDiv.setAttribute('data-id', imageId);
+    itemDiv.style.cssText = `
+        position: relative;
+        display: inline-block;
+        margin: 4px;
+        border: 2px solid var(--border-primary);
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--bg-secondary);
+    `;
+
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    img.alt = fileName;
+    img.style.cssText = `
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        display: block;
+    `;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-preview-btn';
+    removeBtn.textContent = '×';
+    removeBtn.onclick = () => removeImage(imageId);
+    removeBtn.style.cssText = `
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 16px;
+        height: 16px;
+        background: rgba(0,0,0,0.7);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+
+    itemDiv.appendChild(img);
+    itemDiv.appendChild(removeBtn);
+    previewContainer.appendChild(itemDiv);
+}
+
+// ===== Удаление изображения =====
+function removeImage(imageId) {
+    // Удаляем из состояния
+    userImageState.images = userImageState.images.filter(img => img.id !== imageId);
+
+    // Удаляем превью элемент
+    const previewContainer = document.getElementById('previewContainer');
+    const item = previewContainer?.querySelector(`[data-id="${imageId}"]`);
+    if (item) item.remove();
+
+    // Если нет изображений, скрыть превью
+    if (!userImageState.images.length) {
+        const preview = document.getElementById('userImagePreview');
+        if (preview) preview.classList.add('hidden');
+        const wrapper = document.getElementById('userImageWrapper');
+        wrapper?.classList.remove('has-image');
+    }
+
+    // Показать кнопку загрузки если меньше 4
     const chooseBtn = document.getElementById('chooseUserImage');
-    const optionalLabel = document.querySelector('.under-user-image-label');
+    if (chooseBtn && userImageState.images.length < 4) {
+        chooseBtn.style.display = '';
+    }
 
-    if (input) input.value = '';
-    if (img) img.removeAttribute('src');
-    if (preview) preview.classList.add('hidden');
-    if (errorEl) errorEl.textContent = '';
+    // Обновление видимости выбора размеров
+    toggleSizeSelectVisibility();
+}
 
-    // Показать кнопку и "(Optional)" обратно
-    if (chooseBtn) chooseBtn.style.display = '';
-    if (optionalLabel) optionalLabel.style.display = '';
+// ===== Показ размеров =====
+function toggleSizeSelectVisibility() {
+    const sizeSelect = document.getElementById('sizeSelect');
+    const sizeGroup = sizeSelect ? sizeSelect.closest('.form-group') : null;
 
-    userImageState.file = null;
-    userImageState.dataUrl = null;
-    userImageState.uploadedUrl = null;
-    const wrapper = document.getElementById('userImageWrapper');
-    wrapper?.classList.remove('has-image');
-    wrapper?.classList.remove('need-image');
+    if (sizeGroup) {
+        if (userImageState.images.length > 0) {
+            sizeGroup.style.display = 'none';
+        } else {
+            sizeGroup.style.display = '';
+        }
+    }
 }
 
 function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
@@ -2921,14 +3027,36 @@ async function uploadToImgbb(dataUrl, apiKey) {
     return json.data.url;
 }
 
-// Загружает только если выбрано и ещё не загружено
-async function uploadUserImageIfAny() {
-    if (!userImageState.dataUrl) return null;
-    if (userImageState.uploadedUrl) return userImageState.uploadedUrl;
+// Загружает все выбранные изображения
+async function uploadUserImages() {
+    const images = userImageState.images;
+    if (!images || images.length === 0) return [];
 
-    const url = await uploadToImgbb(userImageState.dataUrl, CONFIG.IMGBB_API_KEY);
-    userImageState.uploadedUrl = url || null;
-    return userImageState.uploadedUrl;
+    const urls = [];
+
+    // Загружаем все изображения параллельно
+    const uploadPromises = images.map(async (image, index) => {
+        if (!image.dataUrl) return null;
+
+        // Если уже загружено, используем существующее
+        if (image.uploadedUrl) return image.uploadedUrl;
+
+        try {
+            console.log(`📤 Uploading image ${index + 1}/${images.length}`);
+            const url = await uploadToImgbb(image.dataUrl, CONFIG.IMGBB_API_KEY);
+            image.uploadedUrl = url || null;
+            return url;
+        } catch (error) {
+            console.error(`❌ Failed to upload image ${index + 1}:`, error);
+            return null;
+        }
+    });
+
+    // Ждём загрузки всех изображений
+    const uploadedUrls = await Promise.all(uploadPromises);
+
+    // Фильтруем успешные загрузки
+    return uploadedUrls.filter(url => url !== null);
 }
 
 // 📱 Telegram WebApp Integration
@@ -3166,6 +3294,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     initUserImageUpload(); // ← добавь эту строку
     initLanguageDropdown();
 
+    // ✅ ДОБАВЛЕНИЕ: Принудительно устанавливаем Nano Banana выбранным по умолчанию
+    setTimeout(() => {
+        const modeSelect = document.getElementById('modeSelect');
+        if (modeSelect) {
+            modeSelect.value = 'photo_session';
+            console.log('❤️ Nano Banana set as default mode');
+        }
+    }, 100);
+
     const carouselImages = document.querySelectorAll('.carousel-2d-item img');
     carouselImages.forEach(img => {
         img.loading = 'lazy';
@@ -3198,7 +3335,35 @@ async function generateImage(event) {
     const mode = document.getElementById('modeSelect').value;
     const size = document.getElementById('sizeSelect').value;
 
+    // 🚨 ЭКСТРЕННЫЙ ЛОГИНГ: проверка точно перед отправкой
+    const checkedMode = document.getElementById('modeSelect').value;
+    console.log('🚨 ULTIMATE MODE CHECK - document.getElementById("modeSelect").value:', checkedMode);
+    if (checkedMode !== mode) {
+        console.error('🚨 MODE MISMATCH! Function param:', mode, 'vs DOM value:', checkedMode);
+        mode = checkedMode; // исправляем если есть рассинхрон
+    }
+
     console.log('🚀 Starting generation:', { prompt, style: appState.selectedStyle, mode, size });
+
+    // 🔧 ДОБАВЛЕНИЕ: Логируем выбранные значения для диагностики
+    const modeSelect = document.getElementById('modeSelect');
+    console.log('🔍 Mode select debug:', {
+        selectedValue: modeSelect?.value,
+        selectedText: modeSelect?.selectedOptions[0]?.textContent?.trim(),
+        selectedIndex: modeSelect?.selectedIndex,
+        allOptions: Array.from(modeSelect?.options || []).map(opt => ({
+            value: opt.value,
+            text: opt.textContent?.trim(),
+            selected: opt.selected
+        }))
+    });
+
+    // 🔧 ДОБАВЛЕНИЕ: Проверим userImageState
+    console.log('🔍 User image state:', {
+        hasImages: userImageState?.images?.length || 0,
+        hasDataUrl: !!(userImageState?.images?.[0]?.dataUrl),
+        hasUploadedUrl: !!(userImageState?.images?.[0]?.uploadedUrl)
+    });
 
     // Validation
     if (!prompt) {
@@ -3224,8 +3389,7 @@ async function generateImage(event) {
     const requiresImage = ['photo_session', 'upscale_image', 'background_removal'].includes(mode);
     if (requiresImage) {
         const wrapper = document.getElementById('userImageWrapper');
-        const hasLocalImage =
-            !!userImageState?.file || !!userImageState?.dataUrl || !!userImageState?.uploadedUrl;
+        const hasLocalImage = userImageState?.images && userImageState.images.length > 0;
 
         if (!hasLocalImage) {
             wrapper?.classList.add('need-image');
@@ -3275,19 +3439,21 @@ async function generateImage(event) {
         createLoadingHistoryItem(appState.currentGeneration);
     }, 100);
 
-    // 1) Если выбрано пользовательское изображение — загрузим на imgbb
-    let userImageUrl = null;
+    // 1) Если выбрано пользовательское изображение — загрузим все на imgbb
+    let userImageUrls = [];
     try {
-        userImageUrl = await uploadUserImageIfAny();
+        userImageUrls = await uploadUserImages();
+        console.log('📤 DEBUG: Uploaded user images:', userImageUrls.length, 'URLs:', userImageUrls);
     } catch (err) {
-        console.warn('User image upload failed:', err);
+        console.warn('📤 DEBUG: User images upload failed:', err);
         const errorEl = document.getElementById('userImageError');
         if (errorEl && !errorEl.textContent) {
-            errorEl.textContent = 'Не удалось загрузить изображение. Сгенерируем без него.';
+            errorEl.textContent = 'Не удалось загрузить изображения. Сгенерируем без них.';
         }
     }
-    // === Если режим photo_session — без валидного URL дальше не идём ===
-    if (mode === 'photo_session' && !userImageUrl) {
+
+    // === Если режим photo_session — без валидных URL дальше не идём ===
+    if (mode === 'photo_session' && userImageUrls.length === 0) {
         const wrapper = document.getElementById('userImageWrapper');
         wrapper?.classList.add('need-image');
         showToast('error', appState.translate('upload_failed'));
@@ -3298,17 +3464,18 @@ async function generateImage(event) {
         showGeneration();
         return; // НЕ отправляем webhook
     }
+
     try {
         console.log('📤 Sending to webhook...');
 
-        // Send request to Make webhook
+        // Send request to Make webhook with multiple user images support
         const result = await sendToWebhook({
             action: 'Image Generation',
             prompt: prompt,
             style: appState.selectedStyle,
             mode: mode,
             size: size,
-            user_image_url: userImageUrl,
+            user_image_urls: userImageUrls, // Отправляем массив со всеми URL-ами (до 4-х изображений)
             user_id: appState.userId,
             user_name: appState.userName,
             user_username: appState.userUsername,
@@ -3643,123 +3810,6 @@ async function sendToWebhook(data) {
     });
 })();
 
-
-/*(function () {
-    const track = document.getElementById('carousel2d');
-    const wrapper = track?.closest('.carousel-2d-wrapper');
-    if (!track || !wrapper) return;
-
-    const cards = Array.from(track.querySelectorAll('.carousel-2d-item'));
-    if (!cards.length) return;
-
-    let selectedStyle = (cards[0].dataset.style || '').toLowerCase();
-    let isPointerDown = false;
-    let startX = 0;
-    let startScroll = 0;
-    let moved = false;
-
-    
-function nearestCard() {
-    const trackRect = track.getBoundingClientRect();
-    const center = trackRect.left + trackRect.width / 2;
-    let best = null, bestDist = Infinity;
-
-    for (const c of cards) {
-        const r = c.getBoundingClientRect();
-        const cardCenter = r.left + r.width / 2;
-        const dist = Math.abs(cardCenter - center);
-        if (dist < bestDist) {
-            bestDist = dist;
-            best = c;
-        }
-    }
-    return best;
-}
-
-function highlight(card, { scroll = false } = {}) {
-    cards.forEach(c => c.classList.remove('active'));
-    if (!card) return;
-    card.classList.add('active');
-
-    // Обновляем стиль
-    selectedStyle = (card.dataset.style || '').toLowerCase();
-    if (window.appState) {
-        appState.selectedStyle = selectedStyle;
-    }
-
-    console.log('🎨 Highlighted style:', selectedStyle);
-    console.log('🎨 appState.selectedStyle:', appState?.selectedStyle);
-
-    // Прокручиваем только если явно сказано
-    if (scroll) {
-        card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
-}
-
-// Найти ближайшую карточку к текущему скроллу
-
-// Снэпим к ближайшей карточке
-function onCardClick(e) {
-    if (moved) return; // свайп — не клик
-    const card = e.currentTarget;
-    highlight(card, { scroll: true });
-}
-
-function snapToNearest() {
-    const card = nearestCard();
-    if (card) highlight(card, { scroll: true });
-}
-
-
-// Pointer события на треке
-track.addEventListener('pointerdown', (e) => {
-    isPointerDown = true;
-    moved = false;
-    startX = e.clientX;
-    startScroll = track.scrollLeft;
-    track.setPointerCapture(e.pointerId);
-});
-
-track.addEventListener('pointermove', (e) => {
-    if (!isPointerDown) return;
-    const dx = e.clientX - startX;
-    if (Math.abs(dx) > 5) moved = true;
-    // инвертируем для скролла
-    track.scrollLeft = startScroll - dx;
-});
-
-function endPointer(e) {
-    if (!isPointerDown) return;
-    isPointerDown = false;
-    // после свайпа — снэп к ближайшей
-    requestAnimationFrame(snapToNearest);
-}
-
-track.addEventListener('pointerup', endPointer);
-track.addEventListener('pointercancel', endPointer);
-track.addEventListener('pointerleave', endPointer);
-
-// Публичные методы для внешней интеграции
-window.getSelectedStyle = function () {
-    return selectedStyle;
-};
-window.setCarouselStyle = function (style) {
-    const target = String(style || '').toLowerCase();
-    const card = cards.find(c => (c.dataset.style || '').toLowerCase() === target);
-    if (card) highlight(card, { scroll: true });
-};
-
-// Инициализация — выделим первую видимую/первую по списку
-// highlight(cards[0]);
-highlight(cards[0], { scroll: false });
-
-// На ресайз — удержать активную в видимой области
-window.addEventListener('resize', () => {
-    const active = track.querySelector('.carousel-2d-item.active');
-    if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-});
-}) ();
-*/
 // 🔄 Action Functions
 function newGeneration() {
     showGeneration();
@@ -4405,12 +4455,3 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Экспорт функций для использования
-window.plansCarousel = {
-    init: initPlansCarousel,
-    stopAutoScroll: function () {
-        if (planCarouselInterval) {
-            clearInterval(planCarouselInterval);
-            planCarouselInterval = null;
-        }
-    }
-};
