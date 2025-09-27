@@ -133,7 +133,7 @@
         <div class="loading-content">
             <div class="loading-logo">
                 <!--<img src="./logo.svg" alt="Logo pixPLace Ai webApp" class="logo-img" style="width:150px; height:150px;" loading="lazy">-->
-                <svg class="logo-img" width="400" height="400">
+                <svg class="logo-img" width="800" height="800">
                     <use xlink:href="#pixplace-logo" />
                 </svg>
             </div>
@@ -321,28 +321,34 @@
                             <div class="form-group">
                                 <label class="form-label" data-i18n="mode_label">Model</label>
                                 <select id="modeSelect" class="form-select">
-                                    <option value="photo_session" selected data-i18n="mode_photo_session">🔧 Nano Banana | Photo Editing by Kontext Explaining</option>
-                                    <option value="fast_generation" data-i18n="mode_fast_generation">⚡ Flux Shnel | Fastest | Simple Pictures</option>
-                                    <option value="pixplace_pro" data-i18n="mode_pixplace_pro">✨ Flux Krea | Logo | Text Supported</option>
-                                    <option value="print_maker" data-i18n="mode_print_maker">👕 SDXL T-Shirt Print | PoD Helper</option>
-                                    <option value="background_removal" data-i18n="mode_background_removal">✂️ Background removal</option>
-                                    <option value="upscale_image" data-i18n="mode_upscale_image">🔍 Upscale Image</option>
+                                    <option value="photo_session" selected data-i18n="mode_photo_session">🔧 Nano Banana
+                                        | Photo Editing by Kontext Explaining</option>
+                                    <option value="fast_generation" data-i18n="mode_fast_generation">⚡ Flux Shnel |
+                                        Fastest | Simple Pictures</option>
+                                    <option value="pixplace_pro" data-i18n="mode_pixplace_pro">✨ Flux Krea | Logo | Text
+                                        Supported</option>
+                                    <option value="print_maker" data-i18n="mode_print_maker">👕 SDXL T-Shirt Print | PoD
+                                        Helper</option>
+                                    <option value="background_removal" data-i18n="mode_background_removal">✂️ Background
+                                        removal</option>
+                                    <option value="upscale_image" data-i18n="mode_upscale_image">🔍 Upscale Image
+                                    </option>
                                 </select>
                             </div>
                             <div class="form-group">
-            <div class="user-image-upload" id="userImageWrapper">
-                <input type="file" id="userImage" class="user-image-label" multiple
-                    accept="image/png,image/jpeg,image/webp,image/gif" style="display: none;" />
-                <button type="button" id="chooseUserImage" class="btn-link">
-                    <p class="btn-link-text" data-i18n="upload_image">Upload Img</p>
-                </button>
-                <div id="userImagePreview" class="user-image-preview hidden">
-                    <!-- Контейнер для множественных превью -->
-                    <div id="previewContainer" class="preview-container">
-                        <!-- Изображения будут добавляться динамически -->
-                    </div>
-                </div>
-            </div>
+                                <div class="user-image-upload" id="userImageWrapper">
+                                    <input type="file" id="userImage" class="user-image-label" multiple
+                                        accept="image/png,image/jpeg,image/webp,image/gif" style="display: none;" />
+                                    <button type="button" id="chooseUserImage" class="btn-link">
+                                        <p class="btn-link-text" data-i18n="upload_image">Upload Img</p>
+                                    </button>
+                                    <div id="userImagePreview" class="user-image-preview hidden">
+                                        <!-- Контейнер для множественных превью -->
+                                        <div id="previewContainer" class="preview-container">
+                                            <!-- Изображения будут добавляться динамически -->
+                                        </div>
+                                    </div>
+                                </div>
                                 <small id="userImageError" class="error-msg"></small>
                             </div>
                         </div>
@@ -407,25 +413,15 @@
                                                 alt="Realistic Style" loading="lazy" />
                                             <p data-i18n="style_realistic">Realistic</p>
                                         </div>
-                                        <div class="carousel-2d-item" data-style="logo">
-                                            <img src="https://i.pinimg.com/236x/c4/eb/83/c4eb83180015de9a80b09dff5d555faa.jpg"
-                                                alt="Logo Design" loading="lazy" />
-                                            <p data-i18n="style_logo">Logo</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="print">
-                                            <img src="https://i.pinimg.com/236x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg"
-                                                alt="Print Design, Print on Demand" loading="lazy" />
-                                            <p data-i18n="style_print">Print</p>
-                                        </div>
                                         <div class="carousel-2d-item" data-style="sketch">
                                             <img src="https://i.pinimg.com/236x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg"
                                                 alt="Sketch Art" loading="lazy" />
                                             <p data-i18n="style_sketch">Sketch</p>
                                         </div>
-                                        <div class="carousel-2d-item" data-style="sticker">
-                                            <img src="https://i.pinimg.com/236x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
-                                                alt="Sticker Design" loading="lazy" />
-                                            <p data-i18n="style_sticker">Sticker</p>
+                                        <div class="carousel-2d-item" data-style="cartoon">
+                                            <img src="https://i.pinimg.com/236x/47/dd/14/47dd14400e61dde173fc1c7302b2810d.jpg"
+                                                alt="Cartoon Style" loading="lazy" />
+                                            <p data-i18n="style_cartoon">Cartoon</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="popart">
                                             <img src="https://i.pinimg.com/236x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg"
@@ -437,20 +433,15 @@
                                                 alt="Abstract Style" loading="lazy" />
                                             <p data-i18n="style_abstract">Abstract</p>
                                         </div>
-                                        <div class="carousel-2d-item" data-style="vector">
-                                            <img src="https://i.pinimg.com/236x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
-                                                alt="Vector Design" loading="lazy" />
-                                            <p data-i18n="style_vector">Vector</p>
+                                        <div class="carousel-2d-item" data-style="minimalism">
+                                            <img src="https://i.pinimg.com/236x/33/b3/a3/33b3a3d227992ce02ca6da59baab0cf4.jpg"
+                                                alt="Minimalism Design" loading="lazy" />
+                                            <p data-i18n="style_minimalism">Minimalism</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="anime">
                                             <img src="https://i.pinimg.com/236x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg"
                                                 alt="Anime Style" loading="lazy" />
                                             <p data-i18n="style_anime">Anime</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="cartoon">
-                                            <img src="https://i.pinimg.com/236x/47/dd/14/47dd14400e61dde173fc1c7302b2810d.jpg"
-                                                alt="Cartoon Style" loading="lazy" />
-                                            <p data-i18n="style_cartoon">Cartoon</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="fantasy">
                                             <img src="https://i.pinimg.com/236x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg"
@@ -462,6 +453,11 @@
                                                 alt="Artistic Style" loading="lazy" />
                                             <p data-i18n="style_artistic">Artistic</p>
                                         </div>
+                                        <div class="carousel-2d-item" data-style="fashion">
+                                            <img src="https://i.pinimg.com/236x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
+                                                alt="Fashion Design" loading="lazy" />
+                                            <p data-i18n="style_fashion">Fashion</p>
+                                        </div>
                                         <div class="carousel-2d-item" data-style="cyberpunk">
                                             <img src="https://i.pinimg.com/236x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
                                                 alt="Cyberpunk Style" loading="lazy" />
@@ -472,10 +468,10 @@
                                                 alt="3D Design" loading="lazy" />
                                             <p data-i18n="style_3d">3D</p>
                                         </div>
-                                        <div class="carousel-2d-item" data-style="icon">
-                                            <img src="https://im.runware.ai/image/ws/2/ii/353a2837-9a42-4249-bf07-cce8c1daf521.png"
-                                                alt="Icon Design" loading="lazy" />
-                                            <p data-i18n="style_icon">Icon</p>
+                                        <div class="carousel-2d-item" data-style="surrealism">
+                                            <img src="https://i.pinimg.com/236x/37/3a/1c/373a1c221bdcf4b501498263674aed7e.jpg"
+                                                alt="Surrealism Design" loading="lazy" />
+                                            <p data-i18n="style_surrealism">Surrealism</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="interior">
                                             <img src="https://i.pinimg.com/236x/ff/d3/05/ffd305ca4f27d4d55fe5ce7f0a78f9ba.jpg"
@@ -487,15 +483,35 @@
                                                 alt="Architecture Design" loading="lazy" />
                                             <p data-i18n="style_architecture">Architecture</p>
                                         </div>
-                                        <div class="carousel-2d-item" data-style="fashion">
-                                            <img src="https://i.pinimg.com/236x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
-                                                alt="Fashion Design" loading="lazy" />
-                                            <p data-i18n="style_fashion">Fashion</p>
+                                        <div class="carousel-2d-item" data-style="print">
+                                            <img src="https://i.pinimg.com/236x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg"
+                                                alt="Print Design, Print on Demand" loading="lazy" />
+                                            <p data-i18n="style_print">Print</p>
+                                        </div>
+                                        <div class="carousel-2d-item" data-style="sticker">
+                                            <img src="https://i.pinimg.com/236x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
+                                                alt="Sticker Design" loading="lazy" />
+                                            <p data-i18n="style_sticker">Sticker</p>
+                                        </div>
+                                        <div class="carousel-2d-item" data-style="vector">
+                                            <img src="https://i.pinimg.com/236x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
+                                                alt="Vector Design" loading="lazy" />
+                                            <p data-i18n="style_vector">Vector</p>
                                         </div>
                                         <div class="carousel-2d-item" data-style="banner">
-                                            <img src="https://i.pinimg.com/236x/f8/37/6a/f8376ac4e5e70562061873f02e70a04e.jpg"
+                                            <img src="https://i.pinimg.com/236x/6f/8a/e9/6f8ae9b723f25d77d5d7d5275b4f8c06.jpg"
                                                 alt="Banner Design" loading="lazy" />
                                             <p data-i18n="style_banner">Banner</p>
+                                        </div>
+                                        <div class="carousel-2d-item" data-style="infographic">
+                                            <img src="https://i.pinimg.com/236x/43/a1/57/43a157f45bd1e916776598941396b6f4.jpg"
+                                                alt="Ai infographic Design" loading="lazy" />
+                                            <p data-i18n="style_infographic">Infografic</p>
+                                        </div>
+                                        <div class="carousel-2d-item" data-style="logo">
+                                            <img src="https://i.pinimg.com/236x/dc/d8/6a/dcd86a15d7736f8a3759ff78d1a5b07c.jpg"
+                                                alt="Ai Logo Design" loading="lazy" />
+                                            <p data-i18n="style_logo">Logo</p>
                                         </div>
                                     </div>
                                 </div>

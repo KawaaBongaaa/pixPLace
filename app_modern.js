@@ -46,7 +46,7 @@ const TRANSLATIONS = {
         style_tattoo: "Tattoo",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "Icon",
+        style_minimalism: "Minimalism",
         style_banner: "Banner",
         mode_label: "Mode",
         mode_background_removal: "Remove Background",
@@ -125,7 +125,13 @@ const TRANSLATIONS = {
         plan_studio_feature2: "• AI Assistant (no limits)",
         plan_studio_feature3: "• Early Access to new features",
         plan_studio_feature4: "• 30%+ Off pixPLace Credits",
-        plan_studio_select: "Pay Now"
+        plan_studio_select: "Pay Now",
+
+        // Photo session warning modal translations
+        photo_warning_title: "For better results, upload an image",
+        photo_warning_text: "The \"Nano Banana\" mode works better with an image for img2img generation. Would you like to upload an image or continue without it?",
+        photo_warning_upload_btn: "📸 Upload Image",
+        photo_warning_continue_btn: "✨ Continue without image"
 
     },
     ru: {
@@ -154,7 +160,7 @@ const TRANSLATIONS = {
         style_tattoo: "Тату",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "Icon",
+        style_minimalism: "Minimalism",
         style_banner: "Баннер",
         mode_label: "Режим",
         mode_background_removal: "Удалить фон",
@@ -232,6 +238,7 @@ const TRANSLATIONS = {
         plan_studio_feature4: "• Боллее 30% Скидка на pixPLace Кредиты>",
         plan_studio_select: "Оплатить"
     },
+
     es: {
         loading: "The pixPLace",
         app_title: "pixPLace",
@@ -258,7 +265,7 @@ const TRANSLATIONS = {
         style_tattoo: "Tatuaje",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "Icono",
+        style_minimalism: "Minimalisto",
         style_banner: "Banner",
         mode_label: "Modo",
         mode_background_removal: "Quitar Fondo",
@@ -360,7 +367,7 @@ const TRANSLATIONS = {
         style_tattoo: "Tatouage",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "Icône",
+        style_minimalism: "Minimaliste",
         style_banner: "Banner",
         mode_label: "Mode",
         mode_background_removal: "Supprimer l'Arrière-plan",
@@ -462,7 +469,7 @@ const TRANSLATIONS = {
         style_tattoo: "Tattoo",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "Icon",
+        style_minimalism: "Minimalism",
         style_banner: "Banner",
         mode_label: "Modus",
         mode_background_removal: "Hintergrund Entfernen",
@@ -564,7 +571,7 @@ const TRANSLATIONS = {
         style_tattoo: "纹身",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "图标",
+        style_minimalism: "Minimalism",
         style_banner: "横幅",
         mode_label: "模式",
         mode_background_removal: "移除背景",
@@ -666,7 +673,7 @@ const TRANSLATIONS = {
         style_tattoo: "Tatuagem",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "Ícone",
+        style_minimalism: "style_minimalism",
         style_banner: "Banner",
         mode_label: "Modo",
         mode_background_removal: "Remover Fundo",
@@ -768,7 +775,7 @@ const TRANSLATIONS = {
         style_tattoo: "وشم",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "أيقونة",
+        style_minimalism: "style_minimalism",
         style_banner: "Banner",
         mode_label: "الوضع",
         mode_background_removal: "إزالة الخلفية",
@@ -870,7 +877,7 @@ const TRANSLATIONS = {
         style_tattoo: "टैटू",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "आइकन",
+        style_minimalism: "style_minimalism",
         style_banner: "Banner",
         mode_label: "मोड",
         mode_background_removal: "बैकग्राउंड हटाएं",
@@ -937,7 +944,7 @@ const TRANSLATIONS = {
         style_tattoo: "タトゥー",
         style_print: "プリント",
         style_logo: "ロゴ",
-        style_icon: "アイコン",
+        style_minimalism: "style_minimalism",
         style_banner: "バナー",
         mode_label: "モード",
         mode_background_removal: "背景を削除",
@@ -1040,7 +1047,7 @@ const TRANSLATIONS = {
         style_tattoo: "Tatuaggio",
         style_print: "Print",
         style_logo: "Logo",
-        style_icon: "Icona",
+        style_minimalism: "style_minimalism",
         style_banner: "Banner",
         mode_label: "Modalità",
         mode_background_removal: "Rimozione Sfondo",
@@ -1122,7 +1129,7 @@ const TRANSLATIONS = {
         style_tattoo: "타투",
         style_print: "프린트",
         style_logo: "로고",
-        style_icon: "아이콘",
+        style_minimalism: "아이콘",
         style_banner: "배너",
         mode_label: "모드",
         mode_background_removal: "배경 제거",
@@ -1184,7 +1191,7 @@ const TRANSLATIONS = {
         style_tattoo: "Dövme",
         style_print: "Baskı",
         style_logo: "Logo",
-        style_icon: "İkon",
+        style_minimalism: "style_minimalism",
         style_banner: "Banner",
         mode_label: "Mod",
         mode_background_removal: "Arka planı kaldır",
@@ -1219,7 +1226,7 @@ const TRANSLATIONS = {
         style_tattoo: "Tatuaż",
         style_print: "Druk",
         style_logo: "Logo",
-        style_icon: "Ikona",
+        style_minimalism: "style_minimalism",
         style_banner: "Baner",
         mode_label: "Tryb",
         mode_background_removal: "Usuń tło",
@@ -2821,34 +2828,53 @@ function initUserImageUpload() {
     input?.addEventListener('change', onUserImageChange);
     removeBtn?.addEventListener('click', clearUserImage);
 
-    // 🔧 ДОБАВЛЕНИЕ: Скрывать весь UI загрузки изображений при выборе режима Flux Shnel (fast_generation)
+    // 🔧 ИСПРАВЛЕНИЕ: Показывать превью всегда, когда есть изображения, независимо от режима
     const toggleUploadVisibility = () => {
         if (!chooseBtn) return;
 
         const modeSelect = document.getElementById('modeSelect');
         const preview = document.getElementById('userImagePreview');
+        const hasImages = userImageState.images.length > 0;
 
-        if (modeSelect && modeSelect.value === 'fast_generation') {
-            // Скрываем кнопку загрузки с !important для перезаписи CSS
-            chooseBtn.style.setProperty('display', 'none', 'important');
-            // Скрываем весь контейнер превью с !important
-            if (preview) preview.style.setProperty('display', 'none', 'important');
-            // 🔧 ДОБАВЛЕНИЕ: Дополнительная гарантия скрытия через класс
-            chooseBtn.classList.add('flux-shnel-hidden');
-            if (preview) preview.classList.add('flux-shnel-hidden');
-            console.log('🚫 Upload UI completely hidden for Flux Shnel mode');
-        } else {
-            // Убираем !important классы
-            chooseBtn.classList.remove('flux-shnel-hidden');
-            if (preview) preview.classList.remove('flux-shnel-hidden');
-            // Показываем кнопку загровки
+        // Определяем видимость кнопки загрузки (только для Flux Shnel скрываем)
+        const shouldShowUploadButton = modeSelect && modeSelect.value !== 'fast_generation';
+
+        // Кнопка загрузки - скрываем только для Flux Shnel
+        if (shouldShowUploadButton) {
             chooseBtn.style.setProperty('display', '', '');
-            // Показываем превью обратно если есть изображения
-            if (preview && userImageState.images.length > 0) {
-                preview.style.setProperty('display', 'block', '');
-            }
-            console.log('✅ Upload UI visible for other modes');
+            chooseBtn.classList.remove('flux-shnel-hidden');
+        } else {
+            chooseBtn.style.setProperty('display', 'none', 'important');
+            chooseBtn.classList.add('flux-shnel-hidden');
         }
+
+        // Превью - прячем в режиме fast_generation независимо от наличия изображений, в других режимах показываем если есть изображения
+        if (preview) {
+            const currentMode = modeSelect ? modeSelect.value : '';
+            if (currentMode === 'fast_generation') {
+                // В Flux Shnel режиме превью всегда спрятано
+                preview.style.setProperty('display', 'none', 'important');
+                preview.classList.add('flux-shnel-hidden');
+                console.log('🚫 Preview hidden for Flux Shnel mode');
+            } else if (hasImages) {
+                // В других режимах показываем если есть изображения
+                preview.style.setProperty('display', 'block', '');
+                preview.classList.remove('flux-shnel-hidden');
+                console.log('✅ Preview visible with images (non-Flux Shnel mode)');
+            } else {
+                // В других режимах прячем если нет изображений
+                preview.style.setProperty('display', 'none', 'important');
+                preview.classList.add('flux-shnel-hidden');
+                console.log('🚫 Preview hidden - no images in other mode');
+            }
+        }
+
+        console.log('📋 Upload visibility updated:', {
+            mode: modeSelect?.value,
+            hasImages,
+            buttonVisible: shouldShowUploadButton,
+            previewVisible: hasImages || shouldShowUploadButton
+        });
     };
 
     // Проверить режим при изменении
@@ -3475,8 +3501,9 @@ async function generateImage(event) {
 
 
 
-    // === GUARD: photo_session, upscale, background_removal требуют загруженного фото ===
-    const requiresImage = ['photo_session', 'upscale_image', 'background_removal'].includes(mode);
+    // === GUARD: upscale, background_removal требуют загруженного фото ===
+    // photo_session теперь гибридный режим (работает с/без изображения)
+    const requiresImage = ['upscale_image', 'background_removal'].includes(mode);
     if (requiresImage) {
         const wrapper = document.getElementById('userImageWrapper');
         const hasLocalImage = userImageState?.images && userImageState.images.length > 0;
@@ -3542,17 +3569,19 @@ async function generateImage(event) {
         }
     }
 
-    // === Если режим photo_session — без валидных URL дальше не идём ===
+    // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session без изображения ===
     if (mode === 'photo_session' && userImageUrls.length === 0) {
-        const wrapper = document.getElementById('userImageWrapper');
-        wrapper?.classList.add('need-image');
-        showToast('error', appState.translate('upload_failed'));
-        triggerHaptic('error');
-        // Откатываем состояние и возвращаем экран генерации
-        appState.isGenerating = false;
-        stopTimer();
-        showGeneration();
-        return; // НЕ отправляем webhook
+        // Останавливаем немедленную генерацию и показываем предупреждение
+        const shouldContinue = await showWarningAboutNoImage();
+        if (!shouldContinue) {
+            // Пользователь решил добавить изображение - моргает кнопка загрузки
+            startUploadButtonBlink();
+            appState.isGenerating = false;
+            stopTimer();
+            showGeneration();
+            return; // НЕ отправляем webhook
+        }
+        // Продолжаем генерацию без изображения (text-to-image режим)
     }
 
     try {
@@ -4544,4 +4573,174 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+// 🎨 Функция моргания кнопки загрузки для привлечения внимания (использует существующую анимацию need-image-pulse)
+function startUploadButtonBlink() {
+    const chooseBtn = document.getElementById('chooseUserImage');
+    if (!chooseBtn) return;
+
+    console.log('🎯 Starting upload button pulse animation');
+
+    // Применяем существующую анимацию need-image-pulse (настройка длительности)
+    chooseBtn.style.animation = 'need-image-pulse 2.4s infinite';  // ← МЕНЯЙТЕ ДЛИТЕЛЬНОСТЬ ЗДЕСЬ (4s - 4 секунды)
+
+    // Через несколько секунд убираем анимацию
+    setTimeout(() => {
+        chooseBtn.style.animation = '';
+        console.log('✅ Upload button pulse animation stopped');
+    }, 10000);  // ← МЕНЯЙТЕ ОБЩУЮ ПРОДОЛЖИТЕЛЬНОСТЬ ЗДЕСЬ (4000мс - 4 секунды)
+
+    // Дополнительно прокручиваем к кнопке если она не видна
+    setTimeout(() => {
+        chooseBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+}
+
+// 🎨 Функция показа предупреждения для Photo Session без изображения
+async function showWarningAboutNoImage() {
+    return new Promise((resolve) => {
+        // Создаем оверлей и модал
+        const overlay = document.createElement('div');
+        overlay.id = 'photo-warning-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        `;
+
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            background: var(--bg-primary, #ffffff);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        `;
+
+        modal.innerHTML = `
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
+                <h3 style="margin: 0 0 1rem 0; color: var(--text-primary, #333); font-size: 1.25rem; font-weight: 600;">${appState.translate('photo_warning_title')}</h3>
+                <p style="margin: 0; color: var(--text-secondary, #666); font-size: 1rem; line-height: 1.5;">
+                    ${appState.translate('photo_warning_text')}
+                </p>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button id="upload-image-btn" style="
+                    flex: 1;
+                    padding: 12px 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                ">
+                    ${appState.translate('photo_warning_upload_btn')}
+                </button>
+                <button id="continue-without-btn" style="
+                    flex: 1;
+                    padding: 12px 20px;
+                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+                ">
+                    ${appState.translate('photo_warning_continue_btn')}
+                </button>
+            </div>
+        `;
+
+        // Добавляем эффекты hover для кнопок
+        const style = document.createElement('style');
+        style.textContent = `
+            #upload-image-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            }
+            #continue-without-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
+            }
+        `;
+        document.head.appendChild(style);
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Анимация появления
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            modal.style.transform = 'translateY(0)';
+        });
+
+        // Обработчики кнопок
+        const uploadBtn = modal.querySelector('#upload-image-btn');
+        const continueBtn = modal.querySelector('#continue-without-btn');
+
+    uploadBtn.addEventListener('click', () => {
+        // Закрываем модал
+        overlay.style.opacity = '0';
+        modal.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+            document.head.removeChild(style);
+            resolve(false); // false значит не продолжаем генерацию, пользователь пойдет загружать изображение
+        }, 300);
+
+        // Запуск моргания кнопки upload для привлечения внимания
+        startUploadButtonBlink();
+
+        // Опционально: промотать к блоку загрузки изображений
+        const imageUpload = document.getElementById('userImageWrapper');
+        if (imageUpload) {
+            imageUpload.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+
+        continueBtn.addEventListener('click', () => {
+            // Закрываем модал
+            overlay.style.opacity = '0';
+            modal.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+                document.head.removeChild(style);
+                resolve(true); // true значит продолжаем генерацию
+            }, 300);
+        });
+
+        // Закрытие по клику на оверлей
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.style.opacity = '0';
+                modal.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                    document.head.removeChild(style);
+                    resolve(false); // Закрытие = отмена генерации
+                }, 300);
+            }
+        });
+    });
+}
 // Экспорт функций для использования
