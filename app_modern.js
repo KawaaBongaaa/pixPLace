@@ -1539,6 +1539,33 @@ this.imageObserver = new IntersectionObserver(
         console.log(`⚡ Eager loaded image: ${img.dataset.src}`);
     }
 
+    // 🆕 ДОБАВЛЕНИЕ: Принудительная загрузка всех видимых превью истории
+    forceLoadVisibleHistoryPreviews() {
+        const historyList = document.getElementById('historyList');
+        if (!historyList || historyList.classList.contains('hidden')) {
+            console.log('📋 История истории скрыта или не найдена, пропускаем force load');
+            return;
+        }
+
+        // Найдём все img[data-src] в видимых элементах истории
+        const visibleImages = historyList.querySelectorAll('.history-mini img[data-src]');
+        if (visibleImages.length === 0) {
+            console.log('📋 Нет превью для загрузки в истории');
+            return;
+        }
+
+        console.log(`🎯 Force loading ${visibleImages.length} history previews`);
+
+        // Загрузим все подряд, игнорируя лимит concurrent
+        visibleImages.forEach(img => {
+            if (img.dataset.src && !img.src) {
+                this.startLoading(img);
+            }
+        });
+
+        console.log('✅ Force load completed');
+    }
+
     observe(img) {
         if (!img || img.nodeType !== 1) return; // проверка что элемент существует
 
@@ -2740,6 +2767,13 @@ function showGeneration() {
     gen.classList.add('active');
 
     showBackButton(false);
+
+    // 🆕 ДОБАВЛЕНИЕ: Принудительная загрузка превью истории при возврате на генерацию
+    setTimeout(() => {
+        if (globalHistoryLoader) {
+            globalHistoryLoader.forceLoadVisibleHistoryPreviews();
+        }
+    }, 50);
 }
 
 
