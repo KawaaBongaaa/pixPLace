@@ -1354,27 +1354,27 @@ class GlobalHistoryLoader {
             return GlobalHistoryLoader.instance;
         }
 
-        this.imageObserver = new IntersectionObserver(
-            this.handleIntersection.bind(this),
-            {
-                rootMargin: '100px', // уменьшен для точности (было 300px)
-                threshold: 0.1, // повышен для точности (было 0.01)
-                root: null, // viewport
-            }
-        );
+this.imageObserver = new IntersectionObserver(
+    this.handleIntersection.bind(this),
+    {
+        rootMargin: '150px', // еще шире для гарантированного захвата видимых элементов
+        threshold: [0.01, 0.005, 0.001], // ультра-агрессивные пороги для любого намека видимости
+        root: null, // viewport
+    }
+);
 
         // Оптимизированные registry с Map для O(1) доступа
         this.observedImages = new Map();
         this.loadingQueue = new Set();
-        this.maxConcurrent = 6; // ограничиваем одновременные загрузки (увеличено с 3)
+        this.maxConcurrent = 12; // ограничиваем одновременные загрузки (увеличено для максимальной скорости)
         this.pendingQueue = []; // очередь ожидающих загрузки
         this.logout = false;
 
         // Новое: конфигурация для eager loading маленьких списков
-        this.eagerLoadingLimit = 25; // для списков до 25 изображений - eager loading
+        this.eagerLoadingLimit = 50; // для списков до 50 изображений - eager loading
 
         GlobalHistoryLoader.instance = this;
-        console.log('🚀 Ultra-Fast Global History Loader initialized with max performance');
+        console.log('🚀 Ultra-Fast Global History Loader initialized with aggressive loading');
     }
 
     handleIntersection(entries, observer) {
@@ -1385,7 +1385,7 @@ class GlobalHistoryLoader {
             console.warn('⚡ IntersectionObserver triggered:', entries.length, 'entries - performance warning');
         }
 
-        // Оптимизированная обработка с улучшенными порогами
+        // Оптимизированная обработка с агрессивными порогами для максимальной скорости загрузки
         const highPriorityEntries = [];
         const normalPriorityEntries = [];
         const lowPriorityEntries = [];
@@ -1394,20 +1394,20 @@ class GlobalHistoryLoader {
         for (const entry of entries) {
             // Убираем спам - логируем только в 2% случаев и только базовую информацию
             if (Math.random() < 0.02) {
-                console.log('📊 Entry intersection:', entry.intersectionRatio.toFixed(2));
+                console.log('📊 Entry intersection:', entry.intersectionRatio.toFixed(3));
             }
 
             if (entry.isIntersecting) {
-                // Высокий приоритет - изображения в центре экрана (40%+ видимости, снижен для скорости)
-                if (entry.intersectionRatio >= 0.4) {
+                // Высокий приоритет - изображения даже с минимальной видимостью (1%+ для скорости)
+                if (entry.intersectionRatio >= 0.01) {
                     highPriorityEntries.push(entry);
                 }
-                // Нормальный приоритет - достаточная видимость (15%+ видимости, снижен для скорости)
-                else if (entry.intersectionRatio >= 0.15) {
+                // Нормальный приоритет - очень слабая видимость (0.5%+)
+                else if (entry.intersectionRatio >= 0.005) {
                     normalPriorityEntries.push(entry);
                 }
-                // Низкий приоритет - слабая видимость (для предзагрузки)
-                else if (entry.intersectionRatio > 0.1) {
+                // Низкий приоритет - минимальная видимость (0.1%+)
+                else if (entry.intersectionRatio > 0.001) {
                     lowPriorityEntries.push(entry);
                 }
             } else {
@@ -1987,6 +1987,7 @@ function updateHistoryDisplay(page = 0) {
         // Проверяем, есть ли еще элементы после текущей страницы
         const currentEndIndex = (page + 1) * itemsPerPage;
         const hasMoreItems = currentEndIndex < validItems.length;
+        console.log('🧮 History pagination:', { page, itemsPerPage, currentEndIndex, validItemsLength: validItems.length, hasMoreItems });
 
         if (hasMoreItems) {
             if (existingBtn) {
