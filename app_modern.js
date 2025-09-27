@@ -2820,6 +2820,50 @@ function initUserImageUpload() {
     chooseBtn?.addEventListener('click', () => input?.click());
     input?.addEventListener('change', onUserImageChange);
     removeBtn?.addEventListener('click', clearUserImage);
+
+    // 🔧 ДОБАВЛЕНИЕ: Скрывать весь UI загрузки изображений при выборе режима Flux Shnel (fast_generation)
+    const toggleUploadVisibility = () => {
+        if (!chooseBtn) return;
+
+        const modeSelect = document.getElementById('modeSelect');
+        const preview = document.getElementById('userImagePreview');
+
+        if (modeSelect && modeSelect.value === 'fast_generation') {
+            // Скрываем кнопку загрузки с !important для перезаписи CSS
+            chooseBtn.style.setProperty('display', 'none', 'important');
+            // Скрываем весь контейнер превью с !important
+            if (preview) preview.style.setProperty('display', 'none', 'important');
+            // 🔧 ДОБАВЛЕНИЕ: Дополнительная гарантия скрытия через класс
+            chooseBtn.classList.add('flux-shnel-hidden');
+            if (preview) preview.classList.add('flux-shnel-hidden');
+            console.log('🚫 Upload UI completely hidden for Flux Shnel mode');
+        } else {
+            // Убираем !important классы
+            chooseBtn.classList.remove('flux-shnel-hidden');
+            if (preview) preview.classList.remove('flux-shnel-hidden');
+            // Показываем кнопку загровки
+            chooseBtn.style.setProperty('display', '', '');
+            // Показываем превью обратно если есть изображения
+            if (preview && userImageState.images.length > 0) {
+                preview.style.setProperty('display', 'block', '');
+            }
+            console.log('✅ Upload UI visible for other modes');
+        }
+    };
+
+    // Проверить режим при изменении
+    const modeSelect = document.getElementById('modeSelect');
+    if (modeSelect) {
+        // Инициализация видимости при загрузке
+        toggleUploadVisibility();
+
+        // Слушать изменения режима
+        modeSelect.addEventListener('change', () => {
+            toggleUploadVisibility();
+            // Также обновляем видимость блока размеров при смене режима
+            toggleSizeSelectVisibility();
+        });
+    }
 }
 
 function readFileAsDataURL(file) {
@@ -2999,10 +3043,21 @@ function toggleSizeSelectVisibility() {
     const sizeGroup = sizeSelect ? sizeSelect.closest('.form-group') : null;
 
     if (sizeGroup) {
-        if (userImageState.images.length > 0) {
-            sizeGroup.style.display = 'none';
-        } else {
+        const modeSelect = document.getElementById('modeSelect');
+        const currentMode = modeSelect ? modeSelect.value : '';
+
+        // Для Flux Shnel (fast_generation) всегда показываем выбор размеров
+        if (currentMode === 'fast_generation') {
             sizeGroup.style.display = '';
+            console.log('📏 Size selector visible for Flux Shnel mode');
+        } else {
+            // Для других режимов логика как раньше
+            if (userImageState.images.length > 0) {
+                sizeGroup.style.display = 'none';
+            } else {
+                sizeGroup.style.display = '';
+            }
+            console.log('📏 Size selector hidden for other modes with images');
         }
     }
 }

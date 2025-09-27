@@ -3028,6 +3028,13 @@ img.lazy-loaded[data-src] {
     transition: all 0.3s ease;
 }
 
+/* 🔥🔥🔥 Классы для принудительного скрытия UI загрузки изображений */
+.flux-shnel-hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
 /* Тематические background для разных тем */
 [data-theme="light"] .generation-text {
     background: rgba(255, 255, 255, 0.95);
