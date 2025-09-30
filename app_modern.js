@@ -131,7 +131,10 @@ const TRANSLATIONS = {
         photo_warning_title: "For better results, upload an image",
         photo_warning_text: "The \"Nano Banana\" mode works better with an image for img2img generation. Would you like to upload an image or continue without it?",
         photo_warning_upload_btn: "📸 Upload Image",
-        photo_warning_continue_btn: "✨ Continue without image"
+        photo_warning_continue_btn: "✨ Continue without image",
+
+        // Server overloaded error message
+        error_server_overloaded: "😓 Generation failed. The servers are currently overloaded, please try again later or select a different generation mode... We sincerely apologize for the inconvenience and hope for your understanding 🙏"
 
     },
     ru: {
@@ -1826,20 +1829,49 @@ function showToast(type, message) {
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
+    // Определяем иконку в зависимости от типа
+    const iconMap = {
+        'error': '❌',
+        'warning': '⚠️',
+        'success': '✅',
+        'info': 'ℹ️',
+        'light': '💡'
+    };
+
+    const icon = iconMap[type] || '📝';
+
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.textContent = message;
+
+    // Добавляем иконку и animarker для progress бара
+    toast.innerHTML = `
+        <div class="toast-content">
+            <span class="toast-icon">${icon}</span>
+            <span class="toast-message">${message}</span>
+        </div>
+        <div class="toast-progress">
+            <div class="toast-progress-bar"></div>
+        </div>
+    `;
 
     container.appendChild(toast);
 
     // Trigger animation
-    setTimeout(() => toast.classList.add('show'), 100);
-
-    // Remove after delay
     setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => container.removeChild(toast), 300);
-    }, 3000);
+        toast.classList.add('show');
+        // Запускаем progress бар анимацию
+        const progressBar = toast.querySelector('.toast-progress-bar');
+        if (progressBar) {
+            progressBar.style.animation = 'toast-progress 5s linear forwards';
+        }
+    }, 100);
+
+        // Remove after delay (increased for longer error messages, but shorter for success)
+        const displayTime = type === 'success' ? 3000 : 5000; // 3 секунды для успешных, 5 для ошибок
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => container.removeChild(toast), 300);
+        }, displayTime);
 }
 
 function triggerHaptic(type) {
@@ -3914,6 +3946,21 @@ async function generateImage(event) {
             throw new Error('Invalid response from webhook');
         }
 
+        // Специальная обработка перегрузки серверов
+        if (result.server_overloaded) {
+            console.log('⚠️ Server overload detected - showing user-friendly message');
+            appState.currentGeneration.status = 'error';
+            appState.currentGeneration.error = result.message || appState.translate('error_server_overloaded');
+            appState.currentGeneration.endTime = Date.now();
+            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
+            appState.saveHistory();
+
+            showToast('error', result.message || appState.translate('error_server_overloaded'));
+            triggerHaptic('error');
+            showGeneration();
+            return;
+        }
+
         // Проверка на ошибку
         if (result.status === 'error' || result.error) {
             throw new Error(result.error || result.message || 'Unknown error from webhook');
@@ -4038,7 +4085,14 @@ async function sendToWebhook(data) {
                 // Сервер вернул текст (например, ошибку)
                 const textResponse = await response.text();
                 console.log('📄 Server returned text:', textResponse);
-                throw new Error('Server returned text instead of JSON: ' + textResponse);
+
+                // Проверяем на признак перегрузки серверов (например, "Accepted")
+                if (textResponse.trim().toLowerCase() === 'accepted') {
+                    console.log('⚠️ Server overload detected, returning special flag');
+                    result = { server_overloaded: true, message: appState.translate('error_server_overloaded') };
+                } else {
+                    throw new Error('Server returned text instead of JSON: ' + textResponse);
+                }
             } else {
                 // Неопределённый content-type — пытаемся парсить как JSON
                 const textResponse = await response.text();
@@ -4066,6 +4120,16 @@ async function sendToWebhook(data) {
 
         if (error.name === 'AbortError') {
             throw new Error(appState.translate('error_timeout'));
+        }
+
+        // ДОБАВЛЕНИЕ: Детальная обработка сетевых ошибок
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            throw new Error('Connection failed. Check your internet connection and try again.');
+        }
+
+        // ДОБАВЛЕНИЕ: Обработка ошибок сети и CORS
+        if (error.name === 'NetworkError' || error.message.includes('network') || error.message.includes('CORS')) {
+            throw new Error('Network error. Please check your connection and try again.');
         }
 
         console.error('❌ Webhook error:', error);
