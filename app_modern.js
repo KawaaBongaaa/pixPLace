@@ -1255,6 +1255,7 @@ class AppState {
         // Добавлено отображение баланса пользователя
         this.userCredits = null; // текущий баланс кредитов
         this.lastBalanceUpdate = null; // время последнего обновления баланса
+        this.balanceHistory = []; // история изменений баланса: [{balance, timestamp, reason}]
     }
 
     // Language methods
@@ -1349,6 +1350,34 @@ class AppState {
         } catch (error) {
             console.error('Failed to load history:', error);
             this.generationHistory = [];
+        }
+    }
+
+    saveBalanceHistory() {
+        try {
+            localStorage.setItem('balanceHistory', JSON.stringify(this.balanceHistory));
+        } catch (error) {
+            console.error('Failed to save balance history:', error);
+        }
+    }
+
+    loadBalanceHistory() {
+        try {
+            const history = localStorage.getItem('balanceHistory');
+            if (history) {
+                this.balanceHistory = JSON.parse(history);
+                // Инициализируем текущий баланс самым свежим значением из истории
+                if (this.balanceHistory.length > 0) {
+                    const latestEntry = this.balanceHistory[this.balanceHistory.length - 1];
+                    this.userCredits = latestEntry.balance;
+                    this.lastBalanceUpdate = latestEntry.timestamp;
+                }
+            } else {
+                this.balanceHistory = [];
+            }
+        } catch (error) {
+            console.error('Failed to load balance history:', error);
+            this.balanceHistory = [];
         }
     }
 }
@@ -1867,7 +1896,7 @@ function showToast(type, message) {
     }, 100);
 
         // Remove after delay (increased for longer error messages, but shorter for success)
-        const displayTime = type === 'success' ? 3000 : 5000; // 3 секунды для успешных, 5 для ошибок
+        const displayTime = type === 'success' ? 2000 : 5000; // 2 секунды для успешных, 5 для ошибок
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => container.removeChild(toast), 300);
@@ -2601,13 +2630,61 @@ function showResult(result) {
     console.log('after showResult ->', getCurrentScreen());
 }
 
+// Функция обновления отображения имени пользователя в header
+function updateUserNameDisplay() {
+    const nameElement = document.getElementById('userNameDisplay');
+
+    if (!nameElement) return;
+
+    // Приоритет отображения: username > имя+фамилия > имя > userId
+    let displayName = '';
+
+    if (appState.userUsername) {
+        // Есть username - показываем с @
+        displayName = '@' + appState.userUsername;
+    } else if (appState.userName && appState.userName.trim() !== '') {
+        // Есть имя/фамилия - показываем как есть
+        displayName = appState.userName;
+    } else if (appState.userId) {
+        // Нет имени, но есть ID - используем как запасной вариант
+        displayName = 'ID: ' + appState.userId.toString().substring(0, 8) + '...';
+    } else {
+        // Ничего нет - дефолтное значение
+        displayName = '--';
+    }
+
+    nameElement.textContent = displayName;
+    console.log('👤 User name display updated:', displayName);
+}
+
 // Функция обновления баланса пользователя в header
-function updateUserBalance(credits) {
+function updateUserBalance(credits, reason = 'webhook_update') {
     // Обновляем баланс в appState
     if (credits !== null && credits !== undefined) {
-        appState.userCredits = parseFloat(credits);
-        appState.lastBalanceUpdate = Date.now();
-        appState.saveSettings(); // Сохраняем в localStorage
+        const newBalance = parseFloat(credits);
+        const oldBalance = appState.userCredits;
+        const timestamp = Date.now();
+
+        // Добавляем запись в историю ДО обновления баланса
+        appState.balanceHistory.push({
+            balance: newBalance,
+            timestamp: timestamp,
+            reason: reason,
+            previousBalance: oldBalance
+        });
+
+        // Ограничиваем историю до 100 последних записей
+        if (appState.balanceHistory.length > 100) {
+            appState.balanceHistory = appState.balanceHistory.slice(-100);
+        }
+
+        // Сохраняем историю в localStorage
+        appState.saveBalanceHistory();
+
+        // Обновляем текущий баланс
+        appState.userCredits = newBalance;
+        appState.lastBalanceUpdate = timestamp;
+        appState.saveSettings(); // Сохраняем настройки в localStorage
 
         // Обновляем отображение в header
         const balanceElement = document.getElementById('userCreditsDisplay');
@@ -2618,6 +2695,8 @@ function updateUserBalance(credits) {
                 balanceElement.textContent = '--';
             }
         }
+
+        console.log('💳 Balance updated:', { old: oldBalance, new: newBalance, reason });
     }
 }
 
@@ -3668,6 +3747,9 @@ async function initTelegramApp() {
             appState.setLanguage(tgLang);
         }
 
+        // Обновляем отображение имени пользователя в интерфейсе
+        updateUserNameDisplay();
+
         showStatus('success', appState.translate('connected'));
 
     } catch (error) {
@@ -3726,6 +3808,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     showLoadingScreen();
     appState.loadSettings();
     appState.loadHistory();
+    appState.loadBalanceHistory();
 
     try {
         await loadTelegramSDK();    // 👉 дождаться загрузки SDK
