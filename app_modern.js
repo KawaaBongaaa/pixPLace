@@ -2608,17 +2608,21 @@ function showResult(result) {
     const resultMode = document.getElementById('resultMode');
     const resultTime = document.getElementById('resultTime');
 
-    if (resultImage) resultImage.src = result.image_url;
+    // 🔧 ИСПРАВЛЕНИЕ: Очистка src + timestamp для предотвращения кэширования
+    if (resultImage) {
+        resultImage.src = ''; // Сначала очищаем
+        resultImage.src = result.image_url + '?t=' + Date.now(); // Добавляем timestamp для свежести
+    }
     if (resultPrompt) resultPrompt.textContent = appState.currentGeneration.prompt;
     if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
     if (resultMode) resultMode.textContent = appState.translate('mode_' + appState.currentGeneration.mode);
 
     // Обновлено: отображаем стоимость генерации вместо времени
     if (resultTime) {
-        const cost = result.cost || result.generation_cost;
+        const cost = appState.currentGeneration.cost || appState.currentGeneration.generation_cost;
         if (cost && !isNaN(cost)) {
             const formattedCost = parseFloat(cost).toFixed(2);
-            const currency = result.cost_currency || 'cr';
+            const currency = appState.currentGeneration.cost_currency || 'cr';
             resultTime.textContent = `${formattedCost} ${currency}`;
         } else {
             // Fallback если стоимость не пришла
@@ -4081,6 +4085,13 @@ async function generateImage(event) {
             console.log('✅ Generation successful');
             appState.currentGeneration.status = 'success';
             appState.currentGeneration.result = result.image_url;
+
+            // Сохраняем стоимость генерации в истории
+            if (result.cost || result.generation_cost || result.cost_balance) {
+                appState.currentGeneration.cost = result.cost || result.generation_cost || result.cost_balance;
+                appState.currentGeneration.cost_currency = result.cost_currency || 'cr';
+            }
+
             appState.saveHistory();
 
             // Обновляем баланс пользователя из ответа
