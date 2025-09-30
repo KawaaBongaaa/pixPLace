@@ -2602,6 +2602,7 @@ function showProcessing() {
 
 function showResult(result) {
     showScreen('resultScreen');
+    showBackButton(true);
 
     // Update result display
     const resultImage = document.getElementById('resultImage');
@@ -3595,7 +3596,7 @@ async function uploadUserImages() {
 // 📱 Telegram WebApp Integration
 
 async function initTelegramApp() {
-    console.log('🔍 Initializing Telegram WebApp...');
+    console.log('📱 Initializing Telegram WebApp...');
 
     // 🚀 ВАРИАНТ 3: Умное ожидание Telegram SDK
     const waitForTelegram = async (timeoutMs = 3000) => {
@@ -3625,6 +3626,44 @@ async function initTelegramApp() {
     const telegram = await waitForTelegram();
     const isAvailable = telegram?.WebApp;
     console.log('📱 Telegram SDK loaded:', !!isAvailable);
+
+    // 🔥 ДОБАВЛЕНИЕ: ПРИНУДИТЕЛЬНЫЙ FULLSCREEN РЕЖИМ
+    // Пытаемся применить fullscreen API для всех браузеров
+    const forceFullscreen = async () => {
+        console.log('🎯 Force fullscreen mode...');
+
+        const element = document.documentElement; // html элемент
+
+        // Проверяем наличие fullscreen API
+        if (element.requestFullscreen) {
+            try {
+                await element.requestFullscreen();
+                console.log('✅ Fullscreen API applied successfully');
+            } catch (error) {
+                console.warn('❌ Fullscreen API failed:', error);
+            }
+        } else if (element.mozRequestFullScreen) { // Firefox
+            element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Edge
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) { // IE/Edge
+            element.msRequestFullscreen();
+        } else {
+            console.log('❌ Browser does not support fullscreen API');
+        }
+
+        // Дополнительно устанавливаем viewport мета-тег динамически
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.content = 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0, user-scalable=yes, viewport-fit=cover';
+        }
+    };
+
+    // Вызываем принудительный fullscreen сразу
+    setTimeout(() => forceFullscreen(), 100);
+
+    // Повторяем попытку fullscreen через несколько секунд
+    setTimeout(() => forceFullscreen(), 2000);
 
     console.log('📱 After waiting - Telegram available:', !!window.Telegram?.WebApp);
 
