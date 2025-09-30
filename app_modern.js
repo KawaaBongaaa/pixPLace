@@ -1361,14 +1361,14 @@ class GlobalHistoryLoader {
             return GlobalHistoryLoader.instance;
         }
 
-this.imageObserver = new IntersectionObserver(
-    this.handleIntersection.bind(this),
-    {
-        rootMargin: '150px', // еще шире для гарантированного захвата видимых элементов
-        threshold: [0.01, 0.005, 0.001], // ультра-агрессивные пороги для любого намека видимости
-        root: null, // viewport
-    }
-);
+        this.imageObserver = new IntersectionObserver(
+            this.handleIntersection.bind(this),
+            {
+                rootMargin: '150px', // еще шире для гарантированного захвата видимых элементов
+                threshold: [0.01, 0.005, 0.001], // ультра-агрессивные пороги для любого намека видимости
+                root: null, // viewport
+            }
+        );
 
         // Оптимизированные registry с Map для O(1) доступа
         this.observedImages = new Map();
@@ -2817,6 +2817,112 @@ const userImageState = {
     images: [] // массив объектов {id, file, dataUrl, uploadedUrl} - до 4 изображений
 };
 
+// ===== Функции проверки лимитов изображений =====
+function getImageLimitForMode(mode) {
+    switch (mode) {
+        case 'photo_session':
+            return 4; // до 4 изображений для nano banana
+        case 'fast_generation':
+            return 0; // вообще не допускаются изображения для flux shnel
+        default:
+            return 1; // все остальные режимы - максимум 1 изображение
+    }
+}
+
+function canUploadMoreImages(mode, currentCount) {
+    const limit = getImageLimitForMode(mode);
+    return currentCount < limit;
+}
+
+
+// ===== Глобальная функция для обновления видимости UI загрузки изображений =====
+function updateImageUploadVisibility() {
+    const chooseBtn = document.getElementById('chooseUserImage');
+    const preview = document.getElementById('userImagePreview');
+    const imageCount = userImageState.images.length;
+    const hasImages = imageCount > 0;
+
+    const modeSelect = document.getElementById('modeSelect');
+    let shouldShowUploadButton, shouldShowPreview;
+
+    if (modeSelect) {
+        const currentMode = modeSelect.value;
+
+        // 🔥 НОВАЯ ЛОГИКА: фиолетовая кнопка всегда скрыта ПОКА ЕСТЬ ИЗОБРАЖЕНИЯ ИЛИ В РЕЖИМЕ FAST_GENERATION
+        shouldShowUploadButton = !hasImages && (currentMode !== 'fast_generation');
+
+        if (currentMode === 'fast_generation') {
+            // Flux Shnel: кнопку и превью НЕ видим всегда
+            shouldShowPreview = false;
+
+            // УДАЛЯЕМ ВСЕ ИЗОБРАЖЕНИЯ при переключении на этот режим
+            if (hasImages) {
+                console.log('🗑️ Удаляем все изображения в режиме Fast Generation');
+                clearAllImages();
+                return; // повторим вызов функции после очистки
+            }
+
+            console.log(`⚡ Flux Shnel режим: кнопка скрыта, превью скрыто (удалены все изображения)`);
+        } else if (currentMode === 'photo_session') {
+            // Nano Banana: превью видно с изображениями
+            shouldShowPreview = hasImages;
+            console.log(`${!hasImages ? '📸' : '❌'} Photo Session режим: кнопка ${shouldShowUploadButton ? 'видна' : 'скрыта'} (пока нет превью)`);
+        } else {
+            // Другие режимы: превью видно с изображениями
+            shouldShowPreview = hasImages;
+
+            // УДАЛЯЕМ ЛИШНИЕ ИЗОБРАЖЕНИЯ до лимита 1 при переключении на эти режимы
+            if (imageCount > 1) {
+                console.log(`🗑️ Удаляем лишние изображения в режиме ${currentMode} (оставляем только 1)`);
+                trimImagesToLimit(1);
+                return; // повторим вызов функции после очистки
+            }
+
+            console.log(`${!hasImages ? '🎨' : '❌'} Другой режим (${currentMode}): кнопка ${shouldShowUploadButton ? 'видна' : 'скрыта'} (пока нет превью)`);
+        }
+    } else {
+        // Без режима - кнопка видна только без изображений, превью показывается
+        shouldShowUploadButton = !hasImages;
+        shouldShowPreview = hasImages;
+    }
+
+    // Применяем видимость кнопки
+    if (chooseBtn) {
+        if (shouldShowUploadButton) {
+            chooseBtn.style.setProperty('display', 'inline-flex', 'important');
+            chooseBtn.classList.remove('flux-shnel-hidden');
+            console.log('✅ Кнопка загрузки ВИДИМА');
+        } else {
+            chooseBtn.style.setProperty('display', 'none', 'important');
+            chooseBtn.classList.add('flux-shnel-hidden');
+            console.log('🚫 Кнопка загрузки СКРЫТА');
+        }
+    }
+
+    // Применяем видимость превью
+    if (preview) {
+        if (shouldShowPreview) {
+            preview.classList.remove('flux-shnel-hidden', 'hidden');
+            preview.style.setProperty('display', 'block', 'important');
+            console.log('✅ Превью изображений ВИДИМО');
+        } else {
+            preview.style.setProperty('display', 'none', 'important');
+            preview.classList.add('flux-shnel-hidden');
+            console.log('🚫 Превью изображений СКРЫТО');
+        }
+    }
+
+    console.log('📊 ИТОГОВАЯ ВИДИМОСТЬ:', {
+        режим: modeSelect?.value,
+        количество_изображений: userImageState.images.length, // актуальное после возможной очистки
+        кнопка_видна: shouldShowUploadButton,
+        превью_видно: shouldShowPreview,
+        действие: 'обновлено'
+    });
+
+    // Обновляем видимость маленькой кнопки внутри превью
+    updateInnerUploadButtonVisibility();
+}
 
 // ===== Инициализация UI загрузки =====
 function initUserImageUpload() {
@@ -2828,64 +2934,15 @@ function initUserImageUpload() {
     input?.addEventListener('change', onUserImageChange);
     removeBtn?.addEventListener('click', clearUserImage);
 
-    // 🔧 ИСПРАВЛЕНИЕ: Показывать превью всегда, когда есть изображения, независимо от режима
-    const toggleUploadVisibility = () => {
-        if (!chooseBtn) return;
-
-        const modeSelect = document.getElementById('modeSelect');
-        const preview = document.getElementById('userImagePreview');
-        const hasImages = userImageState.images.length > 0;
-
-        // Определяем видимость кнопки загрузки (только для Flux Shnel скрываем)
-        const shouldShowUploadButton = modeSelect && modeSelect.value !== 'fast_generation';
-
-        // Кнопка загрузки - скрываем только для Flux Shnel
-        if (shouldShowUploadButton) {
-            chooseBtn.style.setProperty('display', '', '');
-            chooseBtn.classList.remove('flux-shnel-hidden');
-        } else {
-            chooseBtn.style.setProperty('display', 'none', 'important');
-            chooseBtn.classList.add('flux-shnel-hidden');
-        }
-
-        // Превью - прячем в режиме fast_generation независимо от наличия изображений, в других режимах показываем если есть изображения
-        if (preview) {
-            const currentMode = modeSelect ? modeSelect.value : '';
-            if (currentMode === 'fast_generation') {
-                // В Flux Shnel режиме превью всегда спрятано
-                preview.style.setProperty('display', 'none', 'important');
-                preview.classList.add('flux-shnel-hidden');
-                console.log('🚫 Preview hidden for Flux Shnel mode');
-            } else if (hasImages) {
-                // В других режимах показываем если есть изображения
-                preview.style.setProperty('display', 'block', '');
-                preview.classList.remove('flux-shnel-hidden');
-                console.log('✅ Preview visible with images (non-Flux Shnel mode)');
-            } else {
-                // В других режимах прячем если нет изображений
-                preview.style.setProperty('display', 'none', 'important');
-                preview.classList.add('flux-shnel-hidden');
-                console.log('🚫 Preview hidden - no images in other mode');
-            }
-        }
-
-        console.log('📋 Upload visibility updated:', {
-            mode: modeSelect?.value,
-            hasImages,
-            buttonVisible: shouldShowUploadButton,
-            previewVisible: hasImages || shouldShowUploadButton
-        });
-    };
-
     // Проверить режим при изменении
     const modeSelect = document.getElementById('modeSelect');
     if (modeSelect) {
         // Инициализация видимости при загрузке
-        toggleUploadVisibility();
+        updateImageUploadVisibility();
 
         // Слушать изменения режима
         modeSelect.addEventListener('change', () => {
-            toggleUploadVisibility();
+            updateImageUploadVisibility();
             // Также обновляем видимость блока размеров при смене режима
             toggleSizeSelectVisibility();
         });
@@ -2908,6 +2965,7 @@ async function onUserImageChange(e) {
     const previewContainer = document.getElementById('previewContainer');
     const chooseBtn = document.getElementById('chooseUserImage');
     const optionalLabel = document.querySelector('.under-user-image-label');
+
 
     if (errorEl) errorEl.textContent = '';
     if (!files.length) return;
@@ -2974,10 +3032,20 @@ async function onUserImageChange(e) {
     // Обновление видимости выбора размеров
     toggleSizeSelectVisibility();
 
-    // Скрыть кнопку если достигнут лимит 4
-    if (userImageState.images.length >= 4) {
-        if (chooseBtn) chooseBtn.style.display = 'none';
+    // 🔥 ДОБАВЛЕНИЕ: Принудительное обновление превью видимости сразу после загрузки
+    const hasImages = userImageState.images.length > 0;
+    if (preview && hasImages) {
+        preview.classList.remove('flux-shnel-hidden', 'hidden');
+        preview.style.setProperty('display', 'block', 'important');
+        console.log('✅ Превью принудительно показано после загрузки изображений');
     }
+
+    // 🔥 ПРИНУДИТЕЛЬНОЕ обновление видимости кнопки загрузки и превью согласно логике режима
+    console.log(`🎯 После загрузки изображений: count=${userImageState.images.length}, режим=${document.getElementById('modeSelect')?.value}`);
+    setTimeout(() => {
+        updateImageUploadVisibility();
+        console.log(`🎯 Видимость обновлена после загрузки: кнопка ${document.getElementById('chooseUserImage')?.style.display ? 'скрыта' : 'видна'}`);
+    }, 100); // небольшая задержка для DOM обновления
 }
 
 // ===== Создание превью элемента =====
@@ -3030,10 +3098,43 @@ function createPreviewItem(imageId, dataUrl, fileName) {
         justify-content: center;
     `;
 
+    // Создаем маленькую кнопку "Загрузить" внутри превью
+    const innerUploadBtn = document.createElement('button');
+    innerUploadBtn.className = 'inner-upload-btn';
+    innerUploadBtn.onclick = (e) => {
+        e.preventDefault();  // предотвращаем submit формы
+        e.stopPropagation(); // предотвращаем всплытие события
+        const input = document.getElementById('userImage');
+        if (input) input.click();
+    };
+
+    const uploadIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    uploadIcon.setAttribute('viewBox', '0 0 24 24');
+    uploadIcon.setAttribute('fill', 'none');
+    uploadIcon.setAttribute('stroke', 'currentColor');
+    uploadIcon.setAttribute('stroke-width', '2');
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M7 16a4 4 0 01-.88-7.903A4.999 4.999 0 0111 11h1V9a4 4 0 118 4.001c0-.73-.303-1.406-.88-1.923A5.002 5.002 0 0117 7a5 5 0 11-10 0v2.097A4.001 4.001 0 017 16z');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+
+    const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path2.setAttribute('d', 'M15 19l-3-3-3 3M12 19V13');
+
+    uploadIcon.appendChild(path);
+    uploadIcon.appendChild(path2);
+    innerUploadBtn.appendChild(uploadIcon);
+
     itemDiv.appendChild(img);
     itemDiv.appendChild(removeBtn);
+    itemDiv.appendChild(innerUploadBtn);
     previewContainer.appendChild(itemDiv);
+
+    // Обновляем видимость маленькой кнопки после создания
+    setTimeout(() => updateInnerUploadButtonVisibility(), 50);
 }
+
 
 // ===== Удаление изображения =====
 function removeImage(imageId) {
@@ -3061,6 +3162,196 @@ function removeImage(imageId) {
 
     // Обновление видимости выбора размеров
     toggleSizeSelectVisibility();
+
+    // Обновление видимости кнопки и превью согласно логике режима
+    updateImageUploadVisibility();
+}
+
+// ===== Удаление ВСЕХ изображений (для режима fast_generation) =====
+function clearAllImages() {
+    console.log('🗑️ Clearing ALL images for mode switch');
+
+    // Очищаем состояние
+    userImageState.images = [];
+
+    // Удаляем все превью элементы
+    const previewContainer = document.getElementById('previewContainer');
+    if (previewContainer) {
+        previewContainer.innerHTML = ''; // полная очистка контейнера
+    }
+
+    // Скрываем превью контейнер
+    const preview = document.getElementById('userImagePreview');
+    if (preview) {
+        preview.classList.add('hidden');
+    }
+
+    // Снимаем класс has-image с wrapper
+    const wrapper = document.getElementById('userImageWrapper');
+    if (wrapper) {
+        wrapper.classList.remove('has-image');
+    }
+
+    console.log('✅ All images cleared successfully');
+
+    // 🔥 ДОБАВЛЕНИЕ: Обновляем видимость после очистки
+    setTimeout(() => toggleUploadVisibility(), 50);
+}
+
+// ===== Новое функция: Обновление видимости маленькой кнопки внутри превью =====
+function updateInnerUploadButtonVisibility() {
+    const currentMode = document.getElementById('modeSelect').value;
+    const imageCount = userImageState.images.length;
+    const previewItems = document.querySelectorAll('.preview-item');
+
+    previewItems.forEach(item => {
+        const innerBtn = item.querySelector('.inner-upload-btn');
+        if (!innerBtn) return;
+
+        let shouldShowInnerBtn = false;
+
+        if (currentMode === 'photo_session') {
+            // Для Photo Session: показываем кнопку пока не достигнут лимит в 4 изображения
+            shouldShowInnerBtn = imageCount < 4;
+        } else if (['upscale_image', 'background_removal'].includes(currentMode)) {
+            // Для других режимов, требующих изображения: показываем кнопку пока не достигнут лимит в 1 изображение
+            shouldShowInnerBtn = imageCount < 1;
+        }
+        // Для fast_generation: горем никогда не показываем внутреннюю кнопку (нет в списке режимов)
+
+        // Применяем видимость
+        if (shouldShowInnerBtn) {
+            innerBtn.style.display = 'flex';
+            innerBtn.classList.remove('hidden');
+        } else {
+            innerBtn.style.display = 'none';
+            innerBtn.classList.add('hidden');
+        }
+    });
+
+    console.log(`🔘 Inner upload button visibility updated for mode: ${currentMode}, images: ${imageCount}`);
+}
+
+// ===== Удаление лишних изображений до указанного лимита =====
+function trimImagesToLimit(limit) {
+    if (userImageState.images.length <= limit) return;
+
+    console.log(`🗑️ Trimming images from ${userImageState.images.length} to ${limit}`);
+
+    // Оставляем только первые N изображений
+    const imagesToRemove = userImageState.images.slice(limit);
+    userImageState.images = userImageState.images.slice(0, limit);
+
+    // Удаляем превью элементов для удалённых изображений
+    const previewContainer = document.getElementById('previewContainer');
+    imagesToRemove.forEach(img => {
+        const item = previewContainer?.querySelector(`[data-id="${img.id}"]`);
+        if (item) item.remove();
+    });
+
+    console.log(`✅ Trimmed ${imagesToRemove.length} excess images`);
+}
+
+// ===== Обновление видимости кнопки загрузки =====
+function updateUploadButtonPosition() {
+    const chooseBtn = document.getElementById('chooseUserImage');
+    const container = document.getElementById('userImageWrapper');
+    const mode = document.getElementById('modeSelect')?.value || 'default';
+    const hasImages = userImageState.images.length > 0;
+
+    if (!chooseBtn || !container) return;
+
+    let shouldShowUploadButton, shouldShowPreview;
+
+    if (mode === 'fast_generation') {
+        // 🔥 FAST GENERATION: абсолютная видимость - НИЧЕГО не показываем
+        shouldShowUploadButton = false;
+        shouldShowPreview = false;
+
+        // Принудительно удаляем все изображения в этом режиме
+        if (hasImages) {
+            console.log('🗑️ Fast Generation: удаляем все изображения (этот режим без референсных изображений)');
+            clearAllImages();
+            return;
+        }
+
+        console.log('🚀 Fast Generation: режим активен - кнопка и превью СКРЫТЫ');
+    } else {
+        // 🔥 ВСЕ ОСТАЛЬНЫЕ РЕЖИМЫ: прячем внешнюю кнопку как только есть превью
+        shouldShowUploadButton = !hasImages; // Внешняя кнопка видна ТОЛЬКО если нет изображений
+        shouldShowPreview = hasImages;       // Превью видно ТОЛЬКО если есть изображения
+
+        console.log(`📸 ${mode}: ${hasImages ? 'Есть превью → внешняя кнопка СКРЫТА' : 'Нет превью → внешняя кнопка ВИДИМА'}`);
+    }
+
+    // Применяем видимость ВНЕШНЕЙ кнопки (основная "Загрузить изображение")
+    if (shouldShowUploadButton) {
+        chooseBtn.classList.add('outside-upload');
+        chooseBtn.classList.remove('inside-preview');
+        chooseBtn.style.display = '';
+        console.log('✅ Внешняя кнопка загрузки ВИДИМА');
+    } else {
+        chooseBtn.style.display = 'none';
+        console.log('🚫 Внешняя кнопка загрузки СКРЫТА');
+    }
+
+    // Применяем видимость превью БЛОКА
+    const preview = document.getElementById('userImagePreview');
+    if (preview) {
+        if (shouldShowPreview) {
+            preview.classList.remove('hidden');
+            preview.style.display = 'block';
+            console.log('✅ Превью БЛОК ВИДИМИМ');
+        } else {
+            preview.style.display = 'none';
+            console.log('🚫 Превью БЛОК СКРЫТО');
+        }
+    }
+
+    // 📌 ВНУТРЕННИЯ кнопка внутри превью работает ПО СВОЕЙ ЛОГИКЕ независимо!
+    // Она осталась в updateInnerUploadButtonVisibility()
+}
+
+// ===== Обновление положения кнопки загрузки =====
+function updateUploadButtonPosition() {
+    const chooseBtn = document.getElementById('chooseUserImage');
+    const preview = document.getElementById('userImagePreview');
+    const container = document.getElementById('userImageWrapper');
+    const hasImages = userImageState.images.length > 0;
+    const hasLimitReached = userImageState.images.length >= getImageLimitForMode(document.getElementById('modeSelect')?.value || 'default');
+
+    if (!chooseBtn || !container) return;
+
+    // Удаляем кнопку из текущего положения
+    chooseBtn.remove();
+
+    if (hasImages && !hasLimitReached) {
+        // Есть изображения И еще можно загружать - вставляем внутрь превью
+        if (preview) {
+            preview.appendChild(chooseBtn);
+
+            // Переключаем на стиль "внутри превью"
+            chooseBtn.classList.add('inside-preview');
+            chooseBtn.classList.remove('outside-upload');
+            console.log('🔘 Кнопка перемещена ВНУТРЬprev превью');
+        }
+    } else if (!hasImages && !hasLimitReached) {
+        // Нет изображений И можно загружать - вставляем снаружи
+        container.appendChild(chooseBtn);
+
+        // Переключаем на стиль "снаружи"
+        chooseBtn.classList.add('outside-upload');
+        chooseBtn.classList.remove('inside-preview');
+        console.log('🔘 Кнопка перемещена СНАРУЖИ');
+    }
+
+    // Лимит достигнут - никак не показываем (кнопка скрыта в любом положении)
+    if (hasLimitReached) {
+        chooseBtn.style.display = 'none';
+        console.log('🚫 Кнопка СКРЫТА - достигнут лимит');
+    } else {
+        chooseBtn.style.display = '';
+    }
 }
 
 // ===== Показ размеров =====
@@ -3072,18 +3363,24 @@ function toggleSizeSelectVisibility() {
         const modeSelect = document.getElementById('modeSelect');
         const currentMode = modeSelect ? modeSelect.value : '';
 
-        // Для Flux Shnel (fast_generation) всегда показываем выбор размеров
+        // Специальная логика для разных режимов
         if (currentMode === 'fast_generation') {
+            // Для Flux Shnel всегда показываем выбор размеров
             sizeGroup.style.display = '';
             console.log('📏 Size selector visible for Flux Shnel mode');
+        } else if (currentMode === 'photo_session') {
+            // Для Nano Banana (photo_session) всегда показываем размер независимо от изображений
+            sizeGroup.style.display = '';
+            console.log('📏 Size selector visible for Photo Session mode (always)');
         } else {
-            // Для других режимов логика как раньше
+            // Для других режимов прячем при наличии изображений
             if (userImageState.images.length > 0) {
                 sizeGroup.style.display = 'none';
+                console.log('📏 Size selector hidden - has images in other mode');
             } else {
                 sizeGroup.style.display = '';
+                console.log('📏 Size selector visible - no images in other mode');
             }
-            console.log('📏 Size selector hidden for other modes with images');
         }
     }
 }
@@ -4698,25 +4995,25 @@ async function showWarningAboutNoImage() {
         const uploadBtn = modal.querySelector('#upload-image-btn');
         const continueBtn = modal.querySelector('#continue-without-btn');
 
-    uploadBtn.addEventListener('click', () => {
-        // Закрываем модал
-        overlay.style.opacity = '0';
-        modal.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            document.body.removeChild(overlay);
-            document.head.removeChild(style);
-            resolve(false); // false значит не продолжаем генерацию, пользователь пойдет загружать изображение
-        }, 300);
+        uploadBtn.addEventListener('click', () => {
+            // Закрываем модал
+            overlay.style.opacity = '0';
+            modal.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+                document.head.removeChild(style);
+                resolve(false); // false значит не продолжаем генерацию, пользователь пойдет загружать изображение
+            }, 300);
 
-        // Запуск моргания кнопки upload для привлечения внимания
-        startUploadButtonBlink();
+            // Запуск моргания кнопки upload для привлечения внимания
+            startUploadButtonBlink();
 
-        // Опционально: промотать к блоку загрузки изображений
-        const imageUpload = document.getElementById('userImageWrapper');
-        if (imageUpload) {
-            imageUpload.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    });
+            // Опционально: промотать к блоку загрузки изображений
+            const imageUpload = document.getElementById('userImageWrapper');
+            if (imageUpload) {
+                imageUpload.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
 
         continueBtn.addEventListener('click', () => {
             // Закрываем модал

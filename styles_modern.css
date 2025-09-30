@@ -2182,11 +2182,6 @@ textarea:focus-visible {
     display: none !important;
 }
 
-/*#userImageWrapper.need-image {
-    outline: 3px dashed var(--accent);
-    border-radius: 10px;
-    animation: need-image-pulse 2.2s ease-in-out infinite;
-}*/
 #userImageWrapper.need-image {
     border: 2px dashed var(--error-400);
     background-color: rgba(255, 0, 0, 0.05);
@@ -2225,16 +2220,96 @@ textarea:focus-visible {
 }
 
 .btn-link {
-    padding: 4%;
+    min-width: 120px;
+    padding: 12px 20px;
     font-weight: 600;
-    left: 5px;
-    min-width: 50px;
-    background: #2e2e3e;
-    border-radius: 6px;
-    color: #badcea;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    object-fit: cover;
+    font-size: 14px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow:
+        0 4px 20px rgba(99, 102, 241, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
 
+.btn-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+}
+
+.btn-link:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+        0 8px 30px rgba(99, 102, 241, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-link:hover::before {
+    opacity: 1;
+}
+
+.btn-link:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow:
+        0 2px 10px rgba(99, 102, 241, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-link svg {
+    width: 18px;
+    height: 18px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+.btn-link:hover svg {
+    transform: rotate(5deg) scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .btn-link {
+        min-width: 100px;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .btn-link svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-link {
+        min-width: 80px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .btn-link svg {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 .remove-user-image {
@@ -2301,9 +2376,237 @@ textarea:focus-visible {
     display: block;
 }
 
+/* 🎨 СОВРЕМЕННЫЕ СТИЛИ КНОПКИ ЗАГРУЗКИ ИЗОБРАЖЕНИЙ */
+#chooseUserImage {
+    min-width: 120px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    letter-spacing: 0.5px;
+}
+
+#chooseUserImage::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+}
+
+#chooseUserImage:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+#chooseUserImage:hover::before {
+    opacity: 1;
+}
+
+#chooseUserImage:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
+}
+
+#chooseUserImage svg {
+    width: 16px;
+    height: 16px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+#chooseUserImage:hover svg {
+    transform: scale(1.1);
+}
+
+/* 🎨 ДИНАМИЧЕСКИЕ СТИЛИ КНОПКИ ЗАГРУЗКИ ПО ПОЛОЖЕНИЮ */
+#chooseUserImage.outside-upload {
+    /* Основные стили для кнопки снаружи (стандартный вид) */
+    min-width: 120px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#chooseUserImage.outside-upload::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+}
+
+#chooseUserImage.outside-upload:hover::before {
+    opacity: 1;
+}
+
+#chooseUserImage.outside-upload svg {
+    width: 16px;
+    height: 16px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+#chooseUserImage.outside-upload:hover svg {
+    transform: scale(1.1);
+}
+
+#chooseUserImage.inside-preview {
+    /* Стили для кнопки В ОБОЛОЧКЕ превью (внутри preview) */
+    min-width: 28px;
+    width: 28px;
+    height: 28px;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    /* Изначально скрыта - показываем по hover */
+}
+
+#chooseUserImage.inside-preview:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.8);
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+#chooseUserImage.inside-preview svg {
+    width: 14px;
+    height: 14px;
+    color: white;
+    filter: none;
+}
+
+#chooseUserImage.inside-preview:hover svg {
+    transform: none;
+}
+
+/* Адаптивность кнопки загрузки */
+@media (max-width: 768px) {
+    #chooseUserImage {
+        min-width: 100px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    #chooseUserImage svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    #chooseUserImage {
+        min-width: 80px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    #chooseUserImage svg {
+        width: 12px;
+        height: 12px;
+    }
+}
+
 /* Уберём util-класс hidden, если он мешает */
 #userImagePreview.hidden {
     display: none;
+}
+
+/* 🎯 Стиль для маленькой кнопки "Загрузить" внутри превью */
+.inner-upload-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.inner-upload-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.8);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.inner-upload-btn svg {
+    width: 12px;
+    height: 12px;
+    color: white;
+}
+
+/* Скрываем, когда достигли лимита изображений */
+#userImageWrapper.full-limit .inner-upload-btn {
+    display: none !important;
+}
+
+/* Показываем маленькую кнопку только когда есть превью и еще можно загрузить */
+#userImageWrapper.has-images:not(.full-limit) #userImagePreview .inner-upload-btn {
+    display: flex;
 }
 
 
@@ -3034,6 +3337,8 @@ img.lazy-loaded[data-src] {
     visibility: hidden !important;
     opacity: 0 !important;
 }
+
+
 
 /* Тематические background для разных тем */
 [data-theme="light"] .generation-text {
