@@ -670,6 +670,13 @@
             logo.onclick = () => showGeneration();
         }
 
+        // Show back button in header for chat screen
+        if (typeof showBackButton === 'function') {
+            showBackButton(true);
+        } else if (typeof window.showBackButton === 'function') {
+            window.showBackButton(true);
+        }
+
         // Update data attribute
         const main = document.querySelector('main');
         if (main) main.setAttribute('data-current-screen', 'chat');
@@ -689,6 +696,13 @@
         const logo = document.querySelector('.logo');
         if (logo) {
             logo.onclick = () => showGeneration();
+        }
+
+        // Hide back button in header when leaving chat screen
+        if (typeof showBackButton === 'function') {
+            showBackButton(false);
+        } else if (typeof window.showBackButton === 'function') {
+            window.showBackButton(false);
         }
 
         state.isOpen = false;

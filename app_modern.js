@@ -81,7 +81,7 @@ const TRANSLATIONS = {
         remove_user_image: "Remove",
         reference_image: "Reference",
         upload_image: "Upload Image",
-        please_upload_photo_session: "Please upload Your image for Photo Session mode. \\nOr just choice another Mode",
+        please_upload_photo_session: "Please upload Your image for Photo Session mode. Or just choice another Mode",
         upload_failed: "Failed to upload the image. Please try again.",
         please_upload_for_upscale: "Please upload an image to Upscale.",
         please_upload_for_background_removal: "Please upload an image for Background removal.",
@@ -2892,7 +2892,10 @@ function showGeneration() {
 
     showBackButton(false);
 
-    // 🆕 ДОБАВЛЕНИЕ: Принудительная загрузка превью истории при возврате на генерацию
+    // 🆕 ДОБАВЛЕНИЕ: Обновление отображения истории для принудительной загрузки превью при возврате на генерацию
+    updateHistoryDisplay();
+
+    // Принудительная загрузка превью истории при возврате на генерацию
     setTimeout(() => {
         if (globalHistoryLoader) {
             globalHistoryLoader.forceLoadVisibleHistoryPreviews();
@@ -4738,6 +4741,8 @@ function createCoachButton() {
         fontWeight: '600',
         transition: 'all 0.2s ease' // transition-all duration-200
     });
+
+    // Восстанавливаю правильную функциональность - открытие AI чата
     coachButton.onclick = () => {
         if (window.AICoach) {
             window.AICoach.show();
