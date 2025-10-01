@@ -1585,7 +1585,7 @@ body {
     }
 
     .generation-form {
-        gap: var(--space-6);
+        gap: var(--space-2);
     }
 
     .style-grid {
