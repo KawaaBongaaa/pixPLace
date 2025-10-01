@@ -3153,6 +3153,10 @@ async function onUserImageChange(e) {
     // Обновление видимости выбора размеров
     toggleSizeSelectVisibility();
 
+    // 🔥 ИСПРАВЛЕНИЕ ПРОБЛЕМЫ МИГАНИЯ КНОПКИ: Быстрое обновление видимости ДО создания превью
+    console.log(`🎯 После загрузки изображений: count=${userImageState.images.length}, режим=${document.getElementById('modeSelect')?.value}`);
+    updateImageUploadVisibility(); // ← БЫСТРОЕ ОБНОВЛЕНИЕ - НЕ ЗАДЕРЖИВАЕМ
+
     // 🔥 ДОБАВЛЕНИЕ: Принудительное обновление превью видимости сразу после загрузки
     const hasImages = userImageState.images.length > 0;
     if (preview && hasImages) {
@@ -3160,13 +3164,6 @@ async function onUserImageChange(e) {
         preview.style.setProperty('display', 'block', 'important');
         console.log('✅ Превью принудительно показано после загрузки изображений');
     }
-
-    // 🔥 ПРИНУДИТЕЛЬНОЕ обновление видимости кнопки загрузки и превью согласно логике режима
-    console.log(`🎯 После загрузки изображений: count=${userImageState.images.length}, режим=${document.getElementById('modeSelect')?.value}`);
-    setTimeout(() => {
-        updateImageUploadVisibility();
-        console.log(`🎯 Видимость обновлена после загрузки: кнопка ${document.getElementById('chooseUserImage')?.style.display ? 'скрыта' : 'видна'}`);
-    }, 100); // небольшая задержка для DOM обновления
 }
 
 // ===== Создание превью элемента =====
@@ -3490,9 +3487,14 @@ function toggleSizeSelectVisibility() {
             sizeGroup.style.display = '';
             console.log('📏 Size selector visible for Flux Shnel mode');
         } else if (currentMode === 'photo_session') {
-            // Для Nano Banana (photo_session) всегда показываем размер независимо от изображений
-            sizeGroup.style.display = '';
-            console.log('📏 Size selector visible for Photo Session mode (always)');
+            // Для Nano Banana (photo_session) прячем размер при наличии изображений
+            if (userImageState.images.length > 0) {
+                sizeGroup.style.display = 'none';
+                console.log('📏 Size selector hidden for Photo Session mode - has images');
+            } else {
+                sizeGroup.style.display = '';
+                console.log('📏 Size selector visible for Photo Session mode - no images');
+            }
         } else {
             // Для других режимов прячем при наличии изображений
             if (userImageState.images.length > 0) {
@@ -3627,43 +3629,7 @@ async function initTelegramApp() {
     const isAvailable = telegram?.WebApp;
     console.log('📱 Telegram SDK loaded:', !!isAvailable);
 
-    // 🔥 ДОБАВЛЕНИЕ: ПРИНУДИТЕЛЬНЫЙ FULLSCREEN РЕЖИМ
-    // Пытаемся применить fullscreen API для всех браузеров
-    const forceFullscreen = async () => {
-        console.log('🎯 Force fullscreen mode...');
 
-        const element = document.documentElement; // html элемент
-
-        // Проверяем наличие fullscreen API
-        if (element.requestFullscreen) {
-            try {
-                await element.requestFullscreen();
-                console.log('✅ Fullscreen API applied successfully');
-            } catch (error) {
-                console.warn('❌ Fullscreen API failed:', error);
-            }
-        } else if (element.mozRequestFullScreen) { // Firefox
-            element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullscreen) { // Chrome, Safari, Edge
-            element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) { // IE/Edge
-            element.msRequestFullscreen();
-        } else {
-            console.log('❌ Browser does not support fullscreen API');
-        }
-
-        // Дополнительно устанавливаем viewport мета-тег динамически
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) {
-            viewport.content = 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0, user-scalable=yes, viewport-fit=cover';
-        }
-    };
-
-    // Вызываем принудительный fullscreen сразу
-    setTimeout(() => forceFullscreen(), 100);
-
-    // Повторяем попытку fullscreen через несколько секунд
-    setTimeout(() => forceFullscreen(), 2000);
 
     console.log('📱 After waiting - Telegram available:', !!window.Telegram?.WebApp);
 
