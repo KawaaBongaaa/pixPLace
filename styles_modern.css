@@ -659,7 +659,7 @@ body {
 
 .input-counter {
     position: absolute;
-    bottom: var(--space-0);
+    bottom: var(--space-1);
     right: var(--space-4);
     font-size: var(--font-size-xs);
     color: var(--text-tertiary);
