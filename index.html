@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, user-scalable=yes, viewport-fit=cover, shrink-to-fit=no">
     <title>The pixPLace | Ai Generative Service</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
     <link rel="stylesheet" href="styles_modern.css">
@@ -296,6 +296,24 @@
             <div id="generationScreen" class="screen active">
                 <div class="screen-content">
                     <form class="generation-form">
+                        <!-- выбор режима (модели) -->
+                        <div class="form-group">
+                                <label class="form-label" data-i18n="mode_label">Model</label>
+                                <select id="modeSelect" class="form-select">
+                                    <option value="photo_session" selected data-i18n="mode_photo_session">🔧 Nano Banana
+                                        | Photo Editing by Kontext Explaining</option>
+                                    <option value="fast_generation" data-i18n="mode_fast_generation">⚡ Flux Shnel |
+                                        Fastest | Simple Pictures</option>
+                                    <option value="pixplace_pro" data-i18n="mode_pixplace_pro">✨ Flux Krea | Logo | Text
+                                        Supported</option>
+                                    <option value="print_maker" data-i18n="mode_print_maker">👕 SDXL T-Shirt Print | PoD
+                                        Helper</option>
+                                    <option value="background_removal" data-i18n="mode_background_removal">✂️ Background
+                                        removal</option>
+                                    <option value="upscale_image" data-i18n="mode_upscale_image">🔍 Upscale Image
+                                    </option>
+                                </select>
+                            </div>
                         <!-- Prompt Input -->
                         <div class="form-group">
                             <label class="form-label" data-i18n="prompt_label">Describe your image</label>
@@ -318,23 +336,6 @@
                                     <option value="portrait" class="size-text" data-i18n="size_portrait">Portrait
                                     </option>
                                     <option value="landscape" class="size-text" data-i18n="size_landscape">Landscape
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="mode_label">Model</label>
-                                <select id="modeSelect" class="form-select">
-                                    <option value="photo_session" selected data-i18n="mode_photo_session">🔧 Nano Banana
-                                        | Photo Editing by Kontext Explaining</option>
-                                    <option value="fast_generation" data-i18n="mode_fast_generation">⚡ Flux Shnel |
-                                        Fastest | Simple Pictures</option>
-                                    <option value="pixplace_pro" data-i18n="mode_pixplace_pro">✨ Flux Krea | Logo | Text
-                                        Supported</option>
-                                    <option value="print_maker" data-i18n="mode_print_maker">👕 SDXL T-Shirt Print | PoD
-                                        Helper</option>
-                                    <option value="background_removal" data-i18n="mode_background_removal">✂️ Background
-                                        removal</option>
-                                    <option value="upscale_image" data-i18n="mode_upscale_image">🔍 Upscale Image
                                     </option>
                                 </select>
                             </div>

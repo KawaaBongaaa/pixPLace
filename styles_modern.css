@@ -616,13 +616,13 @@ body {
 }
 
 .form-label {
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-xs);
     padding-left: 15px;
     padding-top: 5px;
     letter-spacing: 1px;
     justify-content: center;
     font-weight: 500;
-    opacity: 0.85;
+    opacity: 0.75;
     color: var(--text-primary);
 }
 
@@ -684,6 +684,7 @@ body {
     color: var(--text-primary);
     background: var(--bg-primary);
     cursor: pointer;
+    opacity: 80%;
     transition: all var(--transition-fast);
 }
 
@@ -2339,6 +2340,7 @@ textarea:focus-visible {
 .user-image-upload {
     display: flex;
     position: relative;
+    top: 15px;
 
 }
 
@@ -2394,7 +2396,8 @@ textarea:focus-visible {
 }
 
 .btn-link {
-    min-width: 120px;
+    min-width: 80px;
+    max-width: 100px;
     padding: 12px 20px;
     font-weight: 600;
     font-size: 14px;
