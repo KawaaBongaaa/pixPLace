@@ -49,7 +49,7 @@ const TRANSLATIONS = {
         style_logo: "Logo",
         style_minimalism: "Minimalism",
         style_banner: "Banner",
-        style_surrealism:"Surrealism",
+        style_surrealism: "Surrealism",
         mode_label: "Mode",
         mode_background_removal: "Remove Background",
         mode_upscale_image: "Upscale Image",
@@ -188,6 +188,7 @@ const TRANSLATIONS = {
         error_webhook_not_configured: "Webhook URL не настроен",
         error_generation_failed: "Генерация не удалась",
         error_timeout: "Превышено время ожидания. Попробуйте ещё раз.",
+        error_server_overloaded: "😓 Генерация не удалась. Серверы сейчас перегружены, пожалуйста, попробуйте позже или выберите другой режим генерации… Приносим искренние извинения за неудобства и надеемся на ваше понимание 🙏",
         success_generated: "Изображение успешно создано!",
         copied_to_clipboard: "Скопировано в буфер",
         download_started: "Загрузка началась",
@@ -241,7 +242,12 @@ const TRANSLATIONS = {
         plan_studio_feature2: "• AI Ассистент (no limits)",
         plan_studio_feature3: "• Ранний доступ к новому функционалу",
         plan_studio_feature4: "• Боллее 30% Скидка на pixPLace Кредиты>",
-        plan_studio_select: "Оплатить"
+        plan_studio_select: "Оплатить",
+        photo_warning_title: "Для лучших результатов загрузите изображение",
+        photo_warning_text: "Режим «Nano Banana» работает лучше при загрузке изображения для генерации img2img. Хотите загрузить изображение или продолжить без него?",
+        photo_warning_upload_btn: "📸 Загрузить изображение",
+        photo_warning_continue_btn: "✨ Продолжить без изображения"
+
     },
 
     es: {
@@ -1897,12 +1903,12 @@ function showToast(type, message) {
         }
     }, 100);
 
-        // Remove after delay (increased for longer error messages, but shorter for success)
-        const displayTime = type === 'success' ? 2000 : 5000; // 2 секунды для успешных, 5 для ошибок
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => container.removeChild(toast), 300);
-        }, displayTime);
+    // Remove after delay (increased for longer error messages, but shorter for success)
+    const displayTime = type === 'success' ? 2000 : 5000; // 2 секунды для успешных, 5 для ошибок
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => container.removeChild(toast), 300);
+    }, displayTime);
 }
 
 function triggerHaptic(type) {
@@ -3908,16 +3914,19 @@ async function generateImage(event) {
     });
 
     // Validation
-    if (!prompt) {
-        showToast('error', appState.translate('error_prompt_required'));
-        triggerHaptic('error');
-        return;
-    }
+    // НЕ проверяем промпт для режимов background_removal (удаление фона) и upscale_image (улучшение качества)
+    if (mode !== 'background_removal' && mode !== 'upscale_image') {
+        if (!prompt) {
+            showToast('error', appState.translate('error_prompt_required'));
+            triggerHaptic('error');
+            return;
+        }
 
-    if (prompt.length < 5) {
-        showToast('error', appState.translate('error_prompt_too_short'));
-        triggerHaptic('error');
-        return;
+        if (prompt.length < 5) {
+            showToast('error', appState.translate('error_prompt_too_short'));
+            triggerHaptic('error');
+            return;
+        }
     }
 
     if (!CONFIG.WEBHOOK_URL || CONFIG.WEBHOOK_URL.includes('WEBHOOK')) {
@@ -5127,26 +5136,26 @@ async function showWarningAboutNoImage() {
             <div style="display: flex; gap: 1rem; justify-content: center;">
                 <button id="upload-image-btn" style="
                     flex: 1;
-                    padding: 12px 20px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 4px 4px;
+                    background: linear-gradient(135deg, #7e94f7ff 0%, #1d5df3ff 100%);
                     color: white;
                     border: none;
-                    border-radius: 12px;
+                    border-radius: 34px;
                     font-size: 1rem;
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.2s ease;
-                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
                 ">
                     ${appState.translate('photo_warning_upload_btn')}
                 </button>
                 <button id="continue-without-btn" style="
                     flex: 1;
-                    padding: 12px 20px;
-                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                    padding: 4px 4px;
+                    background: linear-gradient(135deg, #ee4c62ff 0%, #f72e48ff 100%);
                     color: white;
                     border: none;
-                    border-radius: 12px;
+                    border-radius: 34px;
                     font-size: 1rem;
                     font-weight: 600;
                     cursor: pointer;
