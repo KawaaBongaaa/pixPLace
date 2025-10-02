@@ -4508,7 +4508,23 @@ async function downloadImage() {
         }
 
         // Для десктопа (Mac/Windows/Linux) - стандартный подход
-        console.log('💻 Desktop - using blob download');
+        console.log('💻 Desktop - platform detection:', {
+            userAgent: navigator.userAgent.toLowerCase(),
+            isTelegramWebApp: !!appState.tg,
+            telegramPlatform: appState.telegramPlatform
+        });
+
+        // 🔥 СПЕЦИАЛЬНАЯ ОБРАБОТКА ДЛЯ TELEGRAM WEBAPP НА MAC
+        if (appState.tg && appState.telegramPlatform === 'macos') {
+            console.log('🍏 Telegram WebApp on Mac - using direct URL open');
+            window.open(appState.currentGeneration.result, '_blank');
+            showToast('info', 'Opened image in new tab');
+            triggerHaptic('light');
+            return;
+        }
+
+        // Стандартный blob download для обычных браузеров
+        console.log('💻 Standard desktop browser - using blob download');
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
