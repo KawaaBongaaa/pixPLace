@@ -17,6 +17,27 @@ const CONFIG = {
     TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared', // Замените на ссылку вашего бота
     SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #miniApp'
 };
+// 🔧 Device detection helpers
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
+
+function isAndroid() {
+    return /Android/i.test(navigator.userAgent);
+}
+
+function isTablet() {
+    return /iPad|Android(?=.*\bMobile\b)|Tablet/i.test(navigator.userAgent) || isAndroid();
+}
+
+function supportsShare() {
+    return navigator.share && navigator.canShare;
+}
+
 // 🌍 Translations
 const TRANSLATIONS = {
 
@@ -4434,25 +4455,83 @@ function cancelGeneration() {
 async function downloadImage() {
     if (!appState.currentGeneration?.result) return;
 
-    try {
-        const response = await fetch(appState.currentGeneration.result);
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
+    console.log('📱 Starting download for platform:', {
+        mobile: isMobile(),
+        android: isAndroid(),
+        ios: isIOS(),
+        tablet: isTablet(),
+        share: supportsShare(),
+        url: appState.currentGeneration.result
+    });
 
+    try {
+        // Скачиваем изображение как blob
+        showToast('info', 'Preparing file...');
+        const response = await fetch(appState.currentGeneration.result);
+        if (!response.ok) throw new Error('Failed to fetch image');
+        const blob = await response.blob();
+
+        // Если мобильное устройство и поддерживает Web Share API - используем его
+        if (isMobile() && supportsShare()) {
+            console.log('📱 Using Web Share API for mobile device');
+
+            const file = new File([blob], `ai-generated-${appState.currentGeneration.id}.png`, { type: blob.type });
+
+            const shareData = {
+                files: [file],
+                title: 'AI Generated Image',
+                text: 'Created with pixPLace Bot'
+            };
+
+            await navigator.share(shareData);
+            showToast('success', 'File shared successfully!');
+            triggerHaptic('success');
+            return;
+        }
+
+        // Для Android/WebView или старых мобильных - открываем в новой вкладке
+        if (isAndroid() || (isMobile() && !supportsShare())) {
+            console.log('📱 Android or old mobile - opening in new tab');
+            window.open(appState.currentGeneration.result, '_blank');
+            showToast('info', 'Tap and hold to save image');
+            triggerHaptic('light');
+            return;
+        }
+
+        // Для планшетов - аналогично мобильным
+        if (isTablet()) {
+            console.log('📱 Tablet - opening in new tab');
+            window.open(appState.currentGeneration.result, '_blank');
+            showToast('info', 'Use long press to download');
+            triggerHaptic('light');
+            return;
+        }
+
+        // Для десктопа (Mac/Windows/Linux) - стандартный подход
+        console.log('💻 Desktop - using blob download');
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `ai-generated-${appState.currentGeneration.id}.png`; // лучше оставить .png
-        document.body.appendChild(link); // иногда без этого не работает в Safari
+        link.download = `ai-generated-${appState.currentGeneration.id}.png`;
+        document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
 
-        URL.revokeObjectURL(url); // чистим память
+        showToast('success', 'Download started!');
+        triggerHaptic('success');
 
-        showToast('info', appState.translate('download_started'));
-        triggerHaptic('light');
     } catch (err) {
-        console.error("Ошибка при скачивании:", err);
-        showToast('error', 'Download failed');
+        console.error("❌ Download error:", err);
+
+        // Fallback для любой ошибки - открываем в новой вкладке
+        try {
+            window.open(appState.currentGeneration.result, '_blank');
+            showToast('info', 'Opened image in new tab');
+        } catch (fallbackErr) {
+            console.error("❌ Fallback failed:", fallbackErr);
+            showToast('error', 'Download failed');
+        }
     }
 }
 /*function downloadImage() {
