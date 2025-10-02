@@ -153,8 +153,8 @@ const TRANSLATIONS = {
         // Photo session warning modal translations
         photo_warning_title: "For better results, upload an image",
         photo_warning_text: "The \"Nano Banana\" mode works better with an image for img2img generation. Would you like to upload an image or continue without it?",
-        photo_warning_upload_btn: "📸 Upload Image",
-        photo_warning_continue_btn: "✨ Continue without image",
+        photo_warning_upload_btn: "Upload Image",
+        photo_warning_continue_btn: "Continue without",
 
         // Server overloaded error message
         error_server_overloaded: "😓 Generation failed. The servers are currently overloaded, please try again later or select a different generation mode... We sincerely apologize for the inconvenience and hope for your understanding 🙏"
@@ -266,8 +266,8 @@ const TRANSLATIONS = {
         plan_studio_select: "Оплатить",
         photo_warning_title: "Для лучших результатов загрузите изображение",
         photo_warning_text: "Режим «Nano Banana» работает лучше при загрузке изображения для генерации img2img. Хотите загрузить изображение или продолжить без него?",
-        photo_warning_upload_btn: "📸 Загрузить изображение",
-        photo_warning_continue_btn: "✨ Продолжить без изображения"
+        photo_warning_upload_btn: "Загрузить изображение",
+        photo_warning_continue_btn: "Продолжить без"
 
     },
 
@@ -5215,7 +5215,7 @@ async function showWarningAboutNoImage() {
             <div style="display: flex; gap: 1rem; justify-content: center;">
                 <button id="upload-image-btn" style="
                     flex: 1;
-                    padding: 4px 4px;
+                    padding: 6px 6px;
                     background: linear-gradient(135deg, #7e94f7ff 0%, #1d5df3ff 100%);
                     color: white;
                     border: none;
@@ -5230,7 +5230,7 @@ async function showWarningAboutNoImage() {
                 </button>
                 <button id="continue-without-btn" style="
                     flex: 1;
-                    padding: 4px 4px;
+                    padding: 6px 6px;
                     background: linear-gradient(135deg, #ee4c62ff 0%, #f72e48ff 100%);
                     color: white;
                     border: none;
