@@ -4155,7 +4155,10 @@ async function sendToWebhook(data) {
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
 
     try {
-        console.log('📤 Sending webhook request:', data);
+        console.log('📤 Sending webhook request:', {
+            ...data,
+            prompt: data.prompt // Логируем сырой prompt для проверки
+        });
 
         const response = await fetch(CONFIG.WEBHOOK_URL, {
             method: 'POST',
@@ -4163,7 +4166,10 @@ async function sendToWebhook(data) {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify({
+                ...data,
+                prompt: sanitizeJsonString(data.prompt)
+            }),
             signal: controller.signal
         });
 
@@ -4707,6 +4713,20 @@ window.setWebhookUrl = (url) => {
     CONFIG.WEBHOOK_URL = url;
     console.log('✅ Webhook URL updated');
 };
+
+// Функция для безопасного экранирования пользовательского текста перед JSON.stringify
+function sanitizeJsonString(str) {
+    if (typeof str !== 'string') return str;
+
+    return str
+        .replace(/\\/g, '\\\\')  // Экранируем обратные слэши
+        .replace(/"/g, '\\"')    // Экранируем кавычки
+        .replace(/\n/g, '\\n')   // Заменяем переносы на \n
+        .replace(/\r/g, '\\r')   // Заменяем \r
+        .replace(/\t/g, '\\t');  // Заменяем табуляции
+}
+
+console.log('✅ JSON Sanitizer интегрирован для защиты от JSON-парсинга ошибок');
 
 console.log('🎯 pixPLace App loaded!');
 console.log('🔧 Debug commands:');
