@@ -199,11 +199,13 @@ body {
 }
 
 .loading-logo {
-    margin-bottom: var(--space-1);
+    margin-bottom: var(--space-0);
     color: var(--text-primary);
 
 }
-
+.loading-logo-text {
+    margin-top: -45px;
+}
 .user-balance {
     position: relative;
     margin: 0 auto;
