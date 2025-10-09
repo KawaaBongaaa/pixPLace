@@ -608,7 +608,7 @@ body {
     justify-content: center;
     align-items: stretch;
     flex-direction: row;
-    gap: var(--space-1);
+    gap: var(--space-10);
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 10px;
@@ -2340,7 +2340,7 @@ textarea:focus-visible {
 .user-image-upload {
     display: flex;
     position: relative;
-    top: 15px;
+    top: 20px;
 
 }
 
@@ -2401,15 +2401,15 @@ textarea:focus-visible {
     padding: 12px 20px;
     font-weight: 600;
     font-size: 14px;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #5cbef6 0%, #0ea3f9 100%);
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     color: #ffffff;
     cursor: pointer;
     box-shadow:
-        0 4px 20px rgba(99, 102, 241, 0.4),
+        0 3px 8px rgba(6, 52, 87, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     text-decoration: none;
@@ -2428,7 +2428,7 @@ textarea:focus-visible {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    background: linear-gradient(135deg, #5cbef6 0%, #14a2f4 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
     border-radius: inherit;
@@ -2437,7 +2437,7 @@ textarea:focus-visible {
 .btn-link:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
-        0 8px 30px rgba(99, 102, 241, 0.6),
+        0 4px 10px rgba(25, 143, 240, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -2555,7 +2555,7 @@ textarea:focus-visible {
 
 /* 🎨 СОВРЕМЕННЫЕ СТИЛИ КНОПКИ ЗАГРУЗКИ ИЗОБРАЖЕНИЙ */
 #chooseUserImage {
-    min-width: 120px;
+    min-width: 100px;
     padding: 10px 16px;
     font-weight: 600;
     font-size: var(--font-size-sm);
@@ -2591,7 +2591,6 @@ textarea:focus-visible {
 
 #chooseUserImage:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 14px rgba(57, 174, 242, 0.6);
 }
 
 #chooseUserImage:hover::before {
@@ -2617,15 +2616,12 @@ textarea:focus-visible {
 /* 🎨 ДИНАМИЧЕСКИЕ СТИЛИ КНОПКИ ЗАГРУЗКИ ПО ПОЛОЖЕНИЮ */
 #chooseUserImage.outside-upload {
     /* Основные стили для кнопки снаружи (стандартный вид) */
-    min-width: 120px;
-    min-height: 50px;
+    min-width: 84px;
+    min-height: 35px;
     padding: 15px 20px;
-    font-weight: 600;
-    font-size: var(--font-size-sm);
     background: url('assets/custom-upload-btn.png') no-repeat center / 100% 100%;
     border: none;
     border-radius: var(--radius-lg);
-    color: #ffffff;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -2647,7 +2643,6 @@ textarea:focus-visible {
 #chooseUserImage.outside-upload:hover {
     filter: brightness(105%);
     transform: none;
-    box-shadow: 0 2px 15px rgba(102, 126, 234, 0.4);
 }
 
 #chooseUserImage.outside-upload svg {
