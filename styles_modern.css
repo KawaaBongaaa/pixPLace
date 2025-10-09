@@ -199,13 +199,11 @@ body {
 }
 
 .loading-logo {
-    margin-bottom: var(--space-0);
+    margin-bottom: var(--space-1);
     color: var(--text-primary);
 
 }
-.loading-logo-text {
-    margin-top: -45px;
-}
+
 .user-balance {
     position: relative;
     margin: 0 auto;
@@ -2561,12 +2559,10 @@ textarea:focus-visible {
     padding: 10px 16px;
     font-weight: 600;
     font-size: var(--font-size-sm);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     border-radius: var(--radius-lg);
     color: #ffffff;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -2575,7 +2571,7 @@ textarea:focus-visible {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(10px);
     letter-spacing: 0.5px;
 }
@@ -2595,7 +2591,7 @@ textarea:focus-visible {
 
 #chooseUserImage:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 6px 14px rgba(57, 174, 242, 0.6);
 }
 
 #chooseUserImage:hover::before {
@@ -2622,15 +2618,15 @@ textarea:focus-visible {
 #chooseUserImage.outside-upload {
     /* Основные стили для кнопки снаружи (стандартный вид) */
     min-width: 120px;
-    padding: 10px 16px;
+    min-height: 50px;
+    padding: 15px 20px;
     font-weight: 600;
     font-size: var(--font-size-sm);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: url('assets/custom-upload-btn.png') no-repeat center / 100% 100%;
     border: none;
     border-radius: var(--radius-lg);
     color: #ffffff;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
@@ -2640,21 +2636,18 @@ textarea:focus-visible {
     gap: 8px;
 }
 
-#chooseUserImage.outside-upload::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: inherit;
+#chooseUserImage.outside-upload .btn-link-text {
+    display: none;
 }
 
-#chooseUserImage.outside-upload:hover::before {
-    opacity: 1;
+#chooseUserImage.outside-upload::before {
+    opacity: 0 !important;
+}
+
+#chooseUserImage.outside-upload:hover {
+    filter: brightness(105%);
+    transform: none;
+    box-shadow: 0 2px 15px rgba(102, 126, 234, 0.4);
 }
 
 #chooseUserImage.outside-upload svg {

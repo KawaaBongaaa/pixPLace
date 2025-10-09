@@ -15,7 +15,7 @@ const CONFIG = {
     PREVIEW_MAX_H: 1024,
     PREVIEW_JPEG_QUALITY: 0.9,
     TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared', // Замените на ссылку вашего бота
-    SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #miniApp'
+    SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #Ai'
 };
 // 🔧 Device detection helpers
 function isMobile() {
@@ -3676,8 +3676,10 @@ async function initTelegramApp() {
 
         // ⚠️ ПРОВЕРКА: Есть ли пользователь?
         if (!appState.tg.initData || !appState.tg.initDataUnsafe?.user) {
-            showStatus('error', '⚠️ WebApp не запущен из Telegram. Повторите запуск через бота.');
-            return;
+            showStatus('info', '⚠️ Приложение запущено в режиме разработки. Telegram интеграция недоступна.');
+            // Не возвращаем, продолжаем инициализацию
+        } else {
+            console.log('👤 Пользователь Telegram найден');
         }
 
         // ✅ УЛУЧШЕННАЯ ДИАГНОСТИКА:
@@ -4461,8 +4463,7 @@ async function downloadImage() {
         ios: isIOS(),
         tablet: isTablet(),
         share: supportsShare(),
-        url: appState.currentGeneration.result,
-        telegramPlatform: appState.telegramPlatform
+        url: appState.currentGeneration.result
     });
 
     try {
@@ -4471,46 +4472,6 @@ async function downloadImage() {
         const response = await fetch(appState.currentGeneration.result);
         if (!response.ok) throw new Error('Failed to fetch image');
         const blob = await response.blob();
-
-        // 🔍 СПЕЦИАЛЬНАЯ ОБРАБОТКА ДЛЯ IPAD
-        if (isIOS() && isTablet()) {
-            console.log('📱 iPad detected');
-
-            // Попробуем Web Share API сначала
-            if (supportsShare()) {
-                console.log('📱 iPad - trying Web Share API');
-                const file = new File([blob], `ai-generated-${appState.currentGeneration.id}.png`, { type: blob.type });
-                const shareData = {
-                    files: [file],
-                    title: 'AI Generated Image',
-                    text: 'Created with pixPLace Bot'
-                };
-
-                try {
-                    await navigator.share(shareData);
-                    showToast('success', 'File shared successfully!');
-                    triggerHaptic('success');
-                    return;
-                } catch (shareError) {
-                    console.log('📱 iPad Web Share failed, fallback to open link');
-                }
-            }
-
-            // Если Web Share не поддерживается или не удался - используем Telegram openLink для WebApp
-            if (appState.tg && appState.tg.openLink) {
-                console.log('📱 iPad WebApp - using Telegram openLink');
-                appState.tg.openLink(appState.currentGeneration.result);
-                showToast('info', 'Opening image...');
-                return;
-            }
-
-            // Для браузера на iPad - откроем в новой вкладке с инструкцией
-            console.log('📱 iPad browser - opening in new tab with instructions');
-            window.open(appState.currentGeneration.result, '_blank');
-            showToast('info', 'Image opened in new tab. Use Safari "Share" button to save.');
-            triggerHaptic('light');
-            return;
-        }
 
         // Если мобильное устройство и поддерживает Web Share API - используем его
         if (isMobile() && supportsShare()) {
@@ -4539,9 +4500,9 @@ async function downloadImage() {
             return;
         }
 
-        // Для планшетов (не iPad) - аналогично мобильным
-        if (isTablet() && !isIOS()) {
-            console.log('📱 Non-iOS tablet - opening in new tab');
+        // Для планшетов - аналогично мобильным
+        if (isTablet()) {
+            console.log('📱 Tablet - opening in new tab');
             window.open(appState.currentGeneration.result, '_blank');
             showToast('info', 'Use long press to download');
             triggerHaptic('light');
