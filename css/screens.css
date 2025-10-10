@@ -128,6 +128,18 @@
     scrollbar-color: var(--border-primary) transparent;
 }
 
+/* Стоимость генерации - шрифт логотипа */
+#resultTime {
+    font-family: 'WDXL+Lubrifont+JP+N', sans-serif;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #ffbb33, #ff6a00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.5px;
+}
+
 .result-actions {
     display: flex;
     gap: var(--space-4);

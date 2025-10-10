@@ -74,13 +74,10 @@ const TRANSLATIONS = {
         mode_label: "Mode",
         mode_background_removal: "Remove Background",
         mode_upscale_image: "Upscale Image",
-        mode_print_maker: "SDXL T-Shirt Print | PoD Helper ",
+        mode_print_maker: "T-Shirt Print | SDXL | PoD Helper ",
         mode_photo_session: "Nano Banana | Photo Editing by Kontext Explaining",
         mode_fast_generation: "Flux Shnel | Fastest | Simple Pictures",
         mode_pixplace_pro: "Flux Krea | Logo | Text(eng)",
-        size_label: "Size",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
         generate_btn: "Generate Image",
         create_new: "Create New",
         empty_history_title: "No generations yet",
@@ -1273,7 +1270,6 @@ class AppState {
         this.currentLanguage = CONFIG.DEFAULT_LANGUAGE;
         this.currentTheme = 'dark';
         this.selectedStyle = 'realistic';
-        this.isGenerating = false;
         this.userId = null;
         this.userName = null;
         this.generationHistory = [];
@@ -1339,6 +1335,7 @@ class AppState {
         const nextIndex = (currentIndex + 1) % themes.length;
         this.setTheme(themes[nextIndex]);
     }
+
     // Storage methods
     saveSettings() {
         try {
@@ -1412,6 +1409,9 @@ class AppState {
 
 // 🎯 Global state
 const appState = new AppState();
+
+// Экспортируем appState в window для доступа из параллельной генерации
+window.appState = appState;
 
 // ⚡ Ultra-Fast Global Image Loading Manager - Max Performance
 class GlobalHistoryLoader {
@@ -1884,7 +1884,12 @@ function showStatus(type, message) {
 
 function showToast(type, message) {
     const container = document.getElementById('toastContainer');
-    if (!container) return;
+    if (!container) {
+        console.error('⚠️ Toast container not found - creating fallback toast');
+        // Emergency fallback toast without container
+        setTimeout(() => alert(message), 100);
+        return;
+    }
 
     // Определяем иконку в зависимости от типа
     const iconMap = {
@@ -1930,6 +1935,15 @@ function showToast(type, message) {
         setTimeout(() => container.removeChild(toast), 300);
     }, displayTime);
 }
+
+// Экспортируем showToast в window для доступа из параллельной генерации
+window.showToast = showToast;
+
+// Экспортируем другие функции для параллельной генерации
+window.showResult = showResult;
+window.showResultToast = showResultToast;
+window.sendToWebhook = sendToWebhook;
+window.updateHistoryItemWithImage = updateHistoryItemWithImage;
 
 function triggerHaptic(type) {
     if (appState.tg?.HapticFeedback) {
@@ -2417,6 +2431,13 @@ function createLoadingHistoryItem(generation) {
     const historyList = document.getElementById('historyList');
     if (!historyList) return;
 
+    // ☠️ ЗАЩИТА ОТ ДУБЛИКАТОВ: Проверяем, нет ли уже элемента для этой генерации
+    const existingLoading = document.getElementById(`loading-${generation.id}`);
+    if (existingLoading) {
+        console.log(`🚫 Loading item for generation ${generation.id} already exists, skipping creation`);
+        return existingLoading; // возвращаем существующий элемент
+    }
+
     // Создаём элемент нового изображения в истории
     const loadingItem = document.createElement('div');
     loadingItem.className = 'history-mini history-loading';
@@ -2450,6 +2471,7 @@ function createLoadingHistoryItem(generation) {
         historyList.appendChild(loadingItem);
     }
 
+    console.log(`➕ Created loading item for generation ${generation.id}`);
     return loadingItem;
 }
 
@@ -2464,8 +2486,50 @@ function updateHistoryItemWithImage(generationId, imageUrl) {
         // Убираем анимацию
         loadingImage.style.animation = 'none';
 
-        // Обновляем на готовое изображение
-        loadingImage.src = imageUrl;
+        // Функция для завершения загрузки
+        const finalizeLoading = () => {
+            // Изображение загружено - добавляем класс 'loaded'
+            loadingImage.classList.add('loaded');
+            // Убираем data-src, чтобы Intersection Observer перестал наблюдать
+            delete loadingImage.dataset.src;
+            // Уведомляем GlobalHistoryLoader об окончании загрузки
+            if (globalHistoryLoader) {
+                globalHistoryLoader.safeUnobserve(loadingImage);
+            }
+            console.log('✅ History image finalized successfully:', generationId);
+        };
+
+        // Таймер безопасности - через 3 секунды гарантированно завершить загрузку
+        const safetyTimer = setTimeout(() => {
+            console.log('⏰ Safety timer triggered for history image:', generationId);
+            finalizeLoading();
+        }, 3000);
+
+        // Добавляем обработчики onload и onerror
+        loadingImage.onload = () => {
+            clearTimeout(safetyTimer); // отменяем таймер безопасности
+            finalizeLoading();
+            console.log('✅ History image loaded via onload:', generationId);
+        };
+
+        loadingImage.onerror = () => {
+            clearTimeout(safetyTimer); // отменяем таймер безопасности
+            // При ошибке загрузки устанавливаем placeholder
+            loadingImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbGw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+';
+            finalizeLoading();
+            console.log('❌ History image load failed:', generationId);
+        };
+
+        // Проверяем, если изображение уже закешировано и готово
+        if (loadingImage.complete) {
+            clearTimeout(safetyTimer);
+            finalizeLoading();
+            console.log('⚡ History image was already cached:', generationId);
+        } else {
+            // Устанавливаем новый URL только если изображение не готово
+            loadingImage.src = imageUrl;
+        }
+
         loadingImage.alt = 'Generated image';
 
         // Добавляем эффект плавного появления
@@ -2626,7 +2690,32 @@ function showProcessing() {
     console.log('after showProcessing ->', getCurrentScreen());
 }
 
+// ⚡ ТОСТ-НОТИФИКАЦИИ ДЛЯ НОВЫХ РЕЗУЛЬТАТОВ (БЕЗ ПРЕРЫВАНИЯ ПОЛНОГО ПРОСМОТРА)
+let pendingResults = []; // Ожидающие результаты для показа в тостах
+
 function showResult(result) {
+    // Проверяем, показывается ли сейчас полный экран результата
+    if (getCurrentScreen() === 'result') {
+        // Экран уже занят - показываем тост-уведомление
+        if (appState.currentGeneration) {
+            showResultToast(result);
+            console.log('🎯 Показан тост с новым результатом (экран занят)');
+        } else {
+            console.warn('⚠️ showResult: currentGeneration не установлена, пропускаем тост');
+        }
+    } else {
+        // Экран свободен - показываем полный результат
+        if (appState.currentGeneration) {
+            displayFullResult(result);
+            console.log('🎯 Показан полный результат (экран свободен)');
+        } else {
+            console.error('❌ showResult: currentGeneration равна null!');
+        }
+    }
+}
+
+function displayFullResult(result) {
+    // Переключаемся на экран результата
     showScreen('resultScreen');
     showBackButton(true);
 
@@ -2637,7 +2726,7 @@ function showResult(result) {
     const resultMode = document.getElementById('resultMode');
     const resultTime = document.getElementById('resultTime');
 
-    // 🔧 ИСПРАВЛЕНИЕ: Очистка src + timestamp для предотвращения кэширования
+    // 🔧 Очистка src + timestamp для предотвращения кэширования
     if (resultImage) {
         resultImage.src = ''; // Сначала очищаем
         resultImage.src = result.image_url + '?t=' + Date.now(); // Добавляем timestamp для свежести
@@ -2646,21 +2735,195 @@ function showResult(result) {
     if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
     if (resultMode) resultMode.textContent = appState.translate('mode_' + appState.currentGeneration.mode);
 
-    // Обновлено: отображаем стоимость генерации вместо времени
-    if (resultTime) {
-        const cost = appState.currentGeneration.cost || appState.currentGeneration.generation_cost;
-        if (cost && !isNaN(cost)) {
-            const formattedCost = parseFloat(cost).toFixed(2);
-            const currency = appState.currentGeneration.cost_currency || 'cr';
-            resultTime.textContent = `${formattedCost} ${currency}`;
-        } else {
-            // Fallback если стоимость не пришла
-            const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
-            resultTime.textContent = `${duration}s`;
+        // Обновлено: отображаем стоимость генерации вместо времени
+        if (resultTime) {
+            const cost = appState.currentGeneration.generation_cost;
+            if (cost !== undefined && cost !== null && cost !== '' && !isNaN(parseFloat(cost))) {
+                const numericCost = parseFloat(cost);
+                const formattedCost = numericCost.toFixed(cost.includes('.') ? 1 : 0); // 1 знак для дробных, 0 для целых
+                const currency = appState.currentGeneration.cost_currency || 'Cr';
+                resultTime.textContent = `${formattedCost} ${currency.toUpperCase()}`;
+                console.log('💰 Cost displayed:', formattedCost, currency);
+            } else {
+                console.log('⚠️ Cost not found, showing duration fallback');
+                // Fallback если стоимость не пришла или равна 0/null
+                const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
+                resultTime.textContent = `${duration}s`;
+            }
         }
-    }
 
-    console.log('after showResult ->', getCurrentScreen());
+    console.log('🎯 Результат показан:', getCurrentScreen());
+}
+
+function showResultToast(result) {
+    // Создаём уникальный ID для тоста
+    const toastId = `result-toast-${Date.now()}`;
+    const generation = appState.currentGeneration;
+
+    // Создаём элемент тоста
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.className = 'result-toast';
+
+    // Получаем данные для отображения
+    const style = appState.translate('style_' + (generation.style || 'realistic'));
+    const mode = appState.translate('mode_' + (generation.mode || 'flux_shnel'));
+
+    toast.innerHTML = `
+        <div class="toast-content">
+            <div class="toast-image">
+                <img src="${result.image_url}?t=${Date.now()}" alt="Generated image preview" loading="lazy">
+            </div>
+            <div class="toast-details">
+                <div class="toast-meta">
+                    <span class="toast-style">${style}</span>
+                    <span class="toast-mode">${mode}</span>
+                </div>
+                <button class="toast-view-btn">View Result</button>
+                <button class="toast-close-btn">×</button>
+            </div>
+        </div>
+    `;
+
+    // Стили для тоста (будут добавлены в CSS или инлайново)
+    Object.assign(toast.style, {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        width: '280px',
+        background: 'var(--bg-primary)',
+        border: '1px solid var(--border-primary)',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+        zIndex: '10000',
+        opacity: '0',
+        transform: 'translateY(100px)',
+        transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        cursor: 'default',
+        overflow: 'hidden'
+    });
+
+    // Обработчик клика по кнопке просмотра
+    toast.querySelector('.toast-view-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        displayFullResult(result); // Показываем полный результат
+        removeResultToast(toast);
+    });
+
+    // Обработчик клика по закрытию тоста
+    toast.querySelector('.toast-close-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeResultToast(toast);
+    });
+
+    // Обработчик клика по всему тосту (кроме кнопок)
+    toast.addEventListener('click', () => {
+        displayFullResult(result);
+        removeResultToast(toast);
+    });
+
+    // Добавляем тост на страницу
+    document.body.appendChild(toast);
+
+    // Анимируем появление
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+    });
+
+    // Автоматически скрываем через 5 секунд
+    setTimeout(() => {
+        removeResultToast(toast);
+    }, 5000);
+
+    // Добавляем внутренние стили для содержимого тоста
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .result-toast .toast-content {
+            display: flex;
+            padding: 0;
+        }
+        .result-toast .toast-image {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+        .result-toast .toast-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px 0 0 8px;
+        }
+        .result-toast .toast-details {
+            flex: 1;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .result-toast .toast-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .result-toast .toast-meta span {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .result-toast .toast-view-btn {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: flex-start;
+        }
+        .result-toast .toast-view-btn:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-1px);
+        }
+        .result-toast .toast-close-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    `;
+    document.head.appendChild(styleElement);
+
+    console.log('🔔 Показан тост с новым результатом генерации');
+}
+
+function removeResultToast(toast) {
+    if (!toast) return;
+
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(100px)';
+
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 300);
 }
 
 // Функция обновления отображения имени пользователя в header
@@ -3190,6 +3453,16 @@ async function onUserImageChange(e) {
         preview.style.setProperty('display', 'block', 'important');
         console.log('✅ Превью принудительно показано после загрузки изображений');
     }
+
+    // 🔥 НОВОЕ: Принудительная загрузка превью истории сразу после генерации
+    setTimeout(() => {
+        // Запустим принудительную загрузку всех видимых превью в истории
+        const historyList = document.getElementById('historyList');
+        if (historyList && !historyList.classList.contains('hidden')) {
+            console.log('🎯 Принудительная загрузка превью истории после обновления...');
+            globalHistoryLoader.forceLoadVisibleHistoryPreviews();
+        }
+    }, 100);
 }
 
 // ===== Создание превью элемента =====
@@ -3592,20 +3865,41 @@ async function uploadToImgbb(dataUrl, apiKey) {
 // Загружает все выбранные изображения
 async function uploadUserImages() {
     const images = userImageState.images;
-    if (!images || images.length === 0) return [];
+    console.log('🚀 Starting uploadUserImages process:', {
+        totalImages: images ? images.length : 0,
+        hasImages: !!images && images.length > 0
+    });
+
+    if (!images || images.length === 0) {
+        console.log('❌ No images to upload, returning empty array');
+        return [];
+    }
 
     const urls = [];
 
     // Загружаем все изображения параллельно
     const uploadPromises = images.map(async (image, index) => {
-        if (!image.dataUrl) return null;
+        console.log(`🎯 Processing image ${index + 1}/${images.length}:`, {
+            hasDataUrl: !!image.dataUrl,
+            hasUploadedUrl: !!image.uploadedUrl,
+            fileName: image.file?.name || 'unknown'
+        });
+
+        if (!image.dataUrl && !image.uploadedUrl) {
+            console.warn(`⚠️ Image ${index + 1} has no dataUrl or uploadedUrl`);
+            return null;
+        }
 
         // Если уже загружено, используем существующее
-        if (image.uploadedUrl) return image.uploadedUrl;
+        if (image.uploadedUrl) {
+            console.log(`✅ Image ${index + 1} already uploaded, using cached URL`);
+            return image.uploadedUrl;
+        }
 
         try {
-            console.log(`📤 Uploading image ${index + 1}/${images.length}`);
+            console.log(`📤 Starting upload for image ${index + 1}/${images.length}`);
             const url = await uploadToImgbb(image.dataUrl, CONFIG.IMGBB_API_KEY);
+            console.log(`📥 Upload result for image ${index + 1}:`, url ? 'success' : 'failed');
             image.uploadedUrl = url || null;
             return url;
         } catch (error) {
@@ -3615,10 +3909,20 @@ async function uploadUserImages() {
     });
 
     // Ждём загрузки всех изображений
+    console.log('⏳ Waiting for all uploads to complete...');
     const uploadedUrls = await Promise.all(uploadPromises);
+    console.log('✅ All upload promises resolved');
 
     // Фильтруем успешные загрузки
-    return uploadedUrls.filter(url => url !== null);
+    const successfulUrls = uploadedUrls.filter(url => url !== null);
+    console.log('🎯 Upload results:', {
+        total: images.length,
+        successful: successfulUrls.length,
+        failed: images.length - successfulUrls.length,
+        allUrls: successfulUrls
+    });
+
+    return successfulUrls;
 }
 
 // 📱 Telegram WebApp Integration
@@ -3893,13 +4197,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 
 
-// 🖼️ Image Generation - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// 🖼️ Image Generation - ОБНОВЛЕНО ДЛЯ ПАРАЛЛЕЛЬНОЙ ГЕНЕРАЦИИ
 async function generateImage(event) {
     if (event) {
         event.preventDefault();
     }
-
-    if (appState.isGenerating) return;
 
     const prompt = document.getElementById('promptInput').value.trim();
     const mode = document.getElementById('modeSelect').value;
@@ -3956,8 +4258,6 @@ async function generateImage(event) {
         return;
     }
 
-
-
     // === GUARD: upscale, background_removal требуют загруженного фото ===
     // photo_session теперь гибридный режим (работает с/без изображения)
     const requiresImage = ['upscale_image', 'background_removal'].includes(mode);
@@ -3978,7 +4278,6 @@ async function generateImage(event) {
         }
     }
 
-    appState.isGenerating = true;
     appState.startTime = Date.now();
 
     // Create generation record
@@ -3987,43 +4286,38 @@ async function generateImage(event) {
     const currentStyle = (activeCard?.dataset.style || '').toLowerCase();
     appState.selectedStyle = currentStyle || appState.selectedStyle;
 
-    appState.currentGeneration = {
+    const generation = {
         id: Date.now(),
         prompt: prompt,
         style: appState.selectedStyle,
         mode: mode,
         size: size,
         timestamp: new Date().toISOString(),
-        status: 'processing',
-        startTime: appState.startTime
+        status: 'pending'
     };
-
-    // Add to history
-    appState.generationHistory.unshift(appState.currentGeneration);
-    appState.saveHistory();
-
-    // Комментируем показ экрана обработки для нового UX с прокруткой к истории
-    // showProcessing();
-
-    startTimer();
 
     // Добавляем плавную прокрутку к истории и автоматическое открытие
     setTimeout(async () => {
         await showHistoryWithScroll();
-        createLoadingHistoryItem(appState.currentGeneration);
+        createLoadingHistoryItem(generation);
     }, 100);
 
     // 1) Если выбрано пользовательское изображение — загрузим все на imgbb
     let userImageUrls = [];
     try {
         userImageUrls = await uploadUserImages();
-        console.log('📤 DEBUG: Uploaded user images:', userImageUrls.length, 'URLs:', userImageUrls);
+        console.log('📤 Uploaded user images:', userImageUrls.length, 'URLs:', userImageUrls);
     } catch (err) {
-        console.warn('📤 DEBUG: User images upload failed:', err);
+        console.warn('User images upload failed:', err);
         const errorEl = document.getElementById('userImageError');
         if (errorEl && !errorEl.textContent) {
             errorEl.textContent = 'Не удалось загрузить изображения. Сгенерируем без них.';
         }
+    }
+
+    // Добавляем ссылки на изображения к генерации
+    if (userImageUrls.length > 0) {
+        generation.userImageUrls = userImageUrls;
     }
 
     // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session без изображения ===
@@ -4033,162 +4327,46 @@ async function generateImage(event) {
         if (!shouldContinue) {
             // Пользователь решил добавить изображение - моргает кнопка загрузки
             startUploadButtonBlink();
-            appState.isGenerating = false;
-            stopTimer();
             showGeneration();
             return; // НЕ отправляем webhook
         }
         // Продолжаем генерацию без изображения (text-to-image режим)
     }
 
-    try {
-        console.log('📤 Sending to webhook...');
+    startTimer();
 
-        // Send request to Make webhook with multiple user images support
-        const result = await sendToWebhook({
-            action: 'Image Generation',
-            prompt: prompt,
-            style: appState.selectedStyle,
-            mode: mode,
-            size: size,
-            user_image_urls: userImageUrls, // Отправляем массив со всеми URL-ами (до 4-х изображений)
-            user_id: appState.userId,
-            user_name: appState.userName,
-            user_username: appState.userUsername,
-            user_language: appState.userLanguage,
-            user_is_premium: appState.userIsPremium,
-            telegram_platform: appState.telegramPlatform,
-            telegram_version: appState.telegramVersion,
-            timestamp: new Date().toISOString(),
-            generation_id: appState.currentGeneration.id
-        });
-
-        console.log('📥 Webhook response received:', result);
-
-        // Обновляем данные генерации
-        appState.currentGeneration.endTime = Date.now();
-        appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
-
-        // Handle response
-        if (!result || typeof result !== 'object') {
-            throw new Error('Invalid response from webhook');
-        }
-
-        // Специальная обработка перегрузки серверов
-        if (result.server_overloaded) {
-            console.log('⚠️ Server overload detected - showing user-friendly message');
-            appState.currentGeneration.status = 'error';
-            appState.currentGeneration.error = result.message || appState.translate('error_server_overloaded');
-            appState.currentGeneration.endTime = Date.now();
-            appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
-            appState.saveHistory();
-
-            showToast('error', result.message || appState.translate('error_server_overloaded'));
-            triggerHaptic('error');
-            showGeneration();
-            return;
-        }
-
-        // Проверка на ошибку
-        if (result.status === 'error' || result.error) {
-            throw new Error(result.error || result.message || 'Unknown error from webhook');
-        }
-
-        /// Проверка лимитов (ПЕРВАЯ ПРОВЕРКА)
-        console.log('🔍 Checking if limit reached...');
-        const limitReached = result.limit_reached === true ||
-            result.limit_reached === 'true' ||
-            result.limit_reached === '1' ||
-            result.limit_reached === 1;
-
-        console.log('🔍 Limit reached result:', limitReached);
-
-        if (limitReached) {
-            console.log('⚠️ LIMIT REACHED - Opening modal');
-            appState.currentGeneration.status = 'limit';
-            appState.currentGeneration.result = result.image_url || null;
-            appState.saveHistory();
-
-            // Получаем URL для оплаты из ответа или используем дефолтный
-            const paymentUrl = result.payment_url || 'https://t.me/tribute/app?startapp=syDv';
-            console.log('🔗 Payment URL:', paymentUrl);
-
-            // Вызываем функцию показа модального окна
-            console.log('🔗 Calling showSubscriptionNotice...');
-            showSubscriptionNotice(result);
-
-            showToast('warning', result.message || 'Generation limit reached');
-            triggerHaptic('warning');
-            return;
-        }
-        // Успешная генерация
-        if (result.status === 'success' && result.image_url) {
-            console.log('✅ Generation successful');
-            appState.currentGeneration.status = 'success';
-            appState.currentGeneration.result = result.image_url;
-
-            // Сохраняем стоимость генерации в истории
-            if (result.cost || result.generation_cost || result.cost_balance) {
-                appState.currentGeneration.cost = result.cost || result.generation_cost || result.cost_balance;
-                appState.currentGeneration.cost_currency = result.cost_currency || 'cr';
-            }
-
-            appState.saveHistory();
-
-            // Обновляем баланс пользователя из ответа
-            if (result.remaining_credits !== undefined || result.credit_balance !== undefined || result.cost_balance !== undefined) {
-                const balance = result.remaining_credits || result.credit_balance || result.cost_balance;
-                updateUserBalance(balance);
-                console.log('💳 Updated user balance:', balance);
-            }
-
-            // Обновляем миниатюру в истории с новым изображением
-            updateHistoryItemWithImage(appState.currentGeneration.id, result.image_url);
-
-            // 🔧 ДОБАВЛЕНИЕ: Обновляем отображение истории, если она уже открыта
-            // Это исправит проблему, когда история не прогружается до первой генерации
-            const historyList = document.getElementById('historyList');
-            if (historyList && !historyList.classList.contains('hidden')) {
-                console.log('📋 History is open, updating display after generation');
-                updateHistoryDisplay();
-            }
-
-            showResult(result);
-            showToast('success', appState.translate('success_generated'));
-            triggerHaptic('success');
-            return;
-        }
-
-        // Если дошли сюда - неожиданный формат ответа
-        console.error('❌ Unexpected response format:', result);
-        throw new Error('Unexpected response format: ' + JSON.stringify(result));
-
-    } catch (error) {
-        console.error('❌ Generation error:', error);
-
-        appState.currentGeneration.status = 'error';
-        appState.currentGeneration.error = error.message;
-        appState.currentGeneration.endTime = Date.now();
-        appState.currentGeneration.duration = appState.currentGeneration.endTime - appState.currentGeneration.startTime;
-        appState.saveHistory();
-
-        showToast('error', appState.translate('error_generation_failed') + ': ' + error.message);
-        triggerHaptic('error');
-        showGeneration();
-    } finally {
-        appState.isGenerating = false;
-        stopTimer();
+    // Добавляем генерацию в очередь менеджера
+    const added = generationManager.addGeneration(generation);
+    if (!added) {
+        console.log('⏳ Generation added to queue');
+        showToast('info', 'Генерация добавлена в очередь');
+    } else {
+        console.log('🚀 Generation started immediately');
+        showToast('info', 'Генерация запущена');
     }
+
+    // Добавляем в историю сразу
+    appState.generationHistory.unshift(generation);
+    appState.saveHistory();
 }
 // 🌐 Webhook Communication
 async function sendToWebhook(data) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
 
+    // LOG RAW REQUEST BODY FOR DEBUGGING
+    const requestData = {
+        ...data,
+        prompt: sanitizeJsonString(data.prompt) // Restore sanitize for JSON safety
+    };
+
+    const requestBody = JSON.stringify(requestData);
+    console.log('📤 RAW webhook request body (first 500 chars):', requestBody.substring(0, 500));
+
     try {
         console.log('📤 Sending webhook request:', {
             ...data,
-            prompt: data.prompt // Логируем сырой prompt для проверки
+            prompt: data.prompt.substring(0, 100) + (data.prompt.length > 100 ? '...' : '') // Логируем первые 100 символов промпта
         });
 
         const response = await fetch(CONFIG.WEBHOOK_URL, {
@@ -4197,10 +4375,7 @@ async function sendToWebhook(data) {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                ...data,
-                prompt: sanitizeJsonString(data.prompt)
-            }),
+            body: requestBody, // Use raw JSON.stringify, remove sanitizeJsonString
             signal: controller.signal
         });
 
