@@ -1066,7 +1066,7 @@ img.lazy-loaded[data-src] {
     /* УБРАЛИ background-color КОТОРЫЙ МОЖЕТ ПЕРЕКРЫВАТЬ background-image */
     background: url('assets/custom-upload-btn.png') no-repeat center / contain !important;
     border: none !important;
-    border-radius: var(--radius-lg) !important;
+    border-radius: var(--radius-xs) !important;
     min-width: 84px !important;
     min-height: 35px !important;
     padding: 10px 15px !important;
@@ -1074,7 +1074,7 @@ img.lazy-loaded[data-src] {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.9) !important;
     font-weight: 600 !important;
     cursor: pointer !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.4s ease !important;
     box-shadow: none !important;
     outline: none !important;
 }
@@ -1156,7 +1156,7 @@ img.lazy-loaded[data-src] {
     font-weight: 600;
     font-size: var(--font-size-sm);
     border: none;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm);
     color: #ffffff;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1218,7 +1218,7 @@ img.lazy-loaded[data-src] {
     font-size: var(--font-size-sm);
     background: url('assets/custom-upload-btn.png') no-repeat center / 100% 100%;
     border: none;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-sm);
     color: #ffffff;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1227,6 +1227,7 @@ img.lazy-loaded[data-src] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    opacity: 0.9;
     gap: 8px;
 }
 

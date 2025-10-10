@@ -60,16 +60,16 @@ body {
 }
 
 .loading-logo {
-    margin-bottom: var(--space-1);
+    margin-bottom: -3.3rem;
     color: var(--text-primary);
-
 }
 
 .user-balance {
     position: relative;
     margin: 0 auto;
-    font-family: var(--font-family);
-    font-weight: 300;
+    font-family: "WDXL Lubrifont JP N", sans-serif;
+    font-style: bold;
+    font-weight: 400;
     right: 10px;
     opacity: 0.6;
     display: flex;
@@ -105,9 +105,11 @@ body {
 }
 
 .loading-content h2 {
+    font-family: "WDXL Lubrifont JP N", sans-serif;
+    letter-spacing: 2px;
     font-optical-sizing: auto;
     font-weight: 900;
-    font-style: normal;
+    font-style: bold;
     display: flex;
     font-size: 2rem;
     justify-content: space-around;

@@ -79,7 +79,6 @@ const TRANSLATIONS = {
         mode_fast_generation: "Flux Shnel | Fastest | Simple Pictures",
         mode_pixplace_pro: "Flux Krea | Logo | Text(eng)",
         size_label: "Size",
-        size_square: " 1 : 1 ",
         size_portrait: "9:16",
         size_landscape: "16:9",
         generate_btn: "Generate Image",
