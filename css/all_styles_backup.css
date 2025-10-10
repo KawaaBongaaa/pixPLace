@@ -145,7 +145,9 @@
     box-sizing: border-box;
 }
 
-html {
+html, body {
+    height: 100%;
+    width: 100%;
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
@@ -159,6 +161,8 @@ body {
     color: var(--text-primary);
     background: var(--bg-primary);
     transition: background-color var(--transition-normal), color var(--transition-normal);
+    margin: 0;
+    padding: 0;
 }
 
 /* Loading Screen */
@@ -203,13 +207,40 @@ body {
 .user-balance {
     position: relative;
     margin: 0 auto;
-    font-family: var(--font-family);
-    font-weight: 700;
+    font-family: "WDXL Lubrifont JP N", sans-serif;
+    font-weight: 300;
     right: 10px;
+    opacity: 0.6;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+}
+
+.user-name {
+    font-size: 0.85rem;
+    opacity: 0.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.balance-text {
+    font-size: 0.75rem;
     opacity: 0.7;
+}
 
-
-
+.credits-amount {
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .loading-content h2 {
@@ -324,8 +355,8 @@ body {
 }
 
 .logo-img {
-    width: clamp(250px, 10vw, 400px);
-    height: clamp(250px, 10vw, 400px);
+    width: clamp(400px, 10vw, 800px);
+    height: clamp(400px, 10vw, 800px);
     object-fit: contain;
 }
 
@@ -498,22 +529,6 @@ body {
     display: flex;
 }
 
-/*.back-btn {
-    position: relative;
-    z-index: 1001;
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: var(--radius-lg);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-fast);
-    display: none; /* по умолчанию скрыта 
-
-}*/
 
 .back-btn:hover {
     background: var(--bg-tertiary);
@@ -601,13 +616,13 @@ body {
 }
 
 .form-label {
-    font-size: var(--font-size-s);
+    font-size: var(--font-size-xs);
     padding-left: 15px;
     padding-top: 5px;
     letter-spacing: 1px;
     justify-content: center;
     font-weight: 500;
-    opacity: 0.85;
+    opacity: 0.75;
     color: var(--text-primary);
 }
 
@@ -644,7 +659,7 @@ body {
 
 .input-counter {
     position: absolute;
-    bottom: var(--space-0);
+    bottom: var(--space-1);
     right: var(--space-4);
     font-size: var(--font-size-xs);
     color: var(--text-tertiary);
@@ -669,6 +684,7 @@ body {
     color: var(--text-primary);
     background: var(--bg-primary);
     cursor: pointer;
+    opacity: 80%;
     transition: all var(--transition-fast);
 }
 
@@ -896,24 +912,6 @@ body {
 .generate-btn:active .btn-ripple {
     width: 300px;
     height: 300px;
-}
-
-.pay-btn {
-    display: inline-block;
-    padding: 12px 20px;
-    margin-top: 20px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.pay-btn:hover {
-    background-color: #0056b3;
 }
 
 /* Processing Screen */
@@ -1306,43 +1304,186 @@ body {
 
 }
 
-/* Toast Notifications */
+/* Toast Notifications - Modern Design */
 .toast-container {
     position: fixed;
     top: var(--space-6);
     right: var(--space-6);
     z-index: 1000;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: var(--space-3);
+    pointer-events: none;
 }
 
 .toast {
-    padding: var(--space-4) var(--space-6);
-    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-5);
+    border-radius: 16px;
     color: white;
     font-size: var(--font-size-sm);
-    font-weight: 500;
-    box-shadow: var(--shadow-lg);
-    transform: translateX(100%);
-    transition: transform var(--transition-fast);
-    max-width: 300px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 320px;
+    max-width: 420px;
+    transform: translateX(400px) scale(0.95);
+    opacity: 0;
+    transition: all var(--transition-fast) cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    pointer-events: auto;
+}
+
+.toast::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: shine 2s infinite;
 }
 
 .toast.show {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
+    opacity: 1;
+}
+
+/* Progress bar для автоhide */
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    animation: progress 5000ms linear forwards;
+}
+
+@keyframes progress {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.toast-content {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.toast-success .toast-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.toast-error .toast-icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.toast-warning .toast-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.toast-info .toast-icon {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .toast.success {
-    background: var(--success-500);
+    background: linear-gradient(135deg, #10b981 0%, #065f46 50%, #064e3b 100%);
 }
 
 .toast.error {
-    background: var(--error-500);
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 50%, #991b1b 100%);
+}
+
+.toast.warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #b45309 50%, #92400e 100%);
 }
 
 .toast.info {
-    background: var(--primary-500);
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-700) 50%, var(--primary-800) 100%);
+}
+
+@keyframes shine {
+    0% {
+        left: -100%;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        left: 100%;
+        opacity: 0;
+    }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .toast-container {
+        top: var(--space-4);
+        right: var(--space-4);
+        left: var(--space-4);
+    }
+
+    .toast {
+        min-width: 280px;
+        max-width: none;
+        padding: var(--space-3) var(--space-4);
+    }
+
+    .toast-content {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .toast {
+        min-width: 250px;
+        padding: var(--space-3);
+        font-size: 13px;
+    }
+
+    .toast-icon {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+    }
+}
+
+/* Mobile header adjustments when back button is active */
+@media (max-width: 480px) {
+    .show-back .header-right {
+        margin-bottom: var(--space-1);
+    }
+
+    .show-back .user-balance {
+        margin-right: var(--space-3);
+    }
+
+    .show-back .logo-text {
+        font-size: clamp(1.8rem, 2vw, 2.1rem);
+        position: relative;
+        top: 2px;
+    }
 }
 
 /* Responsive Design */
@@ -1444,7 +1585,7 @@ body {
     }
 
     .generation-form {
-        gap: var(--space-6);
+        gap: var(--space-2);
     }
 
     .style-grid {
@@ -1545,20 +1686,40 @@ textarea:focus-visible {
 }
 
 
-/* Модальное окно лимита - современный стиль */
+/* 🔥 🔥 🔥 FULLSCREEN МОДАЛЬНОЕ ОКНО ЛИМИТА */
 .limit-modal {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100vw !important;
+    height: 100vh !important;
     display: none;
-    align-items: center;
+    align-items: flex-start;
+    /* Поменяли с center на flex-start для большего пространства */
     justify-content: center;
+    padding-top: 2vh;
+    /* Отступ сверху для предотвращения касания экрана */
     z-index: 99997;
-    /* Увеличиваем z-index */
     overflow: hidden;
     font-family: 'Inter', sans-serif;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* Улучшенная адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .limit-modal {
+        padding-top: 1vh;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .limit-modal {
+        padding-top: 0.5vh;
+        align-items: flex-start;
+    }
 }
 
 .limit-modal.show {
@@ -1578,29 +1739,50 @@ textarea:focus-visible {
     opacity: 0;
     animation: fadeInBackdrop 0.3s ease forwards;
     z-index: 99998;
-    /* Меньше чем у модального окна */
 }
 
 .limit-modal-content {
     position: relative;
-    background: #1e1e2f;
-    border-radius: 16px;
-    padding: 2.5rem 3rem;
-    max-width: 420px;
-    width: 90%;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #191719 0%, #0f172a 50%, #1e293b 100%);
+    border-radius: 20px 20px 0 0;
+    /* Только верхние углы для постоянного эффекта full-screen */
+    padding: 1.5rem 2rem;
+    width: 95vw !important;
+    /* Максимальная ширина */
+    max-width: none !important;
+    height: 85vh !important;
+    /* Сниженная высота для мобильных */
+    max-height: none !important;
+    /* Убираем max-height для растяжки */
+    overflow-y: auto;
+    /* Добавляем скролл если потребуется */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
     color: #f0f0f5;
     text-align: center;
     z-index: 99999;
-    /* Максимальный z-index */
-    transform: translateY(-30px);
+    transform: translateY(-50px);
     opacity: 0;
-    animation: slideInContent 0.4s ease forwards 0.1s;
+    animation: slideInFullscreen 0.5s ease-out forwards;
+}
+
+/* Улучшение видимости текста на мобильных */
+@media (max-width: 768px) {
+    .limit-modal-content {
+        padding: 1rem 1.5rem;
+        height: 85vh !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .limit-modal-content {
+        padding: 0.75rem 1rem;
+        height: 82vh !important;
+    }
 }
 
 .limit-icon {
     font-size: 3.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     color: #ffbb33;
     animation: pulseIcon 2s infinite ease-in-out;
 }
@@ -1617,6 +1799,43 @@ textarea:focus-visible {
     margin-bottom: 2rem;
     line-height: 1.4;
     color: #cfcfd4;
+}
+
+/* Оптимизация элементов верхней части для мобильных */
+@media (max-width: 768px) {
+    .limit-icon {
+        font-size: 2.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .limit-title {
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .limit-message {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 480px) {
+    .limit-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .limit-title {
+        font-size: 1.4rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .limit-message {
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+        line-height: 1.2;
+    }
 }
 
 .limit-buttons {
@@ -1710,6 +1929,22 @@ textarea:focus-visible {
     }
 }
 
+@keyframes slideInFullscreen {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+}
+
 @keyframes pulseIcon {
 
     0%,
@@ -1721,6 +1956,319 @@ textarea:focus-visible {
     50% {
         transform: scale(1.1);
         opacity: 0.8;
+    }
+}
+
+/* AI Chat Screen - Modern WhatsApp-style design */
+
+.ai-chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    margin: var(--space-4);
+    margin-top: 0;
+    flex: 1;
+}
+
+.ai-chat-messages {
+    flex: 1;
+    padding: var(--space-4);
+    overflow-y: auto;
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-height: 400px;
+}
+
+.ai-chat-message {
+    max-width: 85%;
+    padding: var(--space-3) var(--space-4);
+    border-radius: 1.5rem;
+    font-size: var(--font-size-sm);
+    line-height: var(--space-5);
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+    word-wrap: break-word;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ai-chat-message.user {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.ai-chat-message.bot {
+    background: linear-gradient(135deg, #374151, #4b5563);
+    color: white;
+    margin-right: auto;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.ai-chat-message .message-avatar {
+    position: absolute;
+    top: -8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: white;
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.user .message-avatar {
+    right: -16px;
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.bot .message-avatar {
+    left: -16px;
+    background: linear-gradient(135deg, #ec4899, #f97316);
+}
+
+.ai-chat-message .message-timestamp {
+    display: block;
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: var(--space-1);
+    text-align: right;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.ai-chat-input-area {
+    background: var(--bg-secondary);
+    padding: var(--space-4);
+    border-top: 1px solid var(--border-primary);
+}
+
+.ai-chat-input-container {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-primary);
+    border-radius: 2rem;
+    padding: var(--space-1) var(--space-3);
+    transition: all var(--transition-fast);
+}
+
+.ai-chat-input-container:focus-within {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgb(14 165 233 / 0.1);
+}
+
+#ai-chat-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    padding: var(--space-2);
+    font-family: var(--font-family);
+}
+
+#ai-chat-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.ai-chat-send-btn {
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.ai-chat-send-btn:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--primary-400), var(--primary-500));
+}
+
+.ai-chat-send-btn:active {
+    transform: scale(0.95);
+}
+
+.ai-typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.typing-dots {
+    display: inline-flex;
+    gap: var(--space-1);
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary-400);
+    animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+
+    0%,
+    20% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    80%,
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .ai-chat-container {
+        margin: var(--space-2);
+        margin-top: 0;
+    }
+
+    .ai-chat-messages {
+        padding: var(--space-3);
+        gap: var(--space-2);
+    }
+
+    .ai-chat-message {
+        max-width: 90%;
+        font-size: 15px;
+        padding: 12px 16px;
+    }
+
+    .ai-chat-input-area {
+        padding: var(--space-3);
+    }
+
+    .ai-chat-input-container {
+        padding: var(--space-1) var(--space-2);
+    }
+
+    #ai-chat-input {
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+    }
+
+    /* Modal optimizations for mobile */
+    .limit-modal-content {
+        width: 100%;
+        padding: 1rem 0.5rem;
+        max-width: none;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: none;
+    }
+
+    .plans-carousel {
+        padding: 0.5rem;
+        gap: 0.25rem;
+    }
+
+    .plan-card {
+        flex: 0 0 240px;
+        min-height: 220px;
+        padding: 1rem 1rem;
+    }
+
+    .plan-title {
+        font-size: 1.4rem;
+    }
+
+    .price {
+        font-size: 1.6rem;
+    }
+
+    .limit-icon {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .limit-modal-content {
+        width: 100%;
+        padding: 1.5rem 1rem;
+        transform: none;
+        margin: 1rem auto;
+    }
+
+    .limit-description {
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+
+    .plan-card {
+        flex: 0 0 200px;
+        min-height: 200px;
+        padding: 0.75rem 0.5rem;
+    }
+
+    .plan-title {
+        font-size: 1.2rem;
+    }
+
+    .price {
+        font-size: 1.4rem;
+    }
+
+    .credits {
+        font-size: 0.9rem;
+    }
+
+    .limit-icon {
+        font-size: 2rem;
     }
 }
 
@@ -1792,6 +2340,7 @@ textarea:focus-visible {
 .user-image-upload {
     display: flex;
     position: relative;
+    top: 15px;
 
 }
 
@@ -1809,16 +2358,11 @@ textarea:focus-visible {
     display: none !important;
 }
 
-/*#userImageWrapper.need-image {
-    outline: 3px dashed var(--accent);
-    border-radius: 10px;
-    animation: need-image-pulse 2.2s ease-in-out infinite;
-}*/
 #userImageWrapper.need-image {
     border: 2px dashed var(--error-400);
     background-color: rgba(255, 0, 0, 0.05);
     border-radius: 8px;
-    animation: need-image-pulse 2.4s infinite;
+    animation: need-image-pulse 5s infinite;
 }
 
 @keyframes need-image-pulse {
@@ -1852,16 +2396,97 @@ textarea:focus-visible {
 }
 
 .btn-link {
-    padding: 4%;
+    min-width: 80px;
+    max-width: 100px;
+    padding: 12px 20px;
     font-weight: 600;
-    left: 5px;
-    min-width: 50px;
-    background: #2e2e3e;
-    border-radius: 6px;
-    color: #badcea;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    object-fit: cover;
+    font-size: 14px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow:
+        0 4px 20px rgba(99, 102, 241, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
 
+.btn-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+}
+
+.btn-link:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+        0 8px 30px rgba(99, 102, 241, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-link:hover::before {
+    opacity: 1;
+}
+
+.btn-link:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow:
+        0 2px 10px rgba(99, 102, 241, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-link svg {
+    width: 18px;
+    height: 18px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+.btn-link:hover svg {
+    transform: rotate(5deg) scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .btn-link {
+        min-width: 100px;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .btn-link svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-link {
+        min-width: 80px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .btn-link svg {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 .remove-user-image {
@@ -1928,9 +2553,232 @@ textarea:focus-visible {
     display: block;
 }
 
+/* 🎨 СОВРЕМЕННЫЕ СТИЛИ КНОПКИ ЗАГРУЗКИ ИЗОБРАЖЕНИЙ */
+#chooseUserImage {
+    min-width: 120px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(10px);
+    letter-spacing: 0.5px;
+}
+
+#chooseUserImage::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+}
+
+#chooseUserImage:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 14px rgba(57, 174, 242, 0.6);
+}
+
+#chooseUserImage:hover::before {
+    opacity: 1;
+}
+
+#chooseUserImage:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
+}
+
+#chooseUserImage svg {
+    width: 16px;
+    height: 16px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+#chooseUserImage:hover svg {
+    transform: scale(1.1);
+}
+
+/* 🎨 ДИНАМИЧЕСКИЕ СТИЛИ КНОПКИ ЗАГРУЗКИ ПО ПОЛОЖЕНИЮ */
+#chooseUserImage.outside-upload {
+    /* Основные стили для кнопки снаружи (стандартный вид) */
+    min-width: 120px;
+    min-height: 50px;
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    background: url('assets/custom-upload-btn.png') no-repeat center / 100% 100%;
+    border: none;
+    border-radius: var(--radius-lg);
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#chooseUserImage.outside-upload .btn-link-text {
+    display: none;
+}
+
+#chooseUserImage.outside-upload::before {
+    opacity: 0 !important;
+}
+
+#chooseUserImage.outside-upload:hover {
+    filter: brightness(105%);
+    transform: none;
+    box-shadow: 0 2px 15px rgba(102, 126, 234, 0.4);
+}
+
+#chooseUserImage.outside-upload svg {
+    width: 16px;
+    height: 16px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+#chooseUserImage.outside-upload:hover svg {
+    transform: scale(1.1);
+}
+
+#chooseUserImage.inside-preview {
+    /* Стили для кнопки В ОБОЛОЧКЕ превью (внутри preview) */
+    min-width: 28px;
+    width: 28px;
+    height: 28px;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    /* Изначально скрыта - показываем по hover */
+}
+
+#chooseUserImage.inside-preview:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.8);
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+#chooseUserImage.inside-preview svg {
+    width: 14px;
+    height: 14px;
+    color: white;
+    filter: none;
+}
+
+#chooseUserImage.inside-preview:hover svg {
+    transform: none;
+}
+
+/* Адаптивность кнопки загрузки */
+@media (max-width: 768px) {
+    #chooseUserImage {
+        min-width: 100px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    #chooseUserImage svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    #chooseUserImage {
+        min-width: 80px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    #chooseUserImage svg {
+        width: 12px;
+        height: 12px;
+    }
+}
+
 /* Уберём util-класс hidden, если он мешает */
 #userImagePreview.hidden {
     display: none;
+}
+
+/* 🎯 Стиль для маленькой кнопки "Загрузить" внутри превью */
+.inner-upload-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.inner-upload-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.8);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.inner-upload-btn svg {
+    width: 12px;
+    height: 12px;
+    color: white;
+}
+
+/* Скрываем, когда достигли лимита изображений */
+#userImageWrapper.full-limit .inner-upload-btn {
+    display: none !important;
+}
+
+/* Показываем маленькую кнопку только когда есть превью и еще можно загрузить */
+#userImageWrapper.has-images:not(.full-limit) #userImagePreview .inner-upload-btn {
+    display: flex;
 }
 
 
@@ -1961,6 +2809,42 @@ textarea:focus-visible {
 }
 
 
+
+/* 🔥 🔥 🔥 ОПТИМИЗИРОВАННЫЕ СТИЛИ ДЛЯ КАРУСЕЛИ ПЛАНОВ */
+.plans-carousel {
+    display: flex;
+    gap: 0.25rem !important;
+    /* Минимальный */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 1rem 30vw !important;
+    /* Большие края для показа боковых карточек */
+    width: 160vw !important;
+    /* Достаточно широкая для центрирования PRO */
+    max-width: none !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start;
+    /* Начиная с левой стороны */
+}
+
+/* Скрываем скролл всем браузерам */
+.plans-carousel::-webkit-scrollbar {
+    display: none !important;
+}
+
+.plan-card {
+    flex: 0 0 240px !important;
+    /* МЕНЬШЕ КАРТОЧКИ ДЛЯ ПОКАЗА КРАЕВ */
+    min-height: 280px !important;
+    /* МЕНЬШЕ ВЫСОТА */
+    padding: 1.8rem 1.3rem !important;
+    /* МЕНЬШЕ ВНУТРЕННИЙ ОТСТУП */
+    font-size: 1.3rem !important;
+    /* МЕНЬШЕ ШРИФТ */
+}
+
+/* 🔥 🔥 🔥 /КОНЕЦ ОПТИМИЗАЦИИ КАРУСЕЛИ ПЛАНОВ */
 
 /* 🔄 Анимации загрузки для History */
 /* Плавная загрузка изображений */
@@ -2158,6 +3042,447 @@ img.lazy-loaded[data-src] {
     border-color: var(--primary-500);
 }
 
+/* 🔥 СОВРЕМЕННЫЕ СТИЛИ КАРУСЕЛИ ПЛАНОВ В ЛИМИТ МОДАЛ */
+.plans-carousel-container {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    margin: 0.5rem 0;
+}
+
+.plans-carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.plans-carousel {
+    display: flex;
+    gap: 0.15rem;
+    /* МИНИМАЛЬНЫЙ отступ */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 1rem 25%;
+    /* ОЧЕНЬ БОЛЬШИЕ Края для показа краев */
+    /* Увеличиваем общую ширину контейнера */
+    width: 120vw;
+    max-width: 1400px;
+
+}
+
+.plan-card {
+    flex: 0 0 250px;
+    min-height: 250px;
+    background: linear-gradient(135deg, #2a2a3e 0%, #1e1e2f 100%);
+    border-radius: 16px;
+    padding: 1rem 0.5rem;
+    margin-left: 2px;
+    margin-right: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    cursor: pointer;
+    text-align: center;
+    overflow: hidden;
+}
+
+/* Оптимизация размеров карточек для мобильных */
+@media (max-width: 768px) {
+    .plan-card {
+        flex: 0 0 240px;
+        min-height: 220px;
+        padding: 0.8rem 0.4rem;
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-card {
+        flex: 0 0 220px;
+        min-height: 210px;
+        padding: 0.6rem 0.4rem;
+        border-radius: 12px;
+    }
+}
+
+/* Эффект glassmorphism для карточек */
+.plan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+            rgba(138, 43, 226, 0.05) 0%,
+            rgba(30, 144, 255, 0.05) 50%,
+            rgba(255, 20, 147, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.plan-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    border-color: rgba(138, 43, 226, 0.3);
+}
+
+.plan-card:hover::before {
+    opacity: 1;
+}
+
+.plan-card.lite-plan {
+    border-left: 4px solid #00d4ff;
+    border-top: 2px solid #03b8dc;
+}
+
+.plan-card.pro-plan {
+    border-left: 4px solid #ff6b35;
+    border-top: 2px solid #cf5124;
+
+}
+
+/* Шильдик "Most Popular" для Pro карты */
+.plan-badge {
+    position: absolute;
+    top: -8px;
+    right: 9px;
+    background: linear-gradient(135deg, #ff6b35, #f7931e, #ff4081);
+    color: white;
+    padding: 0px 4px;
+    border-radius: 10px;
+    font-size: 10сpx;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+    border: 2px solid #ffffff;
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    text-transform: uppercase;
+    animation: badgeGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes badgeGlow {
+    0% {
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4),
+            0 0 20px rgba(255, 107, 53, 0.3),
+            0 0 30px rgba(255, 107, 53, 0.2);
+        transform: scale(1);
+    }
+
+    100% {
+        box-shadow: 0 4px 20px rgba(255, 107, 53, 0.6),
+            0 0 30px rgba(255, 107, 53, 0.5),
+            0 0 40px rgba(255, 107, 53, 0.4);
+        transform: scale(1.05);
+    }
+}
+
+/* Адаптивность шильдика */
+@media (max-width: 768px) {
+    .plan-badge {
+        font-size: 10px;
+        padding: 2px 4px;
+        right: 2px;
+        top: 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-badge {
+        font-size: 9px;
+        padding: 2px 2px;
+        right: 6px;
+        top: -3px;
+    }
+}
+
+.plan-card.studio-plan {
+    border-left: 4px solid #ff4081;
+    border-top: 2px solid #c62d60;
+
+}
+
+.plan-header {
+    margin-bottom: 1.5rem;
+}
+
+.plan-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.plan-card:hover .plan-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.plan-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.plan-price {
+    margin-bottom: 1.5rem;
+}
+
+.price {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, #0ddbff, #33f94a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.credits {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
+}
+
+.plan-features {
+    margin-bottom: 2rem;
+}
+
+.feature {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.plan-card:hover .feature {
+    color: #ffffff;
+    border-color: rgba(138, 43, 226, 0.3);
+}
+
+.plan-card .btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Анимация пульсации для популярного плана */
+.plan-card.pro-plan .btn:hover {
+    animation: pulse-btn 2s infinite;
+}
+
+@keyframes pulse-btn {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 20px rgba(238, 9, 121, 0.6);
+    }
+
+    50% {
+        box-shadow: 0 4px 20px rgba(238, 9, 121, 1);
+    }
+}
+
+/* Индикаторы карусели - скрыты */
+.carousel-indicators {
+    display: none;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.indicator.active {
+    background: #ffffff;
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.indicator:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(1.1);
+}
+
+/* Responsive адаптивность */
+@media (max-width: 768px) {
+    .plans-carousel {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+
+    .plan-card {
+        flex: 0 0 260px;
+        min-height: 240px;
+        padding: 1.5rem 1rem;
+        margin: 4px;
+
+    }
+
+    .plan-title {
+        font-size: 1.5rem;
+    }
+
+    .price {
+        font-size: 2rem !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-icon {
+        font-size: 2.5rem;
+    }
+
+    .credits {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-card {
+        flex: 0 0 230px;
+        min-height: 220px;
+        padding: 1rem 0.75rem;
+        margin: 5px;
+    }
+
+    .plan-title {
+        font-size: 1.3rem;
+    }
+
+    .price {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.4rem;
+    }
+
+    .plan-icon {
+        font-size: 2rem;
+    }
+
+    .feature {
+        font-size: 0.85rem;
+    }
+
+    .plan-card .btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+    }
+
+    .credits {
+        font-size: 1.1rem;
+    }
+}
+
+/* ✨ Кнопка "Загрузить ещё" с тем же стилем что и основная кнопка */
+.load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border: none;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+    color: white;
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: var(--font-size-base);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
+    margin: var(--space-4) auto;
+    /* центрирование */
+    position: relative;
+    overflow: hidden;
+    width: fit-content;
+    /* размер по контенту */
+    min-width: 200px;
+    /* минимальная ширина */
+    text-decoration: none;
+}
+
+.load-more-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-400));
+}
+
+.load-more-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.load-more-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.load-more-btn .btn-icon {
+    display: flex;
+    align-items: center;
+}
+
+.load-more-btn .btn-icon svg {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+.load-more-btn .btn-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.load-more-btn:active .btn-ripple {
+    width: 300px;
+    height: 300px;
+}
+
+/* Адаптивность кнопки загрузки */
+@media (max-width: 768px) {
+    .load-more-btn {
+        padding: var(--space-2) var(--space-4);
+        font-size: var(--font-size-sm);
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .load-more-btn {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--font-size-sm);
+        min-width: 160px;
+    }
+}
+
 /* ✨ Новые стили для центрированного текста генерации */
 .generation-text {
     position: absolute;
@@ -2177,6 +3502,15 @@ img.lazy-loaded[data-src] {
     white-space: nowrap;
     transition: all 0.3s ease;
 }
+
+/* 🔥🔥🔥 Классы для принудительного скрытия UI загрузки изображений */
+.flux-shnel-hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+
 
 /* Тематические background для разных тем */
 [data-theme="light"] .generation-text {
@@ -2261,7 +3595,7 @@ img.lazy-loaded[data-src] {
     }
 }
 
-/* Music Widget 
+/* Music Widget
 .music-widget {
     position: relative;
     display: inline-block;
