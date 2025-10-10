@@ -88,14 +88,6 @@ class GenerationManager {
 
     async processGeneration(generation) {
         try {
-            // Создаём элемент загрузки в истории
-            if (window.createLoadingHistoryItem) {
-                const loadingElement = window.createLoadingHistoryItem(generation);
-                if (loadingElement) {
-                    console.log(`🔄 Created loading element for generation ${generation.id}`);
-                }
-            }
-
             // Принудительная загрузка изображений для быстрой обратной связи
             if (window.globalHistoryLoader) {
                 setTimeout(() => {

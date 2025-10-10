@@ -131,9 +131,10 @@
 /* Стоимость генерации - шрифт логотипа */
 #resultTime {
     font-family: 'WDXL+Lubrifont+JP+N', sans-serif;
-    font-weight: 600;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(135deg, #ffbb33, #ff6a00);
+    font-weight: 700;
+    text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #00ff22, #ffffff);
+    opacity: 0.9;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
