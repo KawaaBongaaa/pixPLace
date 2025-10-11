@@ -305,22 +305,74 @@
             <div id="generationScreen" class="screen active">
                 <div class="screen-content">
                     <form class="generation-form">
-                        <!-- выбор режима (модели) -->
+                        <!-- выбор режима (модели) - НОВЫЙ СОВРЕМЕННЫЙ ИНТЕРФЕЙС -->
                         <div class="form-group">
-                            <label class="form-label" data-i18n="mode_label">Model</label>
+                            <div class="form-label-row">
+                                <label class="form-label" data-i18n="mode_label">Generation Mode</label>
+                                <button type="button" id="modeDetailsBtn" class="mode-details-btn">
+                                    ❓ <span data-i18n="mode_details">Подробнее о режимах</span>
+                                </button>
+                            </div>
+
+                            <!-- Карусель режимов -->
+                            <div class="mode-carousel-container" id="modeCarouselContainer" style="display: none;">
+                                <div class="mode-carousel" id="modeCarousel">
+                                    <div class="mode-card selected" data-mode="photo_session">
+                                        <div class="mode-icon">🔧</div>
+                                        <h4 class="mode-title" data-i18n="mode_photo_session">Nano Banana Editor</h4>
+                                        <p class="mode-description" data-i18n="mode_photo_session_desc">Perfect for photo editing. Upload an image and describe what to change</p>
+                                    </div>
+
+                                    <div class="mode-card" data-mode="fast_generation">
+                                        <div class="mode-icon">⚡</div>
+                                        <h4 class="mode-title" data-i18n="mode_fast_generation">Flux Fast Generation</h4>
+                                        <p class="mode-description" data-i18n="mode_fast_generation_desc">Fastest mode for simple pictures generation without image upload</p>
+                                    </div>
+
+                                    <div class="mode-card" data-mode="pixplace_pro">
+                                        <div class="mode-icon">✨</div>
+                                        <h4 class="mode-title" data-i18n="mode_pixplace_pro">Flux Pro Advanced</h4>
+                                        <p class="mode-description" data-i18n="mode_pixplace_pro_desc">Advanced mode with text support, logos and complex compositions</p>
+                                    </div>
+
+                                    <div class="mode-card" data-mode="print_maker">
+                                        <div class="mode-icon">👕</div>
+                                        <h4 class="mode-title" data-i18n="mode_print_maker">Print on Demand</h4>
+                                        <p class="mode-description" data-i18n="mode_print_maker_desc">Specialized for Print on Demand. Creates ready-made prints for clothes and accessories</p>
+                                    </div>
+
+                                    <div class="mode-card" data-mode="background_removal">
+                                        <div class="mode-icon">✂️</div>
+                                        <h4 class="mode-title" data-i18n="mode_background_removal">Remove Background</h4>
+                                        <p class="mode-description" data-i18n="mode_background_removal_desc">Removes background from image while preserving the object</p>
+                                    </div>
+
+                                    <div class="mode-card" data-mode="upscale_image">
+                                        <div class="mode-icon">🔍</div>
+                                        <h4 class="mode-title" data-i18n="mode_upscale_image">Upscale Image</h4>
+                                        <p class="mode-description" data-i18n="mode_upscale_image_desc">Improves quality and resolution of existing image up to 4K</p>
+                                    </div>
+                                </div>
+
+                                <!-- Индикаторы выбора режима -->
+                                <div class="mode-indicators">
+                                    <span class="indicator selected" data-mode="photo_session"></span>
+                                    <span class="indicator" data-mode="fast_generation"></span>
+                                    <span class="indicator" data-mode="pixplace_pro"></span>
+                                    <span class="indicator" data-mode="print_maker"></span>
+                                    <span class="indicator" data-mode="background_removal"></span>
+                                    <span class="indicator" data-mode="upscale_image"></span>
+                                </div>
+                            </div>
+
+                            <!-- Старый select (скрытый, для совместимости) -->
                             <select id="modeSelect" class="form-select">
-                                <option value="photo_session" selected data-i18n="mode_photo_session">🔧 Nano Banana
-                                    | Photo Editing by Kontext Explaining</option>
-                                <option value="fast_generation" data-i18n="mode_fast_generation">⚡ Flux Shnel |
-                                    Fastest | Simple Pictures</option>
-                                <option value="pixplace_pro" data-i18n="mode_pixplace_pro">✨ Flux Krea | Logo | Text
-                                    Supported</option>
-                                <option value="print_maker" data-i18n="mode_print_maker">👕 SDXL T-Shirt Print | PoD
-                                    Helper</option>
-                                <option value="background_removal" data-i18n="mode_background_removal">✂️ Background
-                                    removal</option>
-                                <option value="upscale_image" data-i18n="mode_upscale_image">🔍 Upscale Image
-                                </option>
+                                <option value="photo_session" selected data-i18n="mode_photo_session">🔧 Nano Banana Editor</option>
+                                <option value="fast_generation" data-i18n="mode_fast_generation">⚡ Flux Fast Generation</option>
+                                <option value="pixplace_pro" data-i18n="mode_pixplace_pro">✨ Flux Pro Advanced</option>
+                                <option value="print_maker" data-i18n="mode_print_maker">👕 Print on Demand</option>
+                                <option value="background_removal" data-i18n="mode_background_removal">✂️ Remove Background</option>
+                                <option value="upscale_image" data-i18n="mode_upscale_image">🔍 Upscale Image</option>
                             </select>
                         </div>
                         <!-- Prompt Input -->
@@ -351,6 +403,11 @@
                                     <input type="file" id="userImage" class="user-image-label" multiple
                                         accept="image/png,image/jpeg,image/webp,image/gif" style="display: none;" />
                                     <button type="button" id="chooseUserImage" class="btn-link outside-upload modern-upload-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7,10 12,15 17,10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
                                         <p class="btn-link-text" data-i18n="upload_image">Upload Image</p>
                                     </button>
                                     <div id="userImagePreview" class="user-image-preview hidden">

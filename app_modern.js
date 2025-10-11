@@ -2008,10 +2008,116 @@ function initializeUI() {
         form.addEventListener('submit', generateImage);
     }
 
+    // 🔧 ИНИЦИАЛИЗАЦИЯ НОВОЙ КАРУСЕЛИ РЕЖИМОВ
+    initModeCarousel();
+
     // Update translations
     appState.updateTranslations();
 
     console.log('✅ UI initialized');
+}
+
+// 🔧 НОВАЯ ФУНКЦИЯ ДЛЯ ИНИЦИАЛИЗАЦИИ КАРУСЕЛИ РЕЖИМОВ С EXPANDABLE CARDS
+function initModeCarousel() {
+    const modeCards = document.querySelectorAll('.mode-card');
+    const modeSelect = document.getElementById('modeSelect');
+    const modeIndicators = document.querySelectorAll('.mode-indicators .indicator');
+
+    if (!modeCards.length || !modeSelect) {
+        console.warn('Mode carousel initialization skipped - elements not found');
+        return;
+    }
+
+    let currentExpandedCard = null;
+
+    // Функция для выбора режима с expand/collapse
+    const selectMode = (modeValue, cardElement) => {
+        // Синхронизируем скрытый select
+        modeSelect.value = modeValue;
+
+        if (currentExpandedCard && currentExpandedCard !== cardElement) {
+            // Сворачиваем предыдущую расширенную карточку
+            currentExpandedCard.classList.remove('expanded', 'selected');
+        }
+
+        if (cardElement) {
+            if (currentExpandedCard === cardElement) {
+                // Если та же карточка - сворачиваем её
+                cardElement.classList.remove('expanded', 'selected');
+                currentExpandedCard = null;
+                console.log('🔽 Collapsed card');
+            } else {
+                // Расширяем новую карточку
+                cardElement.classList.add('expanded', 'selected');
+                currentExpandedCard = cardElement;
+                console.log('🔼 Expanded card:', modeValue);
+
+                // Добавляем задержку перед прокруткой для плавной анимации
+                setTimeout(() => {
+                    cardElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'center'
+                    });
+                }, 300);
+            }
+        }
+
+        // 🔧 ИСПРАВЛЕНИЕ: Гарантируем что никакие другие карточки не имеют expanded
+        modeCards.forEach(card => {
+            if (card !== cardElement) {
+                card.classList.remove('expanded', 'selected');
+            }
+        });
+
+        // Обновляем индикаторы
+        const modeIndex = Array.from(modeCards).findIndex(card => card.dataset.mode === modeValue);
+        modeIndicators.forEach((indicator, index) => {
+            indicator.classList.toggle('selected', index === modeIndex);
+        });
+
+        // Обновляем видимость элементов загрузки изображений
+        updateImageUploadVisibility();
+
+        console.log(`🎛️ Selected mode: ${modeValue}, Expanded: ${!!currentExpandedCard}`);
+    };
+
+    // Обработчики для карточек режима
+    modeCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const mode = card.dataset.mode;
+            selectMode(mode, card);
+        });
+    });
+
+    // Обработчики для индикаторов
+    modeIndicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            const card = modeCards[index];
+            if (card) {
+                const mode = card.dataset.mode;
+                selectMode(mode, card);
+            }
+        });
+    });
+
+    // Синхронизация с изменениями скрытого select (на случай программных изменений)
+    modeSelect.addEventListener('change', () => {
+        const modeValue = modeSelect.value;
+        const card = document.querySelector(`.mode-card[data-mode="${modeValue}"]`);
+        if (card) {
+            selectMode(modeValue, card);
+        }
+    });
+
+    // Устанавливаем начальный выбор
+    const defaultMode = modeSelect.value || 'photo_session';
+    const defaultCard = document.querySelector(`.mode-card[data-mode="${defaultMode}"]`);
+    if (defaultCard) {
+        selectMode(defaultMode, defaultCard);
+    }
+
+    console.log('🔧 Expandable Mode carousel initialized with', modeCards.length, 'modes');
 }
 
 // ===== Пользовательское изображение: состояние =====
@@ -2888,15 +2994,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     initializeUI();
     initUserImageUpload(); // ← добавь эту строку
     initLanguageDropdown();
-
-    // ✅ ДОБАВЛЕНИЕ: Принудительно устанавливаем Nano Banana выбранным по умолчанию
-    setTimeout(() => {
-        const modeSelect = document.getElementById('modeSelect');
-        if (modeSelect) {
-            modeSelect.value = 'photo_session';
-            console.log('❤️ Nano Banana set as default mode');
-        }
-    }, 100);
 
     const carouselImages = document.querySelectorAll('.carousel-2d-item img');
     carouselImages.forEach(img => {
@@ -4290,4 +4387,40 @@ function stopSnowfall() {
     console.log('❄️ Snowfall stopped - all snowflakes removed');
 }
 
+// 🎯 Функция для переключения видимости карусели режимов
+function toggleModeDetails() {
+    const carousel = document.getElementById('modeCarouselContainer');
+    if (!carousel) {
+        console.warn('Mode carousel container not found');
+        return;
+    }
+
+    const isVisible = carousel.style.display !== 'none';
+    carousel.style.display = isVisible ? 'none' : 'block';
+
+    console.log('Mode carousel toggled:', !isVisible ? 'visible' : 'hidden');
+
+    // Плавная прокрутка к карусели при показе
+    if (!isVisible) {
+        setTimeout(() => {
+            carousel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+}
+
+// 🎯 Инициализация обработки кнопки "Подробнее о режимах"
+function initModeDetailsButton() {
+    const modeDetailsBtn = document.getElementById('modeDetailsBtn');
+    if (modeDetailsBtn) {
+        modeDetailsBtn.addEventListener('click', toggleModeDetails);
+        console.log('Mode details button initialized');
+    } else {
+        console.warn('Mode details button not found');
+    }
+}
+
+// Добавляем инициализацию в main загрузочный обработчик
+document.addEventListener('DOMContentLoaded', initModeDetailsButton);
+
 // Экспорт функций для использования
+window.toggleModeDetails = toggleModeDetails;

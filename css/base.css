@@ -279,8 +279,8 @@ body {
     background: linear-gradient(90deg, var(--primary-500), var(--primary-400), var(--primary-300));
     background-size: 200% 100%;
     border-radius: var(--radius-full);
-    animation: loading 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
-               loading-gradient 4s ease-in-out infinite 0.5s;
+    animation: loading 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+               loading-gradient 3.2s ease-in-out infinite 0.8s;
     width: 0%;
     box-shadow: 0 0 10px var(--primary-400);
 }
