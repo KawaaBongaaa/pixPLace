@@ -2328,8 +2328,10 @@ function createPreviewItem(imageId, dataUrl, fileName) {
     const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path2.setAttribute('d', 'M15 19l-3-3-3 3M12 19V13');
 
-    uploadIcon.appendChild(path);
-    uploadIcon.appendChild(path2);
+    // Simple plus icon for upload
+    const plusPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    plusPath.setAttribute('d', 'M19 11H13V17C13 17.5523 12.5523 18 12 18C11.4477 18 11 17.5523 11 17V11H5C4.44772 11 4 10.5523 4 10C4 9.44772 4.44772 9 5 9H11V3C11 2.44772 11.4477 2 12 2C12.5523 2 13 2.44772 13 3V9H19C19.5523 9 20 9.44772 20 10C20 10.5523 19.5523 11 19 11Z');
+    uploadIcon.appendChild(plusPath);
     innerUploadBtn.appendChild(uploadIcon);
 
     itemDiv.appendChild(img);
