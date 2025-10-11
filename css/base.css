@@ -50,6 +50,82 @@ body {
     visibility: visible;
 }
 
+/* Snowfall Effect */
+.snowfall {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: -1; /* Поднят выше, но под контентом */
+}
+
+.snowflake {
+    position: absolute;
+    color: white; /* Чистый белый без окантовки */
+    font-size: 10px;
+    animation: snowfall linear infinite;
+    border-radius: 50%;
+    /* Убрана тень для чистоты снежинок */
+    z-index: 1; /* Над базовым слоем */
+    font-weight: bold;
+    text-shadow: none;
+    border: none;
+    background: none;
+    user-select: none;
+}
+
+.snowflake.extra-small {
+    font-size: 8px;
+    animation-duration: 3s;
+    opacity: 0.8;
+}
+
+.snowflake.mini {
+    font-size: 6px;
+    animation-duration: 2s;
+    opacity: 0.9;
+}
+
+.snowflake.small {
+    font-size: 10px;
+    animation-duration: 4s;
+    opacity: 0.7;
+}
+
+.snowflake.medium {
+    font-size: 14px;
+    animation-duration: 6s;
+    opacity: 0.6;
+}
+
+.snowflake.large {
+    font-size: 18px;
+    animation-duration: 8s;
+    opacity: 0.5;
+}
+
+@keyframes snowfall {
+    0% {
+        transform: translateY(0vh) rotate(0deg) scale(0.8);
+        opacity: 0; /* Невидимы в начале */
+    }
+    10% {
+        transform: translateY(5vh) rotate(30deg) scale(1);
+        opacity: 1; /* Плавно появляются */
+    }
+    90% {
+        transform: translateY(90vh) rotate(330deg) scale(1);
+        opacity: 0.8; /* Начинают тускнеть */
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg) scale(0.6);
+        opacity: 0; /* Исчезают плавно */
+    }
+}
+
 .loading-content {
     width: 90%;
     margin: 0 auto;
@@ -65,9 +141,11 @@ body {
 }
 
 .loading-logo svg {
-    animation: logo-fade-in 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation:
+        logo-spiral-in 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+        logo-spin 0.8s ease-in-out 0.6s;
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.1) rotate(720deg) translate(-200px, -300px);
     will-change: transform, opacity;
 }
 
@@ -122,7 +200,7 @@ body {
     justify-content: space-around;
     margin-bottom: var(--space-1);
     color: var(--text-primary);
-    animation: text-particles-in 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, text-glow 4s ease-in-out infinite 2s;
+    animation: text-fade-in 0.4s ease-out forwards, text-particles-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 0.1s, text-glow 2s ease-in-out infinite 1s;
     opacity: 0;
     transform: scale(0.1) rotate(-45deg);
     will-change: transform, filter, text-shadow, opacity;
@@ -201,7 +279,10 @@ body {
     background: linear-gradient(90deg, var(--primary-500), var(--primary-400), var(--primary-300));
     background-size: 200% 100%;
     border-radius: var(--radius-full);
-    animation: loading 5s ease-in-out infinite, loading-gradient 3s ease-in-out infinite;
+    animation: loading 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+               loading-gradient 4s ease-in-out infinite 0.5s;
+    width: 0%;
+    box-shadow: 0 0 10px var(--primary-400);
 }
 
 @keyframes pulse {
@@ -213,6 +294,53 @@ body {
 
     50% {
         transform: scale(1.05);
+    }
+}
+
+@keyframes text-fade-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.1) rotate(-45deg);
+    }
+    10% {
+        opacity: 0.05;
+        transform: scale(0.12) rotate(-40.5deg);
+    }
+    20% {
+        opacity: 0.1;
+        transform: scale(0.15) rotate(-36deg);
+    }
+    30% {
+        opacity: 0.2;
+        transform: scale(0.22) rotate(-31.5deg);
+    }
+    40% {
+        opacity: 0.4;
+        transform: scale(0.32) rotate(-27deg);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.42) rotate(-22.5deg);
+    }
+    60% {
+        opacity: 0.6;
+        transform: scale(0.52) rotate(-18deg);
+    }
+    70% {
+        opacity: 0.7;
+        transform: scale(0.62) rotate(-13.5deg);
+    }
+    80% {
+        opacity: 0.8;
+        transform: scale(0.74) rotate(-9deg);
+    }
+    90% {
+        opacity: 0.9;
+        transform: scale(0.87) rotate(-4.5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
     }
 }
 
@@ -262,6 +390,7 @@ body {
     top: 0;
     z-index: 100;
     transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    overflow: visible;
 }
 
 .header-content {

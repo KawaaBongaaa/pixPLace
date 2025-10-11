@@ -90,8 +90,8 @@
 
     async function sendToWebhook(message, fullHistory) {
         // Проверяем доступность CONFIG
-        const webhookUrl = (typeof CONFIG !== 'undefined' && CONFIG.CHAT_WEBHOOK_URL)
-            ? CONFIG.CHAT_WEBHOOK_URL
+        const webhookUrl = (typeof window.CONFIG !== 'undefined' && window.CONFIG.CHAT_WEBHOOK_URL)
+            ? window.CONFIG.CHAT_WEBHOOK_URL
             : 'https://hook.us2.make.com/your-chat-webhook-url';
 
         console.log('🪝 Using webhook URL:', webhookUrl);
@@ -258,6 +258,12 @@
     function createModal() {
         if (state.modal) return state.modal;
 
+        // Determine sizes based on screen width
+        const isMobile = window.innerWidth <= 768;
+        const buttonPadding = isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem';
+        const buttonSize = isMobile ? '0.875rem' : '0.9rem';
+        const buttonMinWidth = isMobile ? 'auto' : 'none';
+
         const overlay = createElement('div', {
             id: 'ai-coach-overlay',
             className: 'fixed inset-0 flex items-center justify-center p-4 hid hidden',
@@ -269,7 +275,7 @@
                 bottom: '0',
                 background: 'linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5))',
                 backdropFilter: 'blur(20px)',
-                zIndex: '10000',
+                zIndex: '1',
                 opacity: '0',
                 transition: 'opacity 0.3s ease',
                 display: 'flex',
@@ -420,27 +426,28 @@
                         this.style.boxShadow = 'none';
                     }
                 }),
-                createElement('button', {
-                    style: {
-                        background: 'linear-gradient(135deg, #ec4899, #f97316)',
-                        border: 'none',
-                        borderRadius: '2rem',
-                        padding: '0.75rem 1.5rem',
-                        color: 'white',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        fontSize: '0.9rem',
-                        boxShadow: '0 4px 15px rgba(236, 72, 153, 0.3)',
-                        transform: 'scale(1)',
-                        hover: 'scale(1.05)'
-                    },
-                    onclick: sendMessage,
-                    title: 'Отправить сообщение',
-                    onmousedown: function() { this.style.transform = 'scale(0.95)'; },
-                    onmouseup: function() { this.style.transform = 'scale(1)'; },
-                    onmouseleave: function() { this.style.transform = 'scale(1)'; }
-                }, '📤')
+                        createElement('button', {
+                            style: {
+                                background: 'linear-gradient(135deg, #ec4899, #f97316)',
+                                border: 'none',
+                                borderRadius: '2rem',
+                                padding: buttonPadding,
+                                color: 'white',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                fontSize: buttonSize,
+                                boxShadow: '0 4px 15px rgba(236, 72, 153, 0.3)',
+                                transform: 'scale(1)',
+                                hover: 'scale(1.05)',
+                                minWidth: buttonMinWidth
+                            },
+                            onclick: sendMessage,
+                            title: 'Отправить сообщение',
+                            onmousedown: function() { this.style.transform = 'scale(0.95)'; },
+                            onmouseup: function() { this.style.transform = 'scale(1)'; },
+                            onmouseleave: function() { this.style.transform = 'scale(1)'; }
+                        }, '📤')
             ])
         ]);
 

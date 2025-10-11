@@ -32,6 +32,9 @@ const CONFIG = {
     TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared', // Замените на ссылку вашего бота
     SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #Ai'
 };
+
+// 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
+window.CONFIG = CONFIG;
 // 🔧 Device detection helpers
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -737,7 +740,7 @@ function showToast(type, message) {
     }, 100);
 
     // Remove after delay (increased for longer error messages, but shorter for success)
-    const displayTime = type === 'success' ? 2000 : 5000; // 2 секунды для успешных, 5 для ошибок
+    const displayTime = type === 'success' ? 1500 : 3000; // 1.5 секунды для успешных, 3 для ошибок
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => container.removeChild(toast), 300);
@@ -2864,8 +2867,12 @@ function initLanguageDropdown() {
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('🚀 pixPLace Creator starting...');
 
-
     showLoadingScreen();
+
+    // ❄️ СНЕГОПАД НАЧИНАЕТСЯ СРАЗУ ПОСЛЕ ПОКАЗА ЛОАДЭРА!
+    startSnowfall();
+    console.log('❄️ Snowfall started immediately - right after loading screen');
+
     appState.loadSettings();
     appState.loadHistory();
     appState.loadBalanceHistory();
@@ -2897,21 +2904,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         img.decoding = 'async';
     });
 
-    // 🔥 ТОЧЕЧНОЕ ИСПРАВЛЕНИЕ: Гарантируем завершение загрузки даже при проблемах с Telegram
+    // 🔥 ТОЧНЫЙ КОНТРОЛЬ: 2 СЕКУНДЫ - ДОСТАТОЧНО ДЛЯ ЗАВЕРШЕНИЯ АНИМАЦИЙ
     const finishLoading = () => {
         hideLoadingScreen();
         showApp();
         updateUserBalance(appState.userCredits);
         initAICoach();
+        console.log('✅ Загрузочный экран скрыт через 2 секунды');
     };
 
-    // Проверяем успешность инициализации Telegram и завершаем загрузку
-    if (appState.tg) {
-        finishLoading(); // Telegram доступен - сразу завершаем
-    } else {
-        // Telegram не доступен - завершаем через короткий таймаут для стабильности
-        setTimeout(finishLoading, 500);
-    }
+    // Принудительный таймаут 2 секунды - анимаций хватает времени завершиться
+    console.log('⏳ Начинаем отсчет 2 секунд для анимаций');
+    setTimeout(finishLoading, 2000);
 });
 
 
@@ -3757,23 +3761,7 @@ function createCoachButton() {
     coachButton.textContent = 'AI Prompt Assistant';
     coachButton.className = 'ai-coach-btn';
 
-    // Ванильные CSS стили вместо Tailwind классов (проект не использует Tailwind)
-    Object.assign(coachButton.style, {
-        position: 'fixed',
-        top: '6rem',         // top-4 = 16px
-        right: '1rem',       // right-4 = 16px
-        zIndex: '40',        // z-40
-        background: 'linear-gradient(135deg, #173565ff, #2f3032ff)', // blue-600 to blue-700
-        color: 'white',
-        padding: '0.5rem 1rem', // px-4 py-2
-        borderRadius: '0.5rem',   // rounded-lg
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', // shadow-lg
-        border: 'none',
-        cursor: 'pointer',
-        fontSize: '0.875rem',   // text-sm
-        fontWeight: '600',
-        transition: 'all 0.2s ease' // transition-all duration-200
-    });
+    // Все стили теперь через CSS класс ai-coach-btn с медиа-запросами
 
     // Восстанавливаю правильную функциональность - открытие AI чата
     coachButton.onclick = () => {
@@ -3840,7 +3828,7 @@ function createChatButton() {
         cursor: pointer;
         box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
         transition: all 0.3s ease;
-        z-index: 1000;
+        z-index: 1;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -4238,4 +4226,68 @@ async function showWarningAboutNoImage() {
         });
     });
 }
+
+// 🎄 СНЕГОПАД - ФУНКЦИИ
+function createSnowflake() {
+    const snowflake = document.createElement('div');
+    snowflake.className = 'snowflake';
+
+    // 🔥 Реалистичные мелкие символы без окантовки
+    const snowSymbols = ['·', '•', '◦', '○', '⁃', '⁌'];
+    snowflake.textContent = snowSymbols[Math.floor(Math.random() * snowSymbols.length)];
+
+    // 🔥 Только мелкие размеры для более плотного снегопада
+    const sizes = ['extra-small', 'small', 'mini'];
+    const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+    snowflake.classList.add(randomSize);
+
+    // 🔥 Расширенная позиция по горизонтали для большего покрытия
+    snowflake.style.left = Math.random() * 150 + 'vw';
+
+    // 🔥 ГАРАНТИРОВАННАЯ СТАРТОВАЯ ПОЗИЦИЯ ВЫШЕ ДИСПЛЕЯ: от -100vh до -20vh (очень высоко!)
+    snowflake.style.top = -(Math.random() * 80 + 20) + 'vh'; // от -100vh до -20vh рандомно
+
+    // 🔥 НЕ ПЛАВНЫЙ СТАРТ: без задержки на старт - мгновенное появление
+    snowflake.style.animationDelay = '0s'; // МГНОВЕННО без задержки!
+
+    // 🔥 ПЛАВНОЕ ПОЯВЛЕНИЕ: добавляем начальную невидимость и fade in в CSS
+    snowflake.style.opacity = '0';
+
+    return snowflake;
+}
+
+function startSnowfall() {
+    const snowfallContainer = document.querySelector('.snowfall');
+    if (!snowfallContainer) {
+        console.warn('Snowfall container not found');
+        return;
+    }
+
+    // 🔥 БОЛЬШЕ СНЕЖИНОК для плотности
+    const maxSnowflakes = 300;
+    for (let i = 0; i < maxSnowflakes; i++) {
+        const snowflake = createSnowflake();
+        snowfallContainer.appendChild(snowflake);
+    }
+
+    console.log(`❄️ Rich snowfall started - ${maxSnowflakes} snowflakes from above`);
+
+    // 🔥 Периодическая поддержка непрерывности
+    setInterval(() => {
+        if (snowfallContainer.children.length < maxSnowflakes) {
+            const snowflake = createSnowflake();
+            snowfallContainer.appendChild(snowflake);
+        }
+    }, 2000); // каждые 2 секунды добавляем если нужно
+}
+
+function stopSnowfall() {
+    const snowfallContainer = document.querySelector('.snowfall');
+    if (!snowfallContainer) return;
+
+    // Очищаем все снежинки
+    snowfallContainer.innerHTML = '';
+    console.log('❄️ Snowfall stopped - all snowflakes removed');
+}
+
 // Экспорт функций для использования
