@@ -196,39 +196,52 @@ body {
 .header-left {
     display: flex;
     align-items: flex-start;
+    flex: 1 0 auto; /* Take available space but don't shrink */
+    min-width: 0;
 }
 
 .logo {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--space-1);
     font-weight: 700;
     color: var(--text-primary);
     text-decoration: none;
-    color: inherit;
+    min-width: 0;
+    flex: 1 0 auto; /* Take available space */
 }
 
 .logo-text {
     font-family: "WDXL Lubrifont JP N", sans-serif;
     font-optical-sizing: auto;
     font-weight: 800;
-    font-size: xxx-large;
+    font-size: clamp(2rem, 5vw, 3.5rem); /* Larger on big screens */
     font-style: normal;
     letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .logo-img {
-    width: clamp(400px, 10vw, 800px);
-    height: clamp(400px, 10vw, 800px);
+    width: clamp(100px, 10vw, 800px); /* Larger minimum size */
+    height: clamp(100px, 10vw, 800px);
     object-fit: contain;
+    flex-shrink: 0;
 }
 
 .header-right {
     display: flex;
     padding-right: 0.4rem;
-    align-items: right;
+    align-items: center;
     justify-content: flex-end;
     gap: var(--space-1);
+    /* Removed flex-wrap to keep all buttons in one line */
+}
+
+.show-back .header-right {
+    justify-content: flex-start; /* Adjust alignment when back button is shown */
 }
 
 .control-btn {
@@ -245,6 +258,7 @@ body {
     transition: all var(--transition-fast);
     position: relative;
     overflow: hidden;
+    flex-shrink: 0; /* Предотвращает сжатие кнопок в header */
 }
 
 .control-btn:hover {
@@ -331,4 +345,70 @@ body {
     max-width: 800px;
     margin: 0 auto;
     width: 100%;
+}
+
+/* Header Responsive Enhancements */
+@media (max-width: 768px) {
+    .header-content {
+        padding: var(--space-3) var(--space-4);
+    }
+
+    .header-right {
+        gap: var(--space-0) !important; /* Reduce gap on tablets */
+        justify-content: flex-end; /* Keep buttons on the right */
+    }
+
+    .control-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .control-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .logo-text {
+        font-size: clamp(1.8rem, 2.5vw, 2.2rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        padding: var(--space-2) var(--space-3);
+    }
+
+    .header-right {
+        gap: var(--space-0) !important; /* Minimal gap on mobile */
+        justify-content: flex-end; /* Keep buttons on the right */
+        padding-right: 0.2rem;
+        overflow: hidden; /* Prevent overflow */
+    }
+
+    .control-btn {
+        width: 32px !important; /* Smaller buttons on mobile */
+        height: 32px !important;
+    }
+
+    .control-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .logo-img {
+        width: clamp(90px, 15vw, 120px);
+        height: clamp(90px, 15vw, 120px);
+    }
+
+    /* Force back button to be visible and properly sized when shown */
+    .show-back .back-btn {
+        width: 32px !important;
+        height: 32px !important;
+        margin-right: 2px !important;
+    }
+
+    .show-back .back-btn svg {
+        width: 14px;
+        height: 14px;
+    }
 }

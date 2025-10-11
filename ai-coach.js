@@ -671,11 +671,23 @@
         }
 
         // Show back button in header for chat screen
-        if (typeof showBackButton === 'function') {
-            showBackButton(true);
-        } else if (typeof window.showBackButton === 'function') {
-            window.showBackButton(true);
-        }
+        setTimeout(() => {
+            if (typeof window.showBackButton === 'function') {
+                window.showBackButton(true);
+                console.log('✅ Back button enabled for chat screen');
+            } else {
+                console.error('❌ showBackButton function not available - retrying...');
+                // Retry after a short delay
+                setTimeout(() => {
+                    if (typeof window.showBackButton === 'function') {
+                        window.showBackButton(true);
+                        console.log('✅ Back button enabled after retry');
+                    } else {
+                        console.error('❌ showBackButton function still not available');
+                    }
+                }, 500);
+            }
+        }, 50);
 
         // Update data attribute
         const main = document.querySelector('main');
@@ -699,9 +711,7 @@
         }
 
         // Hide back button in header when leaving chat screen
-        if (typeof showBackButton === 'function') {
-            showBackButton(false);
-        } else if (typeof window.showBackButton === 'function') {
+        if (typeof window.showBackButton === 'function') {
             window.showBackButton(false);
         }
 

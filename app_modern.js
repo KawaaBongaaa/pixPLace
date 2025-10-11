@@ -846,6 +846,9 @@ function showBackButton(show) {
     }
 }
 
+// Add to global scope for ai-coach.js
+window.showBackButton = showBackButton;
+
 function toggleHistoryList() {
     const list = document.getElementById('historyList');
     const btn = document.getElementById('historyToggleBtn');
@@ -1078,7 +1081,6 @@ function updateHistoryDisplayFullScreen() {
     showBackButton(true); // показать
 
 }
-
 
 
 function clearHistory() {
