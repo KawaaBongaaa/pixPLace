@@ -1,3 +1,18 @@
+import { en } from './dictionaries/en.js';
+import { ru } from './dictionaries/ru.js';
+import { es } from './dictionaries/es.js';
+import { fr } from './dictionaries/fr.js';
+import { de } from './dictionaries/de.js';
+import { zh } from './dictionaries/zh.js';
+import { pt } from './dictionaries/pt.js';
+import { ar } from './dictionaries/ar.js';
+import { hi } from './dictionaries/hi.js';
+import { ja } from './dictionaries/ja.js';
+import { it } from './dictionaries/it.js';
+import { ko } from './dictionaries/ko.js';
+import { tr } from './dictionaries/tr.js';
+import { pl } from './dictionaries/pl.js';
+
 // 🚀 Modern AI Image Generator WebApp
 
 // Configuration
@@ -40,1229 +55,22 @@ function supportsShare() {
 
 // 🌍 Translations
 const TRANSLATIONS = {
-
-    en: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Connecting...",
-        connected: "Connected to Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Describe your vision and watch AI bring it to life...",
-        style_label: "Style",
-        style_realistic: "Realistic",
-        style_artistic: "Artistic",
-        style_cartoon: "Cartoon",
-        style_fantasy: "Fantasy",
-        style_anime: "Anime",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "Abstract",
-        style_sketch: "Sketch",
-        style_3d: "3d",
-        style_sticker: "Sticker",
-        style_vector: "Vector",
-        style_interior: "Interior",
-        style_infographic: "Infografic",
-        style_architecture: "Architecture",
-        style_fashion: "Fashion",
-        style_tattoo: "Tattoo",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "Minimalism",
-        style_banner: "Banner",
-        style_surrealism: "Surrealism",
-        mode_label: "Mode",
-        mode_background_removal: "Remove Background",
-        mode_upscale_image: "Upscale Image",
-        mode_print_maker: "T-Shirt Print | SDXL | PoD Helper ",
-        mode_photo_session: "Nano Banana | Photo Editing by Kontext Explaining",
-        mode_fast_generation: "Flux Shnel | Fastest | Simple Pictures",
-        mode_pixplace_pro: "Flux Krea | Logo | Text(eng)",
-        generate_btn: "Generate Image",
-        create_new: "Create New",
-        empty_history_title: "No generations yet",
-        empty_history_subtitle: "Create your first AI image to see it here",
-        generation_cost: "Generation cost",
-        error_prompt_required: "Please describe your image",
-        error_prompt_too_short: "Prompt too short (minimum 5 characters)",
-        error_webhook_not_configured: "Webhook URL not configured",
-        error_generation_failed: "Generation failed",
-        error_timeout: "Generation timeout. Please try again.",
-        success_generated: "Image generated successfully!",
-        copied_to_clipboard: "Copied to clipboard",
-        download_started: "Download started",
-        limit_title: "Generation Limit Reached",
-        limit_message: "Your credits for generation have run out. You can get more credits by paying for one of the subscription plans for our private channel. Payment by any card or crypto, via Tribute Telegram Payment Service.",
-        closeLimitModal: "Maybe Later",
-        upgradeBtn: "Pay",
-        remove_user_image: "Remove",
-        reference_image: "Reference",
-        upload_image: "Upload Image",
-        please_upload_photo_session: "Please upload Your image for Photo Session mode. Or just choice another Mode",
-        upload_failed: "Failed to upload the image. Please try again.",
-        please_upload_for_upscale: "Please upload an image to Upscale.",
-        please_upload_for_background_removal: "Please upload an image for Background removal.",
-        ai_coach_ready: "✨ AI Prompt Helper is ready to help with AI generation!",
-        ai_welcome_intro: "AI Prompt Helper: Welcome! I am your AI assistant for improving the quality of image generation results. Ask any question about creating prompts! Or briefly describe your vision, and I will create a professional prompt for you.",
-        ai_welcome_chat: "AI Prompt Helper: Welcome to the chat! I am your AI assistant for help with creating images. Tell me what you want to generate and I will help you create a quality prompt. Or just ask me any question, I'll help with generation!",
-        ai_placeholder_modal: "Write to your AI assistant...",
-        ai_placeholder_chat: "Write your message...",
-        ai_send_button: "Send",
-        ai_close_button: "Close",
-        ai_thinking_indicator: "🤖 pixPLace Assistant is thinking...",
-        ai_error_message: "Sorry, there was an error. Please try again.",
-        most_popular: "Most Popular",
-        elapsed_time: "Elapsed time:",
-        view_history: "View History",
-        history_title: "History",
-        ai_chat_title: "AI Assistant",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_desc: "Perfect for personal use",
-        plan_lite_credits: "500 Credits",
-        plan_lite_feature1: "• Premium Models",
-        plan_lite_feature2: "• AI Assistant (light limits)",
-        plan_lite_feature3: "• Usage License included",
-        plan_lite_feature4: "• Fast Gen",
-        plan_lite_select: "Pay Now",
-
-        plan_pro_title: "PRO",
-        plan_pro_price: "€19",
-        plan_pro_desc: "Best pick for power users & pros",
-        plan_pro_credits: "1000 Credits",
-        plan_pro_feature1: "• Everything in Lite..+",
-        plan_pro_feature2: "• AI Assistant (higher limits)",
-        plan_pro_feature3: "• Priority Care from pixPLace team",
-        plan_pro_feature4: "• 25% Off pixPLace Credits",
-        plan_pro_select: "Pay Now",
-
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_desc: "Max creative freedom — great for teams",
-        plan_studio_credits: "2000 Credits",
-        plan_studio_feature1: "• Everything in Pro..+",
-        plan_studio_feature2: "• AI Assistant (no limits)",
-        plan_studio_feature3: "• Early Access to new features",
-        plan_studio_feature4: "• 30%+ Off pixPLace Credits",
-        plan_studio_select: "Pay Now",
-
-        // Photo session warning modal translations
-        photo_warning_title: "For better results, upload an image",
-        photo_warning_text: "The \"Nano Banana\" mode works better with an image for img2img generation. Would you like to upload an image or continue without it?",
-        photo_warning_upload_btn: "Upload Image",
-        photo_warning_continue_btn: "Continue without",
-
-        // Server overloaded error message
-        error_server_overloaded: "😓 Generation failed. The servers are currently overloaded, please try again later or select a different generation mode... We sincerely apologize for the inconvenience and hope for your understanding 🙏"
-
-    },
-    ru: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Подключение...",
-        connected: "Подключено к Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Опишите своё видение и наблюдайте, как AI воплощает его в жизнь...",
-        style_label: "Стиль",
-        style_realistic: "Реализм",
-        style_artistic: "Арт",
-        style_cartoon: "Мульт",
-        style_fantasy: "Фэнтези",
-        style_anime: "Аниме",
-        style_cyberpunk: "CyberPunk",
-        style_popart: "Поп-арт",
-        style_abstract: "Абстракция",
-        style_sketch: "Скетч",
-        style_3d: "3D",
-        style_sticker: "Стикер",
-        style_vector: "Вектор",
-        style_interior: "Интерьер",
-        style_architecture: "Архитектура",
-        style_fashion: "Мода",
-        style_tattoo: "Тату",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "Minimalism",
-        style_banner: "Баннер",
-        mode_label: "Режим",
-        mode_background_removal: "Удалить фон",
-        mode_upscale_image: "Улучшить качество",
-        mode_print_maker: "Принты | Стикеры | PoD Helper | SDXL",
-        mode_photo_session: "Nano Banana | Фото Редактор - просто опишите, что изменить",
-        mode_fast_generation: "Flux Shnel Быстрая Генерация | Простые картинки",
-        mode_pixplace_pro: "Flux Krea | Logo | Text Supported",
-        size_label: "Размер",
-        size_square: "1:1  ",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "Создать изображение",
-        create_new: "Создать новое",
-        empty_history_title: "Пока нет генераций",
-        empty_history_subtitle: "Создайте первое изображение, чтобы увидеть его здесь",
-        generation_cost: "Стоимость генерации",
-        error_prompt_required: "Пожалуйста, опишите изображение",
-        error_prompt_too_short: "Описание слишком короткое (минимум 5 символов)",
-        error_webhook_not_configured: "Webhook URL не настроен",
-        error_generation_failed: "Генерация не удалась",
-        error_timeout: "Превышено время ожидания. Попробуйте ещё раз.",
-        error_server_overloaded: "😓 Генерация не удалась. Серверы сейчас перегружены, пожалуйста, попробуйте позже или выберите другой режим генерации… Приносим искренние извинения за неудобства и надеемся на ваше понимание 🙏",
-        success_generated: "Изображение успешно создано!",
-        copied_to_clipboard: "Скопировано в буфер",
-        download_started: "Загрузка началась",
-        limit_title: "кредиты для генерации закончились",
-        limit_message: "Больше кредитов Вы можете получить, оплатив один из тарифных планов подписки на наш приватный канал. Оплата любой картой или криптой, через платежный сервис Tribute Telegram.",
-        closeLimitModal: "Может позже",
-        upgradeBtn: "Выбрать тариф",
-        remove_user_image: "Удалить",
-        reference_image: "Референс",
-        upload_image: "Загрузить изображение",
-        please_upload_photo_session: "Загрузите изображение, чтобы использовать данный режим",
-        upload_failed: "Не получилось загрузить изображение. Попробуй ещё раз",
-        please_upload_for_upscale: "Загрузите изображение, чтобы использовать данный режим (Улучшение Качества)",
-        please_upload_for_background_removal: "Загрузите изображение, чтобы использовать данный режим (Удаление заднего фона)",
-        ai_coach_ready: "✨ Ai Prompt Helper готов помочь с ИИ генерацией!",
-        ai_welcome_intro: "AI Prompt Helper: Добро пожаловать! Я ваш AI Ассистент по созданию Промтов для повышения качества результатов генерации изображений. Задайте любой вопрос о создании промптов! Или коротко опишите свое видение, и я создам для Вас профессиональный Prompt.",
-        ai_welcome_chat: "AI Prompt Helper: Добро пожаловать в чат! Я ваш AI помощник промтов для помощи с созданием изображений. Скажите, что вы хотите сгенерировать и я помогу Вам создать качественный промпт. Или же просто задайте мне любой вопрос, буду помогать с генерацией!",
-        ai_placeholder_modal: "Напишите своему AI ассистенту...",
-        ai_placeholder_chat: "Напишите своё сообщение...",
-        ai_send_button: "Отправить",
-        ai_close_button: "Закрыть",
-        ai_thinking_indicator: "🤖 pixPLace Assistant думает...",
-        ai_error_message: "Извините, произошла ошибка. Повторите пожалуйста.",
-        most_popular: "Выбор Большинства",
-        elapsed_time: "Прошло времени:",
-        view_history: "Посмотреть историю",
-        history_title: "История генераций",
-        plan_lite_title: "LITE",
-        plan_lite_price: "1100₽",
-        plan_lite_desc: "Идеально для личного использования",
-        plan_lite_credits: "500 Кредитов",
-        plan_lite_feature1: "• Premium Модели",
-        plan_lite_feature2: "• AI Ассистент (low limits)",
-        plan_lite_feature3: "• Лицензия на использование",
-        plan_lite_feature4: "• Быстрая генерация",
-        plan_lite_select: "Оплатить",
-        plan_pro_title: "PRO",
-        plan_pro_price: "1700₽",
-        plan_pro_desc: "Лучший выбор для увлечённых пользователей и Профи",
-        plan_pro_credits: "1000 Кредитов",
-        plan_pro_feature1: "• Все что в Lite..+",
-        plan_pro_feature2: "• AI Ассистент (high limits)",
-        plan_pro_feature3: "• Приоритетная поддержка отдела Заботы pixPLace",
-        plan_pro_feature4: "• 25% Cкидка на pixPLace Кредиты",
-        plan_pro_select: "Оплатить",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "2900₽",
-        plan_studio_desc: "Максимальная творческая свобода, подойдет для целых Команд",
-        plan_studio_credits: "2000 Кредитов",
-        plan_studio_feature1: "• Все что в Pro..+",
-        plan_studio_feature2: "• AI Ассистент (no limits)",
-        plan_studio_feature3: "• Ранний доступ к новому функционалу",
-        plan_studio_feature4: "• Боллее 30% Скидка на pixPLace Кредиты>",
-        plan_studio_select: "Оплатить",
-        photo_warning_title: "Для лучших результатов загрузите изображение",
-        photo_warning_text: "Режим «Nano Banana» работает лучше при загрузке изображения для генерации img2img. Хотите загрузить изображение или продолжить без него?",
-        photo_warning_upload_btn: "Загрузить изображение",
-        photo_warning_continue_btn: "Продолжить без"
-
-    },
-
-    es: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Conectando...",
-        connected: "Conectado a Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Describe tu visión y mira cómo la IA la hace realidad...",
-        style_label: "Estilo",
-        style_realistic: "Realista",
-        style_artistic: "Artístico",
-        style_cartoon: "Cartoon",
-        style_fantasy: "Fantasy",
-        style_anime: "Anime",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "Abstracto",
-        style_sketch: "Sketch",
-        style_3d: "3D",
-        style_sticker: "Sticker",
-        style_vector: "Vector",
-        style_interior: "Interior",
-        style_architecture: "Arquitectura",
-        style_fashion: "Moda",
-        style_tattoo: "Tatuaje",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "Minimalisto",
-        style_banner: "Banner",
-        mode_label: "Modo",
-        mode_background_removal: "Quitar Fondo",
-        mode_upscale_image: "Mejorar Imagen",
-        mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-        mode_photo_session: "Nano Banana | Editor de Fotos - describe qué cambiar",
-        mode_fast_generation: "Flux Shnel | Rápido | Imágenes Simples",
-        mode_pixplace_pro: "Flux Krea | Logo | Text",
-        size_label: "Tamaño",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "Generar Imagen",
-        create_new: "Crear Nuevo",
-        empty_history_title: "Aún no hay generaciones",
-        empty_history_subtitle: "Crea tu primera imagen IA para verla aquí",
-        generation_cost: "Costo de generación",
-        error_prompt_required: "Por favor describe tu imagen",
-        error_prompt_too_short: "Descripción muy corta (mínimo 5 caracteres)",
-        error_webhook_not_configured: "URL Webhook no configurada",
-        error_generation_failed: "Generación falló",
-        error_timeout: "Tiempo agotado. Inténtalo de nuevo.",
-        success_generated: "¡Imagen generada con éxito!",
-        copied_to_clipboard: "Copiado al portapapeles",
-        download_started: "Descarga iniciada",
-        limit_title: "Límite de Generación Alcanzado",
-        limit_message: "Tus créditos para generación se han agotado. Puedes obtener más créditos pagando uno de los planes de suscripción de nuestro canal privado. Pago con cualquier tarjeta o crypto, vía Tribute Telegram Payment Service.",
-        closeLimitModal: "Tal vez después",
-        upgradeBtn: "Pagar",
-        remove_user_image: "Eliminar",
-        reference_image: "Referencia",
-        upload_image: "Subir Imagen",
-        please_upload_photo_session: "Sube tu imagen para el modo Sesión de Fotos.\\nO elige otro modo",
-        upload_failed: "Error al subir la imagen. Inténtalo de nuevo.",
-        please_upload_for_upscale: "Sube una imagen para Mejorar.",
-        please_upload_for_background_removal: "Sube una imagen para Quitar Fondo.",
-        ai_coach_ready: "✨ ¡AI Prompt Helper listo para ayudar con generación IA!",
-        ai_welcome_intro: "AI Prompt Helper: ¡Bienvenido! Soy tu asistente IA para mejorar la calidad de los resultados de generación de imágenes. ¡Pregunta cualquier cosa sobre crear prompts! O describe brevemente tu visión, y crearé un prompt profesional para ti.",
-        ai_welcome_chat: "AI Prompt Helper: ¡Bienvenido al chat! Soy tu asistente IA para ayudar con la creación de imágenes. Dime qué quieres generar y te ayudaré a crear un prompt de calidad. ¡O simplemente pregúntame cualquier cosa, te ayudaré con la generación!",
-        ai_placeholder_modal: "Escribe a tu asistente IA...",
-        ai_placeholder_chat: "Escribe tu mensaje...",
-        ai_send_button: "Enviar",
-        ai_close_button: "Cerrar",
-        ai_thinking_indicator: "🤖 pixPLace Assistant está pensando...",
-        ai_error_message: "Lo siento, hubo un error. Inténtalo de nuevo.",
-        most_popular: "Más Popular",
-        elapsed_time: "Tiempo transcurrido:",
-        view_history: "Ver Historial",
-        history_title: "Historial",
-        ai_chat_title: "Asistente IA",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_desc: "Perfecto para usuarios casuales",
-        plan_lite_credits: "500 créditos",
-        plan_lite_feature1: "• Generación rápida",
-        plan_lite_feature2: "• Modelos estándar",
-        plan_lite_feature3: "• Mejor calidad",
-        plan_lite_select: "Suscribirse",
-        plan_pro_title: "PRO",
-        plan_pro_price: "€17",
-        plan_pro_desc: "Ideal para entusiastas",
-        plan_pro_credits: "1000 créditos",
-        plan_pro_feature1: "• Modelos FLUX",
-        plan_pro_feature2: "• Asistente IA incluido",
-        plan_pro_feature3: "• Calidad HD",
-        plan_pro_select: "Suscribirse",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_desc: "Poder creativo completo",
-        plan_studio_credits: "2000 créditos",
-        plan_studio_feature1: "• Máximo rendimiento",
-        plan_studio_feature2: "• Todos los modelos premium",
-        plan_studio_feature3: "• Soporte prioritario",
-        plan_studio_select: "Suscribirse"
-    },
-    fr: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Connexion...",
-        connected: "Connecté à Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Décrivez votre vision et regardez l'IA la réaliser...",
-        style_label: "Style",
-        style_realistic: "Réaliste",
-        style_artistic: "Artistique",
-        style_cartoon: "Cartoon",
-        style_fantasy: "Fantasy",
-        style_anime: "Anime",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "Abstrait",
-        style_sketch: "Sketch",
-        style_3d: "3D",
-        style_sticker: "Sticker",
-        style_vector: "Vector",
-        style_interior: "Intérieur",
-        style_architecture: "Architecture",
-        style_fashion: "Mode",
-        style_tattoo: "Tatouage",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "Minimaliste",
-        style_banner: "Banner",
-        mode_label: "Mode",
-        mode_background_removal: "Supprimer l'Arrière-plan",
-        mode_upscale_image: "Améliorer l'Image",
-        mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-        mode_photo_session: "Nano Banana | Éditeur Photo - décrivez ce qu'il faut changer",
-        mode_fast_generation: "Flux Shnel | Rapide | Images Simples",
-        mode_pixplace_pro: "Flux Krea | Logo | Text",
-        size_label: "Taille",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "Générer l'Image",
-        create_new: "Créer Nouveau",
-        empty_history_title: "Aucune génération pour l'instant",
-        empty_history_subtitle: "Créez votre première image IA pour la voir ici",
-        generation_cost: "Coût de génération",
-        error_prompt_required: "Veuillez décrire votre image",
-        error_prompt_too_short: "Description trop courte (minimum 5 caractères)",
-        error_webhook_not_configured: "URL Webhook non configurée",
-        error_generation_failed: "Génération échouée",
-        error_timeout: "Délai dépassé. Réessayez.",
-        success_generated: "Image générée avec succès !",
-        copied_to_clipboard: "Copié dans le presse-papiers",
-        download_started: "Téléchargement commencé",
-        limit_title: "Limite de Génération Atteinte",
-        limit_message: "Vos crédits pour la génération sont épuisés. Vous pouvez obtenir plus de crédits en payant l'un des plans d'abonnement de notre canal privé. Paiement par carte ou crypto, via Tribute Telegram Payment Service.",
-        closeLimitModal: "Peut-être plus tard",
-        upgradeBtn: "Payer",
-        remove_user_image: "Supprimer",
-        reference_image: "Référence",
-        upload_image: "Télécharger Image",
-        please_upload_photo_session: "Veuillez télécharger votre image pour le mode Session Photo.\\nOu choisissez un autre mode",
-        upload_failed: "Échec du téléchargement de l'image. Réessayez.",
-        please_upload_for_upscale: "Veuillez télécharger une image à Améliorer.",
-        please_upload_for_background_removal: "Veuillez télécharger une image pour Supprimer l'Arrière-plan.",
-        ai_coach_ready: "✨ AI Prompt Helper prêt à aider avec la génération IA !",
-        ai_welcome_intro: "AI Prompt Helper : Bienvenue ! Je suis votre assistant IA pour améliorer la qualité des résultats de génération d'images. Posez toute question sur la création de prompts ! Ou décrivez brièvement votre vision, et je créerai un prompt professionnel pour vous.",
-        ai_welcome_chat: "AI Prompt Helper : Bienvenue dans le chat ! Je suis votre assistant IA pour aider à créer des images. Dites-moi ce que vous voulez générer et je vous aiderai à créer un prompt de qualité. Ou posez-moi simplement toute question, je vous aiderai avec la génération !",
-        ai_placeholder_modal: "Écrivez à votre assistant IA...",
-        ai_placeholder_chat: "Écrivez votre message...",
-        ai_send_button: "Envoyer",
-        ai_close_button: "Fermer",
-        ai_thinking_indicator: "🤖 pixPLace Assistant réfléchit...",
-        ai_error_message: "Désolé, il y a eu une erreur. Réessayez.",
-        most_popular: "Plus Populaire",
-        elapsed_time: "Temps écoulé :",
-        view_history: "Voir l'Historique",
-        history_title: "Historique",
-        ai_chat_title: "Assistant IA",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_desc: "Parfait pour les utilisateurs occasionnels",
-        plan_lite_credits: "500 crédits",
-        plan_lite_feature1: "• Génération rapide",
-        plan_lite_feature2: "• Modèles standard",
-        plan_lite_feature3: "• Meilleure qualité",
-        plan_lite_select: "S'abonner",
-        plan_pro_title: "PRO",
-        plan_pro_price: "€17",
-        plan_pro_desc: "Idéal pour les passionnés",
-        plan_pro_credits: "1000 crédits",
-        plan_pro_feature1: "• Modèles FLUX",
-        plan_pro_feature2: "• Assistant IA inclus",
-        plan_pro_feature3: "• Qualité HD",
-        plan_pro_select: "S'abonner",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_desc: "Puissance créative complète",
-        plan_studio_credits: "2000 crédits",
-        plan_studio_feature1: "• Performance maximale",
-        plan_studio_feature2: "• Tous les modèles premium",
-        plan_studio_feature3: "• Support prioritaire",
-        plan_studio_select: "S'abonner"
-    },
-    de: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Verbinden...",
-        connected: "Mit Telegram verbunden",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Beschreibe deine Vision und sieh zu, wie KI sie zum Leben erweckt...",
-        style_label: "Stil",
-        style_realistic: "Realistisch",
-        style_artistic: "Künstlerisch",
-        style_cartoon: "Cartoon",
-        style_fantasy: "Fantasy",
-        style_anime: "Anime",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "Abstrakt",
-        style_sketch: "Sketch",
-        style_3d: "3D",
-        style_sticker: "Sticker",
-        style_vector: "Vector",
-        style_interior: "Innenraum",
-        style_architecture: "Architektur",
-        style_fashion: "Mode",
-        style_tattoo: "Tattoo",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "Minimalism",
-        style_banner: "Banner",
-        mode_label: "Modus",
-        mode_background_removal: "Hintergrund Entfernen",
-        mode_upscale_image: "Bild Verbessern",
-        mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-        mode_photo_session: "Nano Banana | Foto-Editor - beschreibe was ändern",
-        mode_fast_generation: "Flux Shnel | Schnell | Einfache Bilder",
-        mode_pixplace_pro: "Flux Krea | Logo | Text",
-        size_label: "Größe",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "Bild Generieren",
-        create_new: "Neu Erstellen",
-        empty_history_title: "Noch keine Generierungen",
-        empty_history_subtitle: "Erstelle dein erstes KI-Bild, um es hier zu sehen",
-        generation_cost: "Generierungskosten",
-        error_prompt_required: "Bitte beschreibe dein Bild",
-        error_prompt_too_short: "Beschreibung zu kurz (mindestens 5 Zeichen)",
-        error_webhook_not_configured: "Webhook URL nicht konfiguriert",
-        error_generation_failed: "Generierung fehlgeschlagen",
-        error_timeout: "Zeitüberschreitung. Versuche es erneut.",
-        success_generated: "Bild erfolgreich generiert!",
-        copied_to_clipboard: "In Zwischenablage kopiert",
-        download_started: "Download gestartet",
-        limit_title: "Generierungslimit Erreicht",
-        limit_message: "Deine Credits für die Generierung sind aufgebraucht. Du kannst mehr Credits erhalten, indem du einen der Abonnement-Pläne unseres privaten Kanals bezahlst. Zahlung mit jeder Karte oder Krypto, über Tribute Telegram Payment Service.",
-        closeLimitModal: "Vielleicht später",
-        upgradeBtn: "Bezahlen",
-        remove_user_image: "Entfernen",
-        reference_image: "Referenz",
-        upload_image: "Bild Hochladen",
-        please_upload_photo_session: "Bitte lade dein Bild für den Foto-Session Modus hoch.\\nOder wähle einen anderen Modus",
-        upload_failed: "Bild-Upload fehlgeschlagen. Versuche es erneut.",
-        please_upload_for_upscale: "Bitte lade ein Bild zum Verbessern hoch.",
-        please_upload_for_background_removal: "Bitte lade ein Bild für Hintergrund Entfernen hoch.",
-        ai_coach_ready: "✨ AI Prompt Helper bereit zu helfen mit KI-Generierung!",
-        ai_welcome_intro: "AI Prompt Helper: Willkommen! Ich bin dein KI-Assistent zur Verbesserung der Qualität von Bildgenerierungsergebnissen. Stelle jede Frage über das Erstellen von Prompts! Oder beschreibe kurz deine Vision, und ich erstelle einen professionellen Prompt für dich.",
-        ai_welcome_chat: "AI Prompt Helper: Willkommen im Chat! Ich bin dein KI-Assistent zur Hilfe beim Erstellen von Bildern. Sag mir, was du generieren möchtest, und ich helfe dir, einen Qualitäts-Prompt zu erstellen. Oder stelle mir einfach jede Frage, ich helfe bei der Generierung!",
-        ai_placeholder_modal: "Schreibe an deinen KI-Assistenten...",
-        ai_placeholder_chat: "Schreibe deine Nachricht...",
-        ai_send_button: "Senden",
-        ai_close_button: "Schließen",
-        ai_thinking_indicator: "🤖 pixPLace Assistant denkt nach...",
-        ai_error_message: "Entschuldigung, es gab einen Fehler. Versuche es erneut.",
-        most_popular: "Beliebteste",
-        elapsed_time: "Verstrichene Zeit:",
-        view_history: "Verlauf Anzeigen",
-        history_title: "Verlauf",
-        ai_chat_title: "KI-Assistent",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_desc: "Perfekt für Gelegenheitsnutzer",
-        plan_lite_credits: "500 Credits",
-        plan_lite_feature1: "• Schnelle Generierung",
-        plan_lite_feature2: "• Standard-Modelle",
-        plan_lite_feature3: "• Beste Qualität",
-        plan_lite_select: "Abonnieren",
-        plan_pro_title: "PRO",
-        plan_pro_price: "€17",
-        plan_pro_desc: "Ideal für Enthusiasten",
-        plan_pro_credits: "1000 Credits",
-        plan_pro_feature1: "• FLUX Modelle",
-        plan_pro_feature2: "• KI-Assistent inklusive",
-        plan_pro_feature3: "• HD-Qualität",
-        plan_pro_select: "Abonnieren",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_desc: "Volle kreative Kraft",
-        plan_studio_credits: "2000 Credits",
-        plan_studio_feature1: "• Maximale Leistung",
-        plan_studio_feature2: "• Alle Premium-Modelle",
-        plan_studio_feature3: "• Prioritäts-Support",
-        plan_studio_select: "Abonnieren"
-    },
-    zh: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "连接中...",
-        connected: "已连接到 Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "描述你的想法，看AI将其变为现实...",
-        style_label: "风格",
-        style_realistic: "写实",
-        style_artistic: "艺术",
-        style_cartoon: "卡通",
-        style_fantasy: "Fantasy",
-        style_anime: "动漫",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "抽象",
-        style_sketch: "素描",
-        style_3d: "3D",
-        style_sticker: "贴纸",
-        style_vector: "矢量",
-        style_interior: "室内",
-        style_architecture: "建筑",
-        style_fashion: "时尚",
-        style_tattoo: "纹身",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "Minimalism",
-        style_banner: "横幅",
-        mode_label: "模式",
-        mode_background_removal: "移除背景",
-        mode_upscale_image: "图像增强",
-        mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-        mode_photo_session: "Nano Banana | 照片编辑器 - 描述要更改的内容",
-        mode_fast_generation: "Flux Shnel | 快速 | 简单图片",
-        mode_pixplace_pro: "Flux Krea | Logo | Text",
-        size_label: "尺寸",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "生成图像",
-        create_new: "创建新的",
-        empty_history_title: "暂无生成记录",
-        empty_history_subtitle: "创建你的第一张AI图像来查看",
-        generation_cost: "生成成本",
-        error_prompt_required: "请描述你的图像",
-        error_prompt_too_short: "描述太短（至少5个字符）",
-        error_webhook_not_configured: "Webhook URL未配置",
-        error_generation_failed: "生成失败",
-        error_timeout: "生成超时。请重试。",
-        success_generated: "图像生成成功！",
-        copied_to_clipboard: "已复制到剪贴板",
-        download_started: "下载开始",
-        limit_title: "生成限制已达到",
-        limit_message: "你的生成积分已用完。你可以通过支付我们私人频道的订阅计划之一来获得更多积分。通过Tribute Telegram支付服务，支持任何卡或加密货币支付。",
-        closeLimitModal: "稍后再说",
-        upgradeBtn: "支付",
-        remove_user_image: "移除",
-        reference_image: "参考",
-        upload_image: "上传图像",
-        please_upload_photo_session: "请上传你的图像以使用照片会话模式。\\n或选择其他模式",
-        upload_failed: "图像上传失败。请重试。",
-        please_upload_for_upscale: "请上传图像进行增强。",
-        please_upload_for_background_removal: "请上传图像以移除背景。",
-        ai_coach_ready: "✨ AI Prompt Helper 准备好帮助AI生成！",
-        ai_welcome_intro: "AI Prompt Helper：欢迎！我是你的AI助手，用于提高图像生成结果的质量。询问任何关于创建提示的问题！或简要描述你的想法，我将为你创建专业的提示。",
-        ai_welcome_chat: "AI Prompt Helper：欢迎来到聊天！我是你的AI助手，帮助创建图像。告诉我你想生成什么，我将帮你创建高质量的提示。或者问我任何问题，我会帮助生成！",
-        ai_placeholder_modal: "写给你的AI助手...",
-        ai_placeholder_chat: "写下你的消息...",
-        ai_send_button: "发送",
-        ai_close_button: "关闭",
-        ai_thinking_indicator: "🤖 pixPLace Assistant 正在思考...",
-        ai_error_message: "抱歉，出现了错误。请重试。",
-        most_popular: "最受欢迎",
-        elapsed_time: "已用时间：",
-        view_history: "查看历史",
-        history_title: "历史",
-        ai_chat_title: "AI助手",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_desc: "适合休闲用户",
-        plan_lite_credits: "500积分",
-        plan_lite_feature1: "• 快速生成",
-        plan_lite_feature2: "• 标准模型",
-        plan_lite_feature3: "• 最佳质量",
-        plan_lite_select: "订阅",
-        plan_pro_title: "PRO",
-        plan_pro_price: "€17",
-        plan_pro_desc: "适合爱好者",
-        plan_pro_credits: "1000积分",
-        plan_pro_feature1: "• FLUX模型",
-        plan_pro_feature2: "• 包含AI助手",
-        plan_pro_feature3: "• HD质量",
-        plan_pro_select: "订阅",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_desc: "完整创意力量",
-        plan_studio_credits: "2000积分",
-        plan_studio_feature1: "• 最大性能",
-        plan_studio_feature2: "• 所有高级模型",
-        plan_studio_feature3: "• 优先支持",
-        plan_studio_select: "订阅"
-    },
-    pt: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Conectando...",
-        connected: "Conectado ao Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Descreva sua visão e veja a IA dar vida a ela...",
-        style_label: "Estilo",
-        style_realistic: "Realista",
-        style_artistic: "Artístico",
-        style_cartoon: "Cartoon",
-        style_fantasy: "Fantasy",
-        style_anime: "Anime",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "Abstrato",
-        style_sketch: "Sketch",
-        style_3d: "3D",
-        style_sticker: "Sticker",
-        style_vector: "Vector",
-        style_interior: "Interior",
-        style_architecture: "Arquitetura",
-        style_fashion: "Moda",
-        style_tattoo: "Tatuagem",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "style_minimalism",
-        style_banner: "Banner",
-        mode_label: "Modo",
-        mode_background_removal: "Remover Fundo",
-        mode_upscale_image: "Melhorar Imagem",
-        mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-        mode_photo_session: "Nano Banana | Editor de Fotos - descreva o que mudar",
-        mode_fast_generation: "Flux Shnel | Rápido | Imagens Simples",
-        mode_pixplace_pro: "Flux Krea | Logo | Text",
-        size_label: "Tamanho",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "Gerar Imagem",
-        create_new: "Criar Novo",
-        empty_history_title: "Ainda sem gerações",
-        empty_history_subtitle: "Crie sua primeira imagem IA para vê-la aqui",
-        generation_cost: "Custo de geração",
-        error_prompt_required: "Por favor descreva sua imagem",
-        error_prompt_too_short: "Descrição muito curta (mínimo 5 caracteres)",
-        error_webhook_not_configured: "URL Webhook não configurada",
-        error_generation_failed: "Geração falhou",
-        error_timeout: "Tempo esgotado. Tente novamente.",
-        success_generated: "Imagem gerada com sucesso!",
-        copied_to_clipboard: "Copiado para área de transferência",
-        download_started: "Download iniciado",
-        limit_title: "Limite de Geração Atingido",
-        limit_message: "Seus créditos para geração acabaram. Você pode obter mais créditos pagando um dos planos de assinatura do nosso canal privado. Pagamento com qualquer cartão ou crypto, via Tribute Telegram Payment Service.",
-        closeLimitModal: "Talvez depois",
-        upgradeBtn: "Pagar",
-        remove_user_image: "Remover",
-        reference_image: "Referência",
-        upload_image: "Enviar Imagem",
-        please_upload_photo_session: "Por favor envie sua imagem para o modo Sessão de Fotos.\\nOu escolha outro modo",
-        upload_failed: "Falha ao enviar imagem. Tente novamente.",
-        please_upload_for_upscale: "Por favor envie uma imagem para Melhorar.",
-        please_upload_for_background_removal: "Por favor envie uma imagem para Remover Fundo.",
-        ai_coach_ready: "✨ AI Prompt Helper pronto para ajudar com geração IA!",
-        ai_welcome_intro: "AI Prompt Helper: Bem-vindo! Sou seu assistente IA para melhorar a qualidade dos resultados de geração de imagens. Faça qualquer pergunta sobre criar prompts! Ou descreva brevemente sua visão, e criarei um prompt profissional para você.",
-        ai_welcome_chat: "AI Prompt Helper: Bem-vindo ao chat! Sou seu assistente IA para ajudar com criação de imagens. Me diga o que você quer gerar e te ajudarei a criar um prompt de qualidade. Ou simplesmente me faça qualquer pergunta, vou ajudar com a geração!",
-        ai_placeholder_modal: "Escreva para seu assistente IA...",
-        ai_placeholder_chat: "Escreva sua mensagem...",
-        ai_send_button: "Enviar",
-        ai_close_button: "Fechar",
-        ai_thinking_indicator: "🤖 pixPLace Assistant está pensando...",
-        ai_error_message: "Desculpe, houve um erro. Tente novamente.",
-        most_popular: "Mais Popular",
-        elapsed_time: "Tempo decorrido:",
-        view_history: "Ver Histórico",
-        history_title: "Histórico",
-        ai_chat_title: "Assistente IA",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_desc: "Perfeito para usuários casuais",
-        plan_lite_credits: "500 créditos",
-        plan_lite_feature1: "• Geração rápida",
-        plan_lite_feature2: "• Modelos padrão",
-        plan_lite_feature3: "• Melhor qualidade",
-        plan_lite_select: "Assinar",
-        plan_pro_title: "PRO",
-        plan_pro_price: "€17",
-        plan_pro_desc: "Ideal para entusiastas",
-        plan_pro_credits: "1000 créditos",
-        plan_pro_feature1: "• Modelos FLUX",
-        plan_pro_feature2: "• Assistente IA incluído",
-        plan_pro_feature3: "• Qualidade HD",
-        plan_pro_select: "Assinar",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_desc: "Poder criativo completo",
-        plan_studio_credits: "2000 créditos",
-        plan_studio_feature1: "• Performance máxima",
-        plan_studio_feature2: "• Todos os modelos premium",
-        plan_studio_feature3: "• Suporte prioritário",
-        plan_studio_select: "Assinar"
-    },
-    ar: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "جاري الاتصال...",
-        connected: "متصل بـ Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "صف رؤيتك وشاهد الذكاء الاصطناعي يحققها...",
-        style_label: "الأسلوب",
-        style_realistic: "واقعي",
-        style_artistic: "فني",
-        style_cartoon: "كرتون",
-        style_fantasy: "Fantasy",
-        style_anime: "أنمي",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "مجرد",
-        style_sketch: "رسم",
-        style_3d: "ثلاثي الأبعاد",
-        style_sticker: "ملصق",
-        style_vector: "Vector",
-        style_interior: "داخلي",
-        style_architecture: "معمارية",
-        style_fashion: "أزياء",
-        style_tattoo: "وشم",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "style_minimalism",
-        style_banner: "Banner",
-        mode_label: "الوضع",
-        mode_background_removal: "إزالة الخلفية",
-        mode_upscale_image: "تحسين الصورة",
-        mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-        mode_photo_session: "Nano Banana | محرر الصور - صف ما تريد تغييره",
-        mode_fast_generation: "Flux Shnel | سريع | صور بسيطة",
-        mode_pixplace_pro: "Flux Krea | Logo | Text",
-        size_label: "الحجم",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "إنشاء صورة",
-        create_new: "إنشاء جديد",
-        empty_history_title: "لا توجد إنشاءات بعد",
-        empty_history_subtitle: "أنشئ أول صورة ذكية لرؤيتها هنا",
-        generation_cost: "تكلفة الإنشاء",
-        error_prompt_required: "يرجى وصف صورتك",
-        error_prompt_too_short: "الوصف قصير جداً (5 أحرف على الأقل)",
-        error_webhook_not_configured: "رابط Webhook غير مُعد",
-        error_generation_failed: "فشل الإنشاء",
-        error_timeout: "انتهت المهلة الزمنية. حاول مرة أخرى.",
-        success_generated: "تم إنشاء الصورة بنجاح!",
-        copied_to_clipboard: "تم النسخ للحافظة",
-        download_started: "بدأ التحميل",
-        limit_title: "تم الوصول لحد الإنشاء",
-        limit_message: "نفدت نقاطك للإنشاء. يمكنك الحصول على المزيد من النقاط بدفع إحدى خطط الاشتراك لقناتنا الخاصة. الدفع بأي بطاقة أو عملة مشفرة، عبر خدمة Tribute Telegram Payment Service.",
-        closeLimitModal: "ربما لاحقاً",
-        upgradeBtn: "ادفع",
-        remove_user_image: "إزالة",
-        reference_image: "مرجع",
-        upload_image: "رفع صورة",
-        please_upload_photo_session: "يرجى رفع صورتك لوضع جلسة التصوير.\\nأو اختر وضعاً آخر",
-        upload_failed: "فشل رفع الصورة. حاول مرة أخرى.",
-        please_upload_for_upscale: "يرجى رفع صورة للتحسين.",
-        please_upload_for_background_removal: "يرجى رفع صورة لإزالة الخلفية.",
-        ai_coach_ready: "✨ مساعد AI Prompt جاهز للمساعدة في الإنشاء بالذكاء الاصطناعي!",
-        ai_welcome_intro: "مساعد AI Prompt: أهلاً وسهلاً! أنا مساعدك الذكي لتحسين جودة نتائج إنشاء الصور. اسأل أي سؤال حول إنشاء المطالبات! أو صف رؤيتك باختصار، وسأنشئ لك مطالبة احترافية.",
-        ai_welcome_chat: "مساعد AI Prompt: أهلاً بك في المحادثة! أنا مساعدك الذكي للمساعدة في إنشاء الصور. أخبرني ماذا تريد أن تنشئ وسأساعدك في إنشاء مطالبة عالية الجودة. أو اسألني أي سؤال، سأساعد في الإنشاء!",
-        ai_placeholder_modal: "اكتب لمساعدك الذكي...",
-        ai_placeholder_chat: "اكتب رسالتك...",
-        ai_send_button: "إرسال",
-        ai_close_button: "إغلاق",
-        ai_thinking_indicator: "🤖 مساعد pixPLace يفكر...",
-        ai_error_message: "عذراً، حدث خطأ. حاول مرة أخرى.",
-        most_popular: "الأكثر شعبية",
-        elapsed_time: "الوقت المنقضي:",
-        view_history: "عرض التاريخ",
-        history_title: "التاريخ",
-        ai_chat_title: "المساعد الذكي",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_desc: "مثالي للمستخدمين العاديين",
-        plan_lite_credits: "500 نقطة",
-        plan_lite_feature1: "• إنشاء سريع",
-        plan_lite_feature2: "• نماذج قياسية",
-        plan_lite_feature3: "• أفضل جودة",
-        plan_lite_select: "اشترك",
-        plan_pro_title: "PRO",
-        plan_pro_price: "€17",
-        plan_pro_desc: "مثالي للمتحمسين",
-        plan_pro_credits: "1000 نقطة",
-        plan_pro_feature1: "• نماذج FLUX",
-        plan_pro_feature2: "• مساعد ذكي مُضمن",
-        plan_pro_feature3: "• جودة عالية",
-        plan_pro_select: "اشترك",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_desc: "قوة إبداعية كاملة",
-        plan_studio_credits: "2000 نقطة",
-        plan_studio_feature1: "• أقصى أداء",
-        plan_studio_feature2: "• جميع النماذج المميزة",
-        plan_studio_feature3: "• دعم أولوية",
-        plan_studio_select: "اشترك"
-    },
-    hi: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "कनेक्ट हो रहा है...",
-        connected: "Telegram से जुड़ा",
-        prompt_label: "Prompt",
-        prompt_placeholder: "अपनी कल्पना का वर्णन करें और देखें AI इसे जीवंत बनाता है...",
-        style_label: "शैली",
-        style_realistic: "यथार्थवादी",
-        style_artistic: "कलात्मक",
-        style_cartoon: "कार्टून",
-        style_fantasy: "Fantasy",
-        style_anime: "एनीमे",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "अमूर्त",
-        style_sketch: "स्केच",
-        style_3d: "3D",
-        style_sticker: "स्टिकर",
-        style_vector: "Vector",
-        style_interior: "इंटीरियर",
-        style_architecture: "वास्तुकला",
-        style_fashion: "फैशन",
-        style_tattoo: "टैटू",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "style_minimalism",
-        style_banner: "Banner",
-        mode_label: "मोड",
-        mode_background_removal: "बैकग्राउंड हटाएं",
-        mode_upscale_image: "इमेज बेहतर बनाएं",
-        mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-        mode_photo_session: "Nano Banana | फोटो एडिटर - बताएं क्या बदलना है",
-        mode_fast_generation: "Flux Shnel | तेज़ | सरल तस्वीरें",
-        mode_pixplace_pro: "Flux Krea | Logo | Text",
-        size_label: "आकार",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "इमेज बनाएं",
-        create_new: "नया बनाएं",
-        empty_history_title: "अभी तक कोई जेनरेशन नहीं",
-        empty_history_subtitle: "अपनी पहली AI इमेज बनाएं इसे यहां देखने के लिए",
-        generation_cost: "जेनरेशन लागत",
-        error_prompt_required: "कृपया अपनी इमेज का वर्णन करें",
-        error_prompt_too_short: "वर्णन बहुत छोटा है (कम से कम 5 अक्षर)",
-        error_webhook_not_configured: "Webhook URL कॉन्फ़िगर नहीं है",
-        error_generation_failed: "जेनरेशन असफल",
-        error_timeout: "समय समाप्त। फिर से कोशिश करें।",
-        success_generated: "इमेज सफलतापूर्वक बनाई गई!",
-        copied_to_clipboard: "क्लिपबोर्ड में कॉपी किया गया",
-        download_started: "डाउनलोड शुरू हुआ",
-        limit_title: "जेनरेशन सीमा पहुंच गई",
-        limit_message: "आपके जेनरेशन के लिए क्रेडिट समाप्त हो गए हैं। आप हमारे प्राइवेट चैनल की सब्सक्रिप्शन योजनाओं में से किसी एक का भुगतान करके अधिक क्रेडिट प्राप्त कर सकते हैं। Tribute Telegram Payment Service के माध्यम से किसी भी कार्ड या क्रिप्टो से भुगतान।",
-        closeLimitModal: "शायद बाद में",
-        upgradeBtn: "भुगतान करें",
-        remove_user_image: "हटाएं",
-        reference_image: "संदर्भ",
-        upload_image: "इमेज अपलोड करें",
-        please_upload_photo_session: "कृपया फोटो सेशन मोड के लिए अपनी इमेज अपलोड करें।\\nया कोई अन्य मोड चुनें",
-        upload_failed: "इमेज अपलोड असफल। फिर से कोशिश करें।",
-        please_upload_for_upscale: "कृपया बेहतर बनाने के लिए एक इमेज अपलोड करें।",
-        please_upload_for_background_removal: "कृपया बैकग्राउंड हटाने के लिए एक इमेज अपलोड करें।",
-        ai_coach_ready: "✨ AI Prompt Helper AI जेनरेशन में मदद के लिए तैयार!",
-        ai_welcome_intro: "AI Prompt Helper: स्वागत है! मैं आपका AI असिस्टेंट हूं इमेज जेनरेशन परिणामों की गुणवत्ता सुधारने के लिए। प्रॉम्प्ट बनाने के बारे में कोई भी सवाल पूछें! या संक्षेप में अपनी कल्पना बताएं, और मैं आपके लिए एक पेश"
-    },
-
-    ja: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "接続中...",
-        connected: "Telegramに接続しました",
-        prompt_label: "プロンプト",
-        prompt_placeholder: "イメージを説明すると、AIがそれを形にします...",
-        style_label: "スタイル",
-        style_realistic: "リアル",
-        style_artistic: "アート",
-        style_cartoon: "カートゥーン",
-        style_fantasy: "ファンタジー",
-        style_anime: "アニメ",
-        style_cyberpunk: "サイバーパンク",
-        style_popart: "ポップアート",
-        style_abstract: "抽象",
-        style_sketch: "スケッチ",
-        style_3d: "3D",
-        style_sticker: "ステッカー",
-        style_vector: "ベクター",
-        style_interior: "インテリア",
-        style_architecture: "建築",
-        style_fashion: "ファッション",
-        style_tattoo: "タトゥー",
-        style_print: "プリント",
-        style_logo: "ロゴ",
-        style_minimalism: "style_minimalism",
-        style_banner: "バナー",
-        mode_label: "モード",
-        mode_background_removal: "背景を削除",
-        mode_upscale_image: "画像を高画質化",
-        mode_print_maker: "SDXL Tシャツプリント | PoDヘルパー",
-        mode_photo_session: "Nano Banana | 写真編集",
-        mode_fast_generation: "Flux Shnel | 高速 | シンプル画像",
-        mode_pixplace_pro: "Flux Krea | ロゴ | テキスト",
-        size_label: "サイズ",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "画像生成",
-        create_new: "新規作成",
-        empty_history_title: "生成履歴なし",
-        empty_history_subtitle: "最初のAI画像を作成してここに表示します",
-        generation_cost: "生成コスト",
-        error_prompt_required: "画像を説明してください",
-        error_prompt_too_short: "説明が短すぎます（5文字以上）",
-        error_webhook_not_configured: "Webhookが未設定です",
-        error_generation_failed: "生成に失敗しました",
-        error_timeout: "タイムアウトしました。再試行してください。",
-        success_generated: "画像が正常に生成されました！",
-        copied_to_clipboard: "クリップボードにコピーしました",
-        download_started: "ダウンロードを開始しました",
-        limit_title: "生成制限に達しました",
-        limit_message: "生成用クレジットがなくなりました。有料プランに加入するとより多くのクレジットを取得できます。支払いはカードや暗号通貨経由、Tribute Telegramサービスを利用できます。",
-        closeLimitModal: "あとで",
-        upgradeBtn: "支払う",
-        remove_user_image: "削除",
-        reference_image: "参照",
-        upload_image: "画像をアップロード",
-        please_upload_photo_session: "写真セッションモードのために画像をアップロードしてください。\\nまたは他のモードを選択",
-        upload_failed: "アップロードに失敗しました。再試行してください。",
-        please_upload_for_upscale: "高画質化用の画像をアップロードしてください。",
-        please_upload_for_background_removal: "背景削除用の画像をアップロードしてください。",
-        ai_coach_ready: "✨ AIプロンプトヘルパーが準備完了！",
-        ai_welcome_intro: "AI Prompt Helper: ようこそ！私は画像生成のクオリティを上げるAIアシスタントです。質問があればどうぞ！",
-        ai_welcome_chat: "AI Prompt Helper: チャットへようこそ！何を作りたいか教えてください。高品質なプロンプトを作ります。",
-        ai_placeholder_modal: "AIアシスタントにメッセージを書く...",
-        ai_placeholder_chat: "メッセージを書く...",
-        ai_send_button: "送信",
-        ai_close_button: "閉じる",
-        ai_thinking_indicator: "🤖 pixPLace Assistant 考え中...",
-        ai_error_message: "エラーが発生しました。もう一度試してください。",
-        most_popular: "人気",
-        elapsed_time: "経過時間:",
-        view_history: "履歴を見る",
-        history_title: "履歴",
-        ai_chat_title: "AIアシスタント",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_desc: "初心者向け",
-        plan_lite_credits: "500クレジット",
-        plan_lite_feature1: "• 高速生成",
-        plan_lite_feature2: "• 標準モデル",
-        plan_lite_feature3: "• 高品質",
-        plan_lite_select: "購読",
-        plan_pro_title: "PRO",
-        plan_pro_price: "€17",
-        plan_pro_desc: "中級者向け",
-        plan_pro_credits: "1000クレジット",
-        plan_pro_feature1: "• FLUXモデル",
-        plan_pro_feature2: "• AIアシスタント付き",
-        plan_pro_feature3: "• HD品質",
-        plan_pro_select: "購読",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_desc: "フルパワー",
-        plan_studio_credits: "2000クレジット",
-        plan_studio_feature1: "• 最大性能",
-        plan_studio_feature2: "• 全てのプレミアムモデル",
-        plan_studio_feature3: "• 優先サポート",
-        plan_studio_select: "購読"
-    },
-
-    it: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Connessione...",
-        connected: "Connesso a Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Descrivi la tua visione e guarda l'IA darle vita...",
-        style_label: "Stile",
-        style_realistic: "Reale",
-        style_artistic: "Artistico",
-        style_cartoon: "Cartoon",
-        style_fantasy: "Fantasy",
-        style_anime: "Anime",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "Astratto",
-        style_sketch: "Sketch",
-        style_3d: "3D",
-        style_sticker: "Sticker",
-        style_vector: "Vettore",
-        style_interior: "Interno",
-        style_architecture: "Architettura",
-        style_fashion: "Moda",
-        style_tattoo: "Tatuaggio",
-        style_print: "Print",
-        style_logo: "Logo",
-        style_minimalism: "style_minimalism",
-        style_banner: "Banner",
-        mode_label: "Modalità",
-        mode_background_removal: "Rimozione Sfondo",
-        mode_upscale_image: "Migliora Immagine",
-        mode_print_maker: "SDXL Stampa Magliette | PoD Helper",
-        mode_photo_session: "Nano Banana | Editor Foto",
-        mode_fast_generation: "Flux Shnel | Veloce | Immagini semplici",
-        mode_pixplace_pro: "Flux Krea | Logo | Testo",
-        size_label: "Dimensione",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "Genera Immagine",
-        create_new: "Crea Nuovo",
-        empty_history_title: "Nessuna generazione",
-        empty_history_subtitle: "Crea la tua prima immagine AI per vederla qui",
-        generation_cost: "Costo Generazione",
-        error_prompt_required: "Per favore descrivi la tua immagine",
-        error_prompt_too_short: "Descrizione troppo corta (minimo 5 caratteri)",
-        error_webhook_not_configured: "Webhook non configurato",
-        error_generation_failed: "Generazione fallita",
-        error_timeout: "Timeout. Riprova.",
-        success_generated: "Immagine generata con successo!",
-        copied_to_clipboard: "Copiato negli appunti",
-        download_started: "Download avviato",
-        limit_title: "Limite raggiunto",
-        limit_message: "I tuoi crediti sono terminati. Puoi ottenerne altri con un abbonamento a pagamento.",
-        closeLimitModal: "Forse dopo",
-        upgradeBtn: "Paga",
-        remove_user_image: "Rimuovi",
-        reference_image: "Riferimento",
-        upload_image: "Carica Immagine",
-        ai_coach_ready: "✨ AI Prompt Helper pronto!",
-        ai_welcome_intro: "AI Prompt Helper: Benvenuto! Sono il tuo assistente IA.",
-        ai_placeholder_modal: "Scrivi al tuo assistente AI...",
-        ai_send_button: "Invia",
-        ai_close_button: "Chiudi",
-        ai_thinking_indicator: "🤖 pixPLace Assistant sta pensando...",
-        ai_error_message: "Errore. Riprova.",
-        most_popular: "Più Popolare",
-        elapsed_time: "Tempo trascorso:",
-        view_history: "Vedi Cronologia",
-        history_title: "Cronologia",
-        ai_chat_title: "Assistente IA",
-        plan_lite_title: "LITE",
-        plan_lite_price: "€12",
-        plan_lite_select: "Abbonati",
-        plan_pro_title: "PRO",
-        plan_pro_price: "€17",
-        plan_pro_select: "Abbonati",
-        plan_studio_title: "STUDIO",
-        plan_studio_price: "€31",
-        plan_studio_select: "Abbonati"
-    },
-
-    ko: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "연결 중...",
-        connected: "Telegram에 연결됨",
-        prompt_label: "프롬프트",
-        prompt_placeholder: "비전을 설명하면 AI가 구현합니다...",
-        style_label: "스타일",
-        style_realistic: "리얼",
-        style_artistic: "아트",
-        style_cartoon: "카툰",
-        style_fantasy: "판타지",
-        style_anime: "애니메이션",
-        style_cyberpunk: "사이버펑크",
-        style_popart: "팝아트",
-        style_abstract: "추상",
-        style_sketch: "스케치",
-        style_3d: "3D",
-        style_sticker: "스티커",
-        style_vector: "벡터",
-        style_interior: "인테리어",
-        style_architecture: "건축",
-        style_fashion: "패션",
-        style_tattoo: "타투",
-        style_print: "프린트",
-        style_logo: "로고",
-        style_minimalism: "아이콘",
-        style_banner: "배너",
-        mode_label: "모드",
-        mode_background_removal: "배경 제거",
-        mode_upscale_image: "이미지 업스케일",
-        mode_print_maker: "SDXL 티셔츠 프린트 | PoD Helper",
-        mode_photo_session: "Nano Banana | 사진 편집",
-        mode_fast_generation: "Flux Shnel | 빠른 생성",
-        mode_pixplace_pro: "Flux Krea | 로고 | 텍스트",
-        size_label: "크기",
-        size_square: "1:1",
-        size_portrait: "9:16",
-        size_landscape: "16:9",
-        generate_btn: "이미지 생성",
-        create_new: "새로 만들기",
-        empty_history_title: "생성 기록 없음",
-        empty_history_subtitle: "AI 이미지를 생성해 보세요",
-        generation_cost: "생성 비용",
-        error_prompt_required: "이미지를 설명해주세요",
-        error_prompt_too_short: "설명이 너무 짧습니다 (최소 5자)",
-        error_webhook_not_configured: "Webhook 미설정",
-        error_generation_failed: "생성 실패",
-        error_timeout: "시간 초과. 다시 시도하세요.",
-        success_generated: "이미지가 생성되었습니다!",
-        copied_to_clipboard: "클립보드에 복사됨",
-        download_started: "다운로드 시작",
-        limit_title: "생성 제한 도달",
-        limit_message: "크레딧이 소진되었습니다. 구독으로 충전하세요.",
-        closeLimitModal: "나중에",
-        upgradeBtn: "결제",
-        remove_user_image: "삭제",
-        reference_image: "참고",
-        upload_image: "이미지 업로드",
-        ai_coach_ready: "✨ AI 프롬프트 도우미 준비됨!"
-    },
-
-    tr: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Bağlanıyor...",
-        connected: "Telegram'a bağlandı",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Vizyonunu tarif et, AI onu canlandırsın...",
-        style_label: "Stil",
-        style_realistic: "Gerçekçi",
-        style_artistic: "Sanatsal",
-        style_cartoon: "Çizgi film",
-        style_fantasy: "Fantezi",
-        style_anime: "Anime",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "Soyut",
-        style_sketch: "Eskiz",
-        style_3d: "3D",
-        style_sticker: "Sticker",
-        style_vector: "Vektör",
-        style_interior: "İç Mekan",
-        style_architecture: "Mimari",
-        style_fashion: "Moda",
-        style_tattoo: "Dövme",
-        style_print: "Baskı",
-        style_logo: "Logo",
-        style_minimalism: "style_minimalism",
-        style_banner: "Banner",
-        mode_label: "Mod",
-        mode_background_removal: "Arka planı kaldır",
-        mode_upscale_image: "Görüntüyü iyileştir",
-        generate_btn: "Görsel Oluştur",
-        create_new: "Yeni Oluştur"
-    },
-
-    pl: {
-        loading: "The pixPLace",
-        app_title: "pixPLace",
-        connecting: "Łączenie...",
-        connected: "Połączono z Telegram",
-        prompt_label: "Prompt",
-        prompt_placeholder: "Opisz swoją wizję, a AI ożywi ją...",
-        style_label: "Styl",
-        style_realistic: "Realistyczny",
-        style_artistic: "Artystyczny",
-        style_cartoon: "Kreskówka",
-        style_fantasy: "Fantasy",
-        style_anime: "Anime",
-        style_cyberpunk: "Cyberpunk",
-        style_popart: "Pop Art",
-        style_abstract: "Abstrakcyjny",
-        style_sketch: "Szkic",
-        style_3d: "3D",
-        style_sticker: "Naklejka",
-        style_vector: "Wektor",
-        style_interior: "Wnętrze",
-        style_architecture: "Architektura",
-        style_fashion: "Moda",
-        style_tattoo: "Tatuaż",
-        style_print: "Druk",
-        style_logo: "Logo",
-        style_minimalism: "style_minimalism",
-        style_banner: "Baner",
-        mode_label: "Tryb",
-        mode_background_removal: "Usuń tło",
-        mode_upscale_image: "Popraw obraz",
-        generate_btn: "Generuj obraz",
-        create_new: "Nowy"
-    }
+    en,
+    ru,
+    es,
+    fr,
+    de,
+    zh,
+    pt,
+    ar,
+    hi,
+    ja,
+    it,
+    ko,
+    tr,
+    pl
 };
+
 
 class AppState {
     constructor() {
@@ -2215,31 +1023,11 @@ function showAllHistory() {
     console.log('📄 All history loaded without virtualization');
 }
 
-function getStatusText(status) {
-    switch (status) {
-        case 'processing': return '⏳';
-        case 'success': return '✅';
-        case 'error': return '❌';
-        default: return status;
-    }
-}
-
 function viewHistoryItem(id) {
     const item = appState.generationHistory.find(h => h.id == id);
     if (item && item.result) {
         appState.currentGeneration = item;
         showResult({ image_url: item.result });
-    }
-}
-
-function clearHistory() {
-    if (confirm('Clear all generation history?')) {
-        appState.generationHistory = [];
-        appState.saveHistory();
-        if (!document.getElementById('historyList').classList.contains('hidden')) {
-            updateHistoryDisplay();
-        }
-        triggerHaptic('medium');
     }
 }
 
@@ -2291,22 +1079,7 @@ function updateHistoryDisplayFullScreen() {
 
 }
 
-function getStatusText(status) {
-    switch (status) {
-        case 'processing': return '⏳';
-        case 'success': return '✅';
-        case 'error': return '❌';
-        default: return status;
-    }
-}
 
-function viewHistoryItem(id) {
-    const item = appState.generationHistory.find(h => h.id == id);
-    if (item && item.result) {
-        appState.currentGeneration = item;
-        showResult({ image_url: item.result });
-    }
-}
 
 function clearHistory() {
     if (confirm('Clear all generation history?')) {
@@ -2315,10 +1088,6 @@ function clearHistory() {
         updateHistoryDisplay();
         triggerHaptic('medium');
     }
-}
-function showHistory() {
-    showScreen('historyScreen');
-    updateHistoryDisplay();
 }
 
 // Функция плавной прокрутки к истории и открытия списка
@@ -2480,6 +1249,10 @@ function updateHistoryItemWithImage(generationId, imageUrl) {
     const loadingItem = document.getElementById(`loading-${generationId}`);
     if (!loadingItem) return;
 
+    // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: МЕНЯЕМ ID ЭЛЕМЕНТА ДЛЯ ПРЕДОТВРАЩЕНИЯ ДУБЛИКАТОВ
+    loadingItem.id = `history-${generationId}`;
+    console.log(`🔧 Changed loading item ID from loading-${generationId} to history-${generationId}`);
+
     // Снимаем анимацию пульсации и обновляем изображение
     const loadingImage = loadingItem.querySelector('.loading-image-placeholder');
     if (loadingImage) {
@@ -2499,35 +1272,49 @@ function updateHistoryItemWithImage(generationId, imageUrl) {
             console.log('✅ History image finalized successfully:', generationId);
         };
 
-        // Таймер безопасности - через 3 секунды гарантированно завершить загрузку
-        const safetyTimer = setTimeout(() => {
-            console.log('⏰ Safety timer triggered for history image:', generationId);
-            finalizeLoading();
-        }, 3000);
+        // ⚡ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: НЕМЕДЛЕННАЯ ЗАГРУЗКА ДЛЯ ИСПРАВЛЕНИЯ ПРОБЛЕМЫ "COMPLETE"
+        // Представим ситуацию: мы нажимаем generate -> создается loading item -> через секунды генерация завершается -> вызывается updateHistoryItemWithImage
+        // БЕЗ ЭТОГО ИСПРАВЛЕНИЯ: изображение просто устанавливается в data-src и ждет IntersectionObserver
+        // ПРОБЛЕМА: если элемент уже в зоне видимости (что обычно), IntersectionObserver не вызовет handleIntersection потому что элемент уже наблюдается!
+        // Так что для уже видимых элементов - IntersectionObserver не активируется и загрузка НЕ ПРОИСХОДИТ
 
-        // Добавляем обработчики onload и onerror
+        console.log('🚀 Loading image immediately for COMPLETE update:', generationId);
+
+        // Таймер безопасности - через 5 секунд гарантировано завершить загрузку
+        const safetyTimer = setTimeout(() => {
+            console.log('⏰ Safety timer triggered - completing:', generationId);
+            // Финализация загрузки
+            loadingImage.classList.add('loaded');
+            delete loadingImage.dataset.src;
+            if (globalHistoryLoader) {
+                globalHistoryLoader.safeUnobserve(loadingImage);
+            }
+            console.log('✅ History image finalized successfully:', generationId);
+        }, 5000);
+
+        // Обработчики загрузки
         loadingImage.onload = () => {
-            clearTimeout(safetyTimer); // отменяем таймер безопасности
+            clearTimeout(safetyTimer);
             finalizeLoading();
             console.log('✅ History image loaded via onload:', generationId);
         };
 
         loadingImage.onerror = () => {
-            clearTimeout(safetyTimer); // отменяем таймер безопасности
-            // При ошибке загрузки устанавливаем placeholder
+            clearTimeout(safetyTimer);
+            // При ошибке загрузки - placeholder
             loadingImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbGw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+';
             finalizeLoading();
             console.log('❌ History image load failed:', generationId);
         };
 
-        // Проверяем, если изображение уже закешировано и готово
-        if (loadingImage.complete) {
-            clearTimeout(safetyTimer);
-            finalizeLoading();
-            console.log('⚡ History image was already cached:', generationId);
-        } else {
-            // Устанавливаем новый URL только если изображение не готово
-            loadingImage.src = imageUrl;
+        // 🔥 НЕМЕДЛЕННАЯ УСТАНОВКА SRC ДЛЯ ЗАГРУЗКИ
+        loadingImage.src = imageUrl;
+
+        // ⚡️ ДОПОЛНИТЕЛЬНО: Действительно отправляем в IntersectionObserver на случай изменений видимости
+        loadingImage.dataset.src = imageUrl; // Сохраняем оригинальную логику
+        if (globalHistoryLoader) {
+            globalHistoryLoader.observe(loadingImage);
+            console.log('👁️ Also observing for visibility changes:', generationId);
         }
 
         loadingImage.alt = 'Generated image';
@@ -3612,7 +2399,7 @@ function clearAllImages() {
     console.log('✅ All images cleared successfully');
 
     // 🔥 ДОБАВЛЕНИЕ: Обновляем видимость после очистки
-    setTimeout(() => toggleUploadVisibility(), 50);
+    setTimeout(() => updateImageUploadVisibility(), 50);
 }
 
 // ===== Новое функция: Обновление видимости маленькой кнопки внутри превью =====
@@ -3670,64 +2457,7 @@ function trimImagesToLimit(limit) {
 }
 
 // ===== Обновление видимости кнопки загрузки =====
-function updateUploadButtonPosition() {
-    const chooseBtn = document.getElementById('chooseUserImage');
-    const container = document.getElementById('userImageWrapper');
-    const mode = document.getElementById('modeSelect')?.value || 'default';
-    const hasImages = userImageState.images.length > 0;
 
-    if (!chooseBtn || !container) return;
-
-    let shouldShowUploadButton, shouldShowPreview;
-
-    if (mode === 'fast_generation') {
-        // 🔥 FAST GENERATION: абсолютная видимость - НИЧЕГО не показываем
-        shouldShowUploadButton = false;
-        shouldShowPreview = false;
-
-        // Принудительно удаляем все изображения в этом режиме
-        if (hasImages) {
-            console.log('🗑️ Fast Generation: удаляем все изображения (этот режим без референсных изображений)');
-            clearAllImages();
-            return;
-        }
-
-        console.log('🚀 Fast Generation: режим активен - кнопка и превью СКРЫТЫ');
-    } else {
-        // 🔥 ВСЕ ОСТАЛЬНЫЕ РЕЖИМЫ: прячем внешнюю кнопку как только есть превью
-        shouldShowUploadButton = !hasImages; // Внешняя кнопка видна ТОЛЬКО если нет изображений
-        shouldShowPreview = hasImages;       // Превью видно ТОЛЬКО если есть изображения
-
-        console.log(`📸 ${mode}: ${hasImages ? 'Есть превью → внешняя кнопка СКРЫТА' : 'Нет превью → внешняя кнопка ВИДИМА'}`);
-    }
-
-    // Применяем видимость ВНЕШНЕЙ кнопки (основная "Загрузить изображение")
-    if (shouldShowUploadButton) {
-        chooseBtn.classList.add('outside-upload');
-        chooseBtn.classList.remove('inside-preview');
-        chooseBtn.style.display = '';
-        console.log('✅ Внешняя кнопка загрузки ВИДИМА');
-    } else {
-        chooseBtn.style.display = 'none';
-        console.log('🚫 Внешняя кнопка загрузки СКРЫТА');
-    }
-
-    // Применяем видимость превью БЛОКА
-    const preview = document.getElementById('userImagePreview');
-    if (preview) {
-        if (shouldShowPreview) {
-            preview.classList.remove('hidden');
-            preview.style.display = 'block';
-            console.log('✅ Превью БЛОК ВИДИМИМ');
-        } else {
-            preview.style.display = 'none';
-            console.log('🚫 Превью БЛОК СКРЫТО');
-        }
-    }
-
-    // 📌 ВНУТРЕННИЯ кнопка внутри превью работает ПО СВОЕЙ ЛОГИКЕ независимо!
-    // Она осталась в updateInnerUploadButtonVisibility()
-}
 
 // ===== Обновление положения кнопки загрузки =====
 function updateUploadButtonPosition() {
@@ -3928,44 +2658,24 @@ async function uploadUserImages() {
 // 📱 Telegram WebApp Integration
 
 async function initTelegramApp() {
-    console.log('📱 Initializing Telegram WebApp...');
+    console.log('📱 Initializing Telegram WebApp (JavaScript)...');
 
-    // 🚀 ВАРИАНТ 3: Умное ожидание Telegram SDK
-    const waitForTelegram = async (timeoutMs = 3000) => {
-        return new Promise((resolve, reject) => {
-            let elapsed = 0;
-            const checkInterval = 100; // проверяем каждые 100мс
+    // ✅ ПРОВЕРКА: Если SDK уже инициализирован HTML - пропускаем повторную инициализацию
+    if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+        console.log('✅ Telegram WebApp already initialized by HTML - reusing existing instance');
 
-            const check = () => {
-                if (typeof window.Telegram !== 'undefined') {
-                    resolve(window.Telegram);
-                    return;
-                }
-
-                elapsed += checkInterval;
-                if (elapsed >= timeoutMs) {
-                    resolve(null); // возвращаем null если не загрузился
-                    return;
-                }
-
-                setTimeout(check, checkInterval);
-            };
-
-            check(); // первый запуск сразу
-        });
-    };
-
-    const telegram = await waitForTelegram();
-    const isAvailable = telegram?.WebApp;
-    console.log('📱 Telegram SDK loaded:', !!isAvailable);
-
-
-
-    console.log('📱 After waiting - Telegram available:', !!window.Telegram?.WebApp);
-
-    if (typeof window.Telegram === 'undefined' || !window.Telegram.WebApp) {
-        console.log('❌ Telegram WebApp still not available - using fallback');
-        appState.userId = 'fallback_' + Date.now();
+        // Пытаемся использовать существующий инстанс
+        try {
+            appState.tg = window.Telegram.WebApp;
+            console.log('🧾 Existing WebApp data:', JSON.stringify(appState.tg.initDataUnsafe, null, 2));
+        } catch (error) {
+            console.error('❌ Error reusing existing Telegram WebApp:', error);
+            return;
+        }
+    } else {
+        // Если SDK еще не загружен - используем fallback
+        console.log('⚠️ Telegram WebApp not available - using fallback mode');
+        appState.userId = 'fallback_js_' + Date.now();
         appState.userName = 'Fallback User';
         showStatus('info', 'Running in fallback mode');
         return;
@@ -4183,16 +2893,21 @@ document.addEventListener('DOMContentLoaded', async function () {
         img.decoding = 'async';
     });
 
-    setTimeout(() => {
+    // 🔥 ТОЧЕЧНОЕ ИСПРАВЛЕНИЕ: Гарантируем завершение загрузки даже при проблемах с Telegram
+    const finishLoading = () => {
         hideLoadingScreen();
         showApp();
-
-        // Инициализируем баланс пользователя
         updateUserBalance(appState.userCredits);
-
-        // AI Coach initialization
         initAICoach();
-    }, 1500);
+    };
+
+    // Проверяем успешность инициализации Telegram и завершаем загрузку
+    if (appState.tg) {
+        finishLoading(); // Telegram доступен - сразу завершаем
+    } else {
+        // Telegram не доступен - завершаем через короткий таймаут для стабильности
+        setTimeout(finishLoading, 500);
+    }
 });
 
 
@@ -4335,14 +3050,14 @@ async function generateImage(event) {
 
     startTimer();
 
-    // Добавляем генерацию в очередь менеджера
+        // Добавляем генерацию в очередь менеджера
     const added = generationManager.addGeneration(generation);
     if (!added) {
         console.log('⏳ Generation added to queue');
-        showToast('info', 'Генерация добавлена в очередь');
+        showToast('info', appState.translate('generation_queued'));
     } else {
         console.log('🚀 Generation started immediately');
-        showToast('info', 'Генерация запущена');
+        showToast('info', appState.translate('generation_started'));
     }
 
     // Добавляем в историю сразу
@@ -4995,6 +3710,15 @@ window.setWebhookUrl = (url) => {
 };
 
 // Функция для безопасного экранирования пользовательского текста перед JSON.stringify
+function getStatusText(status) {
+    switch (status) {
+        case 'processing': return '⏳';
+        case 'success': return '✅';
+        case 'error': return '❌';
+        default: return status;
+    }
+}
+
 function sanitizeJsonString(str) {
     if (typeof str !== 'string') return str;
 

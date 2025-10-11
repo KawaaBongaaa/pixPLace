@@ -14,6 +14,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=block" rel="stylesheet">
     <script>
+        // Temporary dummy functions to prevent errors until app_modern.js loads
+        window.showToast = (type, message) => console.log(`Toast (${type}): ${message}`);
+        window.appState = { translate: (key) => key };
+
         const sources = [
             'https://telegram.org/js/telegram-web-app.js',
             'https://unpkg.com/@twa-dev/sdk@7.10.1/dist/index.js',
@@ -54,12 +58,12 @@
                 await loadTelegramSDK();
                 clearTimeout(timeout);
 
-                // Если SDK загрузился, проверяем готовность
-                let attempts = 0;
-                while (typeof Telegram === 'undefined' || !Telegram.WebApp) {
-                    if (attempts++ > 100) throw new Error('Telegram SDK not available');
-                    await new Promise(resolve => setTimeout(resolve, 50));
-                }
+        // Если SDK загрузился, проверяем готовность
+        let attempts = 0;
+        while (typeof Telegram === 'undefined' || !Telegram.WebApp) {
+            if (attempts++ > 100) throw new Error('Telegram SDK not available');
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
 
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
@@ -69,7 +73,7 @@
                 console.log('📦 Full initData:', initData);
 
                 if (!initData?.user) {
-                    showToast('warning', 'WebApp запущен вне Telegram - некоторые функции недоступны');
+                    showToast('warning', appState.translate('telegram_webapp_warning'));
                 } else {
                     console.log('👤 User:', initData.user);
                 }
@@ -82,7 +86,7 @@
                 console.error('❌ Ошибка инициализации Telegram WebApp:', err);
                 // Fallback: показать предупреждение, но продолжить работу
                 setTimeout(() => {
-                    showToast('warning', 'Telegram интеграция недоступна. Приложение работает в режиме просмотра.');
+                    showToast('warning', appState.translate('telegram_integration_unavailable'));
                 }, 1000);
 
                 // Продолжаем инициализацию JavaScript
@@ -721,7 +725,7 @@
             </nav>
         </div>
     </footer>
-    <script src="app_modern.js"></script>
+    <script type="module" src="app_modern.js"></script>
     <script src="parallel-generation.js"></script>
     <script src="ai-coach.js"></script>
 </body>

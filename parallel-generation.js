@@ -60,10 +60,23 @@ class GenerationManager {
             generation.status = 'completed';
         }
 
-        // Сохраняем в историю через appState
+        // ОБНОВЛЕНИЕ СТАТУСА В ИСТОРИИ: генерация уже была добавлена в app_modern.js::generateImage
+        // Ничего не добавляем, только обновляем статус существующих записей
+        // Найдем и обновим статус в истории
         if (window.appState && window.appState.generationHistory) {
-            window.appState.generationHistory.unshift(generation);
-            window.appState.saveHistory();
+            const historyItem = window.appState.generationHistory.find(item => item.id === generationId);
+            if (historyItem) {
+                // Обновляем статус и время завершения без повторного добавления
+                historyItem.status = generation.status;
+                historyItem.completedAt = generation.completedAt;
+                historyItem.duration = generation.duration;
+                historyItem.result = generation.result;
+                historyItem.error = generation.error;
+                window.appState.saveHistory();
+                console.log(`✨ Updated generation ${generationId} status in history: ${generation.status}`);
+            } else {
+                console.warn(`⚠️ Generation ${generationId} not found in appState history - something went wrong!`);
+            }
         }
 
         this.activeGenerations.delete(generationId);
