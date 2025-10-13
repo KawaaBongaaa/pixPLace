@@ -146,7 +146,9 @@ class GenerationManager {
                 telegram_platform: appState?.telegramPlatform,
                 telegram_version: appState?.telegramVersion,
                 timestamp: generation.timestamp || new Date().toISOString(),
-                generation_id: generation.id
+                generation_id: generation.id,
+                taskUUID: generation.taskUUID,
+                imageUUIDs: generation.imageUUIDs || []
             };
 
             // Добавляем ссылки на пользовательские изображения если есть

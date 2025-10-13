@@ -56,6 +56,15 @@ function supportsShare() {
     return navigator.share && navigator.canShare;
 }
 
+// 🔧 Utility Functions
+function generateUUIDv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 // 🌍 Translations
 const TRANSLATIONS = {
     en,
@@ -2391,6 +2400,15 @@ function createPreviewItem(imageId, dataUrl, fileName) {
     const previewContainer = document.getElementById('previewContainer');
     if (!previewContainer) return;
 
+    // 👉 Добавить imageUUID при создании превью элемента
+    const imageUUID = generateUUIDv4();
+
+    // Добавить imageUUID в глобальный массив изображений
+    const imageItem = userImageState.images.find(img => img.id === imageId);
+    if (imageItem) {
+        imageItem.imageUUID = imageUUID;
+    }
+
     const itemDiv = document.createElement('div');
     itemDiv.className = 'preview-item';
     itemDiv.setAttribute('data-id', imageId);
@@ -3046,6 +3064,9 @@ async function generateImage(event) {
         event.preventDefault();
     }
 
+    // Добавляем taskUUID для всего задания генерации
+    const taskUUID = generateUUIDv4();
+
     const prompt = document.getElementById('promptInput').value.trim();
     const mode = document.getElementById('modeSelect').value;
     const size = document.getElementById('sizeSelect').value;
@@ -3131,6 +3152,8 @@ async function generateImage(event) {
 
     const generation = {
         id: Date.now(),
+        taskUUID: taskUUID,
+        imageUUIDs: userImageState.images.map(img => img.imageUUID).filter(uuid => uuid),
         prompt: prompt,
         style: appState.selectedStyle,
         mode: mode,
