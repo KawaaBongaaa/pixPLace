@@ -693,7 +693,7 @@ function showStatus(type, message) {
     }
 }
 
-function showToast(type, message) {
+function showToast(type, message, options = {}) {
     const container = document.getElementById('toastContainer');
     if (!container) {
         console.error('⚠️ Toast container not found - creating fallback toast');
@@ -715,6 +715,19 @@ function showToast(type, message) {
 
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
+
+    // Специальная обработка для тоста генерации - нижняя позиция
+    const isGenerationToast = message.includes('Генерация запущена') || message.includes('Generation started');
+    if (isGenerationToast) {
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.left = '20px'; // Растягиваем по ширине снизу
+        toast.style.width = 'auto';
+        toast.style.maxWidth = '400px';
+        toast.style.margin = '0 auto';
+        toast.style.zIndex = '10000';
+    }
 
     // Добавляем иконку и animarker для progress бара
     toast.innerHTML = `
@@ -739,8 +752,18 @@ function showToast(type, message) {
         }
     }, 100);
 
-    // Remove after delay (increased for longer error messages, but shorter for success)
-    const displayTime = type === 'success' ? 1500 : 3000; // 1.5 секунды для успешных, 3 для ошибок
+    // Remove after delay (increased for longer error messages, extra long for server overload)
+    let displayTime;
+    if (type === 'success') {
+        displayTime = 1500; // 1.5 секунды для успешных
+    } else if (message.includes('перегружены') || message.includes('overloaded')) {
+        displayTime = 5000; // 8 секунд для перегруженности сервера (длинный текст)
+    } else if (type === 'error') {
+        displayTime = 3000; // 4 секунды для других ошибок
+    } else {
+        displayTime = 1500; // 3 секунды для остальных типов
+    }
+
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => container.removeChild(toast), 300);
@@ -3116,10 +3139,11 @@ async function generateImage(event) {
         status: 'pending'
     };
 
-    // Добавляем плавную прокрутку к истории и автоматическое открытие
+    // Синхронизируем историю и превью правильно
     setTimeout(async () => {
-        await showHistoryWithScroll();
-        createLoadingHistoryItem(generation);
+        await showHistoryWithScroll(); // Сначала открываем историю
+        createLoadingHistoryItem(generation); // Потом создаем превью элемент когда DOM готов
+        // Тост уже убрали - не показываем
     }, 100);
 
     // 1) Если выбрано пользовательское изображение — загрузим все на imgbb
@@ -3159,10 +3183,10 @@ async function generateImage(event) {
     const added = generationManager.addGeneration(generation);
     if (!added) {
         console.log('⏳ Generation added to queue');
-        showToast('info', appState.translate('generation_queued'));
+        // НЕ показываем тост "в очереди" - пользователь может быть в сомнении
     } else {
         console.log('🚀 Generation started immediately');
-        showToast('info', appState.translate('generation_started'));
+        // НЕ показываем тост "начата" - будет показан только результат или ошибка
     }
 
     // Добавляем в историю сразу
@@ -3213,42 +3237,63 @@ async function sendToWebhook(data) {
 
         let result;
         try {
-            if (contentType && contentType.includes('application/json')) {
-                const jsonText = await response.text();
-                result = JSON.parse(jsonText);
-                console.log('✅ Parsed webhook response:', result);
-            } else if (contentType && contentType.includes('text/')) {
-                // Сервер вернул текст (например, ошибку)
-                const textResponse = await response.text();
-                console.log('📄 Server returned text:', textResponse);
+            const responseText = await response.text();
+            console.log('📄 FULL RAW response text (first 1000 chars):', responseText.substring(0, 1000));
+            console.log('📄 Response length:', responseText.length);
+            console.log('📄 HTTP Status Code:', response.status);
+            console.log('📄 All Response Headers:', Object.fromEntries(response.headers.entries()));
 
-                // Проверяем на признак перегрузки серверов (например, "Accepted")
-                if (textResponse.trim().toLowerCase() === 'accepted') {
-                    console.log('⚠️ Server overload detected, returning special flag');
-                    result = { server_overloaded: true, message: appState.translate('error_server_overloaded') };
-                } else {
-                    throw new Error('Server returned text instead of JSON: ' + textResponse);
-                }
+            // 🔥 ДОПОЛНИТЕЛЬНОЕ ЛОГИРОВАНИЕ: Парсим как JSON и показываем структуру если возможно
+            try {
+                const possibleJson = JSON.parse(responseText);
+                console.log('🔍 POSSIBLE PARSED JSON STRUCTURE:', possibleJson);
+                console.log('🔍 JSON keys:', Object.keys(possibleJson));
+            } catch (parseError) {
+                console.log('🔍 NOT VALID JSON - possibly text/html response from Make.error');
+            }
+
+            // 🔥 ПРОВЕРКА НА СЕРВЕРОМЕРОВАНЛУЮ ПЕРЕГРУЗКУ ПЕРЕД JSON ПАРСИНГОМ
+            if (responseText.trim().toLowerCase() === 'accepted') {
+                console.log('🚨 SERVER OVERLOADED: Backend returned "accepted" instead of JSON');
+                result = { server_overloaded: true, message: appState.translate('error_server_overloaded') };
+                return result; // 🔥 НЕМЕДЛЕННО ВОЗВРАЩАЕМ - НЕ ПРОДОЛЖАЕМ ОБРАБОТКУ
+            }
+
+            // 🔥 ДОБАВИЛИ ПРОВЕРКУ НА ДРУГИЕ ТЕКСТОВЫЕ ОТВЕТЫ ПЕРЕГРУЗКИ
+            if (responseText.trim().includes('overload') || responseText.trim().includes('busy') ||
+                responseText.trim().includes('maintenance') || responseText.trim().includes('timeout')) {
+                console.log('🚨 SERVER OVERLOADED: Detected overload keywords in response');
+                result = { server_overloaded: true, message: appState.translate('error_server_overloaded') };
+                return result;
+            }
+
+            if (contentType && contentType.includes('application/json')) {
+                result = JSON.parse(responseText);
+                console.log('✅ Parsed webhook response as JSON:', result);
+            } else if (contentType && contentType.includes('text/')) {
+                // Сервер вернул текст (не JSON и не "accepted")
+                console.log('📄 Server returned text:', responseText);
+                throw new Error('Server returned text instead of JSON: ' + responseText);
             } else {
-                // Неопределённый content-type — пытаемся парсить как JSON
-                const textResponse = await response.text();
-                console.log('📄 Unexpected content-type, trying to parse as JSON:', textResponse);
+                // Неопределённый content-type — пытаемся спарсить как JSON
+                console.log('📄 Unexpected content-type, trying to parse as JSON:', responseText);
                 try {
-                    result = JSON.parse(textResponse);
+                    result = JSON.parse(responseText);
+                    console.log('✅ Fallback: parsed as JSON despite content-type');
                 } catch (parseError) {
-                    console.error('❌ Failed to parse response:', textResponse);
-                    throw new Error('Server returned invalid format: ' + textResponse.substring(0, 100));
+                    console.error('❌ Failed to parse response as JSON:', responseText);
+                    throw new Error('Server returned invalid format: ' + responseText.substring(0, 100));
                 }
             }
         } catch (error) {
-            console.error('❌ Response parsing error:', error);
+            console.error('❌ Response processing error:', error);
             if (error instanceof SyntaxError) {
                 throw new Error('Server returned malformed JSON');
             }
             throw error;
         }
 
-        console.log('✅ Parsed webhook response:', result);
+        console.log('✅ Final processed webhook response:', result);
         return result;
 
     } catch (error) {

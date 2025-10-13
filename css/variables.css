@@ -26,19 +26,19 @@
     --error-500: #ef4444;
     --warning-500: #f59e0b;
 
-    /* Light Theme */
-    --bg-primary: #f2f0f0;
-    --bg-secondary: #f9fafb;
-    --bg-tertiary: #f3f4f6;
-    --text-primary: #111827;
-    --text-secondary: #6b7280;
-    --text-tertiary: #9ca3af;
-    --border-primary: #e5e7eb;
-    --border-secondary: #d1d5db;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+/* Light Theme */
+--bg-primary: #f2f0f0;
+--bg-secondary: #f9fafb;
+--bg-tertiary: #f3f4f6;
+--text-primary: #111827;
+--text-secondary: #6b7280;
+--text-tertiary: #9ca3af;
+--border-primary: #e5e7eb;
+--border-secondary: #d1d5db;
+--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+--shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
     /* Typography */
     --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -77,43 +77,32 @@
     --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Theme */
+
+/* Dark Theme - Deep Minimalist */
 [data-theme="dark"] {
     --bg-primary: #191719;
-    /* Темнейший navy black */
+    /* Deepest navy black */
     --bg-secondary: #252225;
-    /* Чуть светлее, как в Vercel UI */
-    --bg-tertiary: #24282f;
-    /* Элементы, карточки */
+    /* Slightly lighter, modern dark */
+    --bg-tertiary: #2a2a2b;
+    /* For cards and inputs */
 
     --text-primary: #e5e7eb;
-    /* Светлый, но не чисто белый */
+    /* Soft white for readability */
     --text-secondary: #9ea4b0;
-    /* Серый для второстепенного текста */
+    /* Muted grey for secondary text */
     --text-tertiary: #6b7280;
-    /* Для подписей и placeholder'ов */
+    /* Even more muted for tertiary */
 
-    --accent: #5ac0f0;
-    /* Фиолетово-индиго — главный тренд */
-    --accent-hover: #84cef0;
-    /* Светлее при наведении */
-    --accent-muted: #5d5fef;
-    /* Спокойный оттенок акцента */
-
-    --border-primary: #0280ff26;
-    /* Границы UI */
-    --border-secondary: #02afff7a;
-    /* Мягкие границы */
+    --border-primary: #3a3a3c;
+    /* Subtle dark borders */
+    --border-secondary: #4a4a4c;
+    /* Slightly lighter for contrast */
 
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
     --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
-
-    --radius-sm: 6px;
-    --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-xl: 20px;
 }
 
 /* Auto Theme */

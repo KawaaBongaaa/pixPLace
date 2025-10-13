@@ -82,6 +82,27 @@ class GenerationManager {
         this.activeGenerations.delete(generationId);
         console.log(`✅ Generation ${generationId} completed (${this.activeGenerations.size} remaining)`);
 
+        // 🔥 ДОБАВЛЕНО: УБИРАЕМ ЗАЦИКЛЕННЫЙ LOADING ЭЛЕМЕНТ ПРИ ОШИБКЕ
+        if (error) {
+            const loadingElement = document.getElementById(`loading-${generationId}`);
+            if (loadingElement) {
+                console.log(`🗑️ Removing failed generation loading element: ${generationId}`);
+                loadingElement.remove();
+
+                // Плавная прокрутка вверх когда превью удаляется
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                    console.log('🆙 Scrolled to top after removing failed preview');
+                }, 300); // небольшой delay чтобы DOM обновился
+
+                // ❗❗❗ ТОСТ НЕ ПОКАЗЫВАЕМ ЗДЕСЬ - ВСЁ ДЕЛАЕТСЯ В processGeneration ДЛЯ КОНТРОЛЯ ❗❗❗
+                // Тост будет показан либо для перегрузки (длинный), либо для других ошибок (обычный)
+            }
+        }
+
         // Запускаем следующую из очереди
         this.startNextFromQueue();
     }
@@ -170,11 +191,20 @@ class GenerationManager {
 
             console.log('📥 Webhook response for generation:', generation.id, response);
 
-            // Обрабатываем ответ
-            if (response.server_overloaded) {
-                throw new Error(window.appState?.translate('error_server_overloaded') || 'Server overloaded');
+            // 🔥 ДОБАВИЛИ: ВАЖНО! Сначала проверяем на перегрузку сервера
+            if (response.server_overloaded === true) {
+                console.log(`🚨 SERVER OVERLOADED DETECTED: ${response.message || 'backend timeout'}`);
+                // ОБРАБАТЫВАЕМ КАК ПЕРЕГРУЗКУ - ПОКАЗЫВАЕМ ТОСТ И ЗАВЕРШАЕМ
+                if (window.showToast) {
+                    const overloadMessage = window.appState?.translate('error_server_overloaded') ||
+                        '😓 Серверы перегружены. Попробуйте позже.';
+                    window.showToast('error', overloadMessage);
+                }
+                this.completeGeneration(generation.id, null, new Error('Server overloaded'));
+                return;
             }
 
+            // Обрабатываем явные ошибки в ответе
             if (response.status === 'error' || response.error) {
                 throw new Error(response.error || response.message || 'Generation failed');
             }
@@ -265,6 +295,15 @@ class GenerationManager {
             throw new Error('Unexpected response format');
 
         } catch (error) {
+            // 🚨 ТОСТ ПРО ПЕРЕГРУЗКУ ПОКАЗЫВАТЬ НА ВСЕ ОШИБКИ (КРОМЕ ВАЛИДНОГО SUCCESS JSON)
+            console.log(`🚨 Showing server overload toast for all non-success responses for generation ${generation.id}`);
+
+            if (window.showToast) {
+                const overloadMessage = window.appState?.translate('error_server_overloaded') ||
+                    '😓 Генерация не удалась. Серверы сейчас перегружены, пожалуйста, попробуйте позже или выберите другой режим генерации… Мы искренне извиняемся за неудобства и надеемся на ваше понимание 🙏';
+                window.showToast('error', overloadMessage);
+            }
+
             console.error(`❌ Generation error for ${generation.id}:`, error);
             this.completeGeneration(generation.id, null, error);
         }
