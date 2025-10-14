@@ -4740,4 +4740,6 @@ function toggleModeDetails() {
     }
 }
 
+window.toggleModeDetails = toggleModeDetails;
+
 // 🎯 Функции личного кабинета импортированы из модуля user-account.js
