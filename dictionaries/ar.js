@@ -98,5 +98,10 @@ export const ar = {
     plan_studio_feature1: "• أقصى أداء",
     plan_studio_feature2: "• جميع النماذج المميزة",
     plan_studio_feature3: "• دعم أولوية",
-    plan_studio_select: "اشترك"
-};
+    plan_studio_select: "اشترك",
+    photo_warning_title: "للحصول على نتائج أفضل، ارفع صورة",
+    photo_warning_text: "يعمل وضع \"Nano Banana\" بشكل أفضل مع صورة لتوليد img2img. هل تريد رفع صورة أم المتابعة بدونها؟",
+    photo_warning_upload_btn: "ارفع الصورة",
+    photo_warning_continue_btn: "تابع بدون",
+    image_limit_error: "حد أقصى 4 صور. يمكنك رفع {{count}} أكثر."
+}

@@ -30,5 +30,10 @@ export const pl = {
     mode_background_removal: "Usuń tło",
     mode_upscale_image: "Popraw obraz",
     generate_btn: "Generuj obraz",
-    create_new: "Nowy"
+    create_new: "Nowy",
+    photo_warning_title: "Aby uzyskać lepsze wyniki, prześlij obraz",
+    photo_warning_text: "Tryb \"Nano Banana\" działa lepiej z obrazem dla generowania img2img. Czy chcesz przesłać obraz, czy kontynuować bez niego?",
+    photo_warning_upload_btn: "Prześlij obraz",
+    photo_warning_continue_btn: "Kontynuuj bez",
+    image_limit_error: "Maksymalnie 4 obrazy. Możesz przesłać {{count}} więcej."
 }

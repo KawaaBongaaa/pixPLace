@@ -98,5 +98,10 @@ export const pt = {
     plan_studio_feature1: "• Performance máxima",
     plan_studio_feature2: "• Todos os modelos premium",
     plan_studio_feature3: "• Suporte prioritário",
-    plan_studio_select: "Assinar"
-};
+    plan_studio_select: "Assinar",
+    photo_warning_title: "Para melhores resultados, envie uma imagem",
+    photo_warning_text: "O modo \"Nano Banana\" funciona melhor com uma imagem para geração img2img. Quer enviar uma imagem ou continuar sem ela?",
+    photo_warning_upload_btn: "Enviar imagem",
+    photo_warning_continue_btn: "Continuar sem",
+    image_limit_error: "Máximo 4 imagens. Você pode enviar {{count}} mais."
+}

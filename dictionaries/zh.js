@@ -98,5 +98,10 @@ export const zh = {
     plan_studio_feature1: "• 最大性能",
     plan_studio_feature2: "• 所有高级模型",
     plan_studio_feature3: "• 优先支持",
-    plan_studio_select: "订阅"
+    plan_studio_select: "订阅",
+    photo_warning_title: "为了更好的结果，请上传一张图片",
+    photo_warning_text: "「Nano Banana」模式在有图片用于img2img生成时效果更好。你想上传一张图片还是不上传继续？",
+    photo_warning_upload_btn: "上传图片",
+    photo_warning_continue_btn: "不上传继续",
+    image_limit_error: "最多4张图片。你可以再上传 {{count}} 张。"
 }

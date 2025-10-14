@@ -2301,100 +2301,195 @@ function readFileAsDataURL(file) {
 }
 // ===== Обработчик выбора файла =====
 async function onUserImageChange(e) {
-    const files = Array.from(e.target.files || []);
-    const errorEl = document.getElementById('userImageError');
-    const preview = document.getElementById('userImagePreview');
-    const previewContainer = document.getElementById('previewContainer');
-    const chooseBtn = document.getElementById('chooseUserImage');
-    const optionalLabel = document.querySelector('.under-user-image-label');
+    try {
+        console.log('📁 onUserImageChange called with files:', e.target.files?.length || 0);
 
+        const files = Array.from(e.target.files || []);
+        const errorEl = document.getElementById('userImageError');
+        const preview = document.getElementById('userImagePreview');
+        const previewContainer = document.getElementById('previewContainer');
+        const chooseBtn = document.getElementById('chooseUserImage');
+        const optionalLabel = document.querySelector('.under-user-image-label');
 
-    if (errorEl) errorEl.textContent = '';
-    if (!files.length) return;
-
-    // Проверка лимита (до 4 изображений)
-    const currentCount = userImageState.images.length;
-    const newCount = currentCount + files.length;
-    if (newCount > 4) {
-        if (errorEl) errorEl.textContent = 'Максимум 4 изображения. Вы можете загрузить ещё ' + (4 - currentCount) + '.';
-        return;
-    }
-
-    // Валидация каждого файла
-    const validFiles = [];
-    for (let file of files) {
-        if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
-            if (errorEl) errorEl.textContent = 'Недопустимый формат: только JPG, PNG, WEBP, GIF.';
-            continue;
+        // Очищаем ошибки и проверяем наличие файлов
+        if (errorEl) errorEl.textContent = '';
+        if (!files.length) {
+            console.log('⚠️ No files selected');
+            return;
         }
-        const maxBytes = CONFIG.MAX_IMAGE_MB * 1024 * 1024; // МБ в байты
-        if (file.size > maxBytes) {
-            if (errorEl) errorEl.textContent = `Файл ${file.name} слишком большой (макс ${CONFIG.MAX_IMAGE_MB} MB).`;
-            continue;
+
+        console.log('📁 Processing', files.length, 'files for upload:', files.map(f => ({ name: f.name, size: f.size, type: f.type })));
+
+        // Проверка лимита (до 4 изображений)
+        const currentCount = userImageState.images.length;
+        const newCount = currentCount + files.length;
+        console.log(`🎯 Current images: ${currentCount}, new total: ${newCount}`);
+
+        if (newCount > 4) {
+            if (errorEl) {
+                const errorMsg = appState.translate('image_limit_error').replace('{{count}}', 4 - currentCount);
+                errorEl.textContent = errorMsg;
+            }
+            console.warn('🚫 Too many images, remaining:', 4 - currentCount);
+            return;
         }
-        validFiles.push(file);
-    }
 
-    if (!validFiles.length) return;
+        // Валидация каждого файла
+        const validFiles = [];
+        let validationErrors = [];
 
-    // Обработка каждого файла
-    for (let file of validFiles) {
-        try {
-            const dataUrl = await readFileAsDataURL(file);
-            const compressed = await maybeCompressImage(
-                dataUrl,
-                CONFIG.PREVIEW_MAX_W,
-                CONFIG.PREVIEW_MAX_H,
-                CONFIG.PREVIEW_JPEG_QUALITY
-            );
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            console.log(`🔍 Validating file ${i+1}: ${file.name} (${file.size} bytes, ${file.type})`);
 
-            // Добавить в массив
-            const imageId = Date.now() + Math.random().toString(36).substr(2, 9);
-            userImageState.images.push({
-                id: imageId,
-                file: file,
-                dataUrl: compressed,
-                uploadedUrl: null
-            });
+            if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
+                const errorMsg = `Файл ${file.name}: недопустимый формат. Разрешено: ${CONFIG.ALLOWED_TYPES.join(', ')}`;
+                console.error('❌ Invalid file type:', file.type);
+                validationErrors.push(errorMsg);
+                continue;
+            }
 
-            // Создать превью элемент
-            createPreviewItem(imageId, compressed, file.name);
+            const maxBytes = CONFIG.MAX_IMAGE_MB * 1024 * 1024; // МБ в байты
+            if (file.size > maxBytes) {
+                const errorMsg = `Файл ${file.name}: слишком большой (макс ${CONFIG.MAX_IMAGE_MB} MB).`;
+                console.error('❌ File too large:', file.size, '>', maxBytes);
+                validationErrors.push(errorMsg);
+                continue;
+            }
 
-        } catch (err) {
-            console.error('Ошибка обработки файла:', file.name, err);
-            if (errorEl) errorEl.textContent = `Ошибка обработки ${file.name}.`;
+            validFiles.push(file);
+            console.log(`✅ File ${file.name} is valid`);
         }
-    }
 
-    if (preview) preview.classList.remove('hidden');
-    const wrapper = document.getElementById('userImageWrapper');
-    wrapper?.classList.add('has-image');
-    wrapper?.classList.remove('need-image');
-
-    // Обновление видимости выбора размеров
-    toggleSizeSelectVisibility();
-
-    // 🔥 ИСПРАВЛЕНИЕ ПРОБЛЕМЫ МИГАНИЯ КНОПКИ: Быстрое обновление видимости ДО создания превью
-    console.log(`🎯 После загрузки изображений: count=${userImageState.images.length}, режим=${document.getElementById('modeSelect')?.value}`);
-    updateImageUploadVisibility(); // ← БЫСТРОЕ ОБНОВЛЕНИЕ - НЕ ЗАДЕРЖИВАЕМ
-
-    // 🔥 ДОБАВЛЕНИЕ: Принудительное обновление превью видимости сразу после загрузки
-    const hasImages = userImageState.images.length > 0;
-    if (preview && hasImages) {
-        preview.classList.remove('flux-shnel-hidden', 'hidden');
-        preview.style.setProperty('display', 'block', 'important');
-        console.log('✅ Превью принудительно показано после загрузки изображений');
-    }
-
-    // 🔥 НОВОЕ: Принудительная загрузка превью истории сразу после генерации
-    setTimeout(() => {
-        // Запустим принудительную загрузку всех видимых превью в истории
-        const historyList = document.getElementById('historyList');
-        if (historyList && !historyList.classList.contains('hidden')) {
-            console.log('🎯 Принудительная загрузка превью истории после обновления...');
-            globalHistoryLoader.forceLoadVisibleHistoryPreviews();
+        if (!validFiles.length) {
+            console.log('❌ No valid files after validation');
+            if (errorEl && validationErrors.length) {
+                errorEl.textContent = validationErrors[0]; // Показываем первую ошибку
+            }
+            return;
         }
-    }, 100);
+
+        console.log('✅ Valid files found:', validFiles.length, '/', files.length);
+        if (validationErrors.length > 0) {
+            console.warn('⚠️ Some files were rejected:', validationErrors.length);
+        }
+
+        // Обработка каждого файла
+        let processedCount = 0;
+        let failedCount = 0;
+
+        for (let i = 0; i < validFiles.length; i++) {
+            const file = validFiles[i];
+
+            try {
+                console.log(`📸 Processing file ${i+1}/${validFiles.length}: ${file.name}`);
+
+                // Читаем файл как DataURL
+                const dataUrl = await readFileAsDataURL(file);
+                console.log(`✅ File ${file.name} read as DataURL, length: ${dataUrl.length}`);
+
+                // Компрессируем изображение
+                const compressed = await maybeCompressImage(
+                    dataUrl,
+                    CONFIG.PREVIEW_MAX_W,
+                    CONFIG.PREVIEW_MAX_H,
+                    CONFIG.PREVIEW_JPEG_QUALITY
+                );
+                console.log(`✨ File ${file.name} compressed, new length: ${compressed.length}`);
+
+                // Создаем уникальный ID для изображения
+                const imageId = Date.now() + Math.random().toString(36).substr(2, 9);
+                console.log(`🆔 Created imageId: ${imageId} for ${file.name}`);
+
+                // Добавляем в состояние
+                const imageObj = {
+                    id: imageId,
+                    file: file,
+                    dataUrl: compressed,
+                    uploadedUrl: null
+                };
+
+                userImageState.images.push(imageObj);
+                console.log(`📦 Added to userImageState, total images: ${userImageState.images.length}`);
+
+                // Создаем превью элемент
+                createPreviewItem(imageId, compressed, file.name);
+                console.log(`🖼️ Preview created for ${file.name}`);
+
+                processedCount++;
+                console.log(`✅ Successfully processed file ${i+1}: ${file.name}`);
+
+            } catch (error) {
+                console.error(`❌ Failed to process file ${i+1} (${file.name}):`, error);
+                failedCount++;
+
+                if (errorEl) {
+                    errorEl.textContent = `Ошибка обработки ${file.name}: ${error.message || 'неизвестная ошибка'}`;
+                }
+            }
+        }
+
+        console.log(`📊 Processing summary: ${processedCount} succeeded, ${failedCount} failed`);
+
+        // Обновляем UI если есть успешные обработки
+        if (processedCount > 0) {
+            console.log('🎨 Updating UI for successful uploads');
+
+            // Показываем превью контейнер
+            if (preview) {
+                preview.classList.remove('hidden', 'flux-shnel-hidden');
+                console.log('✅ Preview container shown');
+            }
+
+            // Обновляем классы wrapper
+            const wrapper = document.getElementById('userImageWrapper');
+            if (wrapper) {
+                wrapper.classList.add('has-image');
+                wrapper.classList.remove('need-image');
+                console.log('✅ Wrapper classes updated');
+            }
+
+            // Обновяем видимость элементов
+            toggleSizeSelectVisibility();
+            updateImageUploadVisibility();
+
+            // Принудительное показывание превью
+            const hasImages = userImageState.images.length > 0;
+            if (preview && hasImages) {
+                preview.classList.remove('flux-shnel-hidden', 'hidden');
+                preview.style.setProperty('display', 'block', 'important');
+                console.log('✅ Forced preview visibility');
+            }
+
+            console.log(`🎯 Final state: ${userImageState.images.length} images uploaded successfully`);
+
+            // Принудительная загрузка превью истории
+            setTimeout(() => {
+                const historyList = document.getElementById('historyList');
+                if (historyList && !historyList.classList.contains('hidden')) {
+                    console.log('🎯 Starting history preview force load');
+                    globalHistoryLoader.forceLoadVisibleHistoryPreviews();
+                }
+            }, 100);
+
+        } else {
+            console.warn('⚠️ No files were processed successfully');
+            if (errorEl && !errorEl.textContent) {
+                errorEl.textContent = 'Не удалось обработать выбранные файлы.';
+            }
+        }
+
+    } catch (globalError) {
+        console.error('💥 Global error in onUserImageChange:', globalError);
+
+        // Показываем ошибку пользователю
+        const errorEl = document.getElementById('userImageError');
+        if (errorEl) {
+            errorEl.textContent = 'Произошла ошибка при загрузке изображений. Попробуйте снова.';
+        }
+
+        // Не даем ошибке распространиться выше
+    }
 }
 
 // ===== Создание превью элемента =====
@@ -3253,7 +3348,7 @@ async function generateImage(event) {
     }, 100);
 
     // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session без изображения ===
-    if (mode === 'photo_session' && !userImageState.images.length === 0) {
+    if (mode === 'photo_session' && userImageState.images.length === 0) {
         // Останавливаем немедленную генерацию и показываем предупреждение
         const shouldContinue = await showWarningAboutNoImage();
         if (!shouldContinue) {

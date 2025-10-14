@@ -98,5 +98,10 @@ export const ja = {
     plan_studio_feature1: "• 最大性能",
     plan_studio_feature2: "• 全てのプレミアムモデル",
     plan_studio_feature3: "• 優先サポート",
-    plan_studio_select: "購読"
+    plan_studio_select: "購読",
+    photo_warning_title: "より良い結果を得るために画像をアップロードする",
+    photo_warning_text: "「Nano Banana」モードはimg2img生成用に画像を使うとより良く機能します。画像をアップロードしますか、それともアップロードせずに続けますか？",
+    photo_warning_upload_btn: "画像をアップロード",
+    photo_warning_continue_btn: "アップロードせずに続ける",
+    image_limit_error: "最大4つの画像。{{count}}個追加でアップロード可能です。"
 }

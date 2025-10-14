@@ -77,5 +77,10 @@ export const it = {
     plan_pro_select: "Abbonati",
     plan_studio_title: "STUDIO",
     plan_studio_price: "€31",
-    plan_studio_select: "Abbonati"
+    plan_studio_select: "Abbonati",
+    photo_warning_title: "Per risultati migliori, carica un'immagine",
+    photo_warning_text: "La modalità \"Nano Banana\" funziona meglio con un'immagine per la generazione img2img. Vuoi caricare un'immagine o continuare senza?",
+    photo_warning_upload_btn: "Carica immagine",
+    photo_warning_continue_btn: "Continua senza",
+    image_limit_error: "Massimo 4 immagini. Puoi caricarne {{count}} in più."
 }

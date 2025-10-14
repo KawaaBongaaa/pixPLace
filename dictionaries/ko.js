@@ -57,5 +57,10 @@ export const ko = {
     remove_user_image: "삭제",
     reference_image: "참고",
     upload_image: "이미지 업로드",
-    ai_coach_ready: "✨ AI 프롬프트 도우미 준비됨!"
+    ai_coach_ready: "✨ AI 프롬프트 도우미 준비됨!",
+    photo_warning_title: "더 나은 결과를 위해 이미지를 업로드하세요",
+    photo_warning_text: "\"Nano Banana\" 모드는 img2img 생성을 위한 이미지가 있을 때 더 잘 작동합니다. 이미지를 업로드하거나 그냥 진행하겠습니까?",
+    photo_warning_upload_btn: "이미지 업로드",
+    photo_warning_continue_btn: "업로드 없이 계속",
+    image_limit_error: "최대 4개의 이미지. {{count}}개를 더 업로드할 수 있습니다."
 }

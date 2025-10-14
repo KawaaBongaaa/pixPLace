@@ -98,5 +98,10 @@ export const de = {
     plan_studio_feature1: "• Maximale Leistung",
     plan_studio_feature2: "• Alle Premium-Modelle",
     plan_studio_feature3: "• Prioritäts-Support",
-    plan_studio_select: "Abonnieren"
+    plan_studio_select: "Abonnieren",
+    photo_warning_title: "Für bessere Ergebnisse lade ein Bild hoch",
+    photo_warning_text: "Der \"Nano Banana\" Modus funktioniert besser mit einem Bild für img2img Generierung. Möchtest du ein Bild hochladen oder ohne fortfahren?",
+    photo_warning_upload_btn: "Bild hochladen",
+    photo_warning_continue_btn: "Ohne weitermachen",
+    image_limit_error: "Maximal 4 Bilder. Du kannst noch {{count}} hochladen."
 };

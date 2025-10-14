@@ -115,5 +115,6 @@ export const ru = {
     photo_warning_title: "Для лучших результатов загрузите изображение",
     photo_warning_text: "Режим «Nano Banana» работает лучше при загрузке изображения для генерации img2img. Хотите загрузить изображение или продолжить без него?",
     photo_warning_upload_btn: "Загрузить изображение",
-    photo_warning_continue_btn: "Продолжить без"
+    photo_warning_continue_btn: "Продолжить без",
+    image_limit_error: "Максимум 4 изображения. Вы можете загрузить ещё {{count}}.",
 }
