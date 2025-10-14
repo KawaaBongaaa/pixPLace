@@ -23,7 +23,8 @@ const CONFIG = {
     LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'tr', 'pl'],
     DEFAULT_LANGUAGE: 'en',
     DEFAULT_THEME: 'dark', // 'light', 'dark', 'auto'
-    IMGBB_API_KEY: '34627904ae4633713e1fee94a243794e', // только для тестов/прототипа
+    IMGBB_API_KEY: '34627904ae4633713e1fee94a243794e', // только для тестов/прототипа (deprecated - используем Runware)
+    RUNWARE_API_KEY: 'jOXX5kq8n10wWpcRFnnScQ0hsNJKWsg2', // ⚠️ ЗАМЕНИТЕ НА ВАШ RUNWARE API KEY!
     MAX_IMAGE_MB: 10,
     ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     PREVIEW_MAX_W: 1024,
@@ -1289,6 +1290,7 @@ function updateHistoryItemWithImage(generationId, imageUrl) {
     // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: МЕНЯЕМ ID ЭЛЕМЕНТА ДЛЯ ПРЕДОТВРАЩЕНИЯ ДУБЛИКАТОВ
     loadingItem.id = `history-${generationId}`;
     console.log(`🔧 Changed loading item ID from loading-${generationId} to history-${generationId}`);
+    console.log('🎯 == GEN COMPLETE UPDATE == loading images, UUIDs will be used in Runware');
 
     // Снимаем анимацию пульсации и обновляем изображение
     const loadingImage = loadingItem.querySelector('.loading-image-placeholder');
@@ -2400,14 +2402,7 @@ function createPreviewItem(imageId, dataUrl, fileName) {
     const previewContainer = document.getElementById('previewContainer');
     if (!previewContainer) return;
 
-    // 👉 Добавить imageUUID при создании превью элемента
-    const imageUUID = generateUUIDv4();
-
-    // Добавить imageUUID в глобальный массив изображений
-    const imageItem = userImageState.images.find(img => img.id === imageId);
-    if (imageItem) {
-        imageItem.imageUUID = imageUUID;
-    }
+    // 👉 imageUUID добавится после загрузки на Runware в generateImage()
 
     const itemDiv = document.createElement('div');
     itemDiv.className = 'preview-item';
@@ -2712,46 +2707,116 @@ function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
     });
 }
 
-// ===== Загрузка на imgbb и получение публичного URL =====
-// Мягкий аплоад: если ключа нет — пропускаем без throw
-async function uploadToImgbb(dataUrl, apiKey) {
+// ===== Загрузка изображений на Runware.ai и получение UUID =====
+async function uploadToRunware(dataUrl, apiKey) {
     const key = (apiKey || '').trim();
     if (!key) {
-        console.warn('IMGBB API key missing — skipping user image upload');
-        return null; // не ломаем генерацию
+        console.warn('Runware API key missing — skipping user image upload');
+        return null;
     }
 
-    const base64 = String(dataUrl).split(',')[1];
-    const form = new FormData();
-    form.append('image', base64);
-
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(key)}`, {
-        method: 'POST',
-        body: form
-    });
-
-    let json;
     try {
-        json = await res.json();
-    } catch (e) {
-        console.error('IMGBB: failed to parse JSON', e);
-        return null;
-    }
-    console.debug('imgbb status:', res.status, res.statusText, json);
+        // Убираем префикс data:image...base64, если он есть (документация требует чистый base64)
+        const base64Image = String(dataUrl).replace(/^data:image\/[a-z]+;base64,/, '');
 
-    if (!res.ok || !json?.success) {
-        console.warn('IMGBB upload failed:', json?.error || json);
+        const taskUUID = generateUUIDv4();
+        console.log('📤 Starting Runware upload:', { taskUUID, base64Length: base64Image.length });
+
+        const requestData = {
+            taskType: 'imageUpload',
+            taskUUID: taskUUID,
+            image: base64Image
+        };
+
+        console.log('📤 Runware request data (preview):', {
+            taskType: requestData.taskType,
+            taskUUID: requestData.taskUUID,
+            imagePreview: requestData.image.substring(0, 50) + '...'
+        });
+
+        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: API требует Массив, а не объект!
+        const requestArray = [requestData];
+
+        console.log('📤 Runware request ARRAY format:', {
+            arrayLength: requestArray.length,
+            firstRequestType: requestArray[0]?.taskType
+        });
+
+        const response = await fetch('https://api.runware.ai/v1/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${key}`
+            },
+            body: JSON.stringify(requestArray) // 🔥 ОТПРАВЛЯЕМ МАССИВ!
+        });
+
+        console.log('📥 Runware response status:', response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Runware upload failed:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText
+            });
+
+            // Разбор ошибки для лучшей диагностики
+            try {
+                const errorJson = JSON.parse(errorText);
+                if (errorJson.errors && errorJson.errors[0]) {
+                    const firstError = errorJson.errors[0];
+                    console.error('❌ Runware API error details:', {
+                        message: firstError.message,
+                        code: firstError.extensions?.code || firstError.code,
+                        type: firstError.type
+                    });
+
+                    // Специальная обработка распространенных ошибок
+                    if (firstError.extensions?.code === 'UNAUTHENTICATED' ||
+                        firstError.message?.includes('API key')) {
+                        console.warn('🔑 Problem with API key - check RUNWARE_API_KEY config');
+                    } else if (firstError.message?.includes('image') ||
+                               firstError.message?.includes('base64')) {
+                        console.warn('🖼️ Problem with image format - check base64 encoding');
+                    }
+                }
+            } catch (parseError) {
+                console.error('❌ Cannot parse error response:', errorText);
+            }
+
+            return null;
+        }
+
+        const result = await response.json();
+        console.log('✅ Runware upload response:', result);
+
+        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: API возвращает массив в data, а не прямой объект
+        if (result.data && Array.isArray(result.data) && result.data[0] && result.data[0].imageUUID) {
+            console.log('✅ Image uploaded to Runware, UUID:', result.data[0].imageUUID);
+            return result.data[0].imageUUID;
+        } else {
+            console.error('❌ Runware response missing imageUUID in array:', result);
+            return null;
+        }
+    } catch (error) {
+        console.error('❌ Runware upload error:', error);
         return null;
     }
-    return json.data.url;
 }
 
-// Загружает все выбранные изображения
+// ===== УДАЛЕН: IMGBB ЗАГРУЗКА - полность заменена на Runware.ai =====
+// Старая функция uploadToImgbb удалена - система теперь использует только Runware UUID
+
+// Загружает все выбранные изображения - НОВАЯ ВЕРСИЯ С Runware В ПРИОРИТЕТЕ
 async function uploadUserImages() {
     const images = userImageState.images;
-    console.log('🚀 Starting uploadUserImages process:', {
+    console.log('🚀 Starting uploadUserImages process with Runware priority:', {
         totalImages: images ? images.length : 0,
-        hasImages: !!images && images.length > 0
+        hasImages: !!images && images.length > 0,
+        runwareKey: !!(CONFIG.RUNWARE_API_KEY && CONFIG.RUNWARE_API_KEY.trim()),
+        imgbbKeyFallback: !!(CONFIG.IMGBB_API_KEY && CONFIG.IMGBB_API_KEY.trim())
     });
 
     if (!images || images.length === 0) {
@@ -2759,13 +2824,14 @@ async function uploadUserImages() {
         return [];
     }
 
-    const urls = [];
+    const uuids = []; // Теперь возвращаем UUID вместо URL
 
-    // Загружаем все изображения параллельно
+    // Загружаем все изображения параллельно с приоритетом RUNWARE
     const uploadPromises = images.map(async (image, index) => {
         console.log(`🎯 Processing image ${index + 1}/${images.length}:`, {
             hasDataUrl: !!image.dataUrl,
-            hasUploadedUrl: !!image.uploadedUrl,
+            hasUploadedUUID: !!image.uploadedUUID,
+            hasUploadedUrl: !!image.uploadedUrl, // legacy fallback
             fileName: image.file?.name || 'unknown'
         });
 
@@ -2774,39 +2840,56 @@ async function uploadUserImages() {
             return null;
         }
 
-        // Если уже загружено, используем существующее
-        if (image.uploadedUrl) {
-            console.log(`✅ Image ${index + 1} already uploaded, using cached URL`);
+        // Если уже загружено UUID (новый формат), используем его
+        if (image.uploadedUUID) {
+            console.log(`✅ Image ${index + 1} already uploaded UUID: ${image.uploadedUUID}`);
+            return image.uploadedUUID;
+        }
+
+        // Если есть legacy URL, используем его как UUID для совместимости
+        if (image.uploadedUrl && typeof image.uploadedUrl === 'string') {
+            console.log(`🔄 Image ${index + 1} using legacy URL as UUID: ${image.uploadedUrl.substring(0, 36)}...`);
+            image.uploadedUUID = image.uploadedUrl; // Конвертируем legacy
             return image.uploadedUrl;
         }
 
         try {
-            console.log(`📤 Starting upload for image ${index + 1}/${images.length}`);
-            const url = await uploadToImgbb(image.dataUrl, CONFIG.IMGBB_API_KEY);
-            console.log(`📥 Upload result for image ${index + 1}:`, url ? 'success' : 'failed');
-            image.uploadedUrl = url || null;
-            return url;
+            // ПРИОРИТЕТ RUNWARE - используем новый API
+            if (CONFIG.RUNWARE_API_KEY && CONFIG.RUNWARE_API_KEY.trim()) {
+                console.log(`📤 [PRIORITY] Uploading image ${index + 1} to Runware...`);
+                const uuid = await uploadToRunware(image.dataUrl, CONFIG.RUNWARE_API_KEY);
+                if (uuid) {
+                    image.uploadedUUID = uuid; // Сохраняем UUID
+                    console.log(`✅ Runware upload success for image ${index + 1}, UUID: ${uuid}`);
+                    return uuid;
+                }
+            }
+
+            console.error(`❌ Runware upload failed for image ${index + 1} - no fallback available`);
+            return null;
+
         } catch (error) {
-            console.error(`❌ Failed to upload image ${index + 1}:`, error);
+            console.error(`❌ Upload entirely failed for image ${index + 1}:`, error);
             return null;
         }
     });
 
     // Ждём загрузки всех изображений
     console.log('⏳ Waiting for all uploads to complete...');
-    const uploadedUrls = await Promise.all(uploadPromises);
+    const uploadedResults = await Promise.all(uploadPromises);
     console.log('✅ All upload promises resolved');
 
     // Фильтруем успешные загрузки
-    const successfulUrls = uploadedUrls.filter(url => url !== null);
-    console.log('🎯 Upload results:', {
+    const successfulResults = uploadedResults.filter(result => result !== null);
+    console.log('🎯 Upload results summary:', {
         total: images.length,
-        successful: successfulUrls.length,
-        failed: images.length - successfulUrls.length,
-        allUrls: successfulUrls
+        successful: successfulResults.length,
+        failed: images.length - successfulResults.length,
+        hasRunwareResults: successfulResults.some(uuid => typeof uuid === 'string' && uuid.length > 10 && !uuid.includes('http')),
+        results: successfulResults.slice(0, 3).map(r => typeof r === 'string' ? r.substring(0, 20) + '...' : r)
     });
 
-    return successfulUrls;
+    return successfulResults;
 }
 
 // 📱 Telegram WebApp Integration
@@ -3153,7 +3236,7 @@ async function generateImage(event) {
     const generation = {
         id: Date.now(),
         taskUUID: taskUUID,
-        imageUUIDs: userImageState.images.map(img => img.imageUUID).filter(uuid => uuid),
+        imageUUIDs: userImageState.images.map(img => img.uploadedUUID).filter(uuid => uuid),
         prompt: prompt,
         style: appState.selectedStyle,
         mode: mode,
@@ -3169,26 +3252,8 @@ async function generateImage(event) {
         // Тост уже убрали - не показываем
     }, 100);
 
-    // 1) Если выбрано пользовательское изображение — загрузим все на imgbb
-    let userImageUrls = [];
-    try {
-        userImageUrls = await uploadUserImages();
-        console.log('📤 Uploaded user images:', userImageUrls.length, 'URLs:', userImageUrls);
-    } catch (err) {
-        console.warn('User images upload failed:', err);
-        const errorEl = document.getElementById('userImageError');
-        if (errorEl && !errorEl.textContent) {
-            errorEl.textContent = 'Не удалось загрузить изображения. Сгенерируем без них.';
-        }
-    }
-
-    // Добавляем ссылки на изображения к генерации
-    if (userImageUrls.length > 0) {
-        generation.userImageUrls = userImageUrls;
-    }
-
     // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session без изображения ===
-    if (mode === 'photo_session' && userImageUrls.length === 0) {
+    if (mode === 'photo_session' && !userImageState.images.length === 0) {
         // Останавливаем немедленную генерацию и показываем предупреждение
         const shouldContinue = await showWarningAboutNoImage();
         if (!shouldContinue) {
@@ -3202,19 +3267,78 @@ async function generateImage(event) {
 
     startTimer();
 
-        // Добавляем генерацию в очередь менеджера
-    const added = generationManager.addGeneration(generation);
-    if (!added) {
-        console.log('⏳ Generation added to queue');
-        // НЕ показываем тост "в очереди" - пользователь может быть в сомнении
-    } else {
-        console.log('🚀 Generation started immediately');
-        // НЕ показываем тост "начата" - будет показан только результат или ошибка
-    }
+    // 🔥 КРИТИЧЕСКОЕ ОБНОВЛЕНИЕ ПОСЛЕДОВАТЕЛЬНОСТИ:
+    // 1) Сначала загружаем изображения (если есть)
+    // 2) Только ПРИ УСПЕХЕ изображения добавляем генерацию в менеджер
 
-    // Добавляем в историю сразу
-    appState.generationHistory.unshift(generation);
-    appState.saveHistory();
+    const imageUploadSuccess = await (async () => {
+        // 1) Если выбрано пользовательское изображение — загрузим все на Runware как PRIORITY
+        if (userImageState.images.length > 0) {
+            try {
+                console.log('🚀 Starting Runware image upload process with priority + fallback');
+
+                // Используем обновленную функцию uploadUserImages (теперь с приоритетом Runware)
+                const imageIds = await uploadUserImages(); // Возвращает UUID или URL legacy
+
+                if (imageIds && imageIds.length > 0) {
+                    // Всегда сохраняем в imageUUIDs - это теперь основной формат
+                    generation.imageUUIDs = imageIds;
+                    console.log('✅ Image upload successful, UUIDs ready for webhook:', imageIds.length, 'images');
+
+                    // Определяем тип загруженных данных для логирования
+                    const hasRunwareUUIDs = imageIds.some(uuid => typeof uuid === 'string' && uuid.length === 36 && uuid.includes('-'));
+                    const hasLegacyURLs = imageIds.some(url => typeof url === 'string' && url.includes('http'));
+
+                    if (hasRunwareUUIDs) {
+                        console.log('🎯 Using Runware UUIDs (modern format)');
+                    } else if (hasLegacyURLs) {
+                        console.log('⚠️ Using legacy imgbb URLs (fallback mode)');
+                        // Для совместимости сохраняем в старом поле тоже
+                        generation.userImageUrls = imageIds;
+                    }
+
+                    return true; // 🔒 УСПЕШНАЯ ЗАГРУЗКА
+                } else {
+                    console.warn('⚠️ No images uploaded successfully');
+                    return false;
+                }
+            } catch (err) {
+                console.warn('❌ User images upload completely failed:', err);
+                const errorEl = document.getElementById('userImageError');
+                if (errorEl && !errorEl.textContent) {
+                    errorEl.textContent = 'Не удалось загрузить изображения. Продолжим без них.';
+                }
+                return false; // 🔒 НЕУДАЧНАЯ ЗАГРУЗКА
+            }
+        } else {
+            console.log('📷 No user images selected, proceeding with text-to-image');
+            return true; // 🔒 НЕТ ИЗОБРАЖЕНИЙ - ОК
+        }
+    })();
+
+    // 2) Добавляем генерацию ТОЛЬКО если изображения загружены успешно (или если изображений нет вообще)
+    if (imageUploadSuccess) {
+        console.log('🚀 Proceeding with generation after successful image upload');
+
+        // Добавляем в очередь процессора генерации
+        const added = generationManager.addGeneration(generation);
+        if (!added) {
+            console.log('⏳ Generation added to queue');
+            // НЕ показываем тост "в очереди" - пользователь может быть в сомнении
+        } else {
+            console.log('🚀 Generation started immediately');
+            // НЕ показываем тост "начата" - будет показан только результат или ошибка
+        }
+
+        // Добавляем в историю сразу
+        appState.generationHistory.unshift(generation);
+        appState.saveHistory();
+    } else {
+        console.error('❌ Image upload failed - generation cancelled');
+        showToast('error', 'Image upload failed. Generation cancelled.');
+        stopTimer();
+        showGeneration();
+    }
 }
 // 🌐 Webhook Communication
 async function sendToWebhook(data) {

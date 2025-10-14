@@ -148,8 +148,54 @@ class GenerationManager {
                 timestamp: generation.timestamp || new Date().toISOString(),
                 generation_id: generation.id,
                 taskUUID: generation.taskUUID,
-                imageUUIDs: generation.imageUUIDs || []
+                // 🔥 ДОБАВИЛИ: УМНАЯ ОБРАБОТКА UUID - одиночное или массив "uuid1","uuid2" для бэкенда
+                ...(generation.imageUUIDs?.length === 1
+                    ? { imageUUID: generation.imageUUIDs[0] }  // единичное изображение - одиночный ключ
+                    : generation.imageUUIDs?.length > 1
+                        ? { imageUUIDs: generation.imageUUIDs }  // уже массив UUID - сохраняем как есть для бэка
+                        : {})  // или пустой объект если нет изображений
             };
+
+            // 🔥 НЕОБХОДИМОЕ ДОПОЛНЕНИЕ: Результаты будут приходить не напрямую, а через вебхук от Runware с UUID
+            // Функция обработки результата генерации - будет вызвана из app_modern.js через setTimeout или другой механизм
+            const processResult = async (result, gen) => {
+                console.log('🎯 START: Processing result for generation:', gen.id, new Date().toISOString());
+
+                // Сохраняем результат в генерации
+                gen.result = result.image_url;
+                gen.status = 'success';
+
+                // Обновляем баланс если возвращается в ответе
+                if (result.remaining_credits !== undefined && window.updateUserBalance) {
+                    window.updateUserBalance(result.remaining_credits);
+                }
+
+                // Сохраняем стоимость в объекте генерации
+                if (result.generation_cost !== undefined) {
+                    gen.generation_cost = result.generation_cost;
+                    gen.cost_currency = result.cost_currency || 'Cr';
+                }
+
+                // Обновляем миниатюру в истории
+                if (window.updateHistoryItemWithImage) {
+                    window.updateHistoryItemWithImage(gen.id, result.image_url);
+                }
+
+                // Показываем результат
+                if (window.appState) {
+                    window.appState.currentGeneration = gen;
+                }
+
+                // Показываем превью уведомление
+                if (window.showResultToast) {
+                    window.showResultToast({ image_url: result.image_url });
+                }
+
+                generationManager.completeGeneration(gen.id, result.image_url);
+            };
+
+            // Экспортируем функцию в window для доступа из app_modern.js
+            window.processGenerationResult = processResult;
 
             // Добавляем ссылки на пользовательские изображения если есть
             console.log('🎯 Checking userImageUrls:', {
