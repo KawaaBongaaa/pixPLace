@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=block" rel="stylesheet">
     <script>
-        // Temporary dummy functions to prevent errors until app_modern.js loads
+        // Глобальные переменные для совместимости (будут заменены позже)
         window.showToast = (type, message) => console.log(`Toast (${type}): ${message}`);
         window.appState = { translate: (key) => key };
 
@@ -289,8 +289,7 @@
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                         </svg>
                     </button>
-                    <!-- user-menu 
-                     <div class="user-menu-wrapper">
+                    <div class="user-menu-wrapper">
                         <button class="control-btn" id="userMenuBtn" title="Personal Account">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="8" r="5" />
@@ -328,7 +327,7 @@
                                 </button>
                             </div>
                         </div>
-                    </div>-->
+                    </div>
                 </div>
             </div>
         </header>
@@ -825,7 +824,7 @@
             </nav>
         </div>
     </footer>
-    <script src="ai-coach.js"></script>
+    <script type="module" src="ai-coach.js"></script>
     <script type="module" src="user-account.js"></script>
     <script type="module" src="app_modern.js"></script>
     <script src="parallel-generation.js"></script>

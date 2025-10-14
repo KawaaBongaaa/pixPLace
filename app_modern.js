@@ -15,6 +15,19 @@ import { th } from './dictionaries/th.js';
 import { tr } from './dictionaries/tr.js';
 import { pl } from './dictionaries/pl.js';
 import { initUserAccount as initUserAccountFromModule } from './user-account.js';
+import {
+    showScreen,
+    showApp,
+    showResult,
+    displayFullResult,
+    showResultToast,
+    removeResultToast,
+    showProcessing
+} from './screen-manager.js';
+import { updateUserNameDisplay, updateUserBalanceDisplay, showSubscriptionNotice, showWarningAboutNoImage, toggleModeDetails, showHistory } from './navigation-manager.js';
+import { startSnowfall, readFileAsDataURL, maybeCompressImage } from './utils.js';
+import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
+import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem } from './history-manager.js';
 
 
 // 🚀 Modern AI Image Generator WebApp
@@ -40,28 +53,19 @@ const CONFIG = {
 
 // 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
 window.CONFIG = CONFIG;
-// 🔧 Device detection helpers
-function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
-function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent);
-}
-
-function isAndroid() {
-    return /Android/i.test(navigator.userAgent);
-}
-
-function isTablet() {
-    return /iPad|Android(?=.*\bMobile\b)|Tablet/i.test(navigator.userAgent) || isAndroid();
-}
-
-function supportsShare() {
-    return navigator.share && navigator.canShare;
-}
 
 // 🔧 Utility Functions
+function sanitizeJsonString(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/\\/g, '\\\\')
+             .replace(/"/g, '\\"')
+             .replace(/\n/g, '\\n')
+             .replace(/\r/g, '\\r')
+             .replace(/\t/g, '\\t')
+             .replace(/\f/g, '\\f')
+             .replace(/\b/g, '\\b');
+}
+
 function generateUUIDv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random() * 16 | 0;
@@ -84,7 +88,6 @@ const TRANSLATIONS = {
     ja,
     it,
     ko,
-
     tr,
     pl,
     vi,
@@ -106,7 +109,7 @@ class AppState {
         this.timerInterval = null;
         // Добавлено отображение баланса пользователя
         this.userCredits = null; // текущий баланс кредитов
-        this.lastBalanceUpdate = null; // время последнего обновления баланса
+        this.lastBalance = null; // время последнего обновления баланса
         this.balanceHistory = []; // история изменений баланса: [{balance, timestamp, reason}]
     }
 
@@ -240,6 +243,8 @@ const appState = new AppState();
 
 // Экспортируем appState в window для доступа из параллельной генерации
 window.appState = appState;
+
+
 
 // ⚡ Ultra-Fast Global Image Loading Manager - Max Performance
 class GlobalHistoryLoader {
@@ -523,6 +528,27 @@ class GlobalHistoryLoader {
             console.log(`🧹 Enhanced Mass cleanup: ${cleanupCount} elements removed, ${maxObserversExceeded} observers trimmed (max: ${MAX_ACTIVE_OBSERVERS})`);
         }
     }
+
+    // 🔧 ДОБАВЛЕНИЕ: Метод для полного уничтожения и очистки всех ресурсов
+    destroy() {
+        // Отключаем IntersectionObserver
+        if (this.imageObserver) {
+            this.imageObserver.disconnect();
+            console.log('🎯 IntersectionObserver disconnected');
+        }
+
+        // Очищаем все наблюдаемые изображения
+        for (const [img] of this.observedImages) {
+            this.safeUnobserve(img);
+        }
+
+        this.observedImages.clear();
+        this.loadingQueue.clear();
+        this.pendingQueue = [];
+        this.logout = true;
+
+        console.log('🧹 GlobalHistoryLoader fully destroyed');
+    }
 }
 
 // Global instance
@@ -710,91 +736,24 @@ function showStatus(type, message) {
     }
 }
 
-function showToast(type, message, options = {}) {
-    const container = document.getElementById('toastContainer');
-    if (!container) {
-        console.error('⚠️ Toast container not found - creating fallback toast');
-        // Emergency fallback toast without container
-        setTimeout(() => alert(message), 100);
-        return;
-    }
+// showToast функция теперь импортируется из screen-manager.js
 
-    // Определяем иконку в зависимости от типа
-    const iconMap = {
-        'error': '❌',
-        'warning': '⚠️',
-        'success': '✅',
-        'info': 'ℹ️',
-        'light': '💡'
-    };
+    // Экспортируем другие функции для параллельной генерации
+    window.showResult = showResult;
+    window.showResultToast = showResultToast;
+    window.sendToWebhook = sendToWebhook;
 
-    const icon = iconMap[type] || '📝';
+    // Удаляем дубликаты функций, которые теперь в history-manager.js
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    // Специальная обработка для тоста генерации - нижняя позиция
-    const isGenerationToast = message.includes('Генерация запущена') || message.includes('Generation started');
-    if (isGenerationToast) {
-        toast.style.position = 'fixed';
-        toast.style.bottom = '20px';
-        toast.style.right = '20px';
-        toast.style.left = '20px'; // Растягиваем по ширине снизу
-        toast.style.width = 'auto';
-        toast.style.maxWidth = '400px';
-        toast.style.margin = '0 auto';
-        toast.style.zIndex = '10000';
-    }
-
-    // Добавляем иконку и animarker для progress бара
-    toast.innerHTML = `
-        <div class="toast-content">
-            <span class="toast-icon">${icon}</span>
-            <span class="toast-message">${message}</span>
-        </div>
-        <div class="toast-progress">
-            <div class="toast-progress-bar"></div>
-        </div>
-    `;
-
-    container.appendChild(toast);
-
-    // Trigger animation
-    setTimeout(() => {
-        toast.classList.add('show');
-        // Запускаем progress бар анимацию
-        const progressBar = toast.querySelector('.toast-progress-bar');
-        if (progressBar) {
-            progressBar.style.animation = 'toast-progress 5s linear forwards';
-        }
-    }, 100);
-
-    // Remove after delay (increased for longer error messages, extra long for server overload)
-    let displayTime;
-    if (type === 'success') {
-        displayTime = 1500; // 1.5 секунды для успешных
-    } else if (message.includes('перегружены') || message.includes('overloaded')) {
-        displayTime = 5000; // 8 секунд для перегруженности сервера (длинный текст)
-    } else if (type === 'error') {
-        displayTime = 3000; // 4 секунды для других ошибок
-    } else {
-        displayTime = 1500; // 3 секунды для остальных типов
-    }
-
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => container.removeChild(toast), 300);
-    }, displayTime);
-}
-
-// Экспортируем showToast в window для доступа из параллельной генерации
-window.showToast = showToast;
-
-// Экспортируем другие функции для параллельной генерации
-window.showResult = showResult;
-window.showResultToast = showResultToast;
-window.sendToWebhook = sendToWebhook;
-window.updateHistoryItemWithImage = updateHistoryItemWithImage;
+    // Проверяем импортированные функции на доступность
+console.log('🔧 Checking imported functions availability:');
+console.log('- showWarningAboutNoImage:', typeof showWarningAboutNoImage);
+console.log('- showScreen, showApp, showResult, displayFullResult:', typeof showScreen, typeof showApp, typeof showResult, typeof displayFullResult);
+console.log('- updateUserNameDisplay, updateUserBalanceDisplay:', typeof updateUserNameDisplay, typeof updateUserBalanceDisplay);
+console.log('- startSnowfall, readFileAsDataURL, maybeCompressImage:', typeof startSnowfall, typeof readFileAsDataURL, typeof maybeCompressImage);
+console.log('- updateHistoryItemWithImage:', typeof updateHistoryItemWithImage);
+console.log('- createLoadingHistoryItem:', typeof createLoadingHistoryItem);
+console.log('- viewHistoryItem:', typeof viewHistoryItem);
 
 function triggerHaptic(type) {
     if (appState.tg?.HapticFeedback) {
@@ -820,22 +779,6 @@ function triggerHaptic(type) {
 
 
 // 📊 Processing Animation
-function updateProcessingSteps(activeStep) {
-    document.querySelectorAll('.step').forEach((step, index) => {
-        if (index + 1 <= activeStep) {
-            step.classList.add('active');
-        } else {
-            step.classList.remove('active');
-        }
-    });
-
-    // Update progress circle
-    const progressCircle = document.querySelector('.progress-circle');
-    if (progressCircle) {
-        const progress = (activeStep / 3) * 283; // 283 is circumference
-        progressCircle.style.strokeDashoffset = 283 - progress;
-    }
-}
 function updateProgressBar(elapsed) {
     const progressBar = document.querySelector('.progress-bar');
     const progressFill = document.querySelector('.progress-fill');
@@ -878,544 +821,21 @@ function stopTimer() {
     }
 }
 
-// 📋 History Management
+// 📋 History Management moved to history-manager.js
 
-function showBackButton(show) {
-    const body = document.body;
-    if (show) {
-        body.classList.add('show-back');
-    } else {
-        body.classList.remove('show-back');
-    }
-}
-
-// Add to global scope for ai-coach.js
-window.showBackButton = showBackButton;
-
-function toggleHistoryList() {
-    const list = document.getElementById('historyList');
-    const btn = document.getElementById('historyToggleBtn');
-    if (list.classList.contains('hidden')) {
-        list.classList.remove('hidden');
-        btn.classList.add('active');
-        updateHistoryDisplay();
-
-        // Дополнительная быстрая прокрутка к последнему (нижнему) изображению после открытия истории
-        setTimeout(async () => {
-            await scrollToBottomImage();
-        }, 150);
-    } else {
-        list.classList.add('hidden');
-        btn.classList.remove('active');
-    }
-}
-
-function updateHistoryDisplay(page = 0) {
-    const historyList = document.getElementById('historyList');
-    if (!historyList) return;
-
-    const validItems = HistoryManager.getValidItemsOnly();
-    if (validItems.length === 0) {
-        historyList.innerHTML = `
-    <div class="empty-history">
-    <div class="empty-icon">📋</div>
-    <h3 data-i18n="empty_history_title">${appState.translate('empty_history_title')}</h3>
-    <p data-i18n="empty_history_subtitle">${appState.translate('empty_history_subtitle')}</p>
-    </div>
-    `;
-        return;
-    }
-
-    // Если это первая страница - очищаем список
-    if (page === 0) {
-        historyList.innerHTML = '';
-        HistoryManager.clearCache();
-        console.log('📋 Cleared history list for fresh display');
-    }
-
-    // 🔥 НОВОЕ: Изменен лимит для показа только 6 изображений при первом заходе
-    const itemsPerPage = page === 0 ? 6 : 15; // первый раз ТОЛЬКО 6 изображений, потом 15
-
-    // Загружаем элементы страницы
-    if (HistoryManager.isLoadingPage) {
-        console.log('⚡ Page already loading, skipping...');
-        return;
-    }
-
-    HistoryManager.isLoadingPage = true;
-
-    // 🔥 НОВОЕ: Для первой страницы ограничиваем до 6 элементов (независимо от размера страницы)
-    const pageItems = page === 0
-        ? validItems.slice(0, 6)  // первые 6 элементов для первой страницы
-        : HistoryManager.getItemsForPage(page);
-
-    if (pageItems.length > 0) {
-        console.log(`📄 Loading page ${page} with ${pageItems.length} items`);
-
-        // Добавляем элементы страницы
-        pageItems.forEach(item => {
-            const element = HistoryManager.createHistoryItemElement(item);
-            if (element) {
-                historyList.appendChild(element);
-                // 🔧 ДОБАВЛЕНИЕ: Используем eager loading для первых 6 изображений
-                if (page === 0 && validItems.length <= globalHistoryLoader.eagerLoadingLimit) {
-                    // Для маленьких списков (до 25 изображений) - eager loading всех изображений на первой странице
-                    globalHistoryLoader.loadEagerForElement(element);
-                } else {
-                    // Для больших списков или последующих страниц - ленивая загрузка
-                    const img = element.querySelector('img[data-src]');
-                    if (img) globalHistoryLoader.observe(img);
-                }
-            }
-        });
-
-        HistoryManager.maxLoadedPage = page;
-        HistoryManager.currentPage = page;
-
-        // Управляем кнопкой загрузки следующей страницы
-        const existingBtn = document.getElementById('loadMoreHistoryBtn');
-
-        // Проверяем, есть ли еще элементы после текущей страницы
-        const currentEndIndex = (page + 1) * itemsPerPage;
-        const hasMoreItems = currentEndIndex < validItems.length;
-        console.log('🧮 History pagination:', { page, itemsPerPage, currentEndIndex, validItemsLength: validItems.length, hasMoreItems });
-
-        if (hasMoreItems) {
-            if (existingBtn) {
-                // Если кнопка уже существует - переносим её в конец списка
-                historyList.appendChild(existingBtn);
-            } else {
-                // Создаём новую кнопку
-                const loadMoreBtn = document.createElement('button');
-                loadMoreBtn.className = 'load-more-btn';
-                loadMoreBtn.id = 'loadMoreHistoryBtn';
-                // Добавляем иконку стрелки вниз
-                loadMoreBtn.innerHTML = `
-                    <span>Загрузить ещё...</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="btn-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                    <span class="btn-ripple"></span>
-                `;
-
-                // Исправляем обработчик: только загрузка истории, без генерации
-                loadMoreBtn.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    loadNextHistoryPage();
-                };
-
-                historyList.appendChild(loadMoreBtn);
-            }
-        } else {
-            // Удаляем кнопку если достигли конца истории
-            if (existingBtn) {
-                existingBtn.remove();
-            }
-        }
-    }
-
-    HistoryManager.isLoadingPage = false;
-    console.log(`📄 History display updated: showing ${pageItems.length} items from page ${page}`);
-}
-
-// Функция для загрузки следующей страницы истории
-function loadNextHistoryPage() {
-    const nextPage = HistoryManager.currentPage + 1;
-    if (!HistoryManager.hasMorePages(HistoryManager.currentPage)) {
-        console.log('📄 No more pages to load');
-        return;
-    }
-
-    console.log(`📄 Loading next history page: ${nextPage}`);
-    updateHistoryDisplay(nextPage);
-
-    // Обновляем текст кнопки загрузки
-    setTimeout(() => {
-        const btn = document.getElementById('loadMoreHistoryBtn');
-        if (btn) {
-            if (!HistoryManager.hasMorePages(nextPage)) {
-                btn.textContent = 'Все загружено! 🎉';
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-            } else {
-                btn.textContent = 'Загрузить ещё...';
-                btn.disabled = false;
-            }
-            // Прокрутка к новой кнопке для активации загрузки изображений
-            btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }, 300);
-}
-
-// Функция для показа всей истории без виртуализации (для совместимости)
-function showAllHistory() {
-    const historyList = document.getElementById('historyList');
-    if (!historyList) return;
-
-    // Отключаем виртуализацию для полного показа
-    HistoryManager.clearCache();
-
-    // Показываем все элементы
-    historyList.innerHTML = HistoryManager.getValidItemsOnly().map(item => {
-        const element = HistoryManager.createHistoryItemElement(item);
-        return element.outerHTML;
-    }).join('');
-
-    // Подключаем Observer ко всем новым картинкам
-    const newImages = historyList.querySelectorAll('img[data-src]');
-    newImages.forEach(img => globalHistoryLoader.observe(img));
-
-    console.log('📄 All history loaded without virtualization');
-}
-
-function viewHistoryItem(id) {
-    const item = appState.generationHistory.find(h => h.id == id);
-    if (item && item.result) {
-        appState.currentGeneration = item;
-        showResult({ image_url: item.result });
-    }
-}
-
-function showHistory() {
-    toggleHistoryList();
-}
-
-window.toggleHistoryList = toggleHistoryList;
-
-// Функция для полного экрана истории
-function updateHistoryDisplayFullScreen() {
-    const historyContent = document.getElementById('historyContent');
-    if (!historyContent) return;
-
-    if (appState.generationHistory.length === 0) {
-        historyContent.innerHTML = `
-    <div class="empty-history">
-    <div class="empty-icon">📋</div>
-    <h3 data-i18n="empty_history_title">${appState.translate('empty_history_title')}</h3>
-    <p data-i18n="empty_history_subtitle">${appState.translate('empty_history_subtitle')}</p>
-    </div>
-    `;
-        return;
-    }
-
-    historyContent.innerHTML = appState.generationHistory.map(item => `
-    <div class="history-item" onclick="viewHistoryItem('${item.id}')">
-    <div class="history-header">
-    <span class="history-date">${new Date(item.timestamp).toLocaleString()}</span>
-    <span class="history-status ${item.status}">${getStatusText(item.status)}</span>
-    </div>
-    <div class="history-prompt">${item.prompt}</div>
-    <div class="history-details">
-    <span class="info-pair">
-    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFF"><path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z"/></svg>
-    ${appState.translate('style_' + item.style)}
-    </span>
-    <span class="info-pair">
-    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFF"><path d="M240-40v-329L110-580l185-300h370l185 300-130 211v329l-240-80-240 80Zm80-111 160-53 160 53v-129H320v129Zm20-649L204-580l136 220h280l136-220-136-220H340Zm98 383L296-558l57-57 85 85 169-170 57 56-226 227ZM320-280h320-320Z"/></svg>
-    ${appState.translate('mode_' + item.mode)}
-    </span>
-    ${item.duration ? `<span> ⏱ ${Math.round(item.duration / 1000)}s</span>` : ''}
-    </div>
-    ${item.result ? `<img src="${item.result}" alt="Generated" class="history-image" loading="lazy" />` : ''}
-    ${item.error ? `<p style="color: var(--error-500); font-size: var(--font-size-sm); margin-top: var(--space-2);">❌ ${item.error}</p>` : ''}
-    </div>
-    `).join('');
-    showBackButton(true); // показать
-
-}
-
-
-function clearHistory() {
-    if (confirm('Clear all generation history?')) {
-        appState.generationHistory = [];
-        appState.saveHistory();
-        updateHistoryDisplay();
-        triggerHaptic('medium');
-    }
-}
-
-// Функция плавной прокрутки к истории и открытия списка
-async function showHistoryWithScroll() {
-    const historyBtn = document.getElementById('historyToggleBtn');
-    const historyList = document.getElementById('historyList');
-
-    if (historyBtn) {
-        // Плавная прокрутка к кнопке истории - центрируем её
-        historyBtn.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'nearest'
-        });
-    }
-
-    // Подождем завершения прокрутки
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    // Автоматически открываем список истории если он закрыт
-    if (historyList && historyList.classList.contains('hidden')) {
-        const btn = document.getElementById('historyToggleBtn');
-        historyList.classList.remove('hidden');
-        btn.classList.add('active');
-        updateHistoryDisplay();
-
-        // Ждем пока DOM обновится после открытия
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-
-    // Дополнительная прокрутка к крайнему (новому) изображению после открытия истории
-    await scrollToLatestImage();
-}
-
-// Функция быстрой прокрутки к крайнему (новому) изображению в истории
-async function scrollToLatestImage() {
-    const historyList = document.getElementById('historyList');
-    if (!historyList) return;
-
-    // Убираем излишнюю задержку - она только замедляет
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    // Ищем первый элемент истории (это будет крайнее/новое изображение)
-    const firstHistoryItem = historyList.querySelector('.history-mini');
-    if (firstHistoryItem) {
-        // Убираем спам логирования - логируем только в 5% случаев
-        if (Math.random() < 0.05) {
-            console.log('🚀 Быстрая прокрутка к крайнему изображению');
-        }
-
-        // Быстрая прокрутка без плавности для мгновенного показа
-        firstHistoryItem.scrollIntoView({
-            behavior: 'instant', // 'instant' для быстрой прокрутки
-            block: 'start', // scroll to top of the element instead of center
-            inline: 'nearest'
-        });
-
-        // Убираем анимацию и подсветку - они бесполезны и замедляют
-        if (Math.random() < 0.05) {
-            console.log('✅ Прокрутка к крайнему изображению завершена');
-        }
-    } else {
-        // Убираем спам логирования
-        if (Math.random() < 0.01) {
-            console.warn('⚠️ Не найдено крайнее изображение для прокрутки');
-        }
-    }
-}
-
-// Функция быстрой прокрутки к последнему (нижнему) изображению в истории
-async function scrollToBottomImage() {
-    const historyList = document.getElementById('historyList');
-    if (!historyList) return;
-
-    // Убираем задержку - она замедляет
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    // Ищем все элементы истории
-    const historyItems = historyList.querySelectorAll('.history-mini');
-    if (historyItems.length > 0) {
-        // Берем последний элемент (самое нижнее изображение)
-        const lastHistoryItem = historyItems[historyItems.length - 1];
-
-        // Убираем спам логирования
-        if (Math.random() < 0.05) {
-            console.log('🚀 Быстрая прокрутка к последнему изображению');
-        }
-
-        // Быстрая прокрутка без плавности для мгновенного показа
-        lastHistoryItem.scrollIntoView({
-            behavior: 'instant', // 'instant' для быстрой прокрутки
-            block: 'center',
-            inline: 'nearest'
-        });
-
-        // Убираем анимацию и подсветку - они бесполезны
-        if (Math.random() < 0.05) {
-            console.log('✅ Прокрутка к последнему изображению завершена');
-        }
-    } else {
-        // Убираем спам логирования
-        if (Math.random() < 0.01) {
-            console.warn('⚠️ Не найдены элементы истории для прокрутки');
-        }
-    }
-}
-
-// Функция для создания placeholder'а загрузки в истории
-function createLoadingHistoryItem(generation) {
-    const historyList = document.getElementById('historyList');
-    if (!historyList) return;
-
-    // ☠️ ЗАЩИТА ОТ ДУБЛИКАТОВ: Проверяем, нет ли уже элемента для этой генерации
-    const existingLoading = document.getElementById(`loading-${generation.id}`);
-    if (existingLoading) {
-        console.log(`🚫 Loading item for generation ${generation.id} already exists, skipping creation`);
-        return existingLoading; // возвращаем существующий элемент
-    }
-
-    // Создаём элемент нового изображения в истории
-    const loadingItem = document.createElement('div');
-    loadingItem.className = 'history-mini history-loading';
-    loadingItem.id = `loading-${generation.id}`;
-    // Добавляем onclick сразу
-    loadingItem.onclick = () => console.log('Loading item clicked, but still processing...');
-
-    // Создаём полупрозрачное изображение для анимации загрузки (без src - только placeholder)
-    const loadingImage = document.createElement('img');
-    loadingImage.className = 'loading-image-placeholder';
-    // убираем src чтобы не было иконки
-    loadingImage.alt = 'Generating...';
-
-    // Добавляем анимацию пульсации
-    loadingImage.style.animation = 'image-loading 2s infinite';
-
-    // Создаём подпись для широких экранов - будем заполнять при готовности
-    const loadingCaption = document.createElement('p');
-    loadingCaption.classList.add('history-caption');
-    loadingCaption.innerHTML = ` `; // Пусто, заполним позднее
-
-    // Собираем элемент
-    loadingItem.appendChild(loadingImage);
-    loadingItem.appendChild(loadingCaption);
-
-    // Вставляем новый элемент в начало списка
-    const firstHistoryItem = historyList.querySelector('.history-mini');
-    if (firstHistoryItem) {
-        historyList.insertBefore(loadingItem, firstHistoryItem);
-    } else {
-        historyList.appendChild(loadingItem);
-    }
-
-    console.log(`➕ Created loading item for generation ${generation.id}`);
-    return loadingItem;
-}
-
-// Функция для обновления миниатюры после получения результата
-function updateHistoryItemWithImage(generationId, imageUrl) {
-    const loadingItem = document.getElementById(`loading-${generationId}`);
-    if (!loadingItem) return;
-
-    // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: МЕНЯЕМ ID ЭЛЕМЕНТА ДЛЯ ПРЕДОТВРАЩЕНИЯ ДУБЛИКАТОВ
-    loadingItem.id = `history-${generationId}`;
-    console.log(`🔧 Changed loading item ID from loading-${generationId} to history-${generationId}`);
-    console.log('🎯 == GEN COMPLETE UPDATE == loading images, UUIDs will be used in Runware');
-
-    // Снимаем анимацию пульсации и обновляем изображение
-    const loadingImage = loadingItem.querySelector('.loading-image-placeholder');
-    if (loadingImage) {
-        // Убираем анимацию
-        loadingImage.style.animation = 'none';
-
-        // Функция для завершения загрузки
-        const finalizeLoading = () => {
-            // Изображение загружено - добавляем класс 'loaded'
-            loadingImage.classList.add('loaded');
-            // Убираем data-src, чтобы Intersection Observer перестал наблюдать
-            delete loadingImage.dataset.src;
-            // Уведомляем GlobalHistoryLoader об окончании загрузки
-            if (globalHistoryLoader) {
-                globalHistoryLoader.safeUnobserve(loadingImage);
-            }
-            console.log('✅ History image finalized successfully:', generationId);
-        };
-
-        // ⚡ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: НЕМЕДЛЕННАЯ ЗАГРУЗКА ДЛЯ ИСПРАВЛЕНИЯ ПРОБЛЕМЫ "COMPLETE"
-        // Представим ситуацию: мы нажимаем generate -> создается loading item -> через секунды генерация завершается -> вызывается updateHistoryItemWithImage
-        // БЕЗ ЭТОГО ИСПРАВЛЕНИЯ: изображение просто устанавливается в data-src и ждет IntersectionObserver
-        // ПРОБЛЕМА: если элемент уже в зоне видимости (что обычно), IntersectionObserver не вызовет handleIntersection потому что элемент уже наблюдается!
-        // Так что для уже видимых элементов - IntersectionObserver не активируется и загрузка НЕ ПРОИСХОДИТ
-
-        console.log('🚀 Loading image immediately for COMPLETE update:', generationId);
-
-        // Таймер безопасности - через 5 секунд гарантировано завершить загрузку
-        const safetyTimer = setTimeout(() => {
-            console.log('⏰ Safety timer triggered - completing:', generationId);
-            // Финализация загрузки
-            loadingImage.classList.add('loaded');
-            delete loadingImage.dataset.src;
-            if (globalHistoryLoader) {
-                globalHistoryLoader.safeUnobserve(loadingImage);
-            }
-            console.log('✅ History image finalized successfully:', generationId);
-        }, 5000);
-
-        // Обработчики загрузки
-        loadingImage.onload = () => {
-            clearTimeout(safetyTimer);
-            finalizeLoading();
-            console.log('✅ History image loaded via onload:', generationId);
-        };
-
-        loadingImage.onerror = () => {
-            clearTimeout(safetyTimer);
-            // При ошибке загрузки - placeholder
-            loadingImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbGw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+';
-            finalizeLoading();
-            console.log('❌ History image load failed:', generationId);
-        };
-
-        // 🔥 НЕМЕДЛЕННАЯ УСТАНОВКА SRC ДЛЯ ЗАГРУЗКИ
-        loadingImage.src = imageUrl;
-
-        // ⚡️ ДОПОЛНИТЕЛЬНО: Действительно отправляем в IntersectionObserver на случай изменений видимости
-        loadingImage.dataset.src = imageUrl; // Сохраняем оригинальную логику
-        if (globalHistoryLoader) {
-            globalHistoryLoader.observe(loadingImage);
-            console.log('👁️ Also observing for visibility changes:', generationId);
-        }
-
-        loadingImage.alt = 'Generated image';
-
-        // Добавляем эффект плавного появления
-        loadingImage.style.opacity = '0';
-        requestAnimationFrame(() => {
-            loadingImage.style.opacity = '1';
-            loadingImage.style.transition = 'opacity 0.3s ease-in-out';
-        });
-    }
-
-    // Обновляем подпись - показываем завершение генерации
-    const loadingCaption = loadingItem.querySelector('p');
-    if (loadingCaption) {
-        // Найдем объект генерации по ID
-        const generation = appState.generationHistory.find(g => g.id == generationId);
-        const mode = generation ? generation.mode : 'unknown';
-        const style = generation ? generation.style : 'realistic';
-
-        loadingCaption.innerHTML = `
-    <span class="complete-status">✅ Complete</span><br>
-    <small class="history-date">${new Date().toLocaleDateString()} | ${appState.translate('style_' + style)} | ${appState.translate('mode_' + mode)}</small>
-`;
-
-        // Добавляем мягкую анимацию изменения текста
-        loadingCaption.style.opacity = '0';
-        requestAnimationFrame(() => {
-            loadingCaption.style.opacity = '1';
-            loadingCaption.style.transition = 'opacity 0.2s ease-in-out';
-        });
-    }
-
-    // Убираем loading класс через некоторое время для smooth эффекта
-    setTimeout(() => {
-        loadingItem.classList.remove('history-loading');
-    }, 300);
-
-    // Добавляем onclick для просмотра результата
-    loadingItem.onclick = () => viewHistoryItem(generationId);
-
-    console.log('🖼️ Updated history item with generated image:', generationId, imageUrl);
-}
+// And all history-related functions moved to history-manager.js module
 
 // 🖼️ UI Initialization
 // 🎬 Screen Management with cleanup
 let carouselCleanup = null;
 
-function showLoadingScreen() {
+const showLoadingScreen = () => {
     document.getElementById('loadingScreen').classList.add('active');
-}
+};
 
-function hideLoadingScreen() {
+const hideLoadingScreen = () => {
     document.getElementById('loadingScreen').classList.remove('active');
-}
+};
 
 // Cleanup function for memory leaks
 function cleanupMemoryLeaks() {
@@ -1442,561 +862,16 @@ function cleanupMemoryLeaks() {
 // Call cleanup on page unload
 window.addEventListener('beforeunload', cleanupMemoryLeaks);
 
-function showApp() {
-    document.getElementById('app').classList.add('loaded');
-}
-function getCurrentScreen() {
-    const generationEl = document.getElementById('generationScreen');
-    const processingEl = document.getElementById('processingScreen');
-    const resultEl = document.getElementById('resultScreen');
-    const historyEl = document.getElementById('historyScreen');
-
-    const isVisible = el => {
-        if (!el) return false;
-        const cs = window.getComputedStyle(el);
-        if (el.classList.contains('hidden')) return false;
-        return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0';
-    };
-
-    if (isVisible(resultEl)) return 'result';
-    if (isVisible(processingEl)) return 'processing';
-    if (isVisible(historyEl)) return 'history';
-    if (isVisible(generationEl)) return 'generation';
-    return 'unknown';
-}
-
-/*
-function showScreen(screenId) {
-    // Hide all screens
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-
-    // Show target screen
-    const targetScreen = document.getElementById(screenId);
-    if (targetScreen) {
-        targetScreen.classList.add('active');
-    }
-    if (!targetScreen) { console.error('Screen not found:', screenId); return; }
-
-    // Update main button
-    //updateMainButton(screenId);
-}
-*/
-
-function showScreen(screenId) {
-    // Сначала ищем нужный экран
-    const targetScreen = document.getElementById(screenId);
-    if (!targetScreen) {
-        console.error('Screen not found:', screenId);
-        return;
-    }
-
-    // Скрываем все экраны
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-        screen.classList.add('hidden'); // гарантированно прячем
-    });
-
-    // Показываем нужный
-    targetScreen.classList.remove('hidden');
-    targetScreen.classList.add('active');
-}
+/* Фунция showApp была вынесена в screen-manager.js */
 
 
-function showProcessing() {
-    showScreen('processingScreen');
-    updateProcessingSteps(1);
-    console.log('--- Проверка processingScreen ---');
-    const proc = document.getElementById('processingScreen');
-    if (!proc) {
-        console.error('❌ Нет блока #processingScreen в DOM');
-    } else {
-        console.log('✅ Нашёл processingScreen:', proc);
-        console.log('Классы:', proc.className);
-        console.log('display:', getComputedStyle(proc).display);
-        console.log('opacity:', getComputedStyle(proc).opacity);
-        console.log('transform:', getComputedStyle(proc).transform);
-        console.log('innerHTML длина:', proc.innerHTML.length);
-    }
 
-    console.log('after showProcessing ->', getCurrentScreen());
-}
+
 
 // ⚡ ТОСТ-НОТИФИКАЦИИ ДЛЯ НОВЫХ РЕЗУЛЬТАТОВ (БЕЗ ПРЕРЫВАНИЯ ПОЛНОГО ПРОСМОТРА)
 let pendingResults = []; // Ожидающие результаты для показа в тостах
 
-function showResult(result) {
-    // Проверяем, показывается ли сейчас полный экран результата
-    if (getCurrentScreen() === 'result') {
-        // Экран уже занят - показываем тост-уведомление
-        if (appState.currentGeneration) {
-            showResultToast(result);
-            console.log('🎯 Показан тост с новым результатом (экран занят)');
-        } else {
-            console.warn('⚠️ showResult: currentGeneration не установлена, пропускаем тост');
-        }
-    } else {
-        // Экран свободен - показываем полный результат
-        if (appState.currentGeneration) {
-            displayFullResult(result);
-            console.log('🎯 Показан полный результат (экран свободен)');
-        } else {
-            console.error('❌ showResult: currentGeneration равна null!');
-        }
-    }
-}
 
-function displayFullResult(result) {
-    // Переключаемся на экран результата
-    showScreen('resultScreen');
-    showBackButton(true);
-
-    // Update result display
-    const resultImage = document.getElementById('resultImage');
-    const resultPrompt = document.getElementById('resultPrompt');
-    const resultStyle = document.getElementById('resultStyle');
-    const resultMode = document.getElementById('resultMode');
-    const resultTime = document.getElementById('resultTime');
-
-    // 🔧 Очистка src + timestamp для предотвращения кэширования
-    if (resultImage) {
-        resultImage.src = ''; // Сначала очищаем
-        resultImage.src = result.image_url + '?t=' + Date.now(); // Добавляем timestamp для свежести
-    }
-    if (resultPrompt) resultPrompt.textContent = appState.currentGeneration.prompt;
-    if (resultStyle) resultStyle.textContent = appState.translate('style_' + appState.currentGeneration.style);
-    if (resultMode) resultMode.textContent = appState.translate('mode_' + appState.currentGeneration.mode);
-
-        // Обновлено: отображаем стоимость генерации вместо времени
-        if (resultTime) {
-            const cost = appState.currentGeneration.generation_cost;
-            if (cost !== undefined && cost !== null && cost !== '' && !isNaN(parseFloat(cost))) {
-                const numericCost = parseFloat(cost);
-                const formattedCost = numericCost.toFixed(cost.includes('.') ? 1 : 0); // 1 знак для дробных, 0 для целых
-                const currency = appState.currentGeneration.cost_currency || 'Cr';
-                resultTime.textContent = `${formattedCost} ${currency.toUpperCase()}`;
-                console.log('💰 Cost displayed:', formattedCost, currency);
-            } else {
-                console.log('⚠️ Cost not found, showing duration fallback');
-                // Fallback если стоимость не пришла или равна 0/null
-                const duration = Math.round((appState.currentGeneration.duration || 0) / 1000);
-                resultTime.textContent = `${duration}s`;
-            }
-        }
-
-    console.log('🎯 Результат показан:', getCurrentScreen());
-}
-
-function showResultToast(result) {
-    // Создаём уникальный ID для тоста
-    const toastId = `result-toast-${Date.now()}`;
-    const generation = appState.currentGeneration;
-
-    // Создаём элемент тоста
-    const toast = document.createElement('div');
-    toast.id = toastId;
-    toast.className = 'result-toast';
-
-    // Получаем данные для отображения
-    const style = appState.translate('style_' + (generation.style || 'realistic'));
-    const mode = appState.translate('mode_' + (generation.mode || 'flux_shnel'));
-
-    toast.innerHTML = `
-        <div class="toast-content">
-            <div class="toast-image">
-                <img src="${result.image_url}?t=${Date.now()}" alt="Generated image preview" loading="lazy">
-            </div>
-            <div class="toast-details">
-                <div class="toast-meta">
-                    <span class="toast-style">${style}</span>
-                    <span class="toast-mode">${mode}</span>
-                </div>
-                <button class="toast-view-btn">View Result</button>
-                <button class="toast-close-btn">×</button>
-            </div>
-        </div>
-    `;
-
-    // Стили для тоста (будут добавлены в CSS или инлайново)
-    Object.assign(toast.style, {
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        width: '280px',
-        background: 'var(--bg-primary)',
-        border: '1px solid var(--border-primary)',
-        borderRadius: '12px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-        zIndex: '10000',
-        opacity: '0',
-        transform: 'translateY(100px)',
-        transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        cursor: 'default',
-        overflow: 'hidden'
-    });
-
-    // Обработчик клика по кнопке просмотра
-    toast.querySelector('.toast-view-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        displayFullResult(result); // Показываем полный результат
-        removeResultToast(toast);
-    });
-
-    // Обработчик клика по закрытию тоста
-    toast.querySelector('.toast-close-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        removeResultToast(toast);
-    });
-
-    // Обработчик клика по всему тосту (кроме кнопок)
-    toast.addEventListener('click', () => {
-        displayFullResult(result);
-        removeResultToast(toast);
-    });
-
-    // Добавляем тост на страницу
-    document.body.appendChild(toast);
-
-    // Анимируем появление
-    requestAnimationFrame(() => {
-        toast.style.opacity = '1';
-        toast.style.transform = 'translateY(0)';
-    });
-
-    // Автоматически скрываем через 5 секунд
-    setTimeout(() => {
-        removeResultToast(toast);
-    }, 5000);
-
-    // Добавляем внутренние стили для содержимого тоста
-    const styleElement = document.createElement('style');
-    styleElement.textContent = `
-        .result-toast .toast-content {
-            display: flex;
-            padding: 0;
-        }
-        .result-toast .toast-image {
-            width: 80px;
-            height: 80px;
-            flex-shrink: 0;
-        }
-        .result-toast .toast-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px 0 0 8px;
-        }
-        .result-toast .toast-details {
-            flex: 1;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .result-toast .toast-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-        .result-toast .toast-meta span {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            background: var(--bg-secondary);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-        .result-toast .toast-view-btn {
-            background: var(--accent-primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            align-self: flex-start;
-        }
-        .result-toast .toast-view-btn:hover {
-            background: var(--accent-secondary);
-            transform: translateY(-1px);
-        }
-        .result-toast .toast-close-btn {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background: rgba(0,0,0,0.1);
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    `;
-    document.head.appendChild(styleElement);
-
-    console.log('🔔 Показан тост с новым результатом генерации');
-}
-
-function removeResultToast(toast) {
-    if (!toast) return;
-
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(100px)';
-
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-        }
-    }, 300);
-}
-
-// Функция обновления отображения имени пользователя в header
-function updateUserNameDisplay() {
-    const nameElement = document.getElementById('userNameDisplay');
-
-    if (!nameElement) return;
-
-    // Приоритет отображения: username > имя+фамилия > имя > userId
-    let displayName = '';
-
-    if (appState.userUsername) {
-        // Есть username - показываем с @
-        displayName = '@' + appState.userUsername;
-    } else if (appState.userName && appState.userName.trim() !== '') {
-        // Есть имя/фамилия - показываем как есть
-        displayName = appState.userName;
-    } else if (appState.userId) {
-        // Нет имени, но есть ID - используем как запасной вариант
-        displayName = 'ID: ' + appState.userId.toString().substring(0, 8) + '...';
-    } else {
-        // Ничего нет - дефолтное значение
-        displayName = '--';
-    }
-
-    nameElement.textContent = displayName;
-    console.log('👤 User name display updated:', displayName);
-}
-
-// Функция обновления баланса пользователя в header
-function updateUserBalance(credits, reason = 'webhook_update') {
-    // Обновляем баланс в appState
-    if (credits !== null && credits !== undefined) {
-        const newBalance = parseFloat(credits);
-        const oldBalance = appState.userCredits;
-        const timestamp = Date.now();
-
-        // Добавляем запись в историю ДО обновления баланса
-        appState.balanceHistory.push({
-            balance: newBalance,
-            timestamp: timestamp,
-            reason: reason,
-            previousBalance: oldBalance
-        });
-
-        // Ограничиваем историю до 100 последних записей
-        if (appState.balanceHistory.length > 100) {
-            appState.balanceHistory = appState.balanceHistory.slice(-100);
-        }
-
-        // Сохраняем историю в localStorage
-        appState.saveBalanceHistory();
-
-        // Обновляем текущий баланс
-        appState.userCredits = newBalance;
-        appState.lastBalanceUpdate = timestamp;
-        appState.saveSettings(); // Сохраняем настройки в localStorage
-
-        // Обновляем отображение в header
-        const balanceElement = document.getElementById('userCreditsDisplay');
-        if (balanceElement) {
-            if (!isNaN(credits) && credits !== null) {
-                balanceElement.textContent = parseFloat(credits).toLocaleString('en-US');
-            } else {
-                balanceElement.textContent = '--';
-            }
-        }
-
-        console.log('💳 Balance updated:', { old: oldBalance, new: newBalance, reason });
-    }
-}
-
-function showSubscriptionNotice(result) {
-    console.log('🔗 Full result object:', result);
-    console.log('🔗 Payment URLs from result:', result.payment_urls);
-
-    const modal = document.getElementById('limitModal');
-    if (!modal) {
-        console.error('❌ Modal not found!');
-        return;
-    }
-
-    // 🔍 ДИАГНОСТИКА: Проверяем все элементы которые могут быть поверх модального окна
-    console.log('🔍 DIAGNOSING modal overlay elements...');
-
-    // Проверяем Z-index всех элементов
-    const allElements = document.querySelectorAll('*');
-    const highZIndexElements = [];
-    const suspiciousElements = [];
-
-    allElements.forEach(el => {
-        const zIndex = window.getComputedStyle(el).zIndex;
-        if (zIndex !== 'auto' && parseInt(zIndex) > 99995) { // Выше модального окна
-            highZIndexElements.push({
-                element: el,
-                zIndex: zIndex,
-                tagName: el.tagName,
-                id: el.id,
-                className: el.className,
-                position: window.getComputedStyle(el).position,
-                display: window.getComputedStyle(el).display,
-                visibility: window.getComputedStyle(el).visibility
-            });
-        }
-
-        // Ищем подозрительные элементы с fixed позиционированием в центре
-        if (window.getComputedStyle(el).position === 'fixed' && el !== modal) {
-            const rect = el.getBoundingClientRect();
-            if (rect.width < 100 && rect.height < 100 && // Маленький размер
-                Math.abs(rect.left + rect.width / 2 - window.innerWidth / 2) < 50 && // Центр по X
-                Math.abs(rect.top + rect.height / 2 - window.innerHeight / 2) < 50) { // Центр по Y
-                suspiciousElements.push({
-                    element: el,
-                    rect: rect,
-                    styles: window.getComputedStyle(el),
-                    html: el.outerHTML.substring(0, 200) + '...'
-                });
-            }
-        }
-    });
-
-    // ✋ РАСШИРЕННАЯ ДИАГНОСТИКА: ПОДРОБНАЯ ИНФОРМАЦИЯ О ВЫСОКИХ ЭЛЕМЕНТАХ
-    console.error('🚨 ПРОБЛЕМА ВЫЯВЛЕНА: 7 элементов с высоким Z-INDEX мешают модальному окну!');
-    console.table(highZIndexElements.map((el, index) => ({
-        '№': index + 1,
-        'Элемент': el.element.tagName,
-        'Z-Index': el.zIndex,
-        'ID': el.element.id || 'без ID',
-        'Классы': el.element.className || 'без классов',
-        'Position': el.element.style ? el.element.style.position : 'не определено',
-        'Display': el.element.style ? el.element.style.display : 'не определено',
-        'Visibility': el.element.style ? el.element.style.visibility : 'не определено',
-        'Содержимое': el.element.innerText ? el.element.innerText.substring(0, 50) + '...' : 'пустой элемент',
-        'HTML': el.element.outerHTML.substring(0, 100) + '...'
-    })));
-
-    console.log('🔍 SUSPICIOUS Fixed Elements in center:', suspiciousElements);
-
-    // Ищем элементы с классом 'touch-action' или похожим
-    const touchElements = document.querySelectorAll('[class*="touch"], [class*="finger"], [class*="joystick"]');
-    console.log('🔍 TOUCH-related elements:', touchElements);
-
-    // Проверяем viewport meta-tag
-    const viewport = document.querySelector('meta[name="viewport"]');
-    console.log('🔍 Viewport meta:', viewport ? viewport.content : 'NOT FOUND');
-
-    // Проверяем наличие системных overlays
-    console.log('🔍 User agent:', navigator.userAgent);
-    console.log('🔍 Touch capabilities:', {
-        touchscreen: navigator.maxTouchPoints > 0,
-        ontouchstart: 'ontouchstart' in window,
-        pointerEvent: 'onpointerdown' in window
-    });
-
-    // Уведомляем пользователя о начале диагностики
-    console.warn('🔍 SYSTEM OVERLAY DETECTION STARTED');
-    console.warn('Если видим оранжевый квадратик/джостик, это может быть:');
-    console.warn('1. Touch Action Indicator (системный оверлей сеанса)');
-    console.warn('2. Pointer Events Hover (CSS hover эффекты)');
-    console.warn('3. Browser Gesture Recognition (системное поведение)');
-    console.warn('4. Mobile System UI (тпанель навигации)');
-    console.warn('5. Input Method Editor (экранная клавиатура)');
-
-    // Показать модальное окно
-    modal.classList.add('show');
-
-    // Helper function for safe redirections with error handling
-    const safeRedirect = (url, planName) => {
-        modal.classList.remove('show');
-        showGeneration();
-        setTimeout(() => {
-            try {
-                console.log(`🔗 Redirecting to ${planName} payment URL: ${url}`);
-                // Try modern way first
-                if (appState.tg && appState.tg.openLink) {
-                    appState.tg.openLink(url);
-                } else {
-                    // Fallback to regular navigation
-                    window.open(url, '_blank');
-                }
-            } catch (error) {
-                console.error(`❌ Error redirecting to ${planName} payment link:`, error);
-                showToast('error', `Ошибка перехода к ${planName}. Попробуйте снова.`);
-                // Fallback to popup
-                window.open(url, '_blank', 'noopener,noreferrer');
-            }
-        }, 100);
-    };
-
-    // Настроить обработчики для трех кнопок тарифов
-    const upgradeBtn = document.getElementById('upgradeBtn'); // ЛИТЕ планируется как существующий
-    const upgradeBtnPro = document.getElementById('upgradebtn_pro'); // ПРО новый
-    const upgradeBtnStudio = document.getElementById('upgradebtn_studio'); // СТУДИО новый
-
-    console.log('🔘 Upgrade buttons found:', !!upgradeBtn, !!upgradeBtnPro, !!upgradeBtnStudio);
-
-    // Обработчик для ЛИТЕ тарифа (использует существующую кнопку upgradeBtn)
-    if (upgradeBtn) {
-        upgradeBtn.onclick = () => {
-            console.log('🔘 LITE Upgrade button clicked');
-            const paymentUrl = result.payment_urls?.lite || 'https://t.me/tribute/app?startapp=syDv';
-            safeRedirect(paymentUrl, 'LITE');
-        };
-    }
-
-    // Обработчик для ПРО тарифа (новая кнопка)
-    if (upgradeBtnPro) {
-        upgradeBtnPro.onclick = () => {
-            console.log('🔘 PRO Upgrade button clicked');
-            const paymentUrl = result.payment_urls?.pro || 'https://t.me/tribute/app?startapp=syDv';
-            safeRedirect(paymentUrl, 'PRO');
-        };
-    }
-
-    // Обработчик для СТУДИО тарифа (новая кнопка)
-    if (upgradeBtnStudio) {
-        upgradeBtnStudio.onclick = () => {
-            console.log('🔘 STUDIO Upgrade button clicked');
-            const paymentUrl = result.payment_urls?.studio || 'https://t.me/tribute/app?startapp=syDv';
-            safeRedirect(paymentUrl, 'STUDIO');
-        };
-    }
-
-    // Настроить кнопку закрытия
-    const closeBtn = document.getElementById('closeLimitModal');
-    if (closeBtn) {
-        closeBtn.onclick = () => {
-            modal.classList.remove('show');
-            showGeneration(); // Показываем генератор после закрытия
-        };
-    }
-}
-
-/*function showGeneration() {
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    document.getElementById('generationScreen').classList.add('active');
-    showBackButton(false);
-*/
 function showGeneration() {
     const screens = document.querySelectorAll('.screen');
     screens.forEach(s => {
@@ -2016,7 +891,10 @@ function showGeneration() {
     showBackButton(false);
 
     // 🆕 ДОБАВЛЕНИЕ: Обновление отображения истории для принудительной загрузки превью при возврате на генерацию
-    updateHistoryDisplay();
+    // Используем функцию из history-manager.js
+    import('./history-manager.js').then(module => {
+        module.updateHistoryDisplay();
+    });
 
     // Принудительная загрузка превью истории при возврате на генерацию
     setTimeout(() => {
@@ -2298,14 +1176,6 @@ function initUserImageUpload() {
     }
 }
 
-function readFileAsDataURL(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
 // ===== Обработчик выбора файла =====
 async function onUserImageChange(e) {
     try {
@@ -2391,7 +1261,7 @@ async function onUserImageChange(e) {
             try {
                 console.log(`📸 Processing file ${i+1}/${validFiles.length}: ${file.name}`);
 
-                // Читаем файл как DataURL
+                // Читаем файл как DataURL - исправлена функция чтения
                 const dataUrl = await readFileAsDataURL(file);
                 console.log(`✅ File ${file.name} read as DataURL, length: ${dataUrl.length}`);
 
@@ -2786,27 +1656,6 @@ function toggleSizeSelectVisibility() {
             }
         }
     }
-}
-
-function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
-    return new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => {
-            let w = img.width, h = img.height;
-            const ratio = Math.min(maxW / w, maxH / h, 1);
-            w = Math.round(w * ratio);
-            h = Math.round(h * ratio);
-
-            const canvas = document.createElement('canvas');
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = () => resolve(dataUrl);
-        img.src = dataUrl;
-    });
 }
 
 // ===== Загрузка изображений на Runware.ai и получение UUID =====
@@ -3263,7 +2112,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const finishLoading = () => {
         hideLoadingScreen();
         showApp();
-        updateUserBalance(appState.userCredits);
+        updateUserBalanceDisplay(appState.userCredits);
         initAICoach();
         console.log('✅ Загрузочный экран скрыт через 2 секунды');
     };
@@ -3379,11 +2228,77 @@ async function generateImage(event) {
         status: 'pending'
     };
 
-    // Синхронизируем историю и превью правильно
-    setTimeout(async () => {
-        await showHistoryWithScroll(); // Сначала открываем историю
-        createLoadingHistoryItem(generation); // Потом создаем превью элемент когда DOM готов
-        // Тост уже убрали - не показываем
+    // Всегда добавляем превью в историю и открываем историю если закрыта
+    setTimeout(() => {
+        console.log('🚀 Starting preview creation in generateImage - GEN:', generation.id);
+
+        const historyList = document.getElementById('historyList');
+        const historyBtn = document.getElementById('historyToggleBtn');
+
+        console.log('✅ Elements found - historyList:', !!historyList, 'historyBtn:', !!historyBtn);
+
+        // 📍 1. Добавляем генерацию в начало истории (независимо от видимости)
+        appState.generationHistory.unshift(generation);
+        appState.saveHistory();
+        console.log('📦 Generation added to history, total items:', appState.generationHistory.length);
+
+        // 📍 2. Создаем превью элемент
+        console.log('🔧 Calling createLoadingHistoryItem...');
+        const previewItem = createLoadingHistoryItem(generation);
+        console.log('✅ Preview item created:', previewItem ? 'SUCCESS' : 'FAILED', previewItem);
+
+        // 📍 ПРОВЕРКА: Есть ли элемент в DOM после создания?
+        const checkElement = document.getElementById(`loading-${generation.id}`);
+        console.log('🔍 Check - element exists in DOM:', !!checkElement);
+        if (checkElement) {
+            console.log('🎯 Element DOM details:', {
+                id: checkElement.id,
+                className: checkElement.className,
+                parent: checkElement.parentElement?.id,
+                childrenCount: checkElement.children?.length
+            });
+        }
+
+        // 📍 3. Открываем историю если была закрыта
+        let wasHidden = false;
+        if (historyList && historyList.classList.contains('hidden')) {
+            wasHidden = true;
+            console.log('📂 History was hidden, opening it...');
+            toggleHistoryList(); // Открываем историю
+        } else {
+            console.log('📂 History already open, updating display...');
+            updateHistoryDisplay(); // Обновляем если уже открыта
+        }
+
+        // 📍 4. НЕМЕДЛЕННАЯ ПРОКРУТКА К НОВОМУ ПРЕВЬЮ
+        setTimeout(() => {
+            const finalElement = document.getElementById(`loading-${generation.id}`);
+            console.log('🎯 Scrolling attempt - element exists:', !!finalElement);
+
+            if (finalElement) {
+                console.log('🎯 Final scroll to preview:', finalElement.id);
+                finalElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest'
+                });
+                console.log('📋 Scrolled to new preview successfully');
+            } else {
+                console.error('❌ Preview element NOT found for scrolling, generation:', generation.id);
+                // ☠️ ЭКСТРЕНАЯ МЕРА: Принудительно пересоздаем элемент
+                const emergencyPreview = createLoadingHistoryItem(generation);
+                if (emergencyPreview) {
+                    emergencyPreview.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                    console.log('🚨 Emergency scroll to recreated element');
+                }
+            }
+        }, 300); // Ждем открытия истории
+
+        console.log('📋 Generation preview flow completed for:', generation.id);
     }, 100);
 
     // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session без изображения ===
@@ -4140,28 +3055,7 @@ window.setWebhookUrl = (url) => {
     console.log('✅ Webhook URL updated');
 };
 
-// Функция для безопасного экранирования пользовательского текста перед JSON.stringify
-function getStatusText(status) {
-    switch (status) {
-        case 'processing': return '⏳';
-        case 'success': return '✅';
-        case 'error': return '❌';
-        default: return status;
-    }
-}
 
-function sanitizeJsonString(str) {
-    if (typeof str !== 'string') return str;
-
-    return str
-        .replace(/\\/g, '\\\\')  // Экранируем обратные слэши
-        .replace(/"/g, '\\"')    // Экранируем кавычки
-        .replace(/\n/g, '\\n')   // Заменяем переносы на \n
-        .replace(/\r/g, '\\r')   // Заменяем \r
-        .replace(/\t/g, '\\t');  // Заменяем табуляции
-}
-
-console.log('✅ JSON Sanitizer интегрирован для защиты от JSON-парсинга ошибок');
 
 console.log('🎯 pixPLace App loaded!');
 console.log('🔧 Debug commands:');
@@ -4177,106 +3071,10 @@ window.closeLimitModal = () => {
     }
 };
 
-// ========== COGNITIVE ASSISTANT INTEGRATION ==========
-function createCoachButton() {
-    // Create button
-    const coachButton = document.createElement('button');
-    coachButton.textContent = 'AI Prompt Assistant';
-    coachButton.className = 'ai-coach-btn';
+// Импортируем из модуля
 
-    // Все стили теперь через CSS класс ai-coach-btn с медиа-запросами
+// Теперь используем импортированные функции
 
-    // Восстанавливаю правильную функциональность - открытие AI чата
-    coachButton.onclick = () => {
-        if (window.AICoach) {
-            window.AICoach.show();
-        } else {
-            console.warn('AI Coach not loaded');
-        }
-    };
-
-    // Add to body (fixed position for easy access)
-    document.body.appendChild(coachButton);
-
-    // Style injection for button (minimal)
-    const style = document.createElement('style');
-    style.textContent = `
-        .ai-coach-btn {
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-        }
-        .ai-coach-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-    `;
-    document.head.appendChild(style);
-
-    console.log('🧠 AI Coach button created');
-}
-
-async function initAICoach() {
-    try {
-        // Проверить, что AICoach доступен (уже загружен из HTML)
-        if (!window.AICoach) {
-            console.warn('AI Coach not loaded from HTML');
-            return;
-        }
-
-        createCoachButton();
-        // Дополнительно можно прослушать событие, если нужно
-        window.addEventListener('ai-coach-ready', createCoachButton);
-    } catch (error) {
-        console.error('Failed to init AI Coach:', error);
-    }
-}
-
-function createChatButton() {
-    // Create floating chat button
-    const chatBtn = document.createElement('button');
-    chatBtn.id = 'ai-chat-float-btn';
-    chatBtn.innerHTML = 'AI Chat';
-    chatBtn.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 12px 20px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-        transition: all 0.3s ease;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    `;
-
-    chatBtn.onmouseenter = () => {
-        chatBtn.style.transform = 'scale(1.05)';
-        chatBtn.style.boxShadow = '0 6px 25px rgba(99, 102, 241, 0.6)';
-    };
-
-    chatBtn.onmouseleave = () => {
-        chatBtn.style.transform = 'scale(1)';
-        chatBtn.style.boxShadow = '0 4px 20px rgba(99, 102, 241, 0.4)';
-    };
-
-    chatBtn.onclick = () => {
-        if (window.AICoach) {
-            window.AICoach.show();
-            triggerHaptic('light');
-        }
-    };
-
-    document.body.appendChild(chatBtn);
-    console.log('🧠 AI Chat floating button created');
-}
 
 // 🔥 КАРУСЕЛЬ ПЛАНОВ В ЛИМИТ МОДАЛ
 // Глобальные переменные для управления каруселью планов
@@ -4501,245 +3299,9 @@ function startUploadButtonBlink() {
     }, 100);
 }
 
-// 🎨 Функция показа предупреждения для Photo Session без изображения
-async function showWarningAboutNoImage() {
-    return new Promise((resolve) => {
-        // Создаем оверлей и модал
-        const overlay = document.createElement('div');
-        overlay.id = 'photo-warning-overlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
-
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            background: var(--bg-primary, #ffffff);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        `;
-
-        modal.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 1rem;">
-                <div style="font-size: 4rem; margin-bottom: 0.25rem; display: flex; align-items: center; justify-content: center;" class="photo-warning-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                </div>
-            </div>
-            <div style="text-align: center; margin-bottom: 1rem;">
-                <h3 style="margin: 0 0 1rem 0; color: var(--text-primary, #333); font-size: 1.25rem; font-weight: 600;">${appState.translate('photo_warning_title')}</h3>
-                <p style="margin: 0; color: var(--text-secondary, #666); font-size: 1rem; line-height: 1.5;">
-                    ${appState.translate('photo_warning_text')}
-                </p>
-            </div>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button id="upload-image-btn" style="
-                    flex: 1;
-                    padding: 6px 6px;
-                    background: linear-gradient(135deg, #7e94f7ff 0%, #1d5df3ff 100%);
-                    color: white;
-                    border: none;
-                    border-radius: 34px;
-                    font-size: 1rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-                ">
-                    ${appState.translate('photo_warning_upload_btn')}
-                </button>
-                <button id="continue-without-btn" style="
-                    flex: 1;
-                    padding: 6px 6px;
-                    background: linear-gradient(135deg, #ee4c62ff 0%, #f72e48ff 100%);
-                    color: white;
-                    border: none;
-                    border-radius: 34px;
-                    font-size: 1rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
-                ">
-                    ${appState.translate('photo_warning_continue_btn')}
-                </button>
-            </div>
-        `;
-
-        // Добавляем эффекты hover для кнопок
-        const style = document.createElement('style');
-        style.textContent = `
-            #upload-image-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-            }
-            #continue-without-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
-            }
-        `;
-        document.head.appendChild(style);
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        // Анимация появления
-        requestAnimationFrame(() => {
-            overlay.style.opacity = '1';
-            modal.style.transform = 'translateY(0)';
-        });
-
-        // Обработчики кнопок
-        const uploadBtn = modal.querySelector('#upload-image-btn');
-        const continueBtn = modal.querySelector('#continue-without-btn');
-
-        uploadBtn.addEventListener('click', () => {
-            // Закрываем модал
-            overlay.style.opacity = '0';
-            modal.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                document.body.removeChild(overlay);
-                document.head.removeChild(style);
-                resolve(false); // false значит не продолжаем генерацию, пользователь пойдет загружать изображение
-            }, 300);
-
-            // Запуск моргания кнопки upload для привлечения внимания
-            startUploadButtonBlink();
-
-            // Опционально: промотать к блоку загрузки изображений
-            const imageUpload = document.getElementById('userImageWrapper');
-            if (imageUpload) {
-                imageUpload.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
-
-        continueBtn.addEventListener('click', () => {
-            // Закрываем модал
-            overlay.style.opacity = '0';
-            modal.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                document.body.removeChild(overlay);
-                document.head.removeChild(style);
-                resolve(true); // true значит продолжаем генерацию
-            }, 300);
-        });
-
-        // Закрытие по клику на оверлей
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.style.opacity = '0';
-                modal.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    document.body.removeChild(overlay);
-                    document.head.removeChild(style);
-                    resolve(false); // Закрытие = отмена генерации
-                }, 300);
-            }
-        });
-    });
-}
-
-// 🎄 СНЕГОПАД - ФУНКЦИИ
-function createSnowflake() {
-    const snowflake = document.createElement('div');
-    snowflake.className = 'snowflake';
-
-    // 🔥 Реалистичные мелкие символы без окантовки
-    const snowSymbols = ['·', '•', '◦', '○', '⁃', '⁌'];
-    snowflake.textContent = snowSymbols[Math.floor(Math.random() * snowSymbols.length)];
-
-    // 🔥 Только мелкие размеры для более плотного снегопада
-    const sizes = ['extra-small', 'small', 'mini'];
-    const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
-    snowflake.classList.add(randomSize);
-
-    // 🔥 Расширенная позиция по горизонтали для большего покрытия
-    snowflake.style.left = Math.random() * 150 + 'vw';
-
-    // 🔥 ГАРАНТИРОВАННАЯ СТАРТОВАЯ ПОЗИЦИЯ ВЫШЕ ДИСПЛЕЯ: от -100vh до -20vh (очень высоко!)
-    snowflake.style.top = -(Math.random() * 80 + 20) + 'vh'; // от -100vh до -20vh рандомно
-
-    // 🔥 НЕ ПЛАВНЫЙ СТАРТ: без задержки на старт - мгновенное появление
-    snowflake.style.animationDelay = '0s'; // МГНОВЕННО без задержки!
-
-    // 🔥 ПЛАВНОЕ ПОЯВЛЕНИЕ: добавляем начальную невидимость и fade in в CSS
-    snowflake.style.opacity = '0';
-
-    return snowflake;
-}
-
-function startSnowfall() {
-    const snowfallContainer = document.querySelector('.snowfall');
-    if (!snowfallContainer) {
-        console.warn('Snowfall container not found');
-        return;
-    }
-
-    // 🔥 БОЛЬШЕ СНЕЖИНОК для плотности
-    const maxSnowflakes = 300;
-    for (let i = 0; i < maxSnowflakes; i++) {
-        const snowflake = createSnowflake();
-        snowfallContainer.appendChild(snowflake);
-    }
-
-    console.log(`❄️ Rich snowfall started - ${maxSnowflakes} snowflakes from above`);
-
-    // 🔥 Периодическая поддержка непрерывности
-    setInterval(() => {
-        if (snowfallContainer.children.length < maxSnowflakes) {
-            const snowflake = createSnowflake();
-            snowfallContainer.appendChild(snowflake);
-        }
-    }, 2000); // каждые 2 секунды добавляем если нужно
-}
-
-function stopSnowfall() {
-    const snowfallContainer = document.querySelector('.snowfall');
-    if (!snowfallContainer) return;
-
-    // Очищаем все снежинки
-    snowfallContainer.innerHTML = '';
-    console.log('❄️ Snowfall stopped - all snowflakes removed');
-}
-
-// 🎯 Функция для переключения видимости карусели режимов
-function toggleModeDetails() {
-    const carousel = document.getElementById('modeCarouselContainer');
-    if (!carousel) {
-        console.warn('Mode carousel container not found');
-        return;
-    }
-
-    const isVisible = carousel.style.display !== 'none';
-    carousel.style.display = isVisible ? 'none' : 'block';
-
-    console.log('Mode carousel toggled:', !isVisible ? 'visible' : 'hidden');
-
-    // Плавная прокрутка к карусели при показе
-    if (!isVisible) {
-        setTimeout(() => {
-            carousel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-    }
-}
-
-window.toggleModeDetails = toggleModeDetails;
 
 // 🎯 Функции личного кабинета импортированы из модуля user-account.js
+// 🎯 AI Coach инициализируется через ai-coach.js модуль
+
+// 🔥 ИМПОРТ ФУНКЦИЙ ОБРАБОТКИ ОШИБОК ИЗ SCREEN-MANAGER
+import { ScreenManager } from './screen-manager.js';

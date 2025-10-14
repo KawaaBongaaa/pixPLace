@@ -3,10 +3,110 @@
  * Isolated module for pixPLace AI Prompt Helper
  * UID: KLB-12SN-17A | Cognitive Framework: 3-7-12-22-25 | ECHO-BLOCK Active
  */
+// ========== COGNITIVE ASSISTANT INTEGRATION ==========
+export function createCoachButton() {
+    // Create button
+    const coachButton = document.createElement('button');
+    coachButton.textContent = 'AI Prompt Assistant';
+    coachButton.className = 'ai-coach-btn';
 
-(function() {
+    // Все стили теперь через CSS класс ai-coach-btn с медиа-запросами
+
+    // Восстанавливаю правильную функциональность - открытие AI чата
+    coachButton.onclick = () => {
+        if (window.AICoach) {
+            window.AICoach.show();
+        } else {
+            console.warn('AI Coach not loaded');
+        }
+    };
+
+    // Add to body (fixed position for easy access)
+    document.body.appendChild(coachButton);
+
+    // Style injection for button (minimal)
+    const style = document.createElement('style');
+    style.textContent = `
+        .ai-coach-btn {
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+        }
+        .ai-coach-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+    `;
+    document.head.appendChild(style);
+
+    console.log('🧠 AI Coach button created');
+}
+
+export async function initAICoach() {
+    try {
+        // Проверить, что AICoach доступен (уже загружен из HTML)
+        if (!window.AICoach) {
+            console.warn('AI Coach not loaded from HTML');
+            return;
+        }
+
+        createCoachButton();
+        // Дополнительно можно прослушать событие, если нужно
+        window.addEventListener('ai-coach-ready', createCoachButton);
+    } catch (error) {
+        console.error('Failed to init AI Coach:', error);
+    }
+}
+
+export function createChatButton() {
+    // Create floating chat button
+    const chatBtn = document.createElement('button');
+    chatBtn.id = 'ai-chat-float-btn';
+    chatBtn.innerHTML = 'AI Chat';
+    chatBtn.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        transition: all 0.3s ease;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+
+    chatBtn.onmouseenter = () => {
+        chatBtn.style.transform = 'scale(1.05)';
+        chatBtn.style.boxShadow = '0 6px 25px rgba(99, 102, 241, 0.6)';
+    };
+
+    chatBtn.onmouseleave = () => {
+        chatBtn.style.transform = 'scale(1)';
+        chatBtn.style.boxShadow = '0 4px 20px rgba(99, 102, 241, 0.4)';
+    };
+
+    chatBtn.onclick = () => {
+        if (window.AICoach) {
+            window.AICoach.show();
+            triggerHaptic('light');
+        }
+    };
+
+    document.body.appendChild(chatBtn);
+    console.log('🧠 AI Chat floating button created');
+}
+
+(function () {
     'use strict';
-    
+
     // ========== CORE ARCHITECTURE ==========
     const COGNITIVE_ENGINE = {
         levels: ['ученик', 'игрок', 'исследователь'],
@@ -18,7 +118,7 @@
         cognitiveFramework: '3-7-12-22-25',
         echoBlock: { shock: '', segmentation: '', retention: '' }
     };
-    
+
     // ========== PRIVATE STATE ==========
     let state = {
         userLevel: 'исследователь',
@@ -141,8 +241,25 @@
                 throw new Error(`Webhook error: ${response.status} - ${errorText}`);
             }
 
-            const data = await response.json();
-            console.log('✅ Webhook response data:', data);
+            let responseText = await response.text();
+            console.log('📄 Full webhook response:', responseText);
+
+            // Очистка от markdown форматирования
+            if (responseText.includes('```json')) {
+                responseText = responseText.replace(/```json\n?/g, '').replace(/\n?```$/g, '');
+                console.log('✨ Cleaned response:', responseText);
+            }
+
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('❌ JSON parse error:', parseError);
+                console.warn('📄 Raw response that failed to parse:', responseText);
+                return 'Извините, произошла ошибка обработки ответа. Повторите пожалуйста.';
+            }
+
+            console.log('✅ Parsed webhook response data:', data);
             return data.response || 'Спасибо за сообщение! Ваш запрос обработан.';
         } catch (error) {
             console.error('💥 Webhook request failed:', error);
@@ -150,7 +267,7 @@
             return 'Извините, произошла ошибка. Повторите пожалуйста.';
         }
     }
-    
+
     // ========== UTILITY FUNCTIONS ==========
     function createElement(tag, props = {}, children = []) {
         const el = document.createElement(tag);
@@ -170,7 +287,7 @@
         });
         return el;
     }
-    
+
     function detectUserLevel(message) {
         // Enhanced heuristic based on message complexity
         const length = message.length;
@@ -216,7 +333,7 @@
         const index = Math.min(Math.floor(message.length / 20), COGNITIVE_ENGINE.triggers.length - 1);
         return COGNITIVE_ENGINE.triggers[index];
     }
-    
+
     function createEchoBlock(message, trigger) {
         return {
             shock: `🔥 ШОК: Ваш запрос "${message.substring(0, 30)}..." активировал триггер "${trigger}"`,
@@ -224,7 +341,7 @@
             retention: `🎯 ДЕЙСТВИЕ: Следующий шаг - интегрировать в pixPLace`
         };
     }
-    
+
     function buildCognitiveContent(message) {
         const trigger = state.currentTrigger;
 
@@ -241,7 +358,7 @@
 
         return cognitiveTemplates[trigger] || `**Cognitive Framework:** Запрос обработан со стратегией neural adaptation.\n**Adaptive recommendation:** Рекомендуется стиль "${trigger}" с акцентом на детальную спецификацию.\n**Next iteration:** Усилить через increased contextual density.`;
     }
-    
+
     function calculateKPI(response) {
         // Simple scoring
         state.kpi.clarity = 4;
@@ -249,11 +366,11 @@
         state.kpi.understanding = 4;
         return state.kpi;
     }
-    
+
     function suggestNextAction() {
         return 'Внедрить в pixPLace: toggle to Act Mode для кода.';
     }
-    
+
     // ========== UI FUNCTIONS ==========
     function createModal() {
         if (state.modal) return state.modal;
@@ -417,37 +534,37 @@
                         placeholderColor: '#9ca3af'
                     },
                     onkeypress: (e) => { if (e.key === 'Enter') sendMessage(); },
-                    onfocus: function() {
+                    onfocus: function () {
                         this.style.borderColor = '#ec4899';
                         this.style.boxShadow = '0 0 0 3px rgba(236, 72, 153, 0.2)';
                     },
-                    onblur: function() {
+                    onblur: function () {
                         this.style.borderColor = '#4b5563';
                         this.style.boxShadow = 'none';
                     }
                 }),
-                        createElement('button', {
-                            style: {
-                                background: 'linear-gradient(135deg, #ec4899, #f97316)',
-                                border: 'none',
-                                borderRadius: '2rem',
-                                padding: buttonPadding,
-                                color: 'white',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                fontSize: buttonSize,
-                                boxShadow: '0 4px 15px rgba(236, 72, 153, 0.3)',
-                                transform: 'scale(1)',
-                                hover: 'scale(1.05)',
-                                minWidth: buttonMinWidth
-                            },
-                            onclick: sendMessage,
-                            title: 'Отправить сообщение',
-                            onmousedown: function() { this.style.transform = 'scale(0.95)'; },
-                            onmouseup: function() { this.style.transform = 'scale(1)'; },
-                            onmouseleave: function() { this.style.transform = 'scale(1)'; }
-                        }, '📤')
+                createElement('button', {
+                    style: {
+                        background: 'linear-gradient(135deg, #ec4899, #f97316)',
+                        border: 'none',
+                        borderRadius: '2rem',
+                        padding: buttonPadding,
+                        color: 'white',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        fontSize: buttonSize,
+                        boxShadow: '0 4px 15px rgba(236, 72, 153, 0.3)',
+                        transform: 'scale(1)',
+                        hover: 'scale(1.05)',
+                        minWidth: buttonMinWidth
+                    },
+                    onclick: sendMessage,
+                    title: 'Отправить сообщение',
+                    onmousedown: function () { this.style.transform = 'scale(0.95)'; },
+                    onmouseup: function () { this.style.transform = 'scale(1)'; },
+                    onmouseleave: function () { this.style.transform = 'scale(1)'; }
+                }, '📤')
             ])
         ]);
 
@@ -467,7 +584,7 @@
         state.modal = overlay;
         return overlay;
     }
-    
+
     function renderCoachInterface() {
         const chat = document.getElementById('ai-coach-chat');
         if (!chat) return;
@@ -484,7 +601,7 @@
         state.isOpen = true;
         createModal().classList.remove('hidden');
     }
-    
+
     function createMessageElement(text, sender, timestamp = null) {
         // Modern WhatsApp-style message bubble
         const messageDiv = createElement('div', {
@@ -784,7 +901,7 @@
             }
         }, 200); // Small delay to ensure DOM is ready
     }
-    
+
     function generateCognitiveResponse(message) {
         // Detect user level from message
         state.userLevel = detectUserLevel(message);
@@ -842,62 +959,62 @@
             return;
         }
 
-    const message = input.value.trim();
-    console.log('📝 Adding user message to chat:', message);
-    addMessageToChat(message, 'user');
+        const message = input.value.trim();
+        console.log('📝 Adding user message to chat:', message);
+        addMessageToChat(message, 'user');
 
-    // Add to history
-    state.history.push({ role: 'user', content: message, timestamp: new Date().toISOString() });
-    saveChatHistory();
-
-    console.log('🔄 Setting isProcessing = true');
-    state.isProcessing = true;
-    input.style.opacity = '0.5';
-    input.value = '';
-
-    // Show typing indicator AND get a reference to it immediately
-    const typingKey = typeof appState !== 'undefined' ? appState.translate('ai_thinking_indicator') : '🤖 pixPLace Assistant is thinking...';
-    const typingIndicator = addMessageToChat(typingKey, 'bot');
-    console.log('🎭 Typing indicator created:', !!typingIndicator);
-
-    try {
-        // Send to webhook with history
-        const aiResponse = await sendToWebhook(message, state.history.slice(0, -1)); // Exclude current message from history
-
-        console.log('📨 AI Response received:', aiResponse.substring(0, 50));
-
-        // Remove typing indicator from DOM immediately before adding new message
-        if (typingIndicator && typingIndicator.parentNode) {
-            console.log('🗑️ Removing typing indicator from DOM');
-            typingIndicator.parentNode.removeChild(typingIndicator);
-        } else {
-            console.warn('⚠️ Typing indicator not found or already removed:', typingIndicator);
-        }
-
-        // Add AI response message immediately
-        console.log('✉️ Adding AI response message');
-        addMessageToChat(aiResponse, 'bot');
-
-        // Add AI response to history
-        state.history.push({ role: 'assistant', content: aiResponse, timestamp: new Date().toISOString() });
+        // Add to history
+        state.history.push({ role: 'user', content: message, timestamp: new Date().toISOString() });
         saveChatHistory();
 
-    } catch (error) {
-        console.error('Chat processing failed:', error);
-        // Remove typing indicator from DOM
-        if (typingIndicator && typingIndicator.parentNode) {
-            console.log('🗑️ Removing typing indicator after error');
-            typingIndicator.parentNode.removeChild(typingIndicator);
+        console.log('🔄 Setting isProcessing = true');
+        state.isProcessing = true;
+        input.style.opacity = '0.5';
+        input.value = '';
+
+        // Show typing indicator AND get a reference to it immediately
+        const typingKey = typeof appState !== 'undefined' ? appState.translate('ai_thinking_indicator') : '🤖 pixPLace Assistant is thinking...';
+        const typingIndicator = addMessageToChat(typingKey, 'bot');
+        console.log('🎭 Typing indicator created:', !!typingIndicator);
+
+        try {
+            // Send to webhook with history
+            const aiResponse = await sendToWebhook(message, state.history.slice(0, -1)); // Exclude current message from history
+
+            console.log('📨 AI Response received:', aiResponse.substring(0, 50));
+
+            // Remove typing indicator from DOM immediately before adding new message
+            if (typingIndicator && typingIndicator.parentNode) {
+                console.log('🗑️ Removing typing indicator from DOM');
+                typingIndicator.parentNode.removeChild(typingIndicator);
+            } else {
+                console.warn('⚠️ Typing indicator not found or already removed:', typingIndicator);
+            }
+
+            // Add AI response message immediately
+            console.log('✉️ Adding AI response message');
+            addMessageToChat(aiResponse, 'bot');
+
+            // Add AI response to history
+            state.history.push({ role: 'assistant', content: aiResponse, timestamp: new Date().toISOString() });
+            saveChatHistory();
+
+        } catch (error) {
+            console.error('Chat processing failed:', error);
+            // Remove typing indicator from DOM
+            if (typingIndicator && typingIndicator.parentNode) {
+                console.log('🗑️ Removing typing indicator after error');
+                typingIndicator.parentNode.removeChild(typingIndicator);
+            }
+            const errorKey = typeof appState !== 'undefined' ? appState.translate('ai_error_message') : 'Sorry, there was an error. Please try again.';
+            addMessageToChat(errorKey, 'bot');
+        } finally {
+            console.log('🏁 Processing finished, setting isProcessing = false');
+            state.isProcessing = false;
+            input.style.opacity = '';
         }
-        const errorKey = typeof appState !== 'undefined' ? appState.translate('ai_error_message') : 'Sorry, there was an error. Please try again.';
-        addMessageToChat(errorKey, 'bot');
-    } finally {
-        console.log('🏁 Processing finished, setting isProcessing = false');
-        state.isProcessing = false;
-        input.style.opacity = '';
     }
-    }
-    
+
     function formatResponse(response) {
         let formatted = `**Уровень:** ${response.level}\n`;
         formatted += `**Триггер:** ${response.trigger}\n\n`;
@@ -910,14 +1027,14 @@
         formatted += `**Следующий шаг:** ${response.next_step}`;
         return formatted;
     }
-    
+
     function hideCognitiveAssistant() {
         if (state.modal) {
             state.modal.classList.add('hidden');
             state.isOpen = false;
         }
     }
-    
+
     // ========== MCP INTEGRATION ==========
     async function saveToMCP(response) {
         if (typeof useMCPTool === 'function') {
@@ -937,10 +1054,10 @@
             }
         }
     }
-    
+
     // ========== PUBLIC API ==========
     window.AICoach = {
-        init: function() {
+        init: function () {
             console.log('🧠 AI Prompt Helper initialized');
             // Setup event listeners
             window.addEventListener('ai-coach-show', () => window.AICoach.show());
@@ -950,36 +1067,36 @@
             }, 100);
         },
 
-        show: function() {
+        show: function () {
             showChatScreen();
             analyzeUserLevel(); // Initial analysis
         },
 
-        hide: function() {
+        hide: function () {
             hideChatScreen();
         },
 
         processMessage: sendMessage,
 
-        getState: function() { return { ...state, history: state.history.slice(-5) }; }
+        getState: function () { return { ...state, history: state.history.slice(-5) }; }
     };
-    
+
     // Initial user level analysis (placeholder)
     function analyzeUserLevel() {
         // Could integrate with appState.userName or other data
         state.userLevel = 'исследователь'; // Default for now
     }
-    
+
     // Auto-init
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => window.AICoach.init());
     } else {
         window.AICoach.init();
     }
-    
+
     // Global functions for easy access
     window.showAICoach = () => window.AICoach.show();
     window.hideAICoach = () => window.AICoach.hide();
-    
+
     console.log('🧠 AI Prompt Helper module loaded - isolated and ready');
 })();

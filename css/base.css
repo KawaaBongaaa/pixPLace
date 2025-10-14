@@ -59,17 +59,20 @@ body {
     bottom: 0;
     pointer-events: none;
     overflow: hidden;
-    z-index: -1; /* Поднят выше, но под контентом */
+    z-index: -1;
+    /* Поднят выше, но под контентом */
 }
 
 .snowflake {
     position: absolute;
-    color: white; /* Чистый белый без окантовки */
+    color: white;
+    /* Чистый белый без окантовки */
     font-size: 10px;
     animation: snowfall linear infinite;
     border-radius: 50%;
     /* Убрана тень для чистоты снежинок */
-    z-index: 1; /* Над базовым слоем */
+    z-index: 1;
+    /* Над базовым слоем */
     font-weight: bold;
     text-shadow: none;
     border: none;
@@ -110,19 +113,26 @@ body {
 @keyframes snowfall {
     0% {
         transform: translateY(0vh) rotate(0deg) scale(0.8);
-        opacity: 0; /* Невидимы в начале */
+        opacity: 0;
+        /* Невидимы в начале */
     }
+
     10% {
         transform: translateY(5vh) rotate(30deg) scale(1);
-        opacity: 1; /* Плавно появляются */
+        opacity: 1;
+        /* Плавно появляются */
     }
+
     90% {
         transform: translateY(90vh) rotate(330deg) scale(1);
-        opacity: 0.8; /* Начинают тускнеть */
+        opacity: 0.8;
+        /* Начинают тускнеть */
     }
+
     100% {
         transform: translateY(100vh) rotate(360deg) scale(0.6);
-        opacity: 0; /* Исчезают плавно */
+        opacity: 0;
+        /* Исчезают плавно */
     }
 }
 
@@ -203,7 +213,8 @@ body {
     animation:
         text-fade-in 0.4s ease-out forwards,
         text-particles-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 0.1s,
-        text-glow 8s ease-in-out 1.5s; /* ТОЛЬКО ОДИН РАЗ за 8 секунд */
+        text-glow 8s ease-in-out 1.5s;
+    /* ТОЛЬКО ОДИН РАЗ за 8 секунд */
     opacity: 0;
     transform: scale(0.1) rotate(-45deg);
     will-change: transform, filter, text-shadow, opacity;
@@ -219,13 +230,16 @@ body {
     background: rgba(0, 234, 255, 0.8);
     border-radius: 50%;
     animation: particle-float-behind 4s ease-in-out infinite, text-edge-pixels-glow 3.2s ease-in-out infinite;
-    z-index: -1; /* За текстом */
+    z-index: -1;
+    /* За текстом */
     will-change: opacity, transform;
 }
 
 .loading-content h2::before {
-    top: 10%; /* Верхняя часть текста */
-    left: -20%; /* Слева от текста */
+    top: 10%;
+    /* Верхняя часть текста */
+    left: -20%;
+    /* Слева от текста */
     width: 3px;
     height: 3px;
     animation-delay: 0s;
@@ -233,12 +247,14 @@ body {
 }
 
 .loading-content h2::after {
-    bottom: 30%; /* Нижняя часть текста */
-    right: -15%; /* Справа от текста */
+    bottom: 30%;
+    /* Нижняя часть текста */
+    right: -15%;
+    /* Справа от текста */
     width: 2.5px;
     height: 2.5px;
     animation-delay: 2s;
-    box-shadow: 0 0 7px #00EAFF, 0 0 13px #00EAFF, 0 0 22px rgba(0, 234, 255, 0.6);
+    box-shadow: 0 0 7px #00EAFF, 0 0 13px #00EAFF, 0 0 22px rgb(0, 242, 255);
 }
 
 .loading-bar {
@@ -251,16 +267,21 @@ body {
 
 .loading-progress {
     height: 100%;
-    background: linear-gradient(90deg, var(--primary-500), var(--primary-400), var(--primary-300));
-    background-size: 200% 100%;
+    background: linear-gradient(90deg, var(--text-primary), var(--primary-100), var(--primary-50));
+    background-size: 150% 100%;
     border-radius: var(--radius-full);
     animation: loading 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
                loading-gradient 3.2s ease-in-out infinite 0.8s;
     width: 0%;
-    box-shadow: 0 0 10px var(--primary-400);
+    box-shadow: 0 0 10px var(--primary-50);
 }
 
 @keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+/*@keyframes pulse {
 
     0%,
     100% {
@@ -270,49 +291,59 @@ body {
     50% {
         transform: scale(1.05);
     }
-}
+}*/
 
 @keyframes text-fade-in {
     0% {
         opacity: 0;
         transform: scale(0.1) rotate(-45deg);
     }
+
     10% {
         opacity: 0.05;
         transform: scale(0.12) rotate(-40.5deg);
     }
+
     20% {
         opacity: 0.1;
         transform: scale(0.15) rotate(-36deg);
     }
+
     30% {
         opacity: 0.2;
         transform: scale(0.22) rotate(-31.5deg);
     }
+
     40% {
         opacity: 0.4;
         transform: scale(0.32) rotate(-27deg);
     }
+
     50% {
         opacity: 0.5;
         transform: scale(0.42) rotate(-22.5deg);
     }
+
     60% {
         opacity: 0.6;
         transform: scale(0.52) rotate(-18deg);
     }
+
     70% {
         opacity: 0.7;
         transform: scale(0.62) rotate(-13.5deg);
     }
+
     80% {
         opacity: 0.8;
         transform: scale(0.74) rotate(-9deg);
     }
+
     90% {
         opacity: 0.9;
         transform: scale(0.87) rotate(-4.5deg);
     }
+
     100% {
         opacity: 1;
         transform: scale(1) rotate(0deg);
@@ -323,18 +354,23 @@ body {
     0% {
         width: 0%;
     }
+
     20% {
         width: 15%;
     }
+
     40% {
         width: 40%;
     }
+
     60% {
         width: 65%;
     }
+
     80% {
         width: 85%;
     }
+
     100% {
         width: 100%;
     }
@@ -379,7 +415,8 @@ body {
 .header-left {
     display: flex;
     align-items: flex-start;
-    flex: 1 0 auto; /* Take available space but don't shrink */
+    flex: 1 0 auto;
+    /* Take available space but don't shrink */
     min-width: 0;
 }
 
@@ -391,14 +428,16 @@ body {
     color: var(--text-primary);
     text-decoration: none;
     min-width: 0;
-    flex: 1 0 auto; /* Take available space */
+    flex: 1 0 auto;
+    /* Take available space */
 }
 
 .logo-text {
     font-family: "WDXL Lubrifont JP N", sans-serif;
     font-optical-sizing: auto;
     font-weight: 800;
-    font-size: clamp(2rem, 5vw, 3.5rem); /* Larger on big screens */
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    /* Larger on big screens */
     font-style: normal;
     letter-spacing: 1px;
     white-space: nowrap;
@@ -408,7 +447,8 @@ body {
 }
 
 .logo-img {
-    width: clamp(100px, 10vw, 800px); /* Larger minimum size */
+    width: clamp(100px, 10vw, 800px);
+    /* Larger minimum size */
     height: clamp(100px, 10vw, 800px);
     object-fit: contain;
     flex-shrink: 0;
@@ -424,7 +464,8 @@ body {
 }
 
 .show-back .header-right {
-    justify-content: flex-start; /* Adjust alignment when back button is shown */
+    justify-content: flex-start;
+    /* Adjust alignment when back button is shown */
 }
 
 .control-btn {
@@ -441,7 +482,8 @@ body {
     transition: all var(--transition-fast);
     position: relative;
     overflow: hidden;
-    flex-shrink: 0; /* Предотвращает сжатие кнопок в header */
+    flex-shrink: 0;
+    /* Предотвращает сжатие кнопок в header */
 }
 
 .control-btn:hover {
@@ -537,8 +579,10 @@ body {
     }
 
     .header-right {
-        gap: var(--space-0) !important; /* Reduce gap on tablets */
-        justify-content: flex-end; /* Keep buttons on the right */
+        gap: var(--space-0) !important;
+        /* Reduce gap on tablets */
+        justify-content: flex-end;
+        /* Keep buttons on the right */
     }
 
     .control-btn {
@@ -562,14 +606,18 @@ body {
     }
 
     .header-right {
-        gap: var(--space-0) !important; /* Minimal gap on mobile */
-        justify-content: flex-end; /* Keep buttons on the right */
+        gap: var(--space-0) !important;
+        /* Minimal gap on mobile */
+        justify-content: flex-end;
+        /* Keep buttons on the right */
         padding-right: 0.2rem;
-        overflow: hidden; /* Prevent overflow */
+        overflow: hidden;
+        /* Prevent overflow */
     }
 
     .control-btn {
-        width: 32px !important; /* Smaller buttons on mobile */
+        width: 32px !important;
+        /* Smaller buttons on mobile */
         height: 32px !important;
     }
 
