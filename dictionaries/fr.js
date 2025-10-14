@@ -33,6 +33,16 @@ export const fr = {
     mode_photo_session: "Nano Banana | Éditeur Photo - décrivez ce qu'il faut changer",
     mode_fast_generation: "Flux Shnel | Rapide | Images Simples",
     mode_pixplace_pro: "Flux Krea | Logo | Text",
+    mode_details: "Détails du Modèle",
+
+    // Descriptions des modes
+    mode_photo_session_desc: "Parfait pour l'édition photo — guidez l'IA avec jusqu'à 4 références d'images, ou laissez-la travailler librement",
+    mode_fast_generation_desc: "Le modèle le plus rapide pour génération rapide d'images — fonctionne instantanément sans téléchargement",
+    mode_pixplace_pro_desc: "Passez en Mode Professionnel — idéal pour la conception de logos, les compositions textuelles et les mises en page complexes comme un vrai Designer Pro",
+    mode_print_maker_desc: "Spécialement conçu pour les créateurs Print-on-Demand — créez des designs prêts à imprimer pour vêtements, sacs et plus",
+    mode_background_removal_desc: "Supprime l'arrière-plan et garde seulement le sujet principal. Téléchargez une photo pour commencer",
+    mode_upscale_image_desc: "Améliore la qualité et la résolution des images — rend vos visuels net et détaillé",
+
     size_label: "Taille",
     size_square: "1:1",
     size_portrait: "9:16",

@@ -33,6 +33,16 @@ export const ar = {
     mode_photo_session: "Nano Banana | محرر الصور - صف ما تريد تغييره",
     mode_fast_generation: "Flux Shnel | سريع | صور بسيطة",
     mode_pixplace_pro: "Flux Krea | Logo | Text",
+    mode_details: "تفاصيل النموذج",
+
+    // وصف الأوضاع
+    mode_photo_session_desc: "مثالي لتحرير الصور — وجه الذكاء الاصطناعي باستخدام ما يصل إلى 4 مراجع صور أو دعها تعمل بحرية",
+    mode_fast_generation_desc: "أسرع نموذج لإنتاج الصور السريع — يعمل فوراً بدون رفع ملفات",
+    mode_pixplace_pro_desc: "انتقل إلى الوضع المهني — مثالي لتصميم الشعارات، تركيبات النصوص والتخطيطات المعقدة مثل مصمم محترف حقيقي",
+    mode_print_maker_desc: "مصمم خصيصاً لمبدعي Print-on-Demand — أنشئ تصاميم جاهزة للطباعة على الملابس، الحقائب والمزيد",
+    mode_background_removal_desc: "أزل الخلفية واحتفظ بالموضوع الرئيسي فقط. ارفع صورة لبدء العمل",
+    mode_upscale_image_desc: "حسن جودة الصورة والدقة — اجعل مرئياتك حادة ومفصلة",
+
     size_label: "الحجم",
     size_square: "1:1",
     size_portrait: "9:16",

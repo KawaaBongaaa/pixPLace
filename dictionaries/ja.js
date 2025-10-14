@@ -33,6 +33,16 @@ export const ja = {
     mode_photo_session: "Nano Banana | 写真編集",
     mode_fast_generation: "Flux Shnel | 高速 | シンプル画像",
     mode_pixplace_pro: "Flux Krea | ロゴ | テキスト",
+    mode_details: "モデル詳細",
+
+    // モード説明
+    mode_photo_session_desc: "写真編集に最適 — 最大4つの画像参照でAIをガイドするか、自由に働かせます",
+    mode_fast_generation_desc: "最も速いクイック画像生成モデル — アップロードなしですぐに動作",
+    mode_pixplace_pro_desc: "プロモードに切り替え — 本物のプロデザイナーのように、ロゴデザイン、テキスト構成、複雑なレイアウトに最適",
+    mode_print_maker_desc: "Print-on-Demandクリエイター向けに特別に設計 — 衣服、バッグ、その他の製品に印刷するデザインを作成",
+    mode_background_removal_desc: "背景を削除し、主なオブジェクトだけを保持。写真をアップロードして開始",
+    mode_upscale_image_desc: "画像の品質と解像度を向上 — あなたのビジュアルを鮮明で詳細に",
+
     size_label: "サイズ",
     size_square: "1:1",
     size_portrait: "9:16",

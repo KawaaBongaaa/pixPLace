@@ -33,6 +33,16 @@ export const hi = {
     mode_photo_session: "Nano Banana | फोटो एडिटर - बताएं क्या बदलना है",
     mode_fast_generation: "Flux Fastest | तेज़ | सरल तस्वीरें",
     mode_pixplace_pro: "Flux Pro | Logo & Text Supported",
+    mode_details: "मॉडल विवरण",
+
+    // मोड विवरण
+    mode_photo_session_desc: "फोटो एडिटिंग के लिए परफेक्ट — अधिकतम 4 छवि संदर्भों के साथ AI को गाइड करें या इसे फ्रीली वर्क करने दें",
+    mode_fast_generation_desc: "तेजी से छवि निर्माण के लिए सबसे तेज़ मॉडल — अपलोड के बिना तुरंत काम करता है",
+    mode_pixplace_pro_desc: "प्रो मोड पर स्विच करें — लॉगो डिजाइन, टेक्स्ट कम्पोजिशन और कॉम्प्लेक्स लेआउट के लिए एक प्रो डिजाइनर की तरह आदर्श",
+    mode_print_maker_desc: "Print-on-Demand क्रिएटर्स के लिए विशेष रूप से तैयार — कपड़ों, बैग्स और बहुत कुछ पर प्रिंट के लिए तैयार designs बनाएं",
+    mode_background_removal_desc: "बैकग्राउंड हटाएं और केवल मुख्य object रखें। शुरू करने के लिए फोटो अपलोड करें",
+    mode_upscale_image_desc: "छवियों की क्वालिटी और रेजोल्यूशन बढ़ाएं — अपने विजुअल को क्रिस्प और डिटेल्ड बनाएं",
+
     size_label: "आकार",
     size_square: "1:1",
     size_portrait: "3:4",

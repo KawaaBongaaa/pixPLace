@@ -33,6 +33,16 @@ export const ko = {
     mode_photo_session: "Nano Banana | 사진 편집",
     mode_fast_generation: "Flux Shnel | 빠른 생성",
     mode_pixplace_pro: "Flux Krea | 로고 | 텍스트",
+    mode_details: "모델 상세",
+
+    // 모드 설명
+    mode_photo_session_desc: "사진 편집에 완벽함 — 최대 4개의 이미지 참조로 AI를 유도하거나 자유롭게 작동하게 함",
+    mode_fast_generation_desc: "가장 빠른 빠른 이미지 생성 모델 — 업로드 없이 즉시 작동",
+    mode_pixplace_pro_desc: "프로 모드로 전환 — 실제 프로 디자이너처럼 로고 디자인, 텍스트 구성, 복잡한 레이아웃에 이상적",
+    mode_print_maker_desc: "Print-on-Demand 크리에이터를 위해 특별히 제작 — 의류, 가방, 기타 제품에 인쇄할 디자인 제작",
+    mode_background_removal_desc: "배경을 제거하고 주요 객체 유지. 사진 업로드로 시작",
+    mode_upscale_image_desc: "이미지 품질과 해상도 향상 — 시각 자료를 선명하고 세부적으로 만들기",
+
     size_label: "크기",
     size_square: "1:1",
     size_portrait: "9:16",

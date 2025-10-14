@@ -10,8 +10,12 @@ import { hi } from './dictionaries/hi.js';
 import { ja } from './dictionaries/ja.js';
 import { it } from './dictionaries/it.js';
 import { ko } from './dictionaries/ko.js';
+import { vi } from './dictionaries/vi.js';
+import { th } from './dictionaries/th.js';
 import { tr } from './dictionaries/tr.js';
 import { pl } from './dictionaries/pl.js';
+import { initUserAccount as initUserAccountFromModule } from './user-account.js';
+
 
 // 🚀 Modern AI Image Generator WebApp
 
@@ -20,7 +24,7 @@ const CONFIG = {
     WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
     CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6', // ⚠️ ЗАМЕНИТЕ НА WEBHOOK ДЛЯ ЧАТА!
     TIMEOUT: 120000, // 120 секунд
-    LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'tr', 'pl'],
+    LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'tr', 'pl', 'vi', 'th'],
     DEFAULT_LANGUAGE: 'en',
     DEFAULT_THEME: 'dark', // 'light', 'dark', 'auto'
     IMGBB_API_KEY: '34627904ae4633713e1fee94a243794e', // только для тестов/прототипа (deprecated - используем Runware)
@@ -80,8 +84,11 @@ const TRANSLATIONS = {
     ja,
     it,
     ko,
+
     tr,
-    pl
+    pl,
+    vi,
+    th
 };
 
 
@@ -3151,11 +3158,34 @@ function initLanguageDropdown() {
     const menu = document.getElementById('langMenu');
     if (!btn || !menu) return;
 
+    // Карта языков с флагами и названиями
+    const languageMap = {
+        'en': { flag: '🇺🇸', name: 'English' },
+        'ru': { flag: '🇷🇺', name: 'Русский' },
+        'es': { flag: '🇪🇸', name: 'Español' },
+        'fr': { flag: '🇫🇷', name: 'Français' },
+        'de': { flag: '🇩🇪', name: 'Deutsch' },
+        'zh': { flag: '🇨🇳', name: '中文' },
+        'pt': { flag: '🇧🇷', name: 'Português' },
+        'ar': { flag: '🇸🇦', name: 'العربية' },
+        'hi': { flag: '🇮🇳', name: 'हिंदी' },
+        'ja': { flag: '🇯🇵', name: '日本語' },
+        'it': { flag: '🇮🇹', name: 'Italiano' },
+        'ko': { flag: '🇰🇷', name: '한국어' },
+        'vi': { flag: '🇻🇳', name: 'Tiếng Việt' },
+        'th': { flag: '🇹🇭', name: 'ไทย' },
+        'tr': { flag: '🇹🇷', name: 'Türkçe' },
+        'pl': { flag: '🇵🇱', name: 'Polski' }
+    };
+
     // Заполнить меню языками
     menu.innerHTML = '';
     CONFIG.LANGUAGES.forEach(l => {
         const li = document.createElement('li');
-        li.textContent = l; // можно заменить на красивое имя, если нужно
+        const langInfo = languageMap[l] || { flag: l, name: l };
+        li.innerHTML = `<span class="flag">${langInfo.flag}</span> <span class="lang-name">${langInfo.name}</span>`;
+        li.dataset.lang = l; // сохранить код языка для поиска
+
         li.addEventListener('click', (evt) => {
             evt.stopPropagation();
             appState.setLanguage(l);        // сохранится в localStorage через saveSettings()
@@ -3186,6 +3216,8 @@ function initLanguageDropdown() {
             menu.style.display = 'none';
         }
     });
+
+    console.log('🌍 Language dropdown initialized with flags and names');
 }
 
 // 🚀 App Initialization
@@ -3213,6 +3245,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     initializeUI();
     initUserImageUpload(); // ← добавь эту строку
     initLanguageDropdown();
+    try {
+        // Инициализация личного кабинета с проверкой
+        initUserAccountFromModule();
+    } catch (error) {
+        console.error('❌ Failed to initialize User Account:', error);
+        // Продолжаем работу без личного кабинета
+    }
 
     const carouselImages = document.querySelectorAll('.carousel-2d-item img');
     carouselImages.forEach(img => {
@@ -4497,8 +4536,14 @@ async function showWarningAboutNoImage() {
         `;
 
         modal.innerHTML = `
-            <div style="text-align: center; margin-bottom: 2rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
+            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 1rem;">
+                <div style="font-size: 4rem; margin-bottom: 0.25rem; display: flex; align-items: center; justify-content: center;" class="photo-warning-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                </div>
+            </div>
+            <div style="text-align: center; margin-bottom: 1rem;">
                 <h3 style="margin: 0 0 1rem 0; color: var(--text-primary, #333); font-size: 1.25rem; font-weight: 600;">${appState.translate('photo_warning_title')}</h3>
                 <p style="margin: 0; color: var(--text-secondary, #666); font-size: 1rem; line-height: 1.5;">
                     ${appState.translate('photo_warning_text')}
@@ -4695,19 +4740,4 @@ function toggleModeDetails() {
     }
 }
 
-// 🎯 Инициализация обработки кнопки "Подробнее о режимах"
-function initModeDetailsButton() {
-    const modeDetailsBtn = document.getElementById('modeDetailsBtn');
-    if (modeDetailsBtn) {
-        modeDetailsBtn.addEventListener('click', toggleModeDetails);
-        console.log('Mode details button initialized');
-    } else {
-        console.warn('Mode details button not found');
-    }
-}
-
-// Добавляем инициализацию в main загрузочный обработчик
-document.addEventListener('DOMContentLoaded', initModeDetailsButton);
-
-// Экспорт функций для использования
-window.toggleModeDetails = toggleModeDetails;
+// 🎯 Функции личного кабинета импортированы из модуля user-account.js

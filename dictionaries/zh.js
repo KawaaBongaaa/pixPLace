@@ -33,6 +33,16 @@ export const zh = {
     mode_photo_session: "Nano Banana | 照片编辑器 - 描述要更改的内容",
     mode_fast_generation: "Flux Shnel | 快速 | 简单图片",
     mode_pixplace_pro: "Flux Krea | Logo | Text",
+    mode_details: "模型详情",
+
+    // 模式描述
+    mode_photo_session_desc: "完美适合照片编辑——用最多4个图像参考来指导AI，或让它自由工作",
+    mode_fast_generation_desc: "最快的快速图像生成模型——无需上传即可立即工作",
+    mode_pixplace_pro_desc: "切换到专业模式——就像真正的专业设计师一样，适合标志设计、文本组合和复杂布局",
+    mode_print_maker_desc: "专门为Print-on-Demand创作者设计——制作可在服装、手袋和其他产品上印刷的设计",
+    mode_background_removal_desc: "移除背景并保留主要对象。上传照片开始",
+    mode_upscale_image_desc: "提升图像质量和分辨率——让你的视觉效果更清晰更详细",
+
     size_label: "尺寸",
     size_square: "1:1",
     size_portrait: "9:16",

@@ -33,6 +33,16 @@ export const de = {
     mode_photo_session: "Nano Banana | Foto-Editor - beschreibe was ändern",
     mode_fast_generation: "Flux Shnel | Schnell | Einfache Bilder",
     mode_pixplace_pro: "Flux Krea | Logo | Text",
+    mode_details: "Modell-Details",
+
+    // Menschliche Dialog-Beschreibungen der Modi
+    mode_photo_session_desc: "Der ultimative Foto-Editor! Wirf bis zu 4 Bild-Refs rein und erzähl der KI einfach, was geändert werden soll — der Rest geht automatisch 🚀",
+    mode_fast_generation_desc: "Blitzschneller Modus für normale Bilder — generiert fast sofort. Keine eigenen Fotos als Refs erlaubt 😎",
+    mode_pixplace_pro_desc: "Pro-Level für ernsthafte Designer! Erstelle komplexe Layouts, Logos, Infografiken, Produktkarten und mehr. Versteht nur Englisch gut (Deutsch — probier's erst gar nicht). Du kannst deine eigenen Fotos als Ref hochladen 💪",
+    mode_print_maker_desc: "Maßgeschneiderter Modus für Print-on-Demand-Bosse — druckt Designs direkt auf T-Shirts, Bags und alle möglichen Merch-Artikel. Nutz deine Fotos für Inspiration 🔥",
+    mode_background_removal_desc: "Schneidet Hintergründe wie ein Chirurg raus — behält nur das Hauptobjekt. Wirf ein Foto rein, bekomm ein cooles PNG mit transparentem Background ✨",
+    mode_upscale_image_desc: "Pumpt Pixel und Qualität hoch — deine Fotos werden so scharf wie auf Apple Vision Pro Screens 🔍",
+
     size_label: "Größe",
     size_square: "1:1",
     size_portrait: "9:16",

@@ -38,8 +38,8 @@ export const en = {
     mode_pixplace_pro: "Flux Pro Advanced",
     mode_details: "Model Details",
 
-    // New mode descriptions for carousel
-    mode_photo_session_desc: "Perfect for photo editing — guide the AI with up to 4 image references, or let it work freely without any",
+    // Human-like dialog mode descriptions
+    mode_photo_session_desc: "Ultimate photo editor! Drop up to 4 reference pics and just tell the AI what to change — it handles everything for you 🚀",
     mode_fast_generation_desc: "Fastest model for quick image generation — works instantly without uploads",
     mode_pixplace_pro_desc: "Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer",
     mode_print_maker_desc: "Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond",

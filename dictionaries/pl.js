@@ -29,6 +29,20 @@ export const pl = {
     mode_label: "Tryb",
     mode_background_removal: "Usuń tło",
     mode_upscale_image: "Popraw obraz",
+    mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
+    mode_photo_session: "Nano Banana | Edycja Fotos",
+    mode_fast_generation: "Flux Schnel | Szybko | Proste Obrazy",
+    mode_pixplace_pro: "Flux Krea | Logo | Tekst",
+    mode_details: "Szczegóły Modelu",
+
+    // Opisy trybów
+    mode_photo_session_desc: "Doskonały do edycji zdjęć — prowadź AI z maksymalnie 4 odniesieniami obrazu lub pozwól działać swobodnie",
+    mode_fast_generation_desc: "Najszybszy model do szybkiego generowania obrazów — działa natychmiast bez przesyłania",
+    mode_pixplace_pro_desc: "Przełącz do Trybu Profesjonalnego — idealny do projektowania logo, kompozycji tekstowych i złożonych układów jak prawdziwy Projektant Pro",
+    mode_print_maker_desc: "Specjalnie zaprojektowany dla twórców Print-on-Demand — twórz gotowe do druku projekty na odzież, torby i więcej",
+    mode_background_removal_desc: "Usuń tło i zachowaj tylko główny obiekt. Prześlij zdjęcie, aby zacząć",
+    mode_upscale_image_desc: "Popraw jakość i rozdzielczość obrazów — spraw, by twoje materiały wizualne były ostre i szczegółowe",
+
     generate_btn: "Generuj obraz",
     create_new: "Nowy",
     photo_warning_title: "Aby uzyskać lepsze wyniki, prześlij obraz",
