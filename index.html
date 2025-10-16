@@ -95,6 +95,26 @@
             }
         }
 
+        // Функция ручного развертывания полноэкранного режима (для iPad и других проблемных устройств)
+        function manualExpand() {
+            if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+                try {
+                    Telegram.WebApp.expand();
+                    console.log('✅ Manual expand called');
+                    showToast('success', 'Expanded to full screen');
+                } catch (error) {
+                    console.error('❌ Manual expand failed:', error);
+                    showToast('error', 'Could not expand screen');
+                }
+            } else {
+                console.log('⚠️ Telegram WebApp not available for manual expand');
+                showToast('warning', 'Manual expand not available');
+            }
+        }
+
+        // Делаем функцию глобальной для доступа из других скриптов
+        window.manualExpand = manualExpand;
+
 
         window.addEventListener('load', initTelegramWebApp);
     </script>
@@ -289,6 +309,8 @@
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                         </svg>
                     </button>
+                                        <!-- USER MENU  
+
                     <div class="user-menu-wrapper">
                         <button class="control-btn" id="userMenuBtn" title="Personal Account">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -314,6 +336,12 @@
                                 </div>
                             </div>
                             <div class="user-menu-actions">
+                                <button class="user-action-btn expand-btn" onclick="window.manualExpand()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                                    </svg>
+                                    Expand Screen
+                                </button>
                                 <button class="user-action-btn plans-btn" onclick="openSubscriptionPlans()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect x="1" y="4" width="12" height="12" rx="2" ry="2" />
@@ -327,7 +355,7 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </header>
