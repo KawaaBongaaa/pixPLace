@@ -9,6 +9,11 @@ class HistoryManagement {
         console.log('📋 HistoryManagement initialized');
     }
 
+    // Глобальные переменные для отслеживания страниц
+    static currentPage = 0;
+    static maxLoadedPage = 0;
+    static isLoadingPage = false;
+
     // Функция для обновления миниатюры после получения результата
     async updateHistoryItemWithImage(generationId, imageUrl) {
         const loadingItem = document.getElementById(`loading-${generationId}`);
@@ -68,7 +73,7 @@ class HistoryManagement {
             realImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbFw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+';
         };
 
-        // Обновляем подпись - показываем завершение генерации
+        // 🔧 ИСПРАВЛЕНИЕ: Обновляем подпись с защитой от mode_undefined
         const loadingCaption = loadingItem.querySelector('p');
         if (loadingCaption) {
             // Найдем объект генерации по ID
@@ -76,9 +81,15 @@ class HistoryManagement {
             const mode = generation ? generation.mode : 'unknown';
             const style = generation ? generation.style : 'realistic';
 
+            // ЗАЩИТА: Убеждаемся что mode не undefined
+            const safeMode = (mode && mode !== 'undefined') ? mode : 'photo_session';
+            const translatedMode = window.appState.translate('mode_' + safeMode);
+
+            console.log(`🎯 Mode translation debug: mode='${mode}', safeMode='${safeMode}', translated='${translatedMode}'`);
+
             loadingCaption.innerHTML = `
         <span class="complete-status">✅ Complete</span><br>
-        <small class="history-date">${new Date().toLocaleDateString()} | ${window.appState.translate('style_' + style)} | ${window.appState.translate('mode_' + mode)}</small>
+        <small class="history-date">${new Date().toLocaleDateString()} | ${window.appState.translate('style_' + style)} | ${translatedMode}</small>
     `;
 
             // Добавляем мягкую анимацию изменения текста
@@ -475,16 +486,16 @@ function updateHistoryDisplay(page = 0) {
                     <div>Изображение недоступно</div>
                     <div style="font-size: 10px; margin-top: 2px;">Повторите генерацию</div>
                 </div>
-                <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + item.mode) || item.mode}</p>
+            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + (item.mode || 'photo_session')) || 'photo_session'}</p>
             ` : `
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbGw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+"
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L3JlY3Q+PC9zdmc+"
                      data-src="${imageUrl}"
                      alt="Generated"
                      class="lazy-loading"
                      loading="lazy"
                      decoding="async"
                      />
-                <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + item.mode) || item.mode}</p>
+                <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + (item.mode || 'photo_session')) || 'photo_session'}</p>
             `;
 
             historyList.appendChild(element);
@@ -541,80 +552,67 @@ function updateHistoryDisplay(page = 0) {
         console.warn('⚠️ No items to display on page', page);
     }
 
-    // 🔥 ПРОСТАЯ ЛОГИКА: Кнопка "Загрузить ещё" размещается ПОСЛЕ списка истории
-    // Показываем только если есть элементы для загрузки (> 6)
-    if (validItems.length > 6) {
+    console.log(`� DEBUGGING HISTORY PAGING:`);
+    console.log(`Total valid items: ${validItems.length}`);
+    console.log(`Current page: ${page}`);
+    console.log(`Items per page: ${itemsPerPage}`);
+    console.log(`Should show load more? ${validItems.length > itemsPerPage}`);
+
+    if (validItems.length > itemsPerPage) {
         // Удаляем старую кнопку, если есть
         const existingBtn = document.getElementById('loadMoreHistoryBtn');
         if (existingBtn) {
             existingBtn.remove();
+            console.log('🗑️ Removed existing load more button');
         }
 
         // Создаем новую кнопку
         const loadMoreBtn = document.createElement('button');
         loadMoreBtn.id = 'loadMoreHistoryBtn';
-        loadMoreBtn.className = 'load-more-btn';
-        loadMoreBtn.innerHTML = 'Загрузить ещё...';
+        loadMoreBtn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;"><span style="color: var(--text-primary);">�</span> ${window.appState.translate('load_more_history')}...</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Показаны ${pageItems.length} из ${validItems.length}</div>`;
+
+        loadMoreBtn.style.cssText = `
+            width: 100%;
+            height: 120px;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-primary);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            margin: 8px 0;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        `;
+
+        loadMoreBtn.onmouseenter = () => {
+            loadMoreBtn.style.background = 'var(--bg-tertiary)';
+            loadMoreBtn.style.borderColor = 'var(--primary-500)';
+        };
+
+        loadMoreBtn.onmouseleave = () => {
+            loadMoreBtn.style.background = 'var(--bg-secondary)';
+            loadMoreBtn.style.borderColor = 'var(--border-primary)';
+        };
+
         loadMoreBtn.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
             console.log('🎯 Load more button clicked');
+
+            loadMoreBtn.textContent = 'Загружаем...';
+            loadMoreBtn.disabled = true;
+
             loadNextHistoryPage();
         };
-        // Очищаем все остальные обработчики кликов и предотвращаем наследование
-        loadMoreBtn.onmousedown = null;
-        loadMoreBtn.onmouseup = null;
-        loadMoreBtn.onpointerdown = null;
-        loadMoreBtn.onpointerup = null;
 
-
-    
-        // 🔥 ДОБАВЛЯЕМ КНОПКУ ВНУТРЬ СПИСКА ИСТОРИИ КАК ПОСЛЕДНИЙ ЭЛЕМЕНТ
-        loadMoreBtn.className = 'load-more-btn history-mini';
-        loadMoreBtn.textContent = `📚 Загрузить ещё...`;
-        loadMoreBtn.style.cssText = `
-            width: 100% !important;
-            height: 120px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            font-size: 16px !important;
-            font-weight: bold !important;
-            background: transparent !important; /* Убираем яркий фона */
-            border: 2px dashed var(--border-primary, #dee2e6) !important; /* Оставляем только контур */
-            border-radius: 8px !important;
-            color: var(--text-secondary, #6c757d) !important; /* Серый тест вместо яркого */
-            cursor: pointer !important;
-            margin: 8px 0 !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        `;
         historyList.appendChild(loadMoreBtn);
-        console.log('✅ Load more button added after history list');
-
-        // Принудительно задаем стили для видимости
-        loadMoreBtn.style.cssText = `
-            display: block !important;
-            margin: 20px auto !important;
-            padding: 12px 24px !important;
-            background: #007bff !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 25px !important;
-            font-size: 16px !important;
-            cursor: pointer !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        `;
-    } else if (validItems.length <= 6) {
-        // Убираем кнопку если 6 или меньше элементов
-        const existingBtn = document.getElementById('loadMoreHistoryBtn');
-        if (existingBtn) {
-            existingBtn.remove();
-            console.log('🗑️ Load more button removed - 6 or fewer items');
-        }
+        console.log('✅ Load more button added');
     }
 }
+
+// Глобальный счетчик страницы
+let currentHistoryPage = 0;
 
 // Функция для загрузки следующей страницы истории
 function loadNextHistoryPage() {
@@ -625,34 +623,52 @@ function loadNextHistoryPage() {
         item.result !== 'undefined'
     );
 
-    const itemsPerPage = 15; // Используем полный размер страницы для пагинации
-    const totalPages = Math.ceil(validItems.length / itemsPerPage);
-    const nextPage = Math.floor(validItems.length / itemsPerPage); // Вычисляем следующую страницу
+    // Увеличиваем страницу
+    currentHistoryPage++;
 
-    if (nextPage >= totalPages) {
+    const itemsPerPage = 15; // Всегда используем 15 для пагинации
+    const totalPages = Math.ceil(validItems.length / itemsPerPage);
+
+    if (currentHistoryPage >= totalPages) {
         console.log('📄 No more pages to load');
+        // Скрываем кнопку если больше нет страниц
+        const btn = document.getElementById('loadMoreHistoryBtn');
+        if (btn) {
+            btn.textContent = 'Все загружено! 🎉';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
         return;
     }
 
-    console.log(`📄 Loading next history page: ${nextPage}`);
-    updateHistoryDisplay(nextPage);
+    console.log(`📄 Loading next history page: ${currentHistoryPage} (total pages: ${totalPages})`);
+    updateHistoryDisplay(currentHistoryPage);
 
     // Обновляем текст кнопки загрузки
     setTimeout(() => {
         const btn = document.getElementById('loadMoreHistoryBtn');
         if (btn) {
-            if (nextPage + 1 >= totalPages) {
-                btn.textContent = 'Все загружено! 🎉';
+            const nextPageAfterLoad = currentHistoryPage + 1;
+            if (nextPageAfterLoad >= totalPages) {
+                btn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;">🎉 Все загружено!</div>`;
                 btn.disabled = true;
                 btn.style.opacity = '0.5';
             } else {
-                btn.textContent = 'Загрузить ещё...';
+                const loadedSoFar = (currentHistoryPage + 1) * itemsPerPage;
+                const remaining = Math.min(validItems.length - loadedSoFar, itemsPerPage);
+                btn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;"><span style="color: var(--text-primary);"></span> ${window.appState.translate('load_more_history')} ${remaining}...</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Показаны ${Math.min(loadedSoFar, validItems.length)} из ${validItems.length}</div>`;
                 btn.disabled = false;
             }
             // Прокрутка к новой кнопке для активации загрузки изображений
             btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, 300);
+}
+
+// Функция сброса счетчика страницы
+function resetHistoryPageCounter() {
+    currentHistoryPage = 0;
 }
 
 // Функция для показа всей истории без виртуализации
@@ -674,7 +690,7 @@ function showAllHistory() {
         element.id = `history-${item.id}`;
         element.onclick = () => viewHistoryItem(item.id);
 
-        element.innerHTML = `
+            element.innerHTML = `
             <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L3JlY3Q+PC9zdmc+"
                  data-src="${item.result || ''}"
                  alt="Generated"
@@ -683,7 +699,7 @@ function showAllHistory() {
                  decoding="async"
                  ${item.result ? '' : 'style="opacity: 0.7;"'}
                  />
-            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState.translate('style_' + item.style)} | ${window.appState.translate('mode_' + item.mode)}</p>
+            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState.translate('style_' + item.style)} | $${item.credits || 'N/A'}</p>
         `;
 
         return element.outerHTML;
@@ -720,6 +736,8 @@ function toggleHistoryList() {
     if (list.classList.contains('hidden')) {
         list.classList.remove('hidden');
         btn.classList.add('active');
+        // Сбрасываем счетчик страниц при открытии
+        currentHistoryPage = 0;
         updateHistoryDisplay();
 
         // Дополнительная быстрая прокрутка к последнему изображению после открытия истории

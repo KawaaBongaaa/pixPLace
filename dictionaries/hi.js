@@ -77,5 +77,6 @@ export const hi = {
     photo_warning_text: "\"Nano Banana\" मोड img2img जेनरेशन के लिए एक इमेज के साथ बेहतर काम करता है। क्या आप एक इमेज अपलोड करना चाहते हैं या बिना अपलोड किए जारी रखना चाहते हैं?",
     photo_warning_upload_btn: "इमेज अपलोड करें",
     photo_warning_continue_btn: "बिना अपलोड किए जारी रखें",
-    image_limit_error: "अधिकतम 4 इमेज। आप {{count}} और अपलोड कर सकते हैं।"
+    image_limit_error: "अधिकतम 4 इमेज। आप {{count}} और अपलोड कर सकते हैं।",
+    load_more_history: "और देखें"
 }

@@ -113,5 +113,6 @@ export const fr = {
     photo_warning_text: "Le mode \"Nano Banana\" fonctionne mieux avec une image pour la génération img2img. Voulez-vous télécharger une image ou continuer sans ?",
     photo_warning_upload_btn: "Télécharger l'image",
     photo_warning_continue_btn: "Continuer sans",
-    image_limit_error: "Maximum 4 images. Vous pouvez en télécharger {{count}} de plus."
+    image_limit_error: "Maximum 4 images. Vous pouvez en télécharger {{count}} de plus.",
+    load_more_history: "Afficher plus"
 }

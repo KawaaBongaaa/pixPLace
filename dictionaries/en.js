@@ -122,5 +122,6 @@ export const en = {
     photo_warning_continue_btn: "Continue without",
     image_limit_error: "Maximum 4 images. You can upload {{count}} more.",
     // Server overloaded error message
-    error_server_overloaded: "😓 Generation failed. The servers are currently overloaded, please try again later or select a different generation mode... We sincerely apologize for the inconvenience and hope for your understanding 🙏"
+    error_server_overloaded: "😓 Generation failed. The servers are currently overloaded, please try again later or select a different generation mode... We sincerely apologize for the inconvenience and hope for your understanding 🙏",
+    load_more_history: "Show more"
 };

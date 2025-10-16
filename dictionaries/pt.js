@@ -113,5 +113,6 @@ export const pt = {
     photo_warning_text: "O modo \"Nano Banana\" funciona melhor com uma imagem para geração img2img. Quer enviar uma imagem ou continuar sem ela?",
     photo_warning_upload_btn: "Enviar imagem",
     photo_warning_continue_btn: "Continuar sem",
-    image_limit_error: "Máximo 4 imagens. Você pode enviar {{count}} mais."
+    image_limit_error: "Máximo 4 imagens. Você pode enviar {{count}} mais.",
+    load_more_history: "Mostrar mais"
 }

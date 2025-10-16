@@ -113,5 +113,6 @@ export const ar = {
     photo_warning_text: "يعمل وضع \"Nano Banana\" بشكل أفضل مع صورة لتوليد img2img. هل تريد رفع صورة أم المتابعة بدونها؟",
     photo_warning_upload_btn: "ارفع الصورة",
     photo_warning_continue_btn: "تابع بدون",
-    image_limit_error: "حد أقصى 4 صور. يمكنك رفع {{count}} أكثر."
+    image_limit_error: "حد أقصى 4 صور. يمكنك رفع {{count}} أكثر.",
+    load_more_history: "عرض المزيد"
 }

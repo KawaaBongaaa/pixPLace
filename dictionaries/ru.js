@@ -117,4 +117,5 @@ export const ru = {
     photo_warning_upload_btn: "Загрузить изображение",
     photo_warning_continue_btn: "Продолжить без",
     image_limit_error: "Максимум 4 изображения. Вы можете загрузить ещё {{count}}.",
+    load_more_history: "Показать больше"
 }

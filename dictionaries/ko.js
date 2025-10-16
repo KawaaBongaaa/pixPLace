@@ -72,5 +72,6 @@ export const ko = {
     photo_warning_text: "\"Nano Banana\" 모드는 img2img 생성을 위한 이미지가 있을 때 더 잘 작동합니다. 이미지를 업로드하거나 그냥 진행하겠습니까?",
     photo_warning_upload_btn: "이미지 업로드",
     photo_warning_continue_btn: "업로드 없이 계속",
-    image_limit_error: "최대 4개의 이미지. {{count}}개를 더 업로드할 수 있습니다."
+    image_limit_error: "최대 4개의 이미지. {{count}}개를 더 업로드할 수 있습니다.",
+    load_more_history: "더보기"
 }

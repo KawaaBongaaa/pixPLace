@@ -113,5 +113,6 @@ export const de = {
     photo_warning_text: "Der \"Nano Banana\" Modus funktioniert besser mit einem Bild für img2img Generierung. Möchtest du ein Bild hochladen oder ohne fortfahren?",
     photo_warning_upload_btn: "Bild hochladen",
     photo_warning_continue_btn: "Ohne weitermachen",
-    image_limit_error: "Maximal 4 Bilder. Du kannst noch {{count}} hochladen."
+    image_limit_error: "Maximal 4 Bilder. Du kannst noch {{count}} hochladen.",
+    load_more_history: "Mehr anzeigen"
 };
