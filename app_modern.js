@@ -176,14 +176,48 @@ class AppState {
             localStorage.setItem('generationHistory', JSON.stringify(this.generationHistory));
         } catch (error) {
             console.error('Failed to save history:', error);
+            // Попытка сохранить в sessionStorage как fallback
+            try {
+                sessionStorage.setItem('generationHistory', JSON.stringify(this.generationHistory));
+            } catch (fallbackError) {
+                console.error('Fallback storage also failed:', fallbackError);
+            }
         }
     }
 
     loadHistory() {
         try {
-            const history = localStorage.getItem('generationHistory');
+            // Сначала пытаемся загрузить из localStorage
+            let history = localStorage.getItem('generationHistory');
+
+            // Если пусто или ошибка - проверяем sessionStorage как fallback
+            if (!history) {
+                console.log('No history in localStorage, checking sessionStorage fallback...');
+                history = sessionStorage.getItem('generationHistory');
+                if (history) {
+                    console.log('Found history in sessionStorage, merging...');
+                    // Если нашли в sessionStorage - переносим в localStorage
+                    try {
+                        localStorage.setItem('generationHistory', history);
+                        sessionStorage.removeItem('generationHistory');
+                        console.log('Transferred sessionStorage data to localStorage');
+                    } catch (transferError) {
+                        console.warn('Could not transfer to localStorage:', transferError);
+                    }
+                }
+            }
+
             if (history) {
-                this.generationHistory = JSON.parse(history);
+                const parsed = JSON.parse(history);
+                // Фильтруем поврежденные записи result=undefined
+                this.generationHistory = parsed.filter(item =>
+                    item.result !== undefined &&
+                    item.result !== null &&
+                    item.result !== 'undefined' &&
+                    item.result !== '' &&
+                    typeof item.result === 'string'
+                );
+                console.log(`Loaded ${this.generationHistory.length} valid history items from storage`);
             }
         } catch (error) {
             console.error('Failed to load history:', error);

@@ -343,21 +343,23 @@ function updateHistoryDisplay(page = 0) {
     console.log(`📊 Total items in history: ${generationHistory.length}`);
     console.log('📋 First 3 items:', generationHistory.slice(0, 3));
 
-    // 🧹 ОЧИСТКА ИСТОРИИ: Убираем все поврежденные элементы с result === 'undefined'
+    // 🧹 ОЧИСТКА ИСТОРИИ: Убираем все поврежденные элементы с result === 'undefined' ИЛИ вообще без result
     const filteredHistory = generationHistory.filter(item => {
         const isValid = item &&
                        item.result !== undefined &&
                        item.result !== null &&
                        item.result !== 'undefined' &&
+                       item.result !== '' &&
                        typeof item.result === 'string' &&
                        item.result.trim() !== '';
 
         if (!isValid) {
-            console.log(`🗑️ Removing corrupted history item:`, {
+            console.log(`🗑️ Filtering out corrupted/invalid history item:`, {
                 id: item.id,
                 result: item.result,
                 type: typeof item.result,
-                hasResult: !!item.result
+                status: item.status,
+                timestamp: item.timestamp
             });
         }
 
@@ -552,8 +554,18 @@ function updateHistoryDisplay(page = 0) {
         const loadMoreBtn = document.createElement('button');
         loadMoreBtn.id = 'loadMoreHistoryBtn';
         loadMoreBtn.className = 'load-more-btn';
-        loadMoreBtn.textContent = 'Загрузить ещё...';
-        loadMoreBtn.onclick = loadNextHistoryPage;
+        loadMoreBtn.innerHTML = 'Загрузить ещё...';
+        loadMoreBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🎯 Load more button clicked');
+            loadNextHistoryPage();
+        };
+        // Очищаем все остальные обработчики кликов и предотвращаем наследование
+        loadMoreBtn.onmousedown = null;
+        loadMoreBtn.onmouseup = null;
+        loadMoreBtn.onpointerdown = null;
+        loadMoreBtn.onpointerup = null;
 
 
     
