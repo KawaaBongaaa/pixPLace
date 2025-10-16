@@ -60,24 +60,8 @@ class GenerationManager {
             generation.status = 'completed';
         }
 
-        // ОБНОВЛЕНИЕ СТАТУСА В ИСТОРИИ: генерация уже была добавлена в app_modern.js::generateImage
-        // Ничего не добавляем, только обновляем статус существующих записей
-        // Найдем и обновим статус в истории
-        if (window.appState && window.appState.generationHistory) {
-            const historyItem = window.appState.generationHistory.find(item => item.id === generationId);
-            if (historyItem) {
-                // Обновляем статус и время завершения без повторного добавления
-                historyItem.status = generation.status;
-                historyItem.completedAt = generation.completedAt;
-                historyItem.duration = generation.duration;
-                historyItem.result = generation.result;
-                historyItem.error = generation.error;
-                window.appState.saveHistory();
-                console.log(`✨ Updated generation ${generationId} status in history: ${generation.status}`);
-            } else {
-                console.warn(`⚠️ Generation ${generationId} not found in appState history - something went wrong!`);
-            }
-        }
+        // 🔥 UPDATING COMPLETED GENERATION STATUS (no more duplicate history logic needed - generated added at preview creation)
+        console.log(`✅ Generation ${generationId} completed with status: ${generation.status}`);
 
         this.activeGenerations.delete(generationId);
         console.log(`✅ Generation ${generationId} completed (${this.activeGenerations.size} remaining)`);
@@ -194,8 +178,7 @@ class GenerationManager {
                 generationManager.completeGeneration(gen.id, result.image_url);
             };
 
-            // Экспортируем функцию в window для доступа из app_modern.js
-            window.processGenerationResult = processResult;
+            // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Удаляем экспорт processResult - логика теперь inline
 
             // Добавляем ссылки на пользовательские изображения если есть
             console.log('🎯 Checking userImageUrls:', {

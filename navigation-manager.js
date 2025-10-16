@@ -96,27 +96,38 @@ window.showBackButton = showBackButton;
 export function toggleHistoryList() {
     const list = document.getElementById('historyList');
     const btn = document.getElementById('historyToggleBtn');
+
     if (list.classList.contains('hidden')) {
+        // Открываем историю
         list.classList.remove('hidden');
         btn.classList.add('active');
-        // Динамически вызываем updateHistoryDisplay из импортированного модуля
-        if (window.updateHistoryDisplay) {
-            window.updateHistoryDisplay();
-        } else {
-            // Fallback - загрузить функцию динамически
-            import('./history-manager.js').then(module => {
-                module.updateHistoryDisplay();
-            });
-        }
 
-        // Дополнительная быстрая прокрутка к последнему (нижнему) изображению после открытия истории
-        setTimeout(async () => {
-            await scrollToBottomImage();
-        }, 150);
+        console.log('📂 History opened');
+
+        // 🔥 ИСПРАВЛЕНИЕ: НЕ ОБНОВЛЯЕМ ДИСПЛЕЙ ПРИ ОТКРЫТИИ - ТОЛЬКО ЕСЛИ ИСТОРИЯ БЫЛА СКРЫТА!
+        // Вместо постоянного обновления - показываем текущее состояние
+        // updateHistoryDisplay не нужен здесь, так как превью уже создается при генерации
+
+        // После открытия - прокручиваем к последней генерации
+        setTimeout(() => {
+            if (window.appState?.generationHistory?.length > 0) {
+                console.log('📋 Scrolling to latest generation after open');
+                scrollToLatestGeneration();
+            }
+        }, 100);
+
     } else {
+        // Закрываем историю
         list.classList.add('hidden');
         btn.classList.remove('active');
+
+        console.log('📂 History closed');
     }
+
+    // Обновляем переключатель тем (учитывая новую высоту)
+    updateThemeTogglePosition();
+
+    console.log('📋 History toggle completed');
 }
 
 // Добавляем экспорт в window

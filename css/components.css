@@ -3093,8 +3093,8 @@ img.lazy-loaded[data-src] {
     padding: var(--space-3) var(--space-5);
     border: none;
     border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
-    color: white;
+    background: transparent;
+    color: var(--text-secondary);
     font-family: var(--font-family);
     font-weight: 600;
     font-size: var(--font-size-base);

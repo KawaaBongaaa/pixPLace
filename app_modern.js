@@ -25,7 +25,7 @@ import {
     showProcessing
 } from './screen-manager.js';
 import { updateUserNameDisplay, updateUserBalanceDisplay, showSubscriptionNotice, showWarningAboutNoImage, toggleModeDetails, showHistory } from './navigation-manager.js';
-import { startSnowfall, readFileAsDataURL, maybeCompressImage } from './utils.js';
+import { startSnowfall, readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback } from './utils.js';
 import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem } from './history-manager.js';
 
@@ -54,25 +54,7 @@ const CONFIG = {
 // 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
 window.CONFIG = CONFIG;
 
-// 🔧 Utility Functions
-function sanitizeJsonString(str) {
-    if (typeof str !== 'string') return str;
-    return str.replace(/\\/g, '\\\\')
-             .replace(/"/g, '\\"')
-             .replace(/\n/g, '\\n')
-             .replace(/\r/g, '\\r')
-             .replace(/\t/g, '\\t')
-             .replace(/\f/g, '\\f')
-             .replace(/\b/g, '\\b');
-}
 
-function generateUUIDv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0;
-        const v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
 
 // 🌍 Translations
 const TRANSLATIONS = {
@@ -1029,11 +1011,29 @@ function initModeCarousel() {
         }
     });
 
-    // Устанавливаем начальный выбор
+    // Устанавливаем начальный выбор БЕЗ ДУБЛИРОВАНИЯ updateImageUploadVisibility
     const defaultMode = modeSelect.value || 'photo_session';
     const defaultCard = document.querySelector(`.mode-card[data-mode="${defaultMode}"]`);
     if (defaultCard) {
-        selectMode(defaultMode, defaultCard);
+        // Устанавливаем только визуальное состояние без вызова функций логики
+        modeSelect.value = defaultMode;
+        currentExpandedCard = defaultCard;
+        defaultCard.classList.add('expanded', 'selected');
+
+        // Гарантируем что никакие другие карточки не имеют expanded
+        modeCards.forEach(card => {
+            if (card !== defaultCard) {
+                card.classList.remove('expanded', 'selected');
+            }
+        });
+
+        // Обновляем индикаторы
+        const modeIndex = Array.from(modeCards).findIndex(card => card.dataset.mode === defaultMode);
+        modeIndicators.forEach((indicator, index) => {
+            indicator.classList.toggle('selected', index === modeIndex);
+        });
+
+        console.log(`🎛️ Initial mode selected: ${defaultMode}, Expanded: ${!!currentExpandedCard}`);
     }
 
     console.log('🔧 Expandable Mode carousel initialized with', modeCards.length, 'modes');
@@ -2083,19 +2083,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     appState.loadHistory();
     appState.loadBalanceHistory();
 
+    // ✅ ЗАЛОЖЕНА ОСНОВА ДЛЯ ИНИЦИАЛИЗАЦИИ TELEGRAM - загружаем SDK только здесь
     try {
-        await loadTelegramSDK();    // 👉 дождаться загрузки SDK
         await initTelegramApp();    // 👉 только теперь можно обращаться к WebApp
     } catch (e) {
-        console.error('❌ SDK load error:', e);
-        showStatus('error', 'Telegram SDK load failed');
+        console.error('❌ Telegram initialization error:', e);
+        showStatus('error', 'Telegram WebApp initialization failed');
     }
 
     initializeUI();
     initUserImageUpload(); // ← добавь эту строку
-    initLanguageDropdown();
+        initLanguageDropdown();
     try {
-        // Инициализация личного кабинета с проверкой
+        // Инициализация личного кабинета через модуль (автоматически предотвращает дублирование)
         initUserAccountFromModule();
     } catch (error) {
         console.error('❌ Failed to initialize User Account:', error);
@@ -2228,19 +2228,24 @@ async function generateImage(event) {
         status: 'pending'
     };
 
-    // Всегда добавляем превью в историю и открываем историю если закрыта
+    // 🔥 КРИТИЧЕСКОЕ: БОЛЬШЕ НЕ ДОБАВЛЯЕМ GENERATION В ИСТОРИЮ ЗДЕСЬ - ТОЛЬКО ПРЕВЬЮ CARDS
+    // Теперь генерация добавляется в историю ТОЛЬКО после получения реального результата в parallel-generation.js
+    console.log('🗂️ History storage STARTED EARLY - adding to history NOW, result deferred - GEN:', generation.id);
+
+    // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ДОБАВЛЯЕМ В ИСТОРИЮ СРАЗУ ПРИ СОЗДАНИИ ПРЕВЬЮ!
+    // Добавляяем пустой generation в историю перед началом генерации
+    window.appState.generationHistory.unshift(generation);
+    window.appState.saveHistory();
+
+    console.log('✅ Generation added to history (status:', generation.status, ')');
+
     setTimeout(() => {
-        console.log('🚀 Starting preview creation in generateImage - GEN:', generation.id);
+        console.log('🚀 Starting preview creation in generateImage (FORCED TO HISTORY) - GEN:', generation.id);
 
         const historyList = document.getElementById('historyList');
         const historyBtn = document.getElementById('historyToggleBtn');
 
         console.log('✅ Elements found - historyList:', !!historyList, 'historyBtn:', !!historyBtn);
-
-        // 📍 1. Добавляем генерацию в начало истории (независимо от видимости)
-        appState.generationHistory.unshift(generation);
-        appState.saveHistory();
-        console.log('📦 Generation added to history, total items:', appState.generationHistory.length);
 
         // 📍 2. Создаем превью элемент
         console.log('🔧 Calling createLoadingHistoryItem...');
@@ -2259,15 +2264,15 @@ async function generateImage(event) {
             });
         }
 
-        // 📍 3. Открываем историю если была закрыта
+        // 📍 3. Открываем историю если была закрыта С ПРОВЕРКОЙ НА ПОЗИЦИЮ
         let wasHidden = false;
         if (historyList && historyList.classList.contains('hidden')) {
             wasHidden = true;
             console.log('📂 History was hidden, opening it...');
             toggleHistoryList(); // Открываем историю
         } else {
-            console.log('📂 History already open, updating display...');
-            updateHistoryDisplay(); // Обновляем если уже открыта
+            console.log('📂 History already open - keeping position and scroll!');
+            // НЕ ОБНОВЛЯЕМ дисплей - чтобы позиция и скролл не сбросились!
         }
 
         // 📍 4. НЕМЕДЛЕННАЯ ПРОКРУТКА К НОВОМУ ПРЕВЬЮ
@@ -2379,9 +2384,9 @@ async function generateImage(event) {
             // НЕ показываем тост "начата" - будет показан только результат или ошибка
         }
 
-        // Добавляем в историю сразу
-        appState.generationHistory.unshift(generation);
-        appState.saveHistory();
+        // 🔥 ОТМЕНЕНО: НЕ ДОБАВЛЯЕМ В ИСТОРИЮ ЗДЕСЬ
+        // Теперь генерация добавляется в историю ТОЛЬКО после успешного завершения
+        console.log('📦 Generation object ready, will be stored only on completion');
     } else {
         console.error('❌ Image upload failed - generation cancelled');
         showToast('error', 'Image upload failed. Generation cancelled.');
@@ -2685,107 +2690,27 @@ function cancelGeneration() {
     appState.isGenerating = false;
     stopTimer();
     showGeneration();
-    triggerHaptic('medium');
+    triggerHapticFeedback('medium');
 }
 
-// 📱 Device Integration
+/* УДАЛЕНА: СТАРАЯ ФУНКЦИЯ downloadImage - теперь используем новую из utils.js */
+
+// 📱 Новая оптимизированная функция скачивания/шаринга с новым API
 async function downloadImage() {
     if (!appState.currentGeneration?.result) return;
 
-    console.log('📱 Starting download for platform:', {
-        mobile: isMobile(),
-        android: isAndroid(),
-        ios: isIOS(),
-        tablet: isTablet(),
-        share: supportsShare(),
-        url: appState.currentGeneration.result
+    // Используем новую универсальную функцию из utils.js
+    const result = await downloadOrShareImage(appState.currentGeneration.result, {
+        filename: `ai-generated-${appState.currentGeneration.id}.png`
     });
 
-    try {
-        // Скачиваем изображение как blob
-        showToast('info', 'Preparing file...');
-        const response = await fetch(appState.currentGeneration.result);
-        if (!response.ok) throw new Error('Failed to fetch image');
-        const blob = await response.blob();
-
-        // Если мобильное устройство и поддерживает Web Share API - используем его
-        if (isMobile() && supportsShare()) {
-            console.log('📱 Using Web Share API for mobile device');
-
-            const file = new File([blob], `ai-generated-${appState.currentGeneration.id}.png`, { type: blob.type });
-
-            const shareData = {
-                files: [file],
-                title: 'AI Generated Image',
-                text: 'Created with pixPLace Bot'
-            };
-
-            await navigator.share(shareData);
-            showToast('success', 'File shared successfully!');
-            triggerHaptic('success');
-            return;
-        }
-
-        // Для Android/WebView или старых мобильных - открываем в новой вкладке
-        if (isAndroid() || (isMobile() && !supportsShare())) {
-            console.log('📱 Android or old mobile - opening in new tab');
-            window.open(appState.currentGeneration.result, '_blank');
-            showToast('info', 'Tap and hold to save image');
-            triggerHaptic('light');
-            return;
-        }
-
-        // Для планшетов - аналогично мобильным
-        if (isTablet()) {
-            console.log('📱 Tablet - opening in new tab');
-            window.open(appState.currentGeneration.result, '_blank');
-            showToast('info', 'Use long press to download');
-            triggerHaptic('light');
-            return;
-        }
-
-        // Для десктопа (Mac/Windows/Linux) - стандартный подход
-        console.log('💻 Desktop - platform detection:', {
-            userAgent: navigator.userAgent.toLowerCase(),
-            isTelegramWebApp: !!appState.tg,
-            telegramPlatform: appState.telegramPlatform
-        });
-
-        // 🔥 СПЕЦИАЛЬНАЯ ОБРАБОТКА ДЛЯ TELEGRAM WEBAPP НА MAC
-        if (appState.tg && appState.telegramPlatform === 'macos') {
-            console.log('🍏 Telegram WebApp on Mac - using direct URL open');
-            window.open(appState.currentGeneration.result, '_blank');
-            showToast('info', 'Opened image in new tab');
-            triggerHaptic('light');
-            return;
-        }
-
-        // Стандартный blob download для обычных браузеров
-        console.log('💻 Standard desktop browser - using blob download');
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `ai-generated-${appState.currentGeneration.id}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        showToast('success', 'Download started!');
-        triggerHaptic('success');
-
-    } catch (err) {
-        console.error("❌ Download error:", err);
-
-        // Fallback для любой ошибки - открываем в новой вкладке
-        try {
-            window.open(appState.currentGeneration.result, '_blank');
-            showToast('info', 'Opened image in new tab');
-        } catch (fallbackErr) {
-            console.error("❌ Fallback failed:", fallbackErr);
-            showToast('error', 'Download failed');
-        }
+    // Обновляем текущую генерацию в интерфейсе если результат получен
+    if (result.success && result.method !== 'failed') {
+        // Кнопка уже заблокирована, но обновим статус если нужно
+        console.log('✅ Download/share completed successfully with method:', result.method);
     }
+
+    return result;
 }
 /*function downloadImage() {
     if (!appState.currentGeneration?.result) return;
@@ -2995,58 +2920,7 @@ document.addEventListener('click', function (event) {
     dropdown.style.display = 'none';
     }
 });*/
-// 🔗 Telegram SDK Loader
-async function loadTelegramSDK() {
-    console.log('📱 Loading Telegram WebApp SDK...');
-
-    // Если уже загружен - сразу возвращаем
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-        console.log('✅ Telegram SDK already loaded');
-        return Promise.resolve();
-    }
-
-    return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-            console.warn('⚠️ Telegram SDK load timeout - using fallback mode');
-            resolve(); // разрешаем продолжить без SDK
-        }, 5000); // 5 секунд таймут
-
-        // Проверяем наличие скрипта Telegram
-        const existingScript = document.querySelector('script[src*="telegram-web-app.js"]');
-        if (existingScript) {
-            console.log('✅ Telegram script already exists');
-            clearTimeout(timeout);
-            resolve();
-            return;
-        }
-
-        // Создаём и загружаем скрипт
-        const script = document.createElement('script');
-        script.src = 'https://telegram.org/js/telegram-web-app.js';
-        script.async = true;
-        script.defer = true;
-
-        script.onload = () => {
-            console.log('✅ Telegram SDK loaded successfully');
-            clearTimeout(timeout);
-
-            // Подождём небольшую задержку для инициализации SDK
-            setTimeout(() => {
-                resolve();
-            }, 100);
-        };
-
-        script.onerror = (error) => {
-            console.error('❌ Failed to load Telegram SDK:', error);
-            clearTimeout(timeout);
-            resolve(); // разрешаем продолжить без SDK
-        };
-
-        // Добавляем скрипт в head
-        document.head.appendChild(script);
-        console.log('📱 Telegram SDK loading started...');
-    });
-}
+// Удалена дублирующая функция loadTelegramSDK - инициализация происходит только в index.html
 
 // 🧪 Debug Functions
 window.getAppState = () => appState;

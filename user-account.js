@@ -7,12 +7,21 @@ import { en } from './dictionaries/en.js';
 const userAccountState = {
     currentModal: null,
     financialHistoryPage: 1,
-    creditPacksModal: null
+    creditPacksModal: null,
+    isInitialized: false // Флаг предотвращения повторной инициализации
 };
 
 // 🎯 Инициализация модуля личного кабинета
 function initUserAccount() {
+    // Проверяем, была ли уже вызвана инициализация
+    if (userAccountState.isInitialized) {
+        console.log('🔄 User Account module already initialized, skipping');
+        return;
+    }
+
     console.log('🎯 Initializing User Account module');
+
+    userAccountState.isInitialized = true; // Устанавливаем флаг инициализации
 
     // Добавляем обработчик клика на кнопку меню пользователя
     const userMenuBtn = document.getElementById('userMenuBtn');
@@ -747,17 +756,10 @@ export {
 
 console.log('🎯 User Account module loaded and ready');
 
-// 🎯 Инициализация модуля при загрузке страницы
+// 🎯 Инициализация модуля при загрузке страницы - только один вызов
 document.addEventListener('DOMContentLoaded', () => {
     initUserAccount();
 });
 
-// Или если страница уже загружена
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initUserAccount);
-} else {
-    initUserAccount();
-}
-
-// Экспорт инициализации в глобальную область для случаев ручного запуска
+// Экспорт инициализации в глобальную область для случаев ручного запуска (с защитой от дублирования)
 window.initUserAccount = initUserAccount;

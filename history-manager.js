@@ -63,9 +63,9 @@ class HistoryManagement {
         };
 
         realImage.onerror = () => {
-            console.warn('⚠️ Real image failed to load:', imageUrl);
+            // console.warn('⚠️ Real image failed to load:', imageUrl); // ЗАКОММЕНТИРОВАНО - убран спам
             // Fallback: используем placeholder
-            realImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbGw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+';
+            realImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbFw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+';
         };
 
         // Обновляем подпись - показываем завершение генерации
@@ -108,9 +108,9 @@ class HistoryManagement {
                     window.globalHistoryLoader.forceLoadVisibleHistoryPreviews();
                     console.log('🔄 Forced visibility check for loaded image');
                 }
-            } else {
-                console.warn('❌ Preview element NOT found in DOM after timeout:', generationId);
-            }
+    } else {
+        console.warn('⚠️ No items to display on page', page);
+    }
         }, 500);
     }
 }
@@ -343,6 +343,44 @@ function updateHistoryDisplay(page = 0) {
     console.log(`📊 Total items in history: ${generationHistory.length}`);
     console.log('📋 First 3 items:', generationHistory.slice(0, 3));
 
+    // 🧹 ОЧИСТКА ИСТОРИИ: Убираем все поврежденные элементы с result === 'undefined'
+    const filteredHistory = generationHistory.filter(item => {
+        const isValid = item &&
+                       item.result !== undefined &&
+                       item.result !== null &&
+                       item.result !== 'undefined' &&
+                       typeof item.result === 'string' &&
+                       item.result.trim() !== '';
+
+        if (!isValid) {
+            console.log(`🗑️ Removing corrupted history item:`, {
+                id: item.id,
+                result: item.result,
+                type: typeof item.result,
+                hasResult: !!item.result
+            });
+        }
+
+        return isValid;
+    });
+
+    // Обновляем состояние если были изменения
+    if (filteredHistory.length !== generationHistory.length) {
+        console.log(`🧹 Cleaned history: ${generationHistory.length} → ${filteredHistory.length} items`);
+        window.appState.generationHistory = filteredHistory;
+        window.appState.saveHistory();
+
+        // Принудительное обновление количества элементов в UI
+        setTimeout(() => {
+            const historyToggleBtn = document.getElementById('historyToggleBtn');
+            if (historyToggleBtn) {
+                const count = filteredHistory.length;
+                const baseText = 'Generation History';
+                historyToggleBtn.textContent = count > 0 ? `${baseText} (${count})` : baseText;
+            }
+        }, 100);
+    }
+
     const validItems = generationHistory.filter(item => {
         const isValid = item.result &&
                        typeof item.result === 'string' &&
@@ -408,14 +446,41 @@ function updateHistoryDisplay(page = 0) {
             const imageUrl = item.result || '';
             console.log(`🖼️ Item ${item.id} image URL length: ${imageUrl.length}, preview: ${imageUrl.substring(0, 50)}...`);
 
-            element.innerHTML = `
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L3JlY3Q+PC9zdmc+"
+            // 🔧 ЗАЩИТА ОТ СВИГ-ПЕРЕСТАВОВКИ: Определяем тип изображения заранее
+            const isSvgPlaceholder = imageUrl.startsWith('data:image/svg+xml;base64,') ||
+                                   imageUrl.includes('Expired') ||
+                                   imageUrl === 'undefined';
+
+            const isBrokenImage = !imageUrl || imageUrl.trim() === '' || isSvgPlaceholder;
+
+            element.innerHTML = isBrokenImage ? `
+                <div class="broken-image-placeholder" style="
+                    width: 100%;
+                    height: 120px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--bg-secondary, #f8f9fa);
+                    border: 1px solid var(--border-primary, #dee2e6);
+                    border-radius: 8px;
+                    color: var(--text-secondary, #6c757d);
+                    font-size: 12px;
+                    text-align: center;
+                    padding: 8px;
+                ">
+                    <div style="font-size: 24px; margin-bottom: 4px;">📷</div>
+                    <div>Изображение недоступно</div>
+                    <div style="font-size: 10px; margin-top: 2px;">Повторите генерацию</div>
+                </div>
+                <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + item.mode) || item.mode}</p>
+            ` : `
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbGw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+"
                      data-src="${imageUrl}"
                      alt="Generated"
                      class="lazy-loading"
                      loading="lazy"
                      decoding="async"
-                     ${imageUrl ? '' : 'style="opacity: 0.7;"'}
                      />
                 <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + item.mode) || item.mode}</p>
             `;
@@ -423,11 +488,17 @@ function updateHistoryDisplay(page = 0) {
             historyList.appendChild(element);
             console.log(`➕ Added element for item ${item.id} to DOM`);
 
-            // 🚀 OPTIMIZED LAZY LOADING WITHOUT DEVICE STRESS
+            // 🚀 OPTIMIZED LAZY LOADING WITHOUT DEVICE STRESS (ТОЛЬКО для рабочих изображений)
             const img = element.querySelector('img[data-src]');
             if (!img) {
                 console.warn(`❌ No img element found for item ${item.id}`);
                 return;
+            }
+
+            // ✋ ПРОТЕКЦИЯ ОТ СПАМА: НЕ обрабатывать поврежденные изображения вообще!
+            if (isBrokenImage) {
+                console.log(`🚫 Skipping lazy loading setup for broken image ${item.id}`);
+                return; // <-- ПОЛНЫЙ выход из критерия обработки, никаких lazy loading!
             }
 
             console.log(`📱 LAZY SETUP for item ${item.id}`);
@@ -459,18 +530,77 @@ function updateHistoryDisplay(page = 0) {
                 }
             }
 
-            // ✅ Добавляем обработчики для всех изображений
-            img.onload = () => console.log(`✅ Image loaded: ${item.id}`);
-            img.onerror = (e) => {
-                console.warn(`❌ Image failed: ${item.id}, ${img.dataset.src || img.src}`);
-                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj4KPGRlZnM+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LmV4cGlyZWQtdGV4dHtiYTpnZW5lcmFsIFNhbnMsQXJpYWwsSGVsdmV0aWNhLHNhbnMtc2VyaWY7Zm9udC1zaXplOiAxNHB4O2ZpbGw6ICM5OTk5OTk7fTwvc3R5bGU+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y0ZjRmNCIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZHk9Ii4zNWVtIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iZXhwaXJlZC10ZXh0IiBzdHlsZT0iYXVjLWFncmlkLXJvd3M6IHNwYW4gMS8yOyB2ZXJ0aWNhbC1hbGlnbjogbWlkZGxlOyBvcGFjaXR5OiAwLjg7Ij5FeHBpcmVkPC90ZXh0PiAKPC9zdmc+';
-            };
+            // ✅ Убраны все обработчики - нет спама в консоль
         });
 
         console.log(`🏁 History display updated: showing ${pageItems.length} items from page ${page}, total valid: ${validItems.length}`);
         console.log('📊 History list children count:', historyList.children.length);
     } else {
         console.warn('⚠️ No items to display on page', page);
+    }
+
+    // 🔥 ПРОСТАЯ ЛОГИКА: Кнопка "Загрузить ещё" размещается ПОСЛЕ списка истории
+    // Показываем только если есть элементы для загрузки (> 6)
+    if (validItems.length > 6) {
+        // Удаляем старую кнопку, если есть
+        const existingBtn = document.getElementById('loadMoreHistoryBtn');
+        if (existingBtn) {
+            existingBtn.remove();
+        }
+
+        // Создаем новую кнопку
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.id = 'loadMoreHistoryBtn';
+        loadMoreBtn.className = 'load-more-btn';
+        loadMoreBtn.textContent = 'Загрузить ещё...';
+        loadMoreBtn.onclick = loadNextHistoryPage;
+
+
+    
+        // 🔥 ДОБАВЛЯЕМ КНОПКУ ВНУТРЬ СПИСКА ИСТОРИИ КАК ПОСЛЕДНИЙ ЭЛЕМЕНТ
+        loadMoreBtn.className = 'load-more-btn history-mini';
+        loadMoreBtn.textContent = `📚 Загрузить ещё...`;
+        loadMoreBtn.style.cssText = `
+            width: 100% !important;
+            height: 120px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+            background: transparent !important; /* Убираем яркий фона */
+            border: 2px dashed var(--border-primary, #dee2e6) !important; /* Оставляем только контур */
+            border-radius: 8px !important;
+            color: var(--text-secondary, #6c757d) !important; /* Серый тест вместо яркого */
+            cursor: pointer !important;
+            margin: 8px 0 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        `;
+        historyList.appendChild(loadMoreBtn);
+        console.log('✅ Load more button added after history list');
+
+        // Принудительно задаем стили для видимости
+        loadMoreBtn.style.cssText = `
+            display: block !important;
+            margin: 20px auto !important;
+            padding: 12px 24px !important;
+            background: #007bff !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 25px !important;
+            font-size: 16px !important;
+            cursor: pointer !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        `;
+    } else if (validItems.length <= 6) {
+        // Убираем кнопку если 6 или меньше элементов
+        const existingBtn = document.getElementById('loadMoreHistoryBtn');
+        if (existingBtn) {
+            existingBtn.remove();
+            console.log('🗑️ Load more button removed - 6 or fewer items');
+        }
     }
 }
 
