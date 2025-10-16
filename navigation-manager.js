@@ -13,37 +13,55 @@ export function updateUserNameDisplay() {
 
     if (!nameElement) return;
 
+    // Получаем appState из window или из local переменной
+    let state = appState || window.appState;
+    if (!state) {
+        console.warn('❌ updateUserNameDisplay: appState не найден ни в module, ни в window');
+        return;
+    }
+
     // Приоритет отображения: username > имя+фамилия > имя > userId
     let displayName = '';
 
-    if (appState.userUsername) {
+    if (state.userUsername) {
         // Есть username - показываем с @
-        displayName = '@' + appState.userUsername;
-    } else if (appState.userName && appState.userName.trim() !== '') {
+        displayName = '@' + state.userUsername;
+    } else if (state.userName && state.userName.trim() !== '') {
         // Есть имя/фамилия - показываем как есть
-        displayName = appState.userName;
-    } else if (appState.userId) {
+        displayName = state.userName;
+    } else if (state.userId) {
         // Нет имени, но есть ID - используем как запасной вариант
-        displayName = 'ID: ' + appState.userId.toString().substring(0, 8) + '...';
+        displayName = 'ID: ' + state.userId.toString().substring(0, 8) + '...';
     } else {
         // Ничего нет - дефолтное значение
         displayName = '--';
     }
 
     nameElement.textContent = displayName;
-    console.log('👤 User name display updated:', displayName);
+    console.log('👤 User name display updated:', displayName, 'from:', {
+        hasUsername: !!state.userUsername,
+        hasName: !!state.userName,
+        hasId: !!state.userId
+    });
 }
 
 
 
 export function updateUserBalanceDisplay(credits, reason = '') {
     if (credits !== null && credits !== undefined) {
+        // Получаем appState из window или из local переменной (аналогично updateUserNameDisplay)
+        let state = appState || window.appState;
+        if (!state) {
+            console.warn('❌ updateUserBalanceDisplay: appState не найден ни в module, ни в window');
+            return;
+        }
+
         const newBalance = parseFloat(credits);
-        const oldBalance = appState.userCredits;
+        const oldBalance = state.userCredits;
         const timestamp = Date.now();
 
         // Добавляем запись в историю ДО обновления баланса
-        appState.balanceHistory.push({
+        state.balanceHistory.push({
             balance: newBalance,
             timestamp: timestamp,
             reason: reason,
@@ -51,17 +69,17 @@ export function updateUserBalanceDisplay(credits, reason = '') {
         });
 
         // Ограничиваем историю до 100 последних записей
-        if (appState.balanceHistory.length > 100) {
-            appState.balanceHistory = appState.balanceHistory.slice(-100);
+        if (state.balanceHistory.length > 100) {
+            state.balanceHistory = state.balanceHistory.slice(-100);
         }
 
         // Сохраняем историю в localStorage
-        appState.saveBalanceHistory();
+        state.saveBalanceHistory();
 
         // Обновляем текущий баланс
-        appState.userCredits = newBalance;
-        appState.lastBalanceUpdate = timestamp;
-        appState.saveSettings(); // Сохраняем настройки в localStorage
+        state.userCredits = newBalance;
+        state.lastBalanceUpdate = timestamp;
+        state.saveSettings(); // Сохраняем настройки в localStorage
 
         // Обновляем отображение в header
         const balanceElement = document.getElementById('userCreditsDisplay');
