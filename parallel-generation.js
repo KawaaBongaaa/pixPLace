@@ -189,7 +189,9 @@ class GenerationManager {
             // 🔥 ДОБАВИЛИ: ВАЖНО! Сначала проверяем на перегрузку сервера
             if (response.server_overloaded === true) {
                 console.log(`🚨 SERVER OVERLOADED DETECTED: ${response.message || 'backend timeout'}`);
-                // ОБРАБАТЫВАЕМ КАК ПЕРЕГРУЗКУ - ПОКАЗЫВАЕМ ТОСТ И ЗАВЕРШАЕМ
+                // ОБРАБАТЫВАЕМ КАК ПЕРЕГРУЗКУ - УДАЛЯЕМ LOADING-CARD И ПОКАЗЫВАЕМ ТОСТ
+                this.removeFailedLoadingCard(generation.id);
+
                 if (window.showToast) {
                     const overloadMessage = window.appState?.translate('error_server_overloaded') ||
                         '😓 Серверы перегружены. Попробуйте позже.';
@@ -199,8 +201,24 @@ class GenerationManager {
                 return;
             }
 
+            // 📝 ДОБАВИЛИ: Обработка "accepted" ответа как перегрузки
+            if (response.trim && response.trim().toLowerCase() === 'accepted') {
+                console.log(`🚨 SERVER ACCEPTED RESPONSE - treating as overload: "${response}"`);
+                this.removeFailedLoadingCard(generation.id);
+
+                if (window.showToast) {
+                    const overloadMessage = window.appState?.translate('error_server_overloaded') ||
+                        '😓 Серверы перегружены. Попробуйте позже.';
+                    window.showToast('error', overloadMessage);
+                }
+                this.completeGeneration(generation.id, null, new Error('Server accepted - overload'));
+                return;
+            }
+
             // Обрабатываем явные ошибки в ответе
             if (response.status === 'error' || response.error) {
+                console.log(`🚨 API ERROR DETECTED: ${response.error || response.message || 'Generation failed'}`);
+                this.removeFailedLoadingCard(generation.id);
                 throw new Error(response.error || response.message || 'Generation failed');
             }
 
@@ -211,6 +229,7 @@ class GenerationManager {
                 response.limit_reached === 1;
 
             if (limitReached) {
+                console.log(`🚨 CREDIT LIMIT REACHED: ${response.message || 'Generation limit reached'}`);
                 generation.status = 'limit';
                 if (window.showSubscriptionNotice) {
                     window.showSubscriptionNotice(response);
@@ -218,6 +237,7 @@ class GenerationManager {
                 if (window.showToast) {
                     window.showToast('warning', response.message || 'Generation limit reached');
                 }
+                this.removeFailedLoadingCard(generation.id);
                 this.completeGeneration(generation.id, null, new Error('Limit reached'));
                 return;
             }
@@ -342,6 +362,24 @@ class GenerationManager {
         if (queued) return 'queued';
 
         return null;
+    }
+
+    // 🔧 ДОБАВИЛИ: Метод для удаления неудавшейся loading-card
+    removeFailedLoadingCard(generationId) {
+        const loadingElement = document.getElementById(`loading-${generationId}`);
+        if (loadingElement) {
+            console.log(`🗑️ Removing failed generation loading card: ${generationId}`);
+            loadingElement.remove();
+
+            // Плавная прокрутка вверх когда превью удаляется
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                console.log('🆙 Scrolled to top after removing failed preview');
+            }, 300);
+        }
     }
 }
 
