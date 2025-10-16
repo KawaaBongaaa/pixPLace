@@ -2083,12 +2083,82 @@ document.addEventListener('DOMContentLoaded', async function () {
     appState.loadHistory();
     appState.loadBalanceHistory();
 
-    // ✅ ЗАЛОЖЕНА ОСНОВА ДЛЯ ИНИЦИАЛИЗАЦИИ TELEGRAM - загружаем SDK только здесь
+    // ✅ Telegram SDK инициализируется в index.html, здесь проверки
     try {
-        await initTelegramApp();    // 👉 только теперь можно обращаться к WebApp
+        // Ждем готовности Telegram SDK (загружается в index.html)
+        let attempts = 0;
+        while (typeof window.Telegram === 'undefined' || !window.Telegram.WebApp) {
+            if (attempts++ > 50) break; // таймаут 5 секунд (50*100ms)
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        if (window.Telegram && window.Telegram.WebApp) {
+            console.log('✅ Telegram SDK ready from HTML, proceeding with user data...');
+            appState.tg = window.Telegram.WebApp;
+            console.log('📦 Telegram data:', appState.tg.initDataUnsafe);
+
+            // Get complete user data if available
+            if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
+                const user = appState.tg.initDataUnsafe.user;
+                appState.userId = user.id.toString();
+                appState.userName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+                appState.userUsername = user.username || null;
+                appState.userLanguage = user.language_code || 'en';
+                appState.userIsPremium = user.is_premium || false;
+                appState.userPhotoUrl = user.photo_url || null;
+                appState.userAllowsWriteToPm = user.allows_write_to_pm || false;
+
+                // Session data
+                appState.chatInstance = appState.tg.initDataUnsafe.chat_instance || null;
+                appState.chatType = appState.tg.initDataUnsafe.chat_type || null;
+                appState.authDate = appState.tg.initDataUnsafe.auth_date || null;
+                appState.telegramPlatform = appState.tg.platform || 'unknown';
+                appState.telegramVersion = appState.tg.version || 'unknown';
+
+                console.log('✅ Complete user data loaded from Telegram:', {
+                    id: appState.userId,
+                    name: appState.userName,
+                    username: appState.userUsername,
+                    language: appState.userLanguage,
+                    isPremium: appState.userIsPremium,
+                    platform: appState.telegramPlatform
+                });
+
+                // Auto-detect language for app
+                if (appState.userLanguage && CONFIG.LANGUAGES.includes(appState.userLanguage.split('-')[0])) {
+                    appState.setLanguage(appState.userLanguage.split('-')[0]);
+                }
+
+                // Auto-detect theme from Telegram
+                if (appState.tg.colorScheme) {
+                    if (appState.tg.colorScheme === 'dark') {
+                        appState.setTheme('dark');
+                    } else if (appState.tg.colorScheme === 'light') {
+                        appState.setTheme('light');
+                    }
+                }
+
+            } else {
+                console.log('⚠️ No user data from Telegram, using fallbacks');
+                appState.userId = 'fallback_' + Date.now();
+                appState.userName = 'Anonymous';
+                appState.userUsername = null;
+                appState.userLanguage = 'en';
+                appState.userIsPremium = false;
+                appState.telegramPlatform = appState.tg?.platform || 'unknown';
+                appState.telegramVersion = appState.tg?.version || 'unknown';
+            }
+
+            updateUserNameDisplay();
+        } else {
+            console.error('❌ Telegram SDK not available - using fallback mode');
+            appState.userId = 'fallback_' + Date.now();
+            appState.userName = 'Fallback User';
+        }
     } catch (e) {
-        console.error('❌ Telegram initialization error:', e);
-        showStatus('error', 'Telegram WebApp initialization failed');
+        console.error('❌ Error accessing Telegram data:', e);
+        appState.userId = 'error_' + Date.now();
+        appState.userName = 'Error User';
     }
 
     initializeUI();
