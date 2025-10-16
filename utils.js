@@ -513,3 +513,44 @@ export function stopSnowfall() {
 }
 
 console.log('🎯 Utils module loaded successfully');
+
+// 💰 BALANCE MANAGEMENT - Синхронизация баланса кредитов
+export function updateUserBalance(newBalance) {
+    console.log(`💰 updateUserBalance called with: ${newBalance}`);
+
+    try {
+        // 1. Обновляем appState
+        if (window.appState) {
+            window.appState.userCredits = newBalance;
+            console.log(`✅ appState.userCredits updated to: ${newBalance}`);
+        }
+
+        // 2. Добавляем в историю баланса
+        if (window.appState && window.appState.balanceHistory) {
+            const entry = {
+                balance: newBalance,
+                timestamp: Date.now(),
+                reason: 'generation_complete'
+            };
+            window.appState.balanceHistory.push(entry);
+            window.appState.saveBalanceHistory();
+            console.log(`📊 Balance history entry added: ${entry.balance} credits`);
+        }
+
+        // 3. Обновляем UI через существующую функцию из navigation-manager
+        if (window.updateUserBalanceDisplay) {
+            window.updateUserBalanceDisplay(newBalance);
+            console.log(`🔄 UI balance display updated`);
+        } else {
+            console.warn('⚠️ updateUserBalanceDisplay function not available');
+        }
+
+    } catch (error) {
+        console.error('❌ Error in updateUserBalance:', error);
+    }
+}
+
+// Делаем функцию глобальной для совместимости с parallel-generation.js
+window.updateUserBalance = updateUserBalance;
+
+console.log('💰 Balance management initialized');

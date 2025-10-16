@@ -140,43 +140,7 @@ class GenerationManager {
                         : {})  // или пустой объект если нет изображений
             };
 
-            // 🔥 НЕОБХОДИМОЕ ДОПОЛНЕНИЕ: Результаты будут приходить не напрямую, а через вебхук от Runware с UUID
-            // Функция обработки результата генерации - будет вызвана из app_modern.js через setTimeout или другой механизм
-            const processResult = async (result, gen) => {
-                console.log('🎯 START: Processing result for generation:', gen.id, new Date().toISOString());
-
-                // Сохраняем результат в генерации
-                gen.result = result.image_url;
-                gen.status = 'success';
-
-                // Обновляем баланс если возвращается в ответе
-                if (result.remaining_credits !== undefined && window.updateUserBalance) {
-                    window.updateUserBalance(result.remaining_credits);
-                }
-
-                // Сохраняем стоимость в объекте генерации
-                if (result.generation_cost !== undefined) {
-                    gen.generation_cost = result.generation_cost;
-                    gen.cost_currency = result.cost_currency || 'Cr';
-                }
-
-                // Обновляем миниатюру в истории
-                if (window.updateHistoryItemWithImage) {
-                    window.updateHistoryItemWithImage(gen.id, result.image_url);
-                }
-
-                // Показываем результат
-                if (window.appState) {
-                    window.appState.currentGeneration = gen;
-                }
-
-                // Показываем превью уведомление
-                if (window.showResultToast) {
-                    window.showResultToast({ image_url: result.image_url });
-                }
-
-                generationManager.completeGeneration(gen.id, result.image_url);
-            };
+            // 🔥 НЕОБХОДИМОЕ ДОПОЛНЕНИЕ: Результаты обрабатываются inline в processGeneration
 
             // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Удаляем экспорт processResult - логика теперь inline
 
