@@ -359,7 +359,8 @@ class GenerationManager {
             console.log(`🚨 Showing server overload toast for all non-success responses for generation ${generation.id}`);
 
             if (window.showToast) {
-                const overloadMessage = '😓 Генерация не удалась. Серверы сейчас перегружены, пожалуйста, попробуйте позже или выберите другой режим генерации… Мы искренне извиняемся за неудобства и надеемся на ваше понимание 🙏';
+                const overloadMessage = window.appState?.translate('error_server_overloaded') ||
+                    '😓 Генерация не удалась. Серверы сейчас перегружены, пожалуйста, попробуйте позже или выберите другой режим генерации… Мы искренне извиняемся за неудобства и надеемся на ваше понимание 🙏';
                 window.showToast('error', overloadMessage);
             }
 

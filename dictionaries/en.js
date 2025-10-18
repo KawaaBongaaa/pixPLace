@@ -123,28 +123,5 @@ export const en = {
     image_limit_error: "Maximum 4 images. You can upload {{count}} more.",
     // Server overloaded error message
     error_server_overloaded: "😓 Generation failed. The servers are currently overloaded, please try again later or select a different generation mode... We sincerely apologize for the inconvenience and hope for your understanding 🙏",
-
-    // Generation Result Modal
-    generation_result_title: "Generation Result",
-    date_label: "Date:",
-    mode_label_modal: "Mode:",
-    charged_label: "Charged:",
-    prompt_label_modal: "Prompt:",
-    use_for_generation: "Use image for new Generation",
-    reuse_prompt_title: "Repeat generation with this prompt",
-
-    // Generation Result Modal - Toast Messages
-    image_downloading: "Image downloading...",
-    link_copied: "Link copied to clipboard!",
-    prompt_applied: "Prompt applied! Scroll down and click Generate",
-
-    // Generation Result Modal - Share
-    share_title: "My AI image from pixPLace",
-    share_text: "Look at this AI-generated image from pixPLace!",
-
-    // Additional Messages
-    image_added_success: "Image added for generation!",
-    ui_error_message: "Interface error:",
-
     load_more_history: "Show more"
 };

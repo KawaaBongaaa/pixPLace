@@ -14,14 +14,16 @@ import { vi } from './dictionaries/vi.js';
 import { th } from './dictionaries/th.js';
 import { tr } from './dictionaries/tr.js';
 import { pl } from './dictionaries/pl.js';
-
-// ✅ НОВЫЕ: Импорт сервисов вместо прямых зависимостей
-import { initializeGlobalServices } from './core/services.js';
-import { AppStateManager } from './store/app-state.js';
-import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
-
-// Импорт ScreenManager для работы с авторизацией
-import { ScreenManager } from './screen-manager.js';
+import { initUserAccount as initUserAccountFromModule } from './user-account.js';
+import {
+    showScreen,
+    showApp,
+    showResult,
+    displayFullResult,
+    showResultToast,
+    removeResultToast,
+    showProcessing
+} from './screen-manager.js';
 import { updateUserNameDisplay, updateUserBalanceDisplay, showSubscriptionNotice, showWarningAboutNoImage, toggleModeDetails, showHistory } from './navigation-manager.js';
 import { startSnowfall, readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback } from './utils.js';
 import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
@@ -29,16 +31,6 @@ import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem }
 
 
 // 🚀 Modern AI Image Generator WebApp
-
-/**
- * BYPASS AUTH FLAG
- *
- * 🚧 TEMPORARY WORKAROUND FOR TESTING 🚧
- *
- * Set to true to skip authentication for development/testing.
- * Set back to false before production deployment.
- */
-const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 
 // Configuration
 const CONFIG = {
@@ -84,17 +76,264 @@ const TRANSLATIONS = {
     th
 };
 
-// Экспортируем TRANSLATIONS для доступа из AppStateManager
-window.TRANSLATIONS = TRANSLATIONS;
 
-// 🎯 Global state - теперь используем AppStateManager из модуля store/app-state.js
-const appState = new AppStateManager();
+class AppState {
+    constructor() {
+        this.tg = null;
+        this.currentLanguage = CONFIG.DEFAULT_LANGUAGE;
+        this.currentTheme = 'dark';
+        this.selectedStyle = 'realistic';
+        this.userId = null;
+        this.userName = null;
+        this.generationHistory = [];
+        this.currentGeneration = null;
+        this.startTime = null;
+        this.timerInterval = null;
+        // Добавлено отображение баланса пользователя
+        this.userCredits = null; // текущий баланс кредитов
+        this.lastBalance = null; // время последнего обновления баланса
+        this.balanceHistory = []; // история изменений баланса: [{balance, timestamp, reason}]
+    }
+
+    // Language methods
+    setLanguage(lang) {
+        if (CONFIG.LANGUAGES.includes(lang)) {
+            this.currentLanguage = lang;
+            document.body.setAttribute('data-lang', lang);
+            this.updateTranslations();
+            this.saveSettings();
+        }
+    }
+
+    toggleLanguage() {
+        const currentIndex = CONFIG.LANGUAGES.indexOf(this.currentLanguage);
+        const nextIndex = (currentIndex + 1) % CONFIG.LANGUAGES.length;
+        this.setLanguage(CONFIG.LANGUAGES[nextIndex]);
+    }
+
+    translate(key) {
+        return TRANSLATIONS[this.currentLanguage]?.[key] || TRANSLATIONS[CONFIG.DEFAULT_LANGUAGE]?.[key] || key;
+    }
+
+    updateTranslations() {
+        // Обычные элементы с data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            element.textContent = this.translate(key);
+        });
+
+        // Элементы с placeholder
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+            const key = element.getAttribute('data-i18n-placeholder');
+            element.placeholder = this.translate(key);
+        });
+
+        // Элементы с data-i18n-price для ценовых данных
+        document.querySelectorAll('[data-i18n-price]').forEach(element => {
+            const key = element.getAttribute('data-i18n-price');
+            element.textContent = this.translate(key);
+        });
+    }
+
+    // Theme methods
+    setTheme(theme) {
+        this.currentTheme = theme;
+        document.body.setAttribute('data-theme', theme);
+        this.saveSettings();
+    }
+
+    toggleTheme() {
+        const themes = ['light', 'dark', 'auto'];
+        const currentIndex = themes.indexOf(this.currentTheme);
+        const nextIndex = (currentIndex + 1) % themes.length;
+        this.setTheme(themes[nextIndex]);
+    }
+
+    // Storage methods
+    saveSettings() {
+        try {
+            localStorage.setItem('appSettings', JSON.stringify({
+                language: this.currentLanguage,
+                theme: this.currentTheme
+            }));
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        }
+    }
+
+    loadSettings() {
+        try {
+            const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            if (settings.language) this.setLanguage(settings.language);
+            if (settings.theme) this.setTheme(settings.theme);
+        } catch (error) {
+            console.error('Failed to load settings:', error);
+        }
+    }
+
+    saveHistory() {
+        try {
+            localStorage.setItem('generationHistory', JSON.stringify(this.generationHistory));
+        } catch (error) {
+            console.error('Failed to save history:', error);
+            // Попытка сохранить в sessionStorage как fallback
+            try {
+                sessionStorage.setItem('generationHistory', JSON.stringify(this.generationHistory));
+            } catch (fallbackError) {
+                console.error('Fallback storage also failed:', fallbackError);
+            }
+        }
+    }
+
+    loadHistory() {
+        try {
+            // 🔥 ДОБАВЛЕНИЯ: Сначала запускаем автоматизированную очистку старых генераций
+            if (window.historyManagement) {
+                window.historyManagement.cleanupOldGenerations();
+                console.log('🧹 History auto-cleanup completed on load');
+            }
+
+            // Сначала пытаемся загрузить из localStorage
+            let history = localStorage.getItem('generationHistory');
+
+            // Если пусто или ошибка - проверяем sessionStorage как fallback
+            if (!history) {
+                console.log('No history in localStorage, checking sessionStorage fallback...');
+                history = sessionStorage.getItem('generationHistory');
+                if (history) {
+                    console.log('Found history in sessionStorage, merging...');
+                    // Если нашли в sessionStorage - переносим в localStorage
+                    try {
+                        localStorage.setItem('generationHistory', history);
+                        sessionStorage.removeItem('generationHistory');
+                        console.log('Transferred sessionStorage data to localStorage');
+                    } catch (transferError) {
+                        console.warn('Could not transfer to localStorage:', transferError);
+                    }
+                }
+            }
+
+            if (history) {
+                const parsed = JSON.parse(history);
+
+                // 🔥 ДОБАВЛЕНИЯ: МЯГКАЯ ФИЛЬТРАЦИЯ - показываем ВСЕ генерации с результатами
+                this.generationHistory = parsed.filter(item => {
+                    // Показываем ВСЕ генерации, у которых есть какой-либо результат
+                    if (item.result &&
+                        item.result !== undefined &&
+                        item.result !== null &&
+                        item.result !== 'null' &&
+                        item.result !== '') {
+                        console.log(`✅ Keeping generation with result: ${item.id} (${item.status})`);
+                        return true;
+                    }
+
+                    // Также оставляем недавние генерации в процессе (меньше 24 часов) - в надежде что они еще смогут завершить
+                    if (item.status === 'processing' && new Date(item.timestamp) > new Date(Date.now() - 24 * 60 * 60 * 1000)) {
+                        console.log(`🔄 Keeping recent processing generation: ${item.id} (taskUUID: ${item.taskUUID})`);
+                        return true;
+                    }
+
+                    // Убираем ТОЛЬКО явно неудачные старые генерации или без результатов
+                    if ((item.status === 'error' || item.status === 'cancelled') && new Date(item.timestamp) < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                        console.log(`🗑️ Removing old failed generation: ${item.id} (${item.status})`);
+                        return false;
+                    }
+
+                    // Все остальные (включая новые неудачные) оставляем для отображения
+                    console.log(`🔄 Keeping other generation: ${item.id} (${item.status})`);
+                    return true;
+                });
+
+                console.log(`Loaded ${this.generationHistory.length} valid history items from storage`);
+
+                            // 🔥 КРИТИЧЕСКОЕ УЛУЧШЕНИЕ: УМНОЕ ВОССТАНОВЛЕНИЕ с сохранением активных генераций
+                console.log('🎯 Starting SMART history recovery - preserving pending/processing generations...');
+
+                // 1) ОЧИСТИМ ИСТОРИЮ ОТ СТАРЫХ НЕУДАЧНЫХ ГЕНЕРАЦИЙ
+                const itemsWithResults = this.generationHistory.filter(item =>
+                    item.result !== undefined &&
+                    item.result !== null &&
+                    item.result !== 'null' &&
+                    item.result !== ''
+                );
+
+                const activeGenerations = this.generationHistory.filter(item =>
+                    item.status === 'processing' ||
+                    item.status === 'pending' ||
+                    (item.status === 'completed' && item.result)
+                );
+
+                console.log(`📊 History analysis: ${itemsWithResults.length} with results, ${activeGenerations.length} active generations`);
+
+                // 2) ОБНОВИМ ИСТОРИЮ ТОЛЬКО ЗАВЕРШЕННЫМИ ЭЛЕМЕНТАМИ + АКТИВНЫМИ ГЕНЕРАЦИЯМИ
+                const preservedHistory = [...activeGenerations, ...itemsWithResults.filter(item =>
+                    !activeGenerations.find(active => active.id === item.id)
+                )];
+
+                this.generationHistory = preservedHistory;
+                this.saveHistory();
+
+                console.log(`💾 Preserved ${this.generationHistory.length} history items:`, {
+                    pending: activeGenerations.filter(g => g.status === 'pending').length,
+                    processing: activeGenerations.filter(g => g.status === 'processing').length,
+                    completed: itemsWithResults.length
+                });
+
+                // 3) ПОЛНОСТЬЮ ПЕРЕСТРОИМ ИНТЕРФЕЙС ИСТОРИИ
+                setTimeout(() => {
+                    if (window.updateHistoryDisplay) {
+                        console.log('🔄 Triggering comprehensive history rebuild with preserved state...');
+                        window.updateHistoryDisplay(0); // Полное перестроение с учетом сохраненных элементов
+                        console.log('✅ Comprehensive history recovery completed');
+                    } else {
+                        console.warn('❌ updateHistoryDisplay function unavailable');
+                    }
+                }, 500);
+
+            } else {
+                this.generationHistory = [];
+            }
+        } catch (error) {
+            console.error('Failed to load history:', error);
+            this.generationHistory = [];
+        }
+    }
+
+    saveBalanceHistory() {
+        try {
+            localStorage.setItem('balanceHistory', JSON.stringify(this.balanceHistory));
+        } catch (error) {
+            console.error('Failed to save balance history:', error);
+        }
+    }
+
+    loadBalanceHistory() {
+        try {
+            const history = localStorage.getItem('balanceHistory');
+            if (history) {
+                this.balanceHistory = JSON.parse(history);
+                // Инициализируем текущий баланс самым свежим значением из истории
+                if (this.balanceHistory.length > 0) {
+                    const latestEntry = this.balanceHistory[this.balanceHistory.length - 1];
+                    this.userCredits = latestEntry.balance;
+                    this.lastBalanceUpdate = latestEntry.timestamp;
+                }
+            } else {
+                this.balanceHistory = [];
+            }
+        } catch (error) {
+            console.error('Failed to load balance history:', error);
+            this.balanceHistory = [];
+        }
+    }
+}
+
+// 🎯 Global state
+const appState = new AppState();
 
 // Экспортируем appState в window для доступа из параллельной генерации
 window.appState = appState;
-
-// 🔥 ДОБАВЛЕНИЕ: Инициализация переводов для обратной совместимости
-appState.loadSettings();
 
 
 
@@ -591,11 +830,9 @@ function showStatus(type, message) {
 // showToast функция теперь импортируется из screen-manager.js
 
     // Экспортируем другие функции для параллельной генерации
-    // window.showResult убираем - теперь используем только showResultToast и displayFullResult
+    window.showResult = showResult;
     window.showResultToast = showResultToast;
     window.sendToWebhook = sendToWebhook;
-
-    // Показ результатов через ScreenManager
 
     // Удаляем дубликаты функций, которые теперь в history-manager.js
 
@@ -1733,7 +1970,164 @@ async function uploadUserImages() {
     return successfulResults;
 }
 
-// 📱 Telegram WebApp Integration - УДАЛЕНА: дублирующая инициализация, теперь только в services.js
+// 📱 Telegram WebApp Integration
+
+async function initTelegramApp() {
+    console.log('📱 Initializing Telegram WebApp (JavaScript)...');
+
+    // ✅ ПРОВЕРКА: Если SDK уже инициализирован HTML - пропускаем повторную инициализацию
+    if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+        console.log('✅ Telegram WebApp already initialized by HTML - reusing existing instance');
+
+        // Пытаемся использовать существующий инстанс
+        try {
+            appState.tg = window.Telegram.WebApp;
+            console.log('🧾 Existing WebApp data:', JSON.stringify(appState.tg.initDataUnsafe, null, 2));
+        } catch (error) {
+            console.error('❌ Error reusing existing Telegram WebApp:', error);
+            return;
+        }
+    } else {
+        // Если SDK еще не загружен - используем fallback
+        console.log('⚠️ Telegram WebApp not available - using fallback mode');
+        appState.userId = 'fallback_js_' + Date.now();
+        appState.userName = 'Fallback User';
+        showStatus('info', 'Running in fallback mode');
+        return;
+    }
+
+    try {
+        appState.tg = window.Telegram.WebApp;
+        appState.tg.ready();
+        appState.tg.expand();
+        console.log('🧾 Full initDataUnsafe dump:', JSON.stringify(appState.tg.initDataUnsafe, null, 2));
+
+        // ⚠️ ПРОВЕРКА: Есть ли пользователь?
+        if (!appState.tg.initData || !appState.tg.initDataUnsafe?.user) {
+            showStatus('info', '⚠️ Приложение запущено в режиме разработки. Telegram интеграция недоступна.');
+            // Не возвращаем, продолжаем инициализацию
+        } else {
+            console.log('👤 Пользователь Telegram найден');
+        }
+
+        // ✅ УЛУЧШЕННАЯ ДИАГНОСТИКА:
+        console.log('🔍 Telegram WebApp data:', {
+            available: !!appState.tg,
+            platform: appState.tg.platform,
+            version: appState.tg.version,
+            initDataUnsafe: appState.tg.initDataUnsafe,
+            user: appState.tg.initDataUnsafe?.user,
+            // НОВЫЕ ПРОВЕРКИ:
+            initData: appState.tg.initData, // Сырые данные
+            isExpanded: appState.tg.isExpanded,
+            viewportHeight: appState.tg.viewportHeight,
+            colorScheme: appState.tg.colorScheme,
+            themeParams: appState.tg.themeParams
+        });
+
+        // ДОПОЛНИТЕЛЬНАЯ ДИАГНОСТИКА:
+        console.log('🌍 Environment check:', {
+            url: window.location.href,
+            referrer: document.referrer,
+            userAgent: navigator.userAgent,
+            isHTTPS: window.location.protocol === 'https:',
+            hasInitData: !!appState.tg.initData,
+            initDataLength: appState.tg.initData?.length || 0
+        });
+
+        console.log('👤 User data extracted:', {
+            userId: appState.tg.initDataUnsafe?.user?.id,
+            firstName: appState.tg.initDataUnsafe?.user?.first_name,
+            lastName: appState.tg.initDataUnsafe?.user?.last_name,
+            username: appState.tg.initDataUnsafe?.user?.username
+        });
+
+        // Get user data
+        if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
+            const user = appState.tg.initDataUnsafe.user;
+
+            // Основные данные
+            appState.userId = user.id.toString();
+            appState.userName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+
+            // Дополнительные данные пользователя
+            appState.userUsername = user.username || null;
+            appState.userLanguage = user.language_code || 'en';
+            appState.userIsPremium = user.is_premium || false;
+            appState.userPhotoUrl = user.photo_url || null;
+            appState.userAllowsWriteToPm = user.allows_write_to_pm || false;
+
+            // Данные чата/сессии
+            appState.chatInstance = appState.tg.initDataUnsafe.chat_instance || null;
+            appState.chatType = appState.tg.initDataUnsafe.chat_type || null;
+            appState.authDate = appState.tg.initDataUnsafe.auth_date || null;
+
+            // Платформа и версия
+            appState.telegramPlatform = appState.tg.platform || 'unknown';
+            appState.telegramVersion = appState.tg.version || 'unknown';
+
+            console.log('✅ REAL USER DATA SET:', {
+                userId: appState.userId,
+                userName: appState.userName,
+                username: appState.userUsername,
+                language: appState.userLanguage,
+                isPremium: appState.userIsPremium,
+                platform: appState.telegramPlatform,
+                version: appState.telegramVersion,
+                chatType: appState.chatType
+            });
+        } else {
+            // ✅ УЛУЧШЕННАЯ ДИАГНОСТИКА:
+            console.log('❌ NO USER DATA - detailed check:', {
+                hasInitDataUnsafe: !!appState.tg.initDataUnsafe,
+                initDataUnsafeKeys: Object.keys(appState.tg.initDataUnsafe || {}),
+                hasInitData: !!appState.tg.initData,
+                initDataPreview: appState.tg.initData?.substring(0, 100),
+                launchedVia: appState.tg.initDataUnsafe?.start_param || 'unknown',
+                currentURL: window.location.href,
+                isDirectAccess: !document.referrer.includes('telegram')
+            });
+
+            // Разные fallback для разных случаев
+            if (!appState.tg.initDataUnsafe) {
+                appState.userId = 'fallback_no_unsafe_' + Date.now();
+                appState.userName = 'No InitDataUnsafe';
+            } else if (!appState.tg.initDataUnsafe.user) {
+                appState.userId = 'fallback_no_user_' + Date.now();
+                appState.userName = 'No User Data';
+            } else {
+                appState.userId = 'fallback_unknown_' + Date.now();
+                appState.userName = 'Unknown Issue';
+            }
+
+            appState.userUsername = null;
+            appState.userLanguage = 'en';
+            appState.userIsPremium = false;
+            appState.userPhotoUrl = null;
+            appState.telegramPlatform = appState.tg?.platform || 'unknown';
+            appState.telegramVersion = appState.tg?.version || 'unknown';
+        }
+
+
+        // Auto-detect language
+        // Auto-detect language, но не перетирать вручную сохранённый
+        const tgLangRaw = appState.tg.initDataUnsafe?.user?.language_code;
+        const tgLang = tgLangRaw?.split('-')[0]; // "ru-RU" → "ru"
+        const saved = JSON.parse(localStorage.getItem('appSettings') || '{}');
+        if (!saved.language && tgLang && CONFIG.LANGUAGES.includes(tgLang)) {
+            appState.setLanguage(tgLang);
+        }
+
+        // Обновляем отображение имени пользователя в интерфейсе
+        updateUserNameDisplay();
+
+        showStatus('success', appState.translate('connected'));
+
+    } catch (error) {
+        console.error('❌ Telegram initialization error:', error);
+        showStatus('error', 'Telegram connection error');
+    }
+}
 
 function initLanguageDropdown() {
     const btn = document.getElementById('langBtn');
@@ -1812,95 +2206,117 @@ document.addEventListener('DOMContentLoaded', async function () {
     startSnowfall();
     console.log('❄️ Snowfall started immediately - right after loading screen');
 
-    // 🔥 НОВОЕ: Используем сервисы вместо прямого доступа к appState
-    const services = await initializeGlobalServices();
+    appState.loadSettings();
+    appState.loadHistory();
+    appState.loadBalanceHistory();
 
-    let telegramInitialized = false;
-
+    // ✅ Telegram SDK инициализируется в index.html, здесь проверки
     try {
-        // Инициализируем Telegram и проверяем результат
-        telegramInitialized = await services.telegram.initialize(); // Инициализируем Telegram
-        console.log('📱 Telegram initialization result:', telegramInitialized);
+        // Ждем готовности Telegram SDK (загружается в index.html)
+        let attempts = 0;
+        while (typeof window.Telegram === 'undefined' || !window.Telegram.WebApp) {
+            if (attempts++ > 50) break; // таймаут 5 секунд (50*100ms)
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        if (window.Telegram && window.Telegram.WebApp) {
+            console.log('✅ Telegram SDK ready from HTML, proceeding with user data...');
+            appState.tg = window.Telegram.WebApp;
+            console.log('📦 Telegram data:', appState.tg.initDataUnsafe);
+
+            // Get complete user data if available
+            if (appState.tg.initDataUnsafe && appState.tg.initDataUnsafe.user) {
+                const user = appState.tg.initDataUnsafe.user;
+                appState.userId = user.id.toString();
+                appState.userName = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+                appState.userUsername = user.username || null;
+                appState.userLanguage = user.language_code || 'en';
+                appState.userIsPremium = user.is_premium || false;
+                appState.userPhotoUrl = user.photo_url || null;
+                appState.userAllowsWriteToPm = user.allows_write_to_pm || false;
+
+                // Session data
+                appState.chatInstance = appState.tg.initDataUnsafe.chat_instance || null;
+                appState.chatType = appState.tg.initDataUnsafe.chat_type || null;
+                appState.authDate = appState.tg.initDataUnsafe.auth_date || null;
+                appState.telegramPlatform = appState.tg.platform || 'unknown';
+                appState.telegramVersion = appState.tg.version || 'unknown';
+
+                console.log('✅ Complete user data loaded from Telegram:', {
+                    id: appState.userId,
+                    name: appState.userName,
+                    username: appState.userUsername,
+                    language: appState.userLanguage,
+                    isPremium: appState.userIsPremium,
+                    platform: appState.telegramPlatform
+                });
+
+                // Auto-detect language for app
+                if (appState.userLanguage && CONFIG.LANGUAGES.includes(appState.userLanguage.split('-')[0])) {
+                    appState.setLanguage(appState.userLanguage.split('-')[0]);
+                }
+
+                // Auto-detect theme from Telegram
+                if (appState.tg.colorScheme) {
+                    if (appState.tg.colorScheme === 'dark') {
+                        appState.setTheme('dark');
+                    } else if (appState.tg.colorScheme === 'light') {
+                        appState.setTheme('light');
+                    }
+                }
+
+            } else {
+                console.log('⚠️ No user data from Telegram, using fallbacks');
+                appState.userId = 'fallback_' + Date.now();
+                appState.userName = 'Anonymous';
+                appState.userUsername = null;
+                appState.userLanguage = 'en';
+                appState.userIsPremium = false;
+                appState.telegramPlatform = appState.tg?.platform || 'unknown';
+                appState.telegramVersion = appState.tg?.version || 'unknown';
+            }
+
+            updateUserNameDisplay();
+        } else {
+            console.error('❌ Telegram SDK not available - using fallback mode');
+            appState.userId = 'fallback_' + Date.now();
+            appState.userName = 'Fallback User';
+        }
+    } catch (e) {
+        console.error('❌ Error accessing Telegram data:', e);
+        appState.userId = 'error_' + Date.now();
+        appState.userName = 'Error User';
+    }
+
+    initializeUI();
+    initUserImageUpload(); // ← добавь эту строку
+        initLanguageDropdown();
+    try {
+        // Инициализация личного кабинета через модуль (автоматически предотвращает дублирование)
+        initUserAccountFromModule();
     } catch (error) {
-        console.error('❌ Telegram initialization error:', error);
-        telegramInitialized = false;
+        console.error('❌ Failed to initialize User Account:', error);
+        // Продолжаем работу без личного кабинета
     }
 
-    console.log('🔄 Eureka Branch:', telegramInitialized ? 'TELEGRAM OK' : 'SHOW AUTH (or TESTING without auth)');
-    if (!telegramInitialized && !BYPASS_AUTH) {
-        // ВРЕМЕННО ОТКЛЮЧЕНО: Если Telegram не доступен, показываем экран авторизации НЕМЕДЛЕННО
-        console.log('⚠️ Telegram not available - PROCEEDING WITHOUT AUTH (TEMPORARILY DISABLED)');
+    const carouselImages = document.querySelectorAll('.carousel-2d-item img');
+    carouselImages.forEach(img => {
+        img.loading = 'lazy';
+        img.decoding = 'async';
+    });
 
-        // ВРЕМЕННО ПРОДОЛЖАЕМ БЕЗ АВТОРИЗАЦИИ
-        // // Импорт и вызов ScreenManager.show
-        // // const screenManagerModule = await import('./screen-manager.js');
-        // // Используем правильную функцию из ScreenManager
-        // // ScreenManager.showAuth();
-
-        // Скрываем loading screen
+    // 🔥 ТОЧНЫЙ КОНТРОЛЬ: 2 СЕКУНДЫ - ДОСТАТОЧНО ДЛЯ ЗАВЕРШЕНИЯ АНИМАЦИЙ
+    const finishLoading = () => {
         hideLoadingScreen();
+        showApp();
+        updateUserBalanceDisplay(appState.userCredits);
+        initAICoach();
+        console.log('✅ Загрузочный экран скрыт через 2 секунды');
+    };
 
-        // Обновляем глобальные ссылки для совместимости (legacy support)
-        window.appState = services.appState;
-        console.log('✅ Services initialized, appState bridged for compatibility');
-
-        initializeUI();
-        initUserImageUpload();
-        initLanguageDropdown();
-
-        // Личный кабинет уже инициализирован в screen-manager.js через ScreenManager
-        console.log('✅ User Account initialization handled in screen-manager.js');
-
-        const carouselImages = document.querySelectorAll('.carousel-2d-item img');
-        carouselImages.forEach(img => {
-            img.loading = 'lazy';
-            img.decoding = 'async';
-        });
-
-        // 🔥 ТОЧНЫЙ КОНТРОЛЬ: НЕМЕДЛЕННО - показать экран авторизации поскольку Telegram недоступен
-        const finishLoading = () => {
-            hideLoadingScreen();
-            showAuth();
-            initAICoach();
-            console.log('✅ Загрузочный экран скрыт - показан экран авторизации');
-        };
-
-        // НЕМЕДЛЕННАЯ ЗАГРУЗКА - без таймаута!
-        console.log('⏳ Начинаем немедленную загрузку интерфейса');
-        finishLoading();
-
-    } else {
-        // Telegram доступен - обычный поток
-
-        // Обновляем глобальные ссылки для совместимости (legacy support)
-        window.appState = services.appState;
-        console.log('✅ Services initialized, appState bridged for compatibility');
-
-        initializeUI();
-        initUserImageUpload();
-        initLanguageDropdown();
-        // Личный кабинет уже инициализирован в screen-manager.js через ScreenManager
-        console.log('✅ User Account initialization handled in screen-manager.js');
-
-        const carouselImages = document.querySelectorAll('.carousel-2d-item img');
-        carouselImages.forEach(img => {
-            img.loading = 'lazy';
-            img.decoding = 'async';
-        });
-
-        // 🔥 ТОЧНЫЙ КОНТРОЛЬ: 2 СЕКУНДЫ - ДОСТАТОЧНО ДЛЯ ЗАВЕРШЕНИЯ АНИМАЦИЙ
-        const finishLoading = () => {
-            hideLoadingScreen();
-            showApp();
-            updateUserBalanceDisplay(appState.userCredits);
-            initAICoach();
-            console.log('✅ Загрузочный экран скрыт через 2 секунды - нормальный поток');
-        };
-
-        // Принудительный таймаут 2 секунды - анимаций хватает времени завершиться
-        console.log('⏳ Начинаем отсчет 2 секунд для анимаций');
-        setTimeout(finishLoading, 2000);
-    }
+    // Принудительный таймаут 2 секунды - анимаций хватает времени завершиться
+    console.log('⏳ Начинаем отсчет 2 секунд для анимаций');
+    setTimeout(finishLoading, 2000);
 });
 
 
@@ -2015,10 +2431,8 @@ async function generateImage(event) {
 
     // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ДОБАВЛЯЕМ В ИСТОРИЮ СРАЗУ ПРИ СОЗДАНИИ ПРЕВЬЮ!
     // Добавляяем пустой generation в историю перед началом генерации
-            window.appState.generationHistory.unshift(generation);
-            if (window.appState.saveHistory) {
-                window.appState.saveHistory();
-            }
+    window.appState.generationHistory.unshift(generation);
+    window.appState.saveHistory();
 
     console.log('✅ Generation added to history (status:', generation.status, ')');
 
@@ -2947,4 +3361,5 @@ function startUploadButtonBlink() {
 // 🎯 Функции личного кабинета импортированы из модуля user-account.js
 // 🎯 AI Coach инициализируется через ai-coach.js модуль
 
-// 🔥 ФУНКЦИИ ОБРАБОТКИ ОШИБОК ОБРУБОВАНЫ В SCREEN-MANAGER (ИМПОРТ ВЫШЕ)
+// 🔥 ИМПОРТ ФУНКЦИЙ ОБРАБОТКИ ОШИБОК ИЗ SCREEN-MANAGER
+import { ScreenManager } from './screen-manager.js';
