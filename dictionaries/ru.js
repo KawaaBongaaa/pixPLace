@@ -117,5 +117,28 @@ export const ru = {
     photo_warning_upload_btn: "Загрузить изображение",
     photo_warning_continue_btn: "Продолжить без",
     image_limit_error: "Максимум 4 изображения. Вы можете загрузить ещё {{count}}.",
+
+    // Generation Result Modal
+    generation_result_title: "Результат генерации",
+    date_label: "Дата:",
+    mode_label_modal: "Режим:",
+    charged_label: "Списано:",
+    prompt_label_modal: "Промпт:",
+    use_for_generation: "Использовать изображение для новой генерации",
+    reuse_prompt_title: "Повторить генерацию с этим промптом",
+
+    // Generation Result Modal - Toast Messages
+    image_downloading: "Изображение скачивается...",
+    link_copied: "Ссылка скопирована в буфер обмена!",
+    prompt_applied: "Промпт применен! Прокрутите вниз и нажмите Generate",
+
+    // Generation Result Modal - Share
+    share_title: "Мое AI изображение из pixPLace",
+    share_text: "Посмотрите на изображение, сгенерированное в pixPLace!",
+
+    // Additional Messages
+    image_added_success: "Изображение добавлено для генерации!",
+    ui_error_message: "Ошибка интерфейса:",
+
     load_more_history: "Показать больше"
 }

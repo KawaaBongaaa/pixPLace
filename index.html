@@ -9,93 +9,75 @@
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 
     <link rel="stylesheet" href="css/styles_modern.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/modals.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=block" rel="stylesheet">
     <script>
-        // Глобальные переменные для совместимости (будут заменены позже)
+        // Глобальные переменные для совместимости - фикс проблемы с appState
         window.showToast = (type, message) => console.log(`Toast (${type}): ${message}`);
-        window.appState = { translate: (key) => key };
-
-        const sources = [
-            'https://telegram.org/js/telegram-web-app.js',
-            'https://unpkg.com/@twa-dev/sdk@7.10.1/dist/index.js',
-            'https://cdn.jsdelivr.net/npm/@twa-dev/sdk@7.10.1/dist/index.js'
-        ];
-
-        function loadTelegramSDK(index = 0) {
-            return new Promise((resolve, reject) => {
-                if (index >= sources.length) {
-                    reject('❌ All Telegram SDK sources failed');
-                    return;
-                }
-
-                const script = document.createElement('script');
-                script.src = sources[index];
-
-                script.onload = () => {
-                    console.log('✅ Telegram SDK loaded from:', sources[index]);
-                    resolve();
+        window.appState = {
+            translate: (key) => {
+                // Прямые переводы для ранней инициализации Telegram
+                const translations = {
+                    'telegram_webapp_warning': '⚠️ Приложение запущено в режиме разработки. Telegram интеграция недоступна.',
+                    'telegram_integration_unavailable': 'Telegram интеграция недоступна',
+                    'connecting': 'Connecting...',
+                    'app_title': 'pixPLace',
+                    'loading': 'Loading...',
+                    'connecting': 'Connecting...',
+                    'mode_photo_session': '🔧 Nano Banana Editor',
+                    'mode_fast_generation': '⚡ Flux Fast Generation',
+                    'mode_pixplace_pro': '✨ Flux Pro Advanced',
+                    'mode_print_maker': '👕 Print on Demand',
+                    'mode_background_removal': '✂️ Remove Background',
+                    'mode_upscale_image': '🔍 Upscale Image',
+                    'prompt_placeholder': 'Describe your vision and watch AI bring it to life',
+                    'prompt_label': 'Describe your image',
+                    'mode_label': 'Generation Mode',
+                    'size_label': 'Size',
+                    'upload_image': 'Upload Image',
+                    'generate_btn': 'Generate Image',
+                    'mode_details': 'Подробнее о режимах',
+                    'style_label': 'Style',
+                    'history_toggle': 'Generation History',
+                    'empty_history_title': 'No history yet',
+                    'empty_history_subtitle': 'Generate your first image!',
+                    'style_realistic': 'Realistic',
+                    'style_popart': 'Pop Art',
+                    'style_cyberpunk': 'Cyberpunk',
+                    'style_cartoon': 'Cartoon',
+                    'style_sketch': 'Sketch',
+                    'style_anime': 'Anime',
+                    'style_fantasy': 'Fantasy',
+                    'style_surrealism': 'Surrealism',
+                    'style_artistic': 'Artistic',
+                    'style_abstract': 'Abstract',
+                    'style_minimalism': 'Minimalism',
+                    'style_fashion': 'Fashion',
+                    'style_3d': '3D',
+                    'style_interior': 'Interior',
+                    'style_architecture': 'Architecture',
+                    'style_print': 'Print',
+                    'style_sticker': 'Sticker',
+                    'style_banner': 'Banner',
+                    'style_infographic': 'Infografic',
+                    'style_logo': 'Logo',
+                    'style_vector': 'Vector'
                 };
+                return translations[key] || key;
+            },
+            currentLanguage: 'en',
+            // Базовые свойства для совместимости с ранней инициализацией
+            tg: null,
+            userId: null,
+            userName: null,
+            selectedStyle: 'realistic'
+        };
 
-                script.onerror = () => {
-                    console.warn(`⚠️ Failed to load ${sources[index]}, trying next...`);
-                    resolve(loadTelegramSDK(index + 1));
-                };
-
-                document.head.appendChild(script);
-            });
-        }
-
-        async function initTelegramWebApp() {
-            try {
-                // Добавляем timeout для всей инициализации
-                const timeout = setTimeout(() => {
-                    throw new Error('Telegram SDK loading timeout');
-                }, 3000); // 3 секунд
-
-                await loadTelegramSDK();
-                clearTimeout(timeout);
-
-        // Если SDK загрузился, проверяем готовность
-        let attempts = 0;
-        while (typeof Telegram === 'undefined' || !Telegram.WebApp) {
-            if (attempts++ > 100) throw new Error('Telegram SDK not available');
-            await new Promise(resolve => setTimeout(resolve, 50));
-        }
-
-                Telegram.WebApp.ready();
-                Telegram.WebApp.expand();
-                console.log('✅ Telegram WebApp Ready');
-
-                const initData = Telegram.WebApp.initDataUnsafe;
-                console.log('📦 Full initData:', initData);
-
-                if (!initData?.user) {
-                    showToast('warning', appState.translate('telegram_webapp_warning'));
-                } else {
-                    console.log('👤 User:', initData.user);
-                }
-
-                if (initData.start_param) {
-                    console.log('🔗 Start Param:', initData.start_param);
-                }
-
-            } catch (err) {
-                console.error('❌ Ошибка инициализации Telegram WebApp:', err);
-                // Fallback: показать предупреждение, но продолжить работу
-                setTimeout(() => {
-                    showToast('warning', appState.translate('telegram_integration_unavailable'));
-                }, 1000);
-
-                // Продолжаем инициализацию JavaScript
-                appState.userId = 'fallback_' + Date.now();
-                appState.userName = 'Fallback User';
-            }
-        }
-
-        // Функция ручного развертывания полноэкранного режима (для iPad и других проблемных устройств)
+        // Функция ручного развертывания полноэкранного режима (для iPad и других проблемных устройств) - останется доступной после загрузки SDK
         function manualExpand() {
             if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
                 try {
@@ -116,7 +98,6 @@
         window.manualExpand = manualExpand;
 
 
-        window.addEventListener('load', initTelegramWebApp);
     </script>
 
     <!-- SVG SYMBOLS -->
@@ -156,7 +137,7 @@
 <body data-theme="dark" data-lang="ru">
 
     <!-- Loading Screen -->
-    <div id="loadingScreen" class="loading-screen active">
+    <div id="loadingScreen" class="loading-screen" style="display: none !important;">
         <div class="snowfall"></div>
         <div class="loading-content">
             <div class="loading-logo">
@@ -174,7 +155,7 @@
     </div>
 
     <!-- Main App -->
-    <div id="app" class="app">
+    <div id="app" class="app" style="display: block !important;">
         <!-- Header -->
         <header class="header">
             <div class="header-content">
@@ -309,7 +290,7 @@
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                         </svg>
                     </button>
-                                        <!-- USER MENU  
+                                        <!-- USER MENU 
 
                     <div class="user-menu-wrapper">
                         <button class="control-btn" id="userMenuBtn" title="Personal Account">
@@ -355,7 +336,8 @@
                                 </button>
                             </div>
                         </div>
-                    </div>-->
+                    </div> -->
+                <!---->
                 </div>
             </div>
         </header>
@@ -368,6 +350,36 @@
         </div>
         <!-- Main Content -->
         <main class="main-content" data-current-screen="generation">
+            <!-- Auth Screen -->
+            <div id="authScreen" class="screen auth-screen">
+                <div class="screen-content">
+                    <div class="auth-container">
+                        <div class="auth-header">
+                            <div class="auth-logo">
+                                <svg class="logo-img" style="width:120px; height:120px">
+                                    <use xlink:href="#pixplace-logo" />
+                                </svg>
+                            </div>
+                            <h1 class="auth-title">Добро пожаловать в pixPLace</h1>
+                            <p class="auth-subtitle">Для создания потрясающих изображений с помощью AI, пожалуйста, войдите через Telegram</p>
+                        </div>
+                        <div class="auth-content" style="padding: 30px; text-align: center;">
+                            <p style="color: #333; font-size: 18px; margin-bottom: 30px;">Просто кликните кнопку ниже для авторизации:</p>
+
+                            <button class="auth-btn" onclick="handleTelegramLogin()" style="width: 100%; max-width: 300px; height: 80px; background: #0084ff; color: white; font-size: 20px; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,132,255,0.3);">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 5.547c.24.24.443.442.443.783v.054c0 .34-.203.542-.443.783l-.054.054-2.572 2.572-1.781 1.781a.48.48 0 0 1-.683 0l-.054-.054-.832-.832-.832-.832-.832-.832-.832-.832-.054-.054a.48.48 0 0 1 0-.683l.054-.054 1.781-1.781L14.746 5.6c1.086 1.086 2.238 2.238 2.572 2.572z"/>
+                                </svg>
+                                <span>ВОЙТИ ЧЕРЕЗ TELEGRAM</span>
+                            </button>
+
+                            <div class="auth-footer" style="margin-top: 30px; color: #666;">
+                                <p class="auth-notice">Все данные защищены</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Generation Screen -->
             <div id="generationScreen" class="screen active">
                 <div class="screen-content">
@@ -658,64 +670,7 @@
                     </form>
                 </div>
             </div>
-            <!-- Result Screen -->
-            <div id="resultScreen" class="screen">
-                <div class="screen-content">
-                    <div class="result-container">
-                        <div class="result-image-container">
-                            <img id="resultImage" class="result-image" alt="Generated Image" />
-                            <div class="image-overlay">
-                                <button class="overlay-btn download-btn" onclick="downloadImage()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                        <polyline points="7,10 12,15 17,10" />
-                                        <line x1="12" y1="15" x2="12" y2="3" />
-                                    </svg>
-                                </button>
-                                <button class="overlay-btn share-btn" onclick="shareImage()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="18" cy="5" r="3" />
-                                        <circle cx="6" cy="12" r="3" />
-                                        <circle cx="18" cy="19" r="3" />
-                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="result-info">
-                            <div class="result-meta">
-                                <div class="meta-item">
-                                    <span class="meta-label" data-i18n="prompt_label">Prompt:</span>
-                                    <span class="meta-value" id="resultPrompt"></span>
-                                </div>
-                                <div class="meta-item">
-                                    <span class="meta-label" data-i18n="style_label">Style:</span>
-                                    <span class="meta-value" id="resultStyle"></span>
-                                </div>
-                                <div class="meta-item">
-                                    <span class="meta-label" data-i18n="mode_label">Mode:</span>
-                                    <span class="meta-value" id="resultMode"></span>
-                                </div>
-                                <div class="meta-item">
-                                    <span class="meta-label" data-i18n="generation_cost">Generation cost:</span>
-                                    <span class="meta-value" id="resultTime"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="result-actions">
-                            <button class="action-btn primary" onclick="newGeneration()">
-                                <span class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                        viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
-                                        <path
-                                            d="m176-120-56-56 301-302-181-45 198-123-17-234 179 151 216-88-87 217 151 178-234-16-124 198-45-181-301 301Zm24-520-80-80 80-80 80 80-80 80Zm355 197 48-79 93 7-60-71 35-86-86 35-71-59 7 92-79 49 90 22 23 90Zm165 323-80-80 80-80 80 80-80 80ZM569-570Z" />
-                                    </svg></span>
-                                <span data-i18n="create_new">Create New</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             <!-- AI Chat Screen -->
             <div id="chatScreen" class="screen">
                 <div class="screen-content">
@@ -856,6 +811,13 @@
     <script type="module" src="user-account.js"></script>
     <script type="module" src="app_modern.js"></script>
     <script src="parallel-generation.js"></script>
+    <script src="telegram-auth.js"></script>
+
+    <!-- ФИНАЛЬНЫЙ ТЕСТ - КНОПКА В BODY - ВРЕМЕННО ОТКЛЮЧЕНА -->
+    <button onclick="handleTelegramLogin()" style="position: fixed; top: 200px; left: 200px; width: 400px; height: 120px; background: #ff00ff; color: white; font-size: 32px; font-weight: bold; border: 10px solid #000000; border-radius: 20px; z-index: 1000000; cursor: pointer; display: none !important;">
+        🚀 TELEGRAM АВТОРИЗАЦИЯ<br/>ФИНАЛЬНЫЙ ТЕСТ
+    </button>
+
 </body>
 
 </html>
