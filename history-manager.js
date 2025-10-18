@@ -597,10 +597,23 @@ function updateHistoryDisplay(page = 0) {
         return;
     }
 
-    // Если это первая страница - очищаем список
+    // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ЗАЩИТА АКТИВНЫХ АНИМАЦИЙ ОТ ОЧИСТКИ!
+    // Если это первая страница - очищаем список, НО сохраняем активные анимации
     if (page === 0) {
-        historyList.innerHTML = '';
-        console.log('📋 Cleared history list for fresh display');
+        // Собираем все активные анимированные элементы перед очисткой
+        const activeAnimationIds = getActiveAnimationIds ? getActiveAnimationIds() : [];
+        const activeAnimationElements = activeAnimationIds.map(id => document.getElementById(`loading-${id}`)).filter(el => el);
+
+        console.log(`� Preserving ${activeAnimationElements.length} active animations before clearing history`);
+
+        // Очищаем список, удаляя только завершенные генерации
+        const elementsToRemove = Array.from(historyList.children).filter(child =>
+            !child.id.startsWith('loading-') // <-- НЕ удаляем активные анимации!
+        );
+
+        elementsToRemove.forEach(element => element.remove());
+
+        console.log(`📋 Cleared ${elementsToRemove.length} completed items, kept ${activeAnimationElements.length} active animations`);
     }
 
     // 🔥 НОВОЕ: Изменен лимит для показа только 6 изображений при первом заходе
@@ -956,9 +969,14 @@ function toggleHistoryList() {
         }, 100); // Небольшая задержка для синхронизации анимаций
 
     } else {
-        console.log('📁 Closing history');
+        console.log('📁 Closing history - detaching animations for background completion');
         list.classList.add('hidden');
         btn.classList.remove('active');
+
+        // 🔥 ДОБАВЛЕНИЕ: При закрытии истории не отсоединяем анимации от DOM!
+        // ВОССТАНАВЛИВАЕМ анимации ТОЛЬКО КОГДА НУЖНО, а не автоматически
+        // detachActiveAnimationsFromDOM(); // ЗАКОММЕНТИРОВАНО - не нужно при закрытии!
+        console.log('🔌 History closed - animations preserved in localStorage for reopening');
     }
 }
 
@@ -1022,17 +1040,53 @@ function restoreActiveAnimations() {
 
         console.log(`🔄 Restoring ${validAnimations.length} active animations from ${activeAnimations.length} stored`);
 
-        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Проверяем историю POCOLE при открытии
+        // 🔥 ИСПРАВЛЕНИЕ БАГА: Проверяем историю СТРОГО при открытии.
+        // Если история закрыта или только что очищена - ФОРСИРОВАНО восстанавливаем анимации
         const historyList = document.getElementById('historyList');
+        const isHistoryHidden = historyList?.classList.contains('hidden') || !historyList;
         const existingAnimationIds = getActiveAnimationIds();
 
-        console.log(`📊 History state check: visible=${!historyList?.classList.contains('hidden')}, existingAnimations=${existingAnimationIds.length}, animationsToRestore=${validAnimations.length}`);
+        console.log(`📊 History state check: visible=${!isHistoryHidden}, existingAnimations=${existingAnimationIds.length}, animationsToRestore=${validAnimations.length}`);
 
-        // НЕ ВОССТАНАВЛИВАЕМ анимации - они уже существуют в DOM от updateHistoryDisplay
-        // Просто обновляем localStorage
+        // 🔥 НОВОЕ ПРАВИЛО: ВОССТАНАВЛИВАЕМ если недостаточно элементов в DOM или история была очистена
+        const forceRestore = isHistoryHidden || validAnimations.length > existingAnimationIds.length;
+
+        if (forceRestore && validAnimations.length > 0) {
+            console.log('🎯 FORCE RESTORING animations - DOM was cleared or history was closed');
+
+            // Восстанавливаем отсутствующие анимированные элементы в DOM
+            validAnimations.forEach(animation => {
+                const elementExists = document.getElementById(`loading-${animation.generationId}`);
+                if (!elementExists) {
+                    // 🔥 НАХОДИМ генерацию и восстанавливаем элемент НЕМЕДЛЕННО!
+                    const generation = window.appState?.generationHistory?.find(g => g.id == animation.generationId);
+                    if (generation && generation.status === 'processing') {
+                        console.log(`🔗 Restoring missing animation element for ${animation.generationId}`);
+                        const restoredElement = createLoadingHistoryItem(generation);
+                        if (restoredElement) {
+                            console.log(`✅ Successfully restored animation element for ${animation.generationId}`);
+                        } else {
+                            console.warn(`❌ Failed to restore animation element for ${animation.generationId}`);
+                        }
+                    } else {
+                        console.warn(`⚠️ Generation not found or not processing: ${animation.generationId}`, {
+                            found: !!generation,
+                            status: generation?.status
+                        });
+                    }
+                }
+            });
+
+            // Проверяем сколько элементов действительно удалось восстановить
+            const restoredCount = getActiveAnimationIds().length;
+            console.log(`📊 Restore results: attempted ${validAnimations.length}, restored ${restoredCount}`);
+        } else {
+            console.log('✅ Not restoring animations - DOM elements already exist');
+        }
+
+        // === ДОПОЛНИТЕЛЬНО: ОЧИСТИМ localStorage, удалив дубликаты и невалидные записи
         localStorage.setItem('active_history_animations', JSON.stringify(validAnimations));
-
-        console.log('✅ Not restoring animations - using existing DOM elements');
+        console.log(`💾 Updated localStorage with ${validAnimations.length} valid animations`);
 
     } catch (error) {
         console.error('❌ Failed to restore active animations:', error);
@@ -1087,6 +1141,154 @@ window.viewHistoryItem = viewHistoryItem;
 window.replaceLoadingWithPreview = replaceLoadingWithPreview;
 window.restoreActiveAnimations = restoreActiveAnimations;
 
+// 🔥 ДОБАВЛЕНИЕ: Функция для отсоединения активных анимаций от DOM при закрытии истории
+// Это позволяет завершить генерации даже когда история скрыта
+function detachActiveAnimationsFromDOM() {
+    console.log('🔌 detachActiveAnimationsFromDOM: Preparing for history closure');
+
+    try {
+        const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
+
+        if (activeAnimations.length === 0) {
+            console.log('🔌 No active animations to detach');
+            return;
+        }
+
+        console.log(`🔌 Detaching ${activeAnimations.length} animations from DOM for background completion`);
+
+        // Для каждой активной анимации создаем слушатель событий завершения
+        activeAnimations.forEach(animation => {
+            const generationId = animation.generationId;
+            const taskUUID = animation.taskUUID;
+
+            // Создаем слушателя для событий завершения генерации
+            const completionListener = (event) => {
+                console.log(`🔌 Background completion listener triggered for ${generationId}`, event.detail);
+
+                try {
+                    // Меняем статус генерации на completed, даже если DOM элемент не найден
+                    const generation = window.appState?.generationHistory?.find(g => g.id == generationId);
+                    console.log(`🔌 Generation found in history: ${!!generation}, status: ${generation?.status}`);
+
+                    if (generation) {
+                        generation.status = 'completed';
+                        generation.result = event.detail?.image_url || generation.result || `completed-${generationId}`;
+
+                        // Добавляем дополнительные данные если есть
+                        if (event.detail) {
+                            generation.generation_cost = event.detail.generation_cost;
+                            generation.cost_currency = event.detail.cost_currency;
+                            generation.remaining_credits = event.detail.remaining_credits;
+                            generation.imageUUID = event.detail.imageUUID;
+                        }
+
+                        console.log(`🔌 Updated generation ${generationId} in memory: status=${generation.status}, hasResult=${!!generation.result}`);
+
+                        // 🔥 КРИТИЧЕСКОЕ: Сохраняем историю ПРИНУДИТЕЛЬНО
+                        if (window.appState?.saveHistory) {
+                            const historyBefore = window.appState.generationHistory.length;
+                            window.appState.saveHistory();
+                            console.log(`🔌 Generation ${generationId} saved to history in background (total items: ${historyBefore})`);
+                        }
+
+                        // 🔥 ДОБАВЛЕНИЕ: Обновляем счетчик UI чтобы показать новую карточку
+                        // Проверяем закрыта ли история и обновляем соот. образом
+                        const historyList = document.getElementById('historyList');
+                        const isHistoryHidden = historyList?.classList.contains('hidden');
+
+                        if (window.updateHistoryCount) {
+                            window.updateHistoryCount();
+                            console.log(`🔌 Updated history count after background completion (history ${isHistoryHidden ? 'hidden' : 'visible'})`);
+
+                            // 🔥 ДОБАВЛЕНИЕ: Если история закрыта, добавляем визуальную индикацию в UI
+                            if (isHistoryHidden) {
+                                console.log('📱 History is closed - generation saved, UI updated when reopened');
+                                // При следующем открытии истории updateHistoryDisplay() покажет все актуальные генерации
+                            }
+                        }
+
+                        // Удаляем анимацию из localStorage
+                        const updatedAnimations = activeAnimations.filter(a => a.generationId != generationId);
+                        localStorage.setItem('active_history_animations', JSON.stringify(updatedAnimations));
+                        console.log(`🧹 Cleaned animation ${generationId} from localStorage (remaining: ${updatedAnimations.length})`);
+                    } else {
+                        console.warn(`❌ Generation ${generationId} not found in history for background completion!`);
+                    }
+
+                    // Удаляем слушателя события
+                    document.removeEventListener(`generation:completed:${taskUUID}`, completionListener);
+                } catch (error) {
+                    console.error(`❌ Error in background completion listener for ${generationId}:`, error);
+                }
+            };
+
+            // Добавляем слушателя события
+            document.addEventListener(`generation:completed:${taskUUID}`, completionListener);
+
+            console.log(`🔌 Attached background listener for generation ${generationId} (taskUUID: ${taskUUID})`);
+        });
+
+        // Добавляем global слушатель для всех генераций (safety net)
+        document.addEventListener('generation:completed', (event) => {
+            console.log('🔌 Global background listener triggered for any generation');
+            const generationId = event.detail?.generation_id || event.detail?.id;
+
+            if (generationId) {
+                const generation = window.appState?.generationHistory?.find(g => g.id == generationId);
+                if (generation && !generation.result) {
+                    generation.status = 'completed';
+                    generation.result = event.detail?.image_url || `completed-${generationId}`;
+
+                    if (window.appState?.saveHistory) {
+                        window.appState.saveHistory();
+                    }
+                }
+            }
+        });
+
+        console.log('🔌 Background completion system established');
+
+    } catch (error) {
+        console.error('❌ Failed to detach animations from DOM:', error);
+    }
+}
+
+// 🔥 ДОБАВЛЕНИЕ: Функция для повторного подключения анимаций к DOM при открытии истории
+function reattachActiveAnimationsToDOM() {
+    console.log('🔗 reattachActiveAnimationsToDOM: Restoring DOM elements');
+
+    try {
+        const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
+
+        if (activeAnimations.length === 0) {
+            console.log('🔗 No active animations to reattach');
+            return;
+        }
+
+        console.log(`🔗 Reattaching ${activeAnimations.length} animations to DOM`);
+
+        // Восстанавливаем DOM элементы для активных анимаций
+        activeAnimations.forEach(animation => {
+            const generation = window.appState?.generationHistory?.find(g => g.id == animation.generationId);
+            const isValid = generation && generation.status === 'processing';
+
+            if (isValid && !document.getElementById(`loading-${generation.id}`)) {
+                const animationElement = createLoadingHistoryItem(generation);
+                if (animationElement) {
+                    console.log(`🔗 Reattached DOM element for generation ${generation.id}`);
+                }
+            } else if (!isValid) {
+                console.log(`🔗 Skipping invalid animation ${animation.generationId}`);
+            }
+        });
+
+        console.log('🔗 Animation reattachment completed');
+
+    } catch (error) {
+        console.error('❌ Failed to reattach animations to DOM:', error);
+    }
+}
+
 // 🔥 ДОБАВЛЕНИЕ: Master функция полной синхронизации состояния истории
 function synchronizeHistoryState() {
     console.log('🔄 synchronizeHistoryState started');
@@ -1095,42 +1297,81 @@ function synchronizeHistoryState() {
         const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
         console.log(`🎭 Found ${activeAnimations.length} active animations in localStorage`);
 
+        const currentTime = Date.now();
+        // 🔥 ОЧИЩАЕМ ПРОСРОЧЕННЫЕ АНИМАЦИИ: те что висят дольше 5 минут и не завершены
+        const validAnimations = activeAnimations.filter(animation => {
+            const isExpired = (currentTime - animation.timestamp) > 300000; // 5 минут
+            if (isExpired) {
+                console.log(`🗑️ Clearing expired animation for generation ${animation.generationId} (${Math.floor((currentTime - animation.timestamp) / 1000)}s ago)`);
+                // 🔥 ДОБАВЛЕНИЕ: Проверяем и завершаем просроченные генерации
+                const generation = window.appState?.generationHistory?.find(g => g.id == animation.generationId);
+                if (generation && generation.status === 'processing') {
+                    generation.status = 'error';
+                    generation.error = 'Timeout - generation took too long';
+                    if (window.appState?.saveHistory) {
+                        window.appState.saveHistory();
+                        console.log(`🔌 Marked timeout generation ${animation.generationId} as error`);
+                    }
+                }
+            }
+            return !isExpired;
+        });
+
+        // Сохраняем очищенные анимации обратно в localStorage
+        if (validAnimations.length !== activeAnimations.length) {
+            localStorage.setItem('active_history_animations', JSON.stringify(validAnimations));
+            console.log(`🧹 Cleaned stale animations: ${activeAnimations.length} → ${validAnimations.length}`);
+        }
+
         // 🔥 ОБНОВЛЯЕМ КОЛИЧЕСТВО в UI - включаем анимации!
-        const totalHistoryItems = window.appState.generationHistory.length + activeAnimations.length;
+        const totalHistoryItems = window.appState.generationHistory.length + validAnimations.length;
         setTimeout(() => {
             const historyToggleBtn = document.getElementById('historyToggleBtn');
             if (historyToggleBtn) {
                 const baseText = 'Generation History';
                 historyToggleBtn.textContent = totalHistoryItems > 0 ? `${baseText} (${totalHistoryItems})` : baseText;
-                console.log(`📊 Updated history count in UI: ${totalHistoryItems} (completed: ${window.appState.generationHistory.length}, animations: ${activeAnimations.length})`);
+                console.log(`📊 Updated history count in UI: ${totalHistoryItems} (completed: ${window.appState.generationHistory.length}, animations: ${validAnimations.length})`);
             }
         }, 100);
 
-        if (activeAnimations.length === 0) {
+        if (validAnimations.length === 0) {
             console.log('📋 No active animations to synchronize');
             return;
         }
 
-        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: СНАЧАЛА восстанавливаем ВСЕ активные анимации до updateHistoryDisplay
-        for (const animation of activeAnimations) {
-            const generation = window.appState.generationHistory.find(g => g.id == animation.generationId);
-            const isValid = generation && generation.status === 'processing' && (Date.now() - animation.timestamp) < 3600000;
+        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ВОССТАНАВЛИВАЕМ анимации НЕ ЗАВИСИМО от состояния истории!
+        // Если элементы отсутствуют в DOM - ВОССТАНАВЛИВАЕМ их немедленно
+        console.log('🎯 Checking and restoring animations in DOM regardless of history state');
 
-            console.log(`🔍 Animation ${animation.generationId}: found=${!!generation}, status=${generation?.status}, valid=${isValid}`);
-
-            if (isValid) {
-                const animationElement = createLoadingHistoryItem(generation);
-                if (animationElement) {
-                    console.log(`✅ Fully synchronized animation for generation: ${animation.generationId}`);
+        let restorationNeeded = false;
+        validAnimations.forEach(animation => {
+            const elementExists = document.getElementById(`loading-${animation.generationId}`);
+            if (!elementExists) {
+                restorationNeeded = true;
+                console.log(`🔗 Animation element ${animation.generationId} missing from DOM, restoring immediately`);
+                // 🔥 НАХОДИМ генерацию и восстанавливаем элемент НЕМЕДЛЕННО!
+                const generation = window.appState?.generationHistory?.find(g => g.id == animation.generationId);
+                if (generation && generation.status === 'processing') {
+                    createLoadingHistoryItem(generation);
+                    console.log(`✅ Immediately restored missing animation element for ${animation.generationId}`);
                 } else {
-                    console.warn(`❌ Failed to create animation element for: ${animation.generationId}`);
+                    console.warn(`⚠️ Generation not found or not processing: ${animation.generationId}`, {
+                        found: !!generation,
+                        status: generation?.status
+                    });
                 }
             } else {
-                console.log(`🗑️ Skipping invalid/expired animation: ${animation.generationId}`);
+                console.log(`✅ Animation element ${animation.generationId} already exists in DOM`);
             }
+        });
+
+        if (restorationNeeded) {
+            console.log('🔄 DOM restoration completed - animations should now be visible');
+        } else {
+            console.log('✅ All animation elements already present in DOM');
         }
 
-        console.log('🎯 Synchronization completed');
+        console.log('🎯 Synchronization completed (always checks DOM restoration)');
 
     } catch (error) {
         console.error('❌ Failed to synchronize history state:', error);

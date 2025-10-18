@@ -262,24 +262,50 @@ class GenerationManager {
 
                 console.log('🎯 Data for preview replacement:', replacementData);
 
-                // 🔥 ЗАМЕНА АНИМАЦИИ НА ПРЕВЬЮ по taskUUID
-                if (window.replaceLoadingWithPreview) {
-                    const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
-                    if (replaced) {
-                        console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
-                    } else {
-                        console.warn('⚠️ Preview replacement failed, using fallback');
-                        // Fallback: используем старую логику
-                        if (window.updateHistoryItemWithImage) {
-                            window.updateHistoryItemWithImage(generation.id, response.image_url);
+                        // 🔥 ЗАМЕНА АНИМАЦИИ НА ПРЕВЬЮ по taskUUID
+                        let visualUpdateDone = false;
+
+                        // 🔥 ПРОВЕРЯЕМ: Закрыта ли история перед обновлением DOM
+                        const isHistoryClosed = !document.getElementById('historyList')?.classList.contains('hidden');
+
+                        if (window.replaceLoadingWithPreview) {
+                            const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
+                            if (replaced) {
+                                console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
+                                visualUpdateDone = true;
+                            } else {
+                                console.warn(`⚠️ Preview replacement failed (history closed: ${!isHistoryClosed}), not updating DOM`);
+                                // НЕ используем fallback когда история закрыта - обновление будет при следующем открытии
+                            }
+                        } else {
+                            console.warn('❌ replaceLoadingWithPreview not available');
+                            // Если история открыта, используем fallback
+                            if (window.updateHistoryItemWithImage && isHistoryClosed) {
+                                console.log('🔄 Using fallback visual update while history is open');
+                                window.updateHistoryItemWithImage(generation.id, response.image_url);
+                                visualUpdateDone = true;
+                            }
                         }
-                    }
-                } else {
-                    console.warn('❌ replaceLoadingWithPreview not available - using fallback');
-                    if (window.updateHistoryItemWithImage) {
-                        window.updateHistoryItemWithImage(generation.id, response.image_url);
-                    }
-                }
+
+                        // 🔥 ВСЕГДА отправляем события завершения генерации для background listeners
+                        console.log('🎯 Sending completion events for generation:', generation.id, `(visualUpdateDone: ${visualUpdateDone})`);
+
+                        const completionEvent = new CustomEvent(`generation:completed:${generation.taskUUID}`, {
+                            detail: replacementData
+                        });
+                        document.dispatchEvent(completionEvent);
+
+                        // Также отправляем глобальное событие
+                        const globalCompletionEvent = new CustomEvent('generation:completed', {
+                            detail: {
+                                ...replacementData,
+                                generation_id: generation.id,
+                                taskUUID: generation.taskUUID
+                            }
+                        });
+                        document.dispatchEvent(globalCompletionEvent);
+
+                        console.log('🎯 Background completion events sent for generation:', generation.id);
 
                 // Обновляем текущую генерацию в памяти
                 generation.result = response.image_url;

@@ -977,9 +977,9 @@ async function useImageForGeneration(imageUrl, itemId) {
 
                     // 🔥 ДОБАВИТЬ: Автоматический выбор режима photo_session (Nano Banana) при работе с изображениями
                     setTimeout(() => {
-                        const generationModeSelect = document.getElementById('generationMode');
-                        if (generationModeSelect && generationModeSelect.value !== 'photo_session') {
-                            generationModeSelect.value = 'photo_session';
+                        const modeSelect = document.getElementById('modeSelect');
+                        if (modeSelect && modeSelect.value !== 'photo_session') {
+                            modeSelect.value = 'photo_session';
                             console.log('🔄 Auto-switched to photo_session mode for image editing');
 
                             // Обновляем режим в глобальном состоянии
@@ -987,10 +987,11 @@ async function useImageForGeneration(imageUrl, itemId) {
                                 window.appState.currentMode = 'photo_session';
                             }
 
-                            // Обновляем данные режима в app_modern.js если есть такая функция
-                            if (window.updateModeDisplay) {
-                                window.updateModeDisplay('photo_session');
-                                console.log('✅ Mode display updated via helper');
+                            // Синхронизируем с каруселью режимов - найдем и кликнем карточку photo_session
+                            const photoSessionCard = document.querySelector('.mode-card[data-mode="photo_session"]');
+                            if (photoSessionCard) {
+                                photoSessionCard.click();
+                                console.log('✅ Mode carousel synchronized with photo_session');
                             }
                         } else {
                             console.log('✅ Mode already set to photo_session or select not found');
