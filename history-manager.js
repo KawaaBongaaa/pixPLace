@@ -9,6 +9,41 @@ class HistoryManagement {
         console.log('📋 HistoryManagement initialized');
     }
 
+    // 🔧 ИСПРАВЛЕНИЕ: Мягкая очистка - убираем только очень старые (неделя+) неуспешные генерации
+    cleanupOldGenerations() {
+        if (!window.appState?.generationHistory) return;
+
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // неделя назад
+        const originalLength = window.appState.generationHistory.length;
+
+        window.appState.generationHistory = window.appState.generationHistory.filter(item => {
+            const itemDate = new Date(item.timestamp);
+
+            // ВСЕГДА оставляем завершенные генерации - даже очень старые
+            if (item.status === 'completed') return true;
+
+            // Оставляем все генерации в обработке, независимо от возраста
+            if (item.status === 'processing') return true;
+
+            // Убираем только очень старые (старше недели) неуспешные генерации
+            if (itemDate < weekAgo && (item.status === 'error' || item.status === 'cancelled' || item.status === 'server_overloaded')) {
+                console.log(`🧹 Removing very old failed generation: ${item.id} (status: ${item.status}, age: ${Math.floor((Date.now() - itemDate) / (1000*60*60*24))} days)`);
+                return false;
+            }
+
+            // Все остальные (включая недавние неуспешные) оставляем
+            console.log(`💾 Keeping generation: ${item.id} (status: ${item.status})`);
+            return true;
+        });
+
+        if (originalLength !== window.appState.generationHistory.length) {
+            console.log(`🧹 Soft cleaned old generations: ${originalLength} → ${window.appState.generationHistory.length} (kept most items)`);
+            window.appState.saveHistory();
+        }
+
+        return window.appState.generationHistory;
+    }
+
     // Глобальные переменные для отслеживания страниц
     static currentPage = 0;
     static maxLoadedPage = 0;
@@ -110,6 +145,17 @@ class HistoryManagement {
 
         console.log('🖼️ Updated history item with generated image:', generationId, imageUrl);
 
+        // ✅ ДОБАВЛЕНИЕ: Удаляем завершенную генерацию из localStorage с активными анимациями
+        // Таким образом анимация не восстановится позже при перезагрузке/переоткрытии истории
+        try {
+            const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
+            const filteredAnimations = activeAnimations.filter(a => a.generationId != generationId);
+            localStorage.setItem('active_history_animations', JSON.stringify(filteredAnimations));
+            console.log('🧹 Cleaned completed animation from localStorage:', generationId);
+        } catch (error) {
+            console.warn('⚠️ Failed to clean animation from localStorage:', error);
+        }
+
         // 🐛 ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: Принудительная загрузка превью
         setTimeout(() => {
             const elementAfterTimeout = document.getElementById(`history-${generationId}`);
@@ -119,11 +165,95 @@ class HistoryManagement {
                     window.globalHistoryLoader.forceLoadVisibleHistoryPreviews();
                     console.log('🔄 Forced visibility check for loaded image');
                 }
-    } else {
-        console.warn('⚠️ No items to display on page', page);
-    }
+            } else {
+                console.warn('⚠️ No items to display on page', page);
+            }
         }, 500);
     }
+}
+
+// 🔧 ДОБАВЛЕНИЕ: Функция замены анимации на превью по taskUUID
+function replaceLoadingWithPreview(taskUUID, generationData) {
+    console.log('🔄 replaceLoadingWithPreview called for taskUUID:', taskUUID);
+
+    // Находим анимацию по data-taskuuid
+    const animationEl = document.querySelector(`[data-taskuuid="${taskUUID}"]`);
+    if (!animationEl) {
+        console.warn('❌ Animation element not found for taskUUID:', taskUUID);
+        return false;
+    }
+
+    // Проверяем что элементы есть в generationData
+    if (!generationData || !generationData.image_url || !generationData.generation_id) {
+        console.warn('❌ Missing generation data:', generationData);
+        return false;
+    }
+
+    // Обновляем ID элемента (важный шаг)
+    animationEl.id = `history-${generationData.generation_id}`;
+    console.log(`🔧 Changed ID from ${animationEl.id} to history-${generationData.generation_id}`);
+
+    // Убираем анимацию загрузки
+    animationEl.classList.remove('history-loading');
+
+    // Создаем реальное изображение
+    const realImage = document.createElement('img');
+    realImage.className = 'lazy-loading loaded';
+    realImage.src = generationData.image_url;
+    realImage.alt = 'Generated image';
+    realImage.loading = 'lazy';
+    realImage.decoding = 'async';
+
+    // Удаляем анимированную оболочку
+    const loadingWrapper = animationEl.querySelector('.loading-wrapper');
+    if (loadingWrapper) {
+        loadingWrapper.remove();
+        console.log('🗑️ Removed loading wrapper');
+    }
+
+    // Добавляем реальное изображение
+    animationEl.insertBefore(realImage, animationEl.firstChild);
+
+    // Обновляем подпись с новой информацией
+    const caption = animationEl.querySelector('p');
+    if (caption) {
+        const safeMode = (generationData.mode && generationData.mode !== 'undefined') ?
+            generationData.mode : 'photo_session';
+        const translatedMode = window.appState.translate('mode_' + safeMode);
+
+        caption.innerHTML = `
+            <span class="complete-status">✅ Complete</span><br>
+            <small class="history-date">${new Date().toLocaleDateString()} | ${window.appState.translate('style_' + (generationData.style || 'realistic'))} | ${translatedMode}</small>
+        `;
+
+        // Добавляем анимацию изменения текста
+        caption.style.opacity = '0';
+        requestAnimationFrame(() => {
+            caption.style.opacity = '1';
+            caption.style.transition = 'opacity 0.2s ease-in-out';
+        });
+    }
+
+    // Обновляем onclick для просмотра полного результата
+    animationEl.onclick = () => {
+        const item = window.appState.generationHistory.find(h => h.id == generationData.generation_id);
+        if (item && item.result) {
+            window.appState.currentGeneration = item;
+            import('./screen-manager.js').then(module => {
+                module.displayFullResult({ image_url: item.result });
+            });
+        }
+    };
+
+    // Принудительная загрузка превью
+    setTimeout(() => {
+        if (window.globalHistoryLoader) {
+            window.globalHistoryLoader.forceLoadVisibleHistoryPreviews();
+        }
+    }, 100);
+
+    console.log('✅ Successfully replaced loading animation with preview for:', taskUUID);
+    return true;
 }
 
 // Функция для создания placeholder'а загрузки в истории (вынесена из app_modern.js)
@@ -148,6 +278,12 @@ function createLoadingHistoryItem(generation) {
     const loadingItem = document.createElement('div');
     loadingItem.className = 'history-mini history-loading';
     loadingItem.id = `loading-${generation.id}`;
+
+    // 🔥 ДОБАВЛЕНИЕ: Атрибут для привязки к taskUUID
+    loadingItem.setAttribute('data-taskuuid', generation.taskUUID);
+
+    console.log('🎯 Created loading item with taskUUID:', generation.taskUUID, 'for generation:', generation.id);
+
     // Добавляем onclick сразу
     loadingItem.onclick = () => console.log('Loading item clicked, but still processing...');
 
@@ -303,17 +439,42 @@ function createLoadingHistoryItem(generation) {
         console.log('✅ Appended as first child');
     }
 
-    // 🔍 ПРОВЕРКА: Убеждаемся что элемент действительно добавлен
-    const addedItem = document.getElementById(`loading-${generation.id}`);
-    if (addedItem) {
-        console.log('✅ Loading item successfully added to DOM:', addedItem.id);
-        console.log('📊 Current history list children count:', historyList.children.length);
-        console.log('📋 History list children:', Array.from(historyList.children).map(c => c.id || c.className));
-    } else {
-        console.error('❌ Loading item NOT found in DOM after adding!');
-    }
+        // 🔍 ПРОВЕРКА: Убеждаемся что элемент действительно добавлен
+        const addedItem = document.getElementById(`loading-${generation.id}`);
+        if (addedItem) {
+            console.log('✅ Loading item successfully added to DOM:', addedItem.id);
+            console.log('📊 Current history list children count:', historyList.children.length);
+            console.log('📋 History list children:', Array.from(historyList.children).map(c => c.id || c.className));
 
-    return loadingItem;
+            // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Сохраняем активные элементы анимации в localStorage
+            // Это гарантирует, что анимация восстановится, даже если история закроется-откроется
+            try {
+                const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
+                const animationData = {
+                    generationId: generation.id,
+                    taskUUID: generation.taskUUID,
+                    timestamp: Date.now(),
+                    status: 'animating'
+                };
+
+                // Удаляем возможные дубликаты перед добавлением
+                const filtered = activeAnimations.filter(a => a.generationId !== generation.id);
+                filtered.push(animationData);
+
+                localStorage.setItem('active_history_animations', JSON.stringify(filtered));
+                console.log('💿 Saved active animation to localStorage:', generation.id);
+
+                // 🔥 ДОБАВЛЕНИЕ: ОБНОВЛЯЕМ СЧЁТЧИК ПОСЛЕ СОХРАНЕНИЯ НОВОЙ АНИМАЦИИ
+                setTimeout(updateHistoryCount, 50);
+            } catch (error) {
+                console.warn('⚠️ Failed to save animation state:', error);
+            }
+
+        } else {
+            console.error('❌ Loading item NOT found in DOM after adding!');
+        }
+
+        return loadingItem;
 }
 
 // Функция просмотра элемента истории (вынесена из app_modern.js)
@@ -321,10 +482,18 @@ function viewHistoryItem(id) {
     const item = window.appState.generationHistory.find(h => h.id == id);
     if (item && item.result) {
         window.appState.currentGeneration = item;
-        // Используем функцию из screen-manager.js
-        import('./screen-manager.js').then(module => {
-            module.displayFullResult({ image_url: item.result });
-        });
+        console.log('🎯 Clicking history item, opening generationResultModal');
+
+        // 🔥 ИСПРАВЛЕНИЕ: Открываем generationResultModal вместо обычного просмотра
+        if (window.showGenerationResultModal) {
+            window.showGenerationResultModal(item);
+        } else {
+            console.warn('❌ showGenerationResultModal not available');
+            // Fallback: используем обычный просмотр если модал недоступен
+            import('./screen-manager.js').then(module => {
+                module.displayFullResult({ image_url: item.result });
+            });
+        }
     }
 }
 
@@ -395,22 +564,23 @@ function updateHistoryDisplay(page = 0) {
     }
 
     const validItems = generationHistory.filter(item => {
-        const isValid = item.result &&
-                       typeof item.result === 'string' &&
-                       item.result.trim() !== '' &&
-                       item.result !== 'undefined';
+    // 🔧 ИСПРАВЛЕНИЕ: ПОКАЗЫВАЕМ ВСЕ генерации с результатами И с правильным статусом
+    const hasValidResult = item &&
+                          item.result !== undefined &&
+                          item.result !== null &&
+                          item.result !== 'null' &&
+                          item.result !== '' &&
+                          item.result !== 'undefined' &&
+                          typeof item.result === 'string' &&
+                          item.result.trim() !== '';
 
-        if (!isValid) {
-            console.log(`❌ Filtered out invalid item:`, {
-                id: item.id,
-                result: item.result,
-                type: typeof item.result,
-                trimmed: item.result?.trim?.(),
-                isUndefined: item.result === 'undefined'
-            });
-        }
+    if (!hasValidResult) {
+        console.log(`❌ FILTER: Skipped item: id=${item.id}, status=${item.status}, resultLength=${item.result?.length || 0}, trimmedResult='${item.result?.trim()?.substring(0, 50)}...'`);
+    } else {
+        console.log(`✅ KEPT: id=${item.id}, status=${item.status}, resultLength=${item.result?.length || 0}`);
+    }
 
-        return isValid;
+    return hasValidResult;
     });
 
     console.log(`✅ Valid items after filtering: ${validItems.length}/${generationHistory.length}`);
@@ -434,14 +604,11 @@ function updateHistoryDisplay(page = 0) {
     }
 
     // 🔥 НОВОЕ: Изменен лимит для показа только 6 изображений при первом заходе
-    const itemsPerPage = page === 0 ? 6 : 15; // первый раз ТОЛЬКО 6 изображений, потом 15
+    const start = page === 0 ? 0 : page * 15 - 9;  // page=0: 0, page=1:6, page=2:21, etc.
+    const end = start + (page === 0 ? 6 : 15);
+    const pageItems = validItems.slice(start, Math.min(end, validItems.length));
 
-    // Загружаем элементы страницы
-    const pageItems = page === 0
-        ? validItems.slice(0, 6)  // первые 6 элементов для первой страницы
-        : validItems.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
-
-    console.log(`📄 Page ${page}: loading ${pageItems.length} items from ${validItems.length} total`);
+    console.log(`📄 Page ${page}: loading items ${start}-${Math.min(end-1, validItems.length-1)} from ${validItems.length} total (${pageItems.length} items)`);
 
     if (pageItems.length > 0) {
         // Добавляем элементы страницы
@@ -486,7 +653,24 @@ function updateHistoryDisplay(page = 0) {
                     <div>Изображение недоступно</div>
                     <div style="font-size: 10px; margin-top: 2px;">Повторите генерацию</div>
                 </div>
-            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + (item.mode || 'photo_session')) || 'photo_session'}</p>
+                        <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + (item.mode || 'photo_session')) || 'photo_session'}</p>
+
+            <!-- 🔥 ДОБАВЛЕНИЕ: Сохраняем состояние для восстановления! -->
+            <script type="application/json" class="generation-state" style="display:none;">
+                ${JSON.stringify({
+                    id: item.id,
+                    taskUUID: item.taskUUID,
+                    status: item.status || 'completed',
+                    preview_status: 'has_preview',
+                    generation_cost: item.generation_cost,
+                    cost_currency: item.cost_currency,
+                    remaining_credits: item.remaining_credits,
+                    imageUUID: item.imageUUID,
+                    mode: item.mode,
+                    style: item.style,
+                    timestamp: item.timestamp
+                })}
+            </script>
             ` : `
                 <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L3JlY3Q+PC9zdmc+"
                      data-src="${imageUrl}"
@@ -501,47 +685,29 @@ function updateHistoryDisplay(page = 0) {
             historyList.appendChild(element);
             console.log(`➕ Added element for item ${item.id} to DOM`);
 
-            // 🚀 OPTIMIZED LAZY LOADING WITHOUT DEVICE STRESS (ТОЛЬКО для рабочих изображений)
-            const img = element.querySelector('img[data-src]');
-            if (!img) {
-                console.warn(`❌ No img element found for item ${item.id}`);
-                return;
-            }
+    // 🚀 OPTIMIZED LAZY LOADING WITHOUT DEVICE STRESS (ТОЛЬКО для рабочих изображений)
+    const img = element.querySelector('img[data-src]');
+    if (!img) {
+        console.warn(`❌ No img element found for item ${item.id}`);
+        return;
+    }
 
-            // ✋ ПРОТЕКЦИЯ ОТ СПАМА: НЕ обрабатывать поврежденные изображения вообще!
-            if (isBrokenImage) {
-                console.log(`🚫 Skipping lazy loading setup for broken image ${item.id}`);
-                return; // <-- ПОЛНЫЙ выход из критерия обработки, никаких lazy loading!
-            }
+    // ✋ ПРОТЕКЦИЯ ОТ СПАМА: НЕ обрабатывать поврежденные изображения вообще!
+    if (isBrokenImage) {
+        console.log(`🚫 Skipping lazy loading setup for broken image ${item.id}`);
+        return; // <-- ПОЛНЫЙ выход из критерия обработки, никаких lazy loading!
+    }
 
-            console.log(`📱 LAZY SETUP for item ${item.id}`);
+    console.log(`📱 LAZY SETUP for completed item ${item.id}`);
 
-            // 🔥 УМНАЯ ЛОГИКА ЗАГРУЗКИ:
-            // Для первых 6 элементов - EAGER loading (чтобы сразу показать самые свежие)
-            // Для остальных - LAZY loading по видимости
-            const isFirstPage = page === 0;
-            const isFirstElements = index < 6; // Первые 6 самых свежих
-
-            if (isFirstPage && isFirstElements) {
-                // ⚡ EAGER LOADING для самых свежих изображений
-                console.log(`⚡ EAGER loading fresh image ${index + 1}/6 for ${item.id}`);
-                img.src = img.dataset.src;
-                delete img.dataset.src;
-                img.classList.add('loaded');
-                img.style.opacity = '1';
-            } else {
-                // 🦥 LAZY LOADING для остальных изображений
-                console.log(`🦥 LAZY setup for item ${item.id}`);
-                if (window.globalHistoryLoader && window.globalHistoryLoader.observe) {
-                    window.globalHistoryLoader.observe(img);
-                } else {
-                    // Fallback - загружаем если IntersectionObserver недоступен
-                    console.log(`⚠️ IntersectionObserver not available, fallback to direct loading for ${item.id}`);
-                    img.src = img.dataset.src;
-                    delete img.dataset.src;
-                    img.classList.add('loaded');
-                }
-            }
+    // 🔥 НОВАЯ УМНАЯ ЛОГИКА ЗАГРУЗКИ:
+    // Все завершенные генерации - EAGER LOAD при первой загрузке страниц
+    // Благодаря сохранению состояния - покажем реальные превью всегда
+    console.log(`⚡ EAGER loading completed image ${item.id} (status: ${item.status})`);
+    img.src = img.dataset.src;
+    delete img.dataset.src;
+    img.classList.add('loaded');
+    img.style.opacity = '1';
 
             // ✅ Убраны все обработчики - нет спама в консоль
         });
@@ -552,13 +718,26 @@ function updateHistoryDisplay(page = 0) {
         console.warn('⚠️ No items to display on page', page);
     }
 
-    console.log(`� DEBUGGING HISTORY PAGING:`);
+    console.log(`🔄 DEBUGGING HISTORY PAGING:`);
     console.log(`Total valid items: ${validItems.length}`);
     console.log(`Current page: ${page}`);
-    console.log(`Items per page: ${itemsPerPage}`);
-    console.log(`Should show load more? ${validItems.length > itemsPerPage}`);
+    console.log(`Page items shown: ${pageItems.length}`);
+    const totalShownSoFar = page === 0 ? 6 : page * 15 - 9 + 15;
+    console.log(`Total shown so far: ${totalShownSoFar}`);
+    console.log(`Should show load more? ${validItems.length > totalShownSoFar}`);
 
-    if (validItems.length > itemsPerPage) {
+    // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Кнопка всегда должна добавляться ПОСЛЕ всех элементов!
+    // Удаляем старую кнопку в начале, чтобы не мешала вставке элементов
+    const existingBtn = document.getElementById('loadMoreHistoryBtn');
+    if (existingBtn) {
+        existingBtn.remove();
+        console.log('🗑️ Removed existing load more button before adding new items');
+    }
+
+    // 🔥 ИСПРАВЛЕНИЕ: Правильная логика для показывания кнопки пагинации
+    // Показываем кнопку только если есть еще элементы для загрузки
+    const minItemsForPagination = page === 0 ? 6 : page * 15 - 9 + 15;
+    if (validItems.length > minItemsForPagination) {
         // Удаляем старую кнопку, если есть
         const existingBtn = document.getElementById('loadMoreHistoryBtn');
         if (existingBtn) {
@@ -598,12 +777,13 @@ function updateHistoryDisplay(page = 0) {
         loadMoreBtn.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🎯 Load more button clicked');
+            console.log('🎯 Load more button clicked - calling updateHistoryDisplay with next page');
 
             loadMoreBtn.textContent = 'Загружаем...';
             loadMoreBtn.disabled = true;
 
-            loadNextHistoryPage();
+            // 🔥 ПРЯМАЯ ВЫЗОВ можно loadNextHistoryPage() или updateHistoryDisplay(currentHistoryPage + 1)
+            updateHistoryDisplay(page + 1);  // <-- Используем page + 1 а не глобальную переменную
         };
 
         historyList.appendChild(loadMoreBtn);
@@ -611,16 +791,42 @@ function updateHistoryDisplay(page = 0) {
     }
 }
 
+// Функция для обновления счетчика истории в UI
+function updateHistoryCount() {
+    try {
+        const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
+        const totalHistoryItems = window.appState.generationHistory.length + activeAnimations.length;
+
+        const historyToggleBtn = document.getElementById('historyToggleBtn');
+        if (historyToggleBtn) {
+            const baseText = 'Generation History';
+            historyToggleBtn.textContent = totalHistoryItems > 0 ? `${baseText} (${totalHistoryItems})` : baseText;
+            console.log(`📊 History count updated: ${totalHistoryItems} total (completed: ${window.appState.generationHistory.length}, animations: ${activeAnimations.length})`);
+        }
+    } catch (error) {
+        console.warn('⚠️ Failed to update history count:', error);
+    }
+}
+
+// Экспортируем функцию обновления счетчика
+window.updateHistoryCount = updateHistoryCount;
+
 // Глобальный счетчик страницы
 let currentHistoryPage = 0;
 
 // Функция для загрузки следующей страницы истории
 function loadNextHistoryPage() {
+    // 🔥 СИНХРОНИЗАЦИЯ: Используем ту же логику фильтрации что и в updateHistoryDisplay
     const validItems = window.appState.generationHistory.filter(item =>
-        item.result &&
+        item &&
+        item.result !== undefined &&
+        item.result !== null &&
+        item.result !== 'null' &&
+        item.result !== '' &&
+        item.result !== 'undefined' &&
         typeof item.result === 'string' &&
         item.result.trim() !== '' &&
-        item.result !== 'undefined'
+        item.status === 'completed'
     );
 
     // Увеличиваем страницу
@@ -734,21 +940,23 @@ function toggleHistoryList() {
     const list = document.getElementById('historyList');
     const btn = document.getElementById('historyToggleBtn');
     if (list.classList.contains('hidden')) {
+        console.log('📂 Opening history');
         list.classList.remove('hidden');
         btn.classList.add('active');
+
+        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Полная синхронизация состояния истории
+        // ВАЖНО: Вызываем synchronizeHistoryState ДО updateHistoryDisplay!
+        synchronizeHistoryState();
+
         // Сбрасываем счетчик страниц при открытии
         currentHistoryPage = 0;
-        updateHistoryDisplay();
 
-        // Дополнительная быстрая прокрутка к последнему изображению после открытия истории
         setTimeout(() => {
-            const historyList = document.getElementById('historyList');
-            if (historyList && historyList.lastElementChild) {
-                historyList.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                console.log('🖼️ Scrolled to bottom image in history');
-            }
-        }, 150);
+            updateHistoryDisplay();
+        }, 100); // Небольшая задержка для синхронизации анимаций
+
     } else {
+        console.log('📁 Closing history');
         list.classList.add('hidden');
         btn.classList.remove('active');
     }
@@ -783,6 +991,88 @@ export {
     updateHistoryItemWithImage
 };
 
+// 🔥 ДОБАВЛЕНИЕ: Функция для восстановления активных анимаций из localStorage
+function restoreActiveAnimations() {
+    try {
+        const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
+
+        if (activeAnimations.length === 0) {
+            console.log('📋 No active animations to restore');
+            return;
+        }
+
+        const currentTime = Date.now();
+        const validAnimations = activeAnimations.filter(animation => {
+            // Проверяем что генерация все еще в истории и активна
+            const generation = window.appState.generationHistory.find(g => g.id == animation.generationId);
+            const isNotExpired = (currentTime - animation.timestamp) < 3600000; // 1 час максимум
+            const shouldKeep = generation && generation.status === 'processing' && isNotExpired;
+
+            if (!shouldKeep) {
+                console.log(`🗑️ Removing expired/completed animation for: ${animation.generationId}`, {
+                    foundInHistory: !!generation,
+                    status: generation?.status,
+                    age: Math.floor((currentTime - animation.timestamp) / 1000),
+                    expired: !isNotExpired
+                });
+            }
+
+            return shouldKeep;
+        });
+
+        console.log(`🔄 Restoring ${validAnimations.length} active animations from ${activeAnimations.length} stored`);
+
+        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Проверяем историю POCOLE при открытии
+        const historyList = document.getElementById('historyList');
+        const existingAnimationIds = getActiveAnimationIds();
+
+        console.log(`📊 History state check: visible=${!historyList?.classList.contains('hidden')}, existingAnimations=${existingAnimationIds.length}, animationsToRestore=${validAnimations.length}`);
+
+        // НЕ ВОССТАНАВЛИВАЕМ анимации - они уже существуют в DOM от updateHistoryDisplay
+        // Просто обновляем localStorage
+        localStorage.setItem('active_history_animations', JSON.stringify(validAnimations));
+
+        console.log('✅ Not restoring animations - using existing DOM elements');
+
+    } catch (error) {
+        console.error('❌ Failed to restore active animations:', error);
+        // В крайнем случае очищаем поврежденные данные
+        try {
+            localStorage.removeItem('active_history_animations');
+        } catch {}
+    }
+}
+
+// 🔥 ДОБАВЛЕНИЕ: Функция для получения списка ID активных анимаций для исключения из обычной истории
+function getActiveAnimationIds() {
+    try {
+        const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
+        const currentTime = Date.now();
+
+        return activeAnimations
+            .filter(animation => {
+                const generation = window.appState?.generationHistory?.find(g => g.id == animation.generationId);
+                return generation && generation.status === 'processing' && (currentTime - animation.timestamp) < 3600000;
+            })
+            .map(animation => animation.generationId);
+    } catch (error) {
+        console.warn('⚠️ Failed to get active animation IDs:', error);
+        return [];
+    }
+}
+
+// 🔥 ДОБАВЛЕНИЕ: Вызываем восстановление анимаций при инициализации истории
+// Это должно происходить ПОСЛЕ загрузки данных, ПОСЛЕ перестройки истории в app_modern.js
+document.addEventListener('DOMContentLoaded', () => {
+    // Небольшая задержка для гарантированного восстановления
+    setTimeout(() => {
+        if (window.appState?.generationHistory) {
+            restoreActiveAnimations();
+            console.log('🎭 Animation restoration completed after DOM ready');
+        }
+    }, 1000);
+});
+
 // Экспортируем функции в глобальную область для обратной совместимости
 window.updateHistoryDisplay = updateHistoryDisplay;
 window.loadNextHistoryPage = loadNextHistoryPage;
@@ -793,4 +1083,61 @@ window.updateHistoryItemWithImage = (generationId, imageUrl) => historyManagemen
 window.createLoadingHistoryItem = createLoadingHistoryItem;
 window.viewHistoryItem = viewHistoryItem;
 
-console.log('🎯 History Management module loaded successfully');
+// 🔥 ДОБАВЛЕНИЕ: Новый экспорт функции замены превью по taskUUID
+window.replaceLoadingWithPreview = replaceLoadingWithPreview;
+window.restoreActiveAnimations = restoreActiveAnimations;
+
+// 🔥 ДОБАВЛЕНИЕ: Master функция полной синхронизации состояния истории
+function synchronizeHistoryState() {
+    console.log('🔄 synchronizeHistoryState started');
+
+    try {
+        const activeAnimations = JSON.parse(localStorage.getItem('active_history_animations') || '[]');
+        console.log(`🎭 Found ${activeAnimations.length} active animations in localStorage`);
+
+        // 🔥 ОБНОВЛЯЕМ КОЛИЧЕСТВО в UI - включаем анимации!
+        const totalHistoryItems = window.appState.generationHistory.length + activeAnimations.length;
+        setTimeout(() => {
+            const historyToggleBtn = document.getElementById('historyToggleBtn');
+            if (historyToggleBtn) {
+                const baseText = 'Generation History';
+                historyToggleBtn.textContent = totalHistoryItems > 0 ? `${baseText} (${totalHistoryItems})` : baseText;
+                console.log(`📊 Updated history count in UI: ${totalHistoryItems} (completed: ${window.appState.generationHistory.length}, animations: ${activeAnimations.length})`);
+            }
+        }, 100);
+
+        if (activeAnimations.length === 0) {
+            console.log('📋 No active animations to synchronize');
+            return;
+        }
+
+        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: СНАЧАЛА восстанавливаем ВСЕ активные анимации до updateHistoryDisplay
+        for (const animation of activeAnimations) {
+            const generation = window.appState.generationHistory.find(g => g.id == animation.generationId);
+            const isValid = generation && generation.status === 'processing' && (Date.now() - animation.timestamp) < 3600000;
+
+            console.log(`🔍 Animation ${animation.generationId}: found=${!!generation}, status=${generation?.status}, valid=${isValid}`);
+
+            if (isValid) {
+                const animationElement = createLoadingHistoryItem(generation);
+                if (animationElement) {
+                    console.log(`✅ Fully synchronized animation for generation: ${animation.generationId}`);
+                } else {
+                    console.warn(`❌ Failed to create animation element for: ${animation.generationId}`);
+                }
+            } else {
+                console.log(`🗑️ Skipping invalid/expired animation: ${animation.generationId}`);
+            }
+        }
+
+        console.log('🎯 Synchronization completed');
+
+    } catch (error) {
+        console.error('❌ Failed to synchronize history state:', error);
+    }
+}
+
+// Экспортируем master функцию
+window.synchronizeHistoryState = synchronizeHistoryState;
+
+console.log('🎯 History Management module loaded successfully with full state synchronization');

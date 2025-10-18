@@ -187,6 +187,12 @@ class AppState {
 
     loadHistory() {
         try {
+            // 🔥 ДОБАВЛЕНИЯ: Сначала запускаем автоматизированную очистку старых генераций
+            if (window.historyManagement) {
+                window.historyManagement.cleanupOldGenerations();
+                console.log('🧹 History auto-cleanup completed on load');
+            }
+
             // Сначала пытаемся загрузить из localStorage
             let history = localStorage.getItem('generationHistory');
 
@@ -209,15 +215,84 @@ class AppState {
 
             if (history) {
                 const parsed = JSON.parse(history);
-                // Фильтруем поврежденные записи result=undefined
-                this.generationHistory = parsed.filter(item =>
+
+                // 🔥 ДОБАВЛЕНИЯ: МЯГКАЯ ФИЛЬТРАЦИЯ - показываем ВСЕ генерации с результатами
+                this.generationHistory = parsed.filter(item => {
+                    // Показываем ВСЕ генерации, у которых есть какой-либо результат
+                    if (item.result &&
+                        item.result !== undefined &&
+                        item.result !== null &&
+                        item.result !== 'null' &&
+                        item.result !== '') {
+                        console.log(`✅ Keeping generation with result: ${item.id} (${item.status})`);
+                        return true;
+                    }
+
+                    // Также оставляем недавние генерации в процессе (меньше 24 часов) - в надежде что они еще смогут завершить
+                    if (item.status === 'processing' && new Date(item.timestamp) > new Date(Date.now() - 24 * 60 * 60 * 1000)) {
+                        console.log(`🔄 Keeping recent processing generation: ${item.id} (taskUUID: ${item.taskUUID})`);
+                        return true;
+                    }
+
+                    // Убираем ТОЛЬКО явно неудачные старые генерации или без результатов
+                    if ((item.status === 'error' || item.status === 'cancelled') && new Date(item.timestamp) < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
+                        console.log(`🗑️ Removing old failed generation: ${item.id} (${item.status})`);
+                        return false;
+                    }
+
+                    // Все остальные (включая новые неудачные) оставляем для отображения
+                    console.log(`🔄 Keeping other generation: ${item.id} (${item.status})`);
+                    return true;
+                });
+
+                console.log(`Loaded ${this.generationHistory.length} valid history items from storage`);
+
+                            // 🔥 КРИТИЧЕСКОЕ УЛУЧШЕНИЕ: УМНОЕ ВОССТАНОВЛЕНИЕ с сохранением активных генераций
+                console.log('🎯 Starting SMART history recovery - preserving pending/processing generations...');
+
+                // 1) ОЧИСТИМ ИСТОРИЮ ОТ СТАРЫХ НЕУДАЧНЫХ ГЕНЕРАЦИЙ
+                const itemsWithResults = this.generationHistory.filter(item =>
                     item.result !== undefined &&
                     item.result !== null &&
-                    item.result !== 'undefined' &&
-                    item.result !== '' &&
-                    typeof item.result === 'string'
+                    item.result !== 'null' &&
+                    item.result !== ''
                 );
-                console.log(`Loaded ${this.generationHistory.length} valid history items from storage`);
+
+                const activeGenerations = this.generationHistory.filter(item =>
+                    item.status === 'processing' ||
+                    item.status === 'pending' ||
+                    (item.status === 'completed' && item.result)
+                );
+
+                console.log(`📊 History analysis: ${itemsWithResults.length} with results, ${activeGenerations.length} active generations`);
+
+                // 2) ОБНОВИМ ИСТОРИЮ ТОЛЬКО ЗАВЕРШЕННЫМИ ЭЛЕМЕНТАМИ + АКТИВНЫМИ ГЕНЕРАЦИЯМИ
+                const preservedHistory = [...activeGenerations, ...itemsWithResults.filter(item =>
+                    !activeGenerations.find(active => active.id === item.id)
+                )];
+
+                this.generationHistory = preservedHistory;
+                this.saveHistory();
+
+                console.log(`💾 Preserved ${this.generationHistory.length} history items:`, {
+                    pending: activeGenerations.filter(g => g.status === 'pending').length,
+                    processing: activeGenerations.filter(g => g.status === 'processing').length,
+                    completed: itemsWithResults.length
+                });
+
+                // 3) ПОЛНОСТЬЮ ПЕРЕСТРОИМ ИНТЕРФЕЙС ИСТОРИИ
+                setTimeout(() => {
+                    if (window.updateHistoryDisplay) {
+                        console.log('🔄 Triggering comprehensive history rebuild with preserved state...');
+                        window.updateHistoryDisplay(0); // Полное перестроение с учетом сохраненных элементов
+                        console.log('✅ Comprehensive history recovery completed');
+                    } else {
+                        console.warn('❌ updateHistoryDisplay function unavailable');
+                    }
+                }, 500);
+
+            } else {
+                this.generationHistory = [];
             }
         } catch (error) {
             console.error('Failed to load history:', error);
@@ -887,6 +962,16 @@ window.addEventListener('beforeunload', cleanupMemoryLeaks);
 // ⚡ ТОСТ-НОТИФИКАЦИИ ДЛЯ НОВЫХ РЕЗУЛЬТАТОВ (БЕЗ ПРЕРЫВАНИЯ ПОЛНОГО ПРОСМОТРА)
 let pendingResults = []; // Ожидающие результаты для показа в тостах
 
+// 🔥 ЭКСПОРТ КРИТИЧЕСКОЙ ФУНКЦИИ onUserImageChange ДЛЯ ДОСТУПА ИЗ ДРУГИХ МОДУЛЕЙ
+window.onUserImageChange = onUserImageChange;
+
+console.log('✅ onUserImageChange exported to global window scope');
+
+// 🔥 ЭКСПОРТ createPreviewItem ДЛЯ ДОСТУПА ИЗ user-account.js
+window.createPreviewItem = createPreviewItem;
+
+console.log('✅ createPreviewItem exported to global window scope');
+
 
 function showGeneration() {
     const screens = document.querySelectorAll('.screen');
@@ -1078,6 +1163,10 @@ const userImageState = {
     images: [] // массив объектов {id, file, dataUrl, uploadedUrl} - до 4 изображений
 };
 
+// 🔥 ЭКСПОРТ СОСТОЯНИЯ ДЛЯ ДОСТУПА ИЗ ДРУГИХ МОДУЛЕЙ
+window.userImageState = userImageState;
+console.log('✅ userImageState exported to window scope');
+
 // ===== Функции проверки лимитов изображений =====
 function getImageLimitForMode(mode) {
     switch (mode) {
@@ -1109,7 +1198,7 @@ function updateImageUploadVisibility() {
     if (modeSelect) {
         const currentMode = modeSelect.value;
 
-        // 🔥 НОВАЯ ЛОГИКА: фиолетовая кнопка всегда скрыта ПОКА ЕСТЬ ИЗОБРАЖЕНИЯ ИЛИ В РЕЖИМЕ FAST_GENERATION
+        // 🔥 ИСПРАВЛЕНИЕ: снимаем моргание кнопки! Она должна скрыться сразу как появляется превью
         shouldShowUploadButton = !hasImages && (currentMode !== 'fast_generation');
 
         if (currentMode === 'fast_generation') {
@@ -1152,11 +1241,15 @@ function updateImageUploadVisibility() {
         if (shouldShowUploadButton) {
             chooseBtn.style.setProperty('display', 'inline-flex', 'important');
             chooseBtn.classList.remove('flux-shnel-hidden');
-            console.log('✅ Кнопка загрузки ВИДИМА');
+            // 🔥 ФИКС: убираем анимацию моргания сразу как кнопка должна быть показана
+            chooseBtn.style.animation = '';
+            console.log('✅ Кнопка загрузки ВИДИМА (без моргания)');
         } else {
             chooseBtn.style.setProperty('display', 'none', 'important');
             chooseBtn.classList.add('flux-shnel-hidden');
-            console.log('🚫 Кнопка загрузки СКРЫТА');
+            // 🔥 ФИКС: убираем анимацию моргания сразу как кнопка скрыта
+            chooseBtn.style.animation = '';
+            console.log('🚫 Кнопка загрузки СКРЫТА (удалили моргание)');
         }
     }
 
@@ -3256,25 +3349,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // 🎨 Функция моргания кнопки загрузки для привлечения внимания (использует существующую анимацию need-image-pulse)
+// 🔥 УДАЛЕНА: Функция startUploadButtonBlink больше не нужна - кнопка скрывается мгновенно
+// Если где-то вызывается - просто игнорируем или перенаправляем на стандартную логику
 function startUploadButtonBlink() {
-    const chooseBtn = document.getElementById('chooseUserImage');
-    if (!chooseBtn) return;
-
-    console.log('🎯 Starting upload button pulse animation');
-
-    // Применяем существующую анимацию need-image-pulse (настройка длительности)
-    chooseBtn.style.animation = 'need-image-pulse 2.4s infinite';  // ← МЕНЯЙТЕ ДЛИТЕЛЬНОСТЬ ЗДЕСЬ (4s - 4 секунды)
-
-    // Через несколько секунд убираем анимацию
-    setTimeout(() => {
-        chooseBtn.style.animation = '';
-        console.log('✅ Upload button pulse animation stopped');
-    }, 10000);  // ← МЕНЯЙТЕ ОБЩУЮ ПРОДОЛЖИТЕЛЬНОСТЬ ЗДЕСЬ (4000мс - 4 секунды)
-
-    // Дополнительно прокручиваем к кнопке если она не видна
-    setTimeout(() => {
-        chooseBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
+    console.log('⚠️ startUploadButtonBlink вызвана, но моргание кнопки отключено - работает стандартная логика UI');
+    // Обновляем видимость без моргания
+    updateImageUploadVisibility();
 }
 
 

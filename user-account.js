@@ -2,7 +2,6 @@
 // Импорт необходимых зависимостей
 import { ru } from './dictionaries/ru.js';
 import { en } from './dictionaries/en.js';
-
 // Глобальное состояние для модуля
 const userAccountState = {
     currentModal: null,
@@ -57,6 +56,51 @@ function initUserAccount() {
     console.log('✅ User Account module initialized');
 }
 
+async function downloadAndConvertImage(imageUrl, itemId) {
+    console.log('🌐 Downloading external image for conversion:', imageUrl?.substring(0, 100) + '...');
+
+    try {
+        // Проверяем если это уже dataURL - используем напрямую
+        if (imageUrl && imageUrl.startsWith('data:')) {
+            console.log('✅ Image is already a dataURL, skipping conversion');
+            return imageUrl;
+        }
+
+        // Загружаем изображение внешней ссылки
+        const response = await fetch(imageUrl, {
+            mode: 'cors',
+            credentials: 'omit'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Failed to fetch image`);
+        }
+
+        const blob = await response.blob();
+        const mimeType = blob.type || 'image/png';
+
+        console.log('✅ Downloaded blob:', {
+            size: blob.size,
+            type: mimeType
+        });
+
+        // Конвертируем Blob в dataURL
+        const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        console.log('✅ Converted to dataURL, length:', dataUrl.length);
+        return dataUrl;
+
+    } catch (error) {
+        console.error('❌ Failed to download/convert image:', error);
+        throw error;
+    }
+}
+
 // Функция показа модального окна с результатом генерации
 function showGenerationResultModal(item) {
     // Проверяем существует ли уже модальное окно с результатом
@@ -65,21 +109,50 @@ function showGenerationResultModal(item) {
         modal.remove();
     }
 
-    // Определяем стиль по имени
+    // 🔥 ИСПРАВЛЕНИЕ: Обработка различных полей для изображения
+    // Из истории приходит объект с полем 'result', из финансовой истории - 'imageUrl'
+    // Приоритет отдаем dataUrl, затем проверяем историю генераций
+    let imageSource = item.dataUrl || item.result || item.imageUrl;
+
+    // 🔥 ДОПОЛНИТЕЛЬНЫЙ ПРОВЕРКА: Если изображение внешнее, попробуем найти его в истории генераций
+    if (!imageSource.startsWith?.('data:')) {
+        const generationHistory = window.appState?.generationHistory || [];
+        const foundGen = generationHistory.find(gen => gen.id === item.id);
+
+        if (foundGen?.dataUrl && foundGen.dataUrl.startsWith('data:')) {
+            imageSource = foundGen.dataUrl;
+            console.log('✅ Found dataUrl for modal from generation history');
+        } else {
+            console.log('❌ No dataUrl found in history, using external URL');
+        }
+    }
+
+    const safeDescription = item.prompt || item.description || 'Без описания';
+
+    // 🔥 ИСПРАВЛЕНИЕ: Правильная дата из объекта item
+    const itemDate = item.timestamp ? new Date(item.timestamp) :
+                   item.date ? new Date(item.date) :
+                   new Date();
+
+    // 🔥 ИСПРАВЛЕНИЕ: Правильное преобразование режима для кнопки повторения
     const getStyleName = (type) => {
         const modeMap = {
-            'Nano Banana Editor': 'photo_session',
-            'Flux Fast Generation': 'fast_generation',
-            'Flux Pro Advanced': 'pixplace_pro',
-            'Background Removal': 'background_removal',
-            'Upscale Image': 'upscale_image',
-            'Print on Demand': 'print_maker'
+            'photo_session': 'photo_session',
+            'fast_generation': 'fast_generation',
+            'pixplace_pro': 'pixplace_pro',
+            'background_removal': 'background_removal',
+            'upscale_image': 'upscale_image',
+            'print_maker': 'print_maker'
         };
 
-        const mode = type in modeMap ? modeMap[type] : 'fast_generation';
-
-        return mode;
+        // Для объектов из истории используем item.mode, иначе item.type
+        const mode = item.mode || item.type || 'fast_generation';
+        return mode in modeMap ? mode : 'fast_generation';
     };
+
+    // 🔥 ИСПРАВЛЕНИЕ: Безопасная обработка суммы списания
+    const costAmount = item.generation_cost || item.cost || item.amount || -10;
+    const currency = item.cost_currency || item.currency || 'Cr';
 
     modal = document.createElement('div');
     modal.id = 'generationResultModal';
@@ -94,29 +167,29 @@ function showGenerationResultModal(item) {
             <div class="modal-body">
                 <div class="generation-result-container">
                     <div class="generation-result-image">
-                        <img src="${item.imageUrl}" alt="Generated Image" class="result-full-image" loading="lazy" />
+                        <img src="${imageSource}" alt="Generated Image" class="result-full-image" loading="lazy" />
                     </div>
                     <div class="generation-result-details">
                         <div class="result-meta">
                             <div class="result-meta-item">
                                 <span class="meta-label">Дата:</span>
-                                <span class="meta-value">${new Date(item.date).toLocaleString()}</span>
+                                <span class="meta-value">${itemDate.toLocaleString()}</span>
                             </div>
                             <div class="result-meta-item">
                                 <span class="meta-label">Режим:</span>
-                                <span class="meta-value">${item.type}</span>
+                                <span class="meta-value">${window.appState?.translate?.('mode_' + getStyleName('') || getStyleName('')) || 'AI Generation'}</span>
                             </div>
                             <div class="result-meta-item">
                                 <span class="meta-label">Списано:</span>
-                                <span class="meta-value amount-negative">${Math.abs(item.amount)} ${item.currency}</span>
+                                <span class="meta-value amount-negative">${Math.abs(costAmount)} ${currency}</span>
                             </div>
                         </div>
                         <div class="result-prompt">
                             <div class="prompt-label">Промпт:</div>
-                            <div class="prompt-text">${item.description}</div>
+                            <div class="prompt-text">${safeDescription}</div>
                         </div>
                         <div class="result-actions">
-                            <button class="btn btn-primary download-result-btn" onclick="downloadResultImage('${item.imageUrl}', '${item.id}')">
+                            <button class="btn btn-primary download-result-btn" onclick="downloadResultImage('${imageSource}', '${item.id}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                     <polyline points="7,10 12,15 17,10" />
@@ -124,7 +197,16 @@ function showGenerationResultModal(item) {
                                 </svg>
                                 Скачать
                             </button>
-                            <button class="btn btn-secondary share-result-btn" onclick="shareResultImage('${item.imageUrl}', '${item.id}')">
+                            <button class="btn btn-success use-for-generation-btn" onclick="useImageForGeneration('${imageSource}', '${item.id}')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14.828 14.828a4 4 0 0 1-5.656 0"/>
+                                    <path d="M9 10h1.586a1 1 0 0 1 .707.293l.707.707A1 1 0 0 0 12.414 11H15m-3-3V6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1m-4 4V9"/>
+                                    <circle cx="5" cy="19" r="2"/>
+                                    <path d="M5 15V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-2"/>
+                                </svg>
+                                Использовать для генерации
+                            </button>
+                            <button class="btn btn-secondary share-result-btn" onclick="shareResultImage('${imageSource}', '${item.id}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="18" cy="5" r="3" />
                                     <circle cx="6" cy="12" r="3" />
@@ -134,7 +216,7 @@ function showGenerationResultModal(item) {
                                 </svg>
                                 Поделиться
                             </button>
-                            <button class="btn btn-outline reuse-prompt-btn" onclick="reusePrompt('${item.description}', '${getStyleName(item.type)}')">
+                            <button class="btn btn-outline reuse-prompt-btn" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polygon points="23,12 20.5,9.5 18,12 23,12" />
                                     <polygon points="1,12 3.5,14.5 6,12 1,12" />
@@ -175,7 +257,11 @@ function showGenerationResultModal(item) {
     // Переопределяем функцию закрытия для этого модального окна
     window.closeGenerationResultModal = closeWithCleanup;
 
-    console.log('📸 Opened generation result modal for:', item.id);
+    console.log('📸 Opened generation result modal for:', item.id, {
+        imageSource,
+        description: safeDescription,
+        mode: getStyleName('')
+    });
 }
 
 // Функция закрытия модального окна с результатом
@@ -722,6 +808,283 @@ function showToast(type, message) {
     }
 }
 
+async function convertToBlob(imageUrl) {
+    return new Promise((resolve, reject) => {
+        // Создаем изображение для загрузки с CORS
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+
+        img.onload = () => {
+            // Создаем canvas для преобразования в blob
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+
+            // Рисуем изображение на canvas
+            ctx.drawImage(img, 0, 0);
+
+            // Конвертируем в blob
+            canvas.toBlob(resolve, 'image/png');
+        };
+
+        img.onerror = (error) => {
+            console.warn('CORS blocked image loading, trying fetch method...', error);
+            // Попытка загрузки через fetch как альтернативу
+            fetch(imageUrl, {
+                mode: 'cors',
+                credentials: 'omit'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('CORS blocked');
+                }
+                return response.blob();
+            })
+            .then(resolve)
+            .catch(reject);
+        };
+
+        img.src = imageUrl;
+    });
+}
+
+// Функция использования изображения для генерации - С ПОИСКОМ DATAURL В ИСТОРИИ
+async function useImageForGeneration(imageUrl, itemId) {
+    console.log('🎯 Starting image usage for generation, itemId:', itemId, 'URL:', imageUrl?.substring(0, 50) + '...');
+
+    // Закрываем модальное окно с результатом
+    closeGenerationResultModal();
+
+    // Переходим к экрану генерации
+    showGeneration();
+
+    // Показываем индикатор загрузки
+    showToast('info', 'Подготовка изображения...');
+    const originalImageUrl = imageUrl;
+
+    let processedImageUrl = imageUrl;
+
+    try {
+        // 🔥 КРАЙНЕ ПРОСТОЕ РЕШЕНИЕ БЕЗ CORS ПРОБЛЕМ:
+        // Просто добавляем изображение в состояние И создаем превью напрямую!
+
+        setTimeout(async () => {
+            try {
+                console.log('🎯 Adding image directly to UI - bypassing cors issues');
+
+                // 🔥 ЧИСТКА: Подготовка к добавлению нового изображения
+                if (window.userImageState) {
+                    window.userImageState.images = [];
+                    console.log('✅ Cleared userImageState manually');
+                }
+
+                const previewContainer = document.getElementById('previewContainer');
+                if (previewContainer) {
+                    previewContainer.innerHTML = '';
+                    console.log('✅ Cleared DOM preview container');
+                }
+
+                const preview = document.getElementById('userImagePreview');
+                if (preview) {
+                    // Убираем display, но НЕ добавляем hidden - пусть создастся без классов
+                    preview.style.removeProperty('display');
+                    console.log('✅ Reset preview container display property only');
+                }
+
+                const wrapper = document.getElementById('userImageWrapper');
+                if (wrapper) {
+                    wrapper.classList.remove('has-image');
+                    wrapper.classList.add('need-image');
+                    console.log('✅ Reset wrapper classes');
+                }
+
+                // 🔥 СОЗДАЕМ ОБЪЕКТ ИЗОБРАЖЕНИЯ ДЛЯ СОСТОЯНИЯ
+                const imageId = 'history_' + Date.now() + Math.random().toString(36).substr(2, 9);
+                const imageObj = {
+                    id: imageId,
+                    file: null, // Нет файла, но есть dataUrl
+                    dataUrl: processedImageUrl,
+                    uploadedUrl: null
+                };
+
+                window.userImageState.images.push(imageObj);
+                console.log(`📦 Added history image to userImageState: ${imageObj.id}`);
+
+                // 🔥 СОЗДАЕМ ПРЕВЬЮ ТАК ЖЕ, КАК В createPreviewItem В app_modern.js
+                createPreviewItem(imageId, processedImageUrl, 'History Image');
+                console.log('✅ Created preview element using same logic as upload button');
+
+                // 🔥 ОБНОВЛЯЕМ ВИДИМОСТЬ UI (с двойным обеспечением)
+                setTimeout(() => {
+                    if (window.updateImageUploadVisibility) {
+                        window.updateImageUploadVisibility();
+                        console.log('✅ First UI visibility update');
+                    }
+
+                    // 🔥 ДОПОЛНИТЕЛЬНЫЙ ОБЕСПЕЧИВАЮЩИЙ ВЫЗОВ для гарантированного скрытия кнопки
+                    setTimeout(() => {
+                        if (window.updateImageUploadVisibility) {
+                            window.updateImageUploadVisibility();
+                            console.log('✅ Second UI visibility update (safety check)');
+                        }
+
+                // 🔥 АГРЕССИВНАЯ ОЧИСТКА АНИМАЦИЙ С КНОПКИ ЗАГРУЗКИ
+                        const chooseBtn = document.getElementById('chooseUserImage');
+                        if (chooseBtn) {
+                            // Убираем все возможные анимации
+                            chooseBtn.style.animation = '';
+                            chooseBtn.style.animationName = '';
+                            chooseBtn.style.animationDuration = '';
+                            chooseBtn.style.animationDelay = '';
+                            chooseBtn.style.animationIterationCount = '';
+
+                            // Убираем CSS классы анимации если есть
+                            chooseBtn.classList.remove('need-image-pulse', 'blink', 'flashing', 'upload-blink');
+
+                            // 🔥 ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА - ФОРСИРОВАННО ПРЯЧЕМ КНОПКУ
+                            chooseBtn.style.setProperty('display', 'none', 'important');
+                            chooseBtn.classList.add('flux-shnel-hidden');
+
+                            console.log('🔧 Force cleared all animations and HIDDEN upload button permanently');
+                        }
+                    }, 50);
+
+                    // 🔥 ДОБАВИТЬ: ЕСЛИ ПРЕВЬЮ ЕЩЁ НЕ ПОКАЗАНОСЬ - ЯВНО СНЯТЬ КЛАССЫ HIDDEN
+                    setTimeout(() => {
+                        const finalPreview = document.getElementById('userImagePreview');
+                        if (finalPreview) {
+                            finalPreview.classList.remove('hidden', 'flux-shnel-hidden');
+                            finalPreview.style.setProperty('display', 'block', 'important');
+                            console.log('✅ Explicitly showed preview container with !important');
+                        }
+
+                        // 🔥 ДОБАВИТЬ: ДВОЙНАЯ ПРОВЕРКА ДЛЯ ГАРАНТИРОВАННОГО СКРЫТИЯ КНОПКИ
+                        const finalChooseBtn = document.getElementById('chooseUserImage');
+                        if (finalChooseBtn) {
+                            finalChooseBtn.style.setProperty('display', 'none', 'important');
+                            finalChooseBtn.classList.add('flux-shnel-hidden');
+                            console.log('✅ Double-check: upload button hidden via CSS !important');
+                        }
+                    }, 150);
+
+                    // 🔥 ОБНОВЛЯЕМ СЧЕТЧИК ИЗОБРАЖЕНИЙ
+                    if (window.updateInnerUploadButtonVisibility) {
+                        window.updateInnerUploadButtonVisibility();
+                        console.log('✅ Updated inner button visibility');
+                    }
+
+                    // 🔥 ДОБАВИТЬ: Автоматический выбор режима photo_session (Nano Banana) при работе с изображениями
+                    setTimeout(() => {
+                        const generationModeSelect = document.getElementById('generationMode');
+                        if (generationModeSelect && generationModeSelect.value !== 'photo_session') {
+                            generationModeSelect.value = 'photo_session';
+                            console.log('🔄 Auto-switched to photo_session mode for image editing');
+
+                            // Обновляем режим в глобальном состоянии
+                            if (window.appState) {
+                                window.appState.currentMode = 'photo_session';
+                            }
+
+                            // Обновляем данные режима в app_modern.js если есть такая функция
+                            if (window.updateModeDisplay) {
+                                window.updateModeDisplay('photo_session');
+                                console.log('✅ Mode display updated via helper');
+                            }
+                        } else {
+                            console.log('✅ Mode already set to photo_session or select not found');
+                        }
+                    }, 200);
+                }, 100);
+
+                // УСПЕХ!
+                showToast('success', 'Изображение добавлено для генерации!');
+                console.log('✅ Image successfully added using direct UI manipulation');
+
+                // Прокручиваем к превью + финальное обновление UI
+                setTimeout(() => {
+                    const preview = document.getElementById('userImagePreview');
+                    if (preview) {
+                        preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+
+                    // 🔥 ФИНАЛЬНЫЙ ЗАЩИТНЫЙ ОБЕСПЕЧИВАЮЩИЙ ВЫЗОВ
+                    if (window.updateImageUploadVisibility) {
+                        window.updateImageUploadVisibility();
+                        console.log('✅ Final safety UI update completed');
+                    }
+                }, 800);
+
+            } catch (error) {
+                console.error('❌ UI manipulation error:', error);
+                showToast('error', 'Ошибка интерфейса: ' + error.message);
+            }
+        }, 300);
+
+    } catch (error) {
+        console.error('❌ Setup error:', error);
+        showToast('error', 'Ошибка подготовки: ' + error.message);
+    }
+}
+
+// Вспомогательная функция для удаления изображения из состояния
+function removeImageFromState(imageId) {
+    if (window.userImageState?.images) {
+        window.userImageState.images = window.userImageState.images.filter(img => img.id !== imageId);
+    }
+
+    // Удаляем из DOM
+    const item = document.querySelector(`[data-id="${imageId}"]`);
+    if (item) item.remove();
+}
+
+// 🔥 ИСПРАВЛЕНИЕ: Использование глобального userImageState из app_modern.js для совместимости
+function clearAllImages() {
+    console.log('🔥 Clearing all existing images for history integration');
+
+    // Теперь функция очищает глобальное состояние userImageState из app_modern.js
+    console.log('🔥 Clearing all existing images for history integration');
+
+    // 1. Очищаем состояние изображений
+    if (window.userImageState?.images) {
+        window.userImageState.images = [];
+        console.log('✅ Cleared userImageState.images array');
+    }
+
+    // 2. Очищаем DOM элементы превью
+    const previewContainer = document.getElementById('previewContainer');
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
+        console.log('✅ Cleared DOM preview container');
+    }
+
+    // 3. Скрываем превью контейнер
+    const preview = document.getElementById('userImagePreview');
+    if (preview) {
+        preview.classList.add('hidden', 'flux-shnel-hidden');
+        preview.style.removeProperty('display'); // Убираем принудительное display
+        console.log('✅ Hidden preview container');
+    }
+
+    // 4. Сбрасываем классы wrapper
+    const wrapper = document.getElementById('userImageWrapper');
+    if (wrapper) {
+        wrapper.classList.remove('has-image');
+        wrapper.classList.add('need-image');
+        console.log('✅ Reset wrapper classes');
+    }
+
+    // 5. Сбрасываем input file
+    const fileInput = document.getElementById('userImage');
+    if (fileInput) {
+        fileInput.value = ''; // Сбрасываем выбранный файл
+        console.log('✅ Reset file input');
+    }
+
+    console.log('🎯 All images cleared successfully');
+}
+
 // Экспортируем функции в глобальную область видимости
 window.toggleUserMenu = toggleUserMenu;
 window.updateUserMenuInfo = updateUserMenuInfo;
@@ -738,6 +1101,7 @@ window.closeGenerationResultModal = closeGenerationResultModal;
 window.downloadResultImage = downloadResultImage;
 window.shareResultImage = shareResultImage;
 window.reusePrompt = reusePrompt;
+window.useImageForGeneration = useImageForGeneration;
 
 // Экспортируем функции модуля
 export {
@@ -751,7 +1115,8 @@ export {
     closeFinancialHistoryModal,
     showCreditPacksModal,
     closeCreditPacksModal,
-    buyCreditPack
+    buyCreditPack,
+    useImageForGeneration
 };
 
 console.log('🎯 User Account module loaded and ready');

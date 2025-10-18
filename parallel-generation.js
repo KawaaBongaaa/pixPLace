@@ -244,63 +244,82 @@ class GenerationManager {
 
             // Успешная генерация
             if (response.status === 'success' && response.image_url) {
+                console.log('✅ WEBHOOK SUCCESS - launching preview replacement for:', generation.id);
+                console.log('📋 Full webhook response:', response);
+
+                // 🔥 НОВАЯ ЛОГИКА: Заменяем анимацию на превью по taskUUID
+                const replacementData = {
+                    image_url: response.image_url,
+                    generation_id: response.generation_id || generation.id,
+                    mode: generation.mode,
+                    style: generation.style,
+                    generation_cost: response.generation_cost,
+                    cost_currency: response.cost_currency,
+                    remaining_credits: response.remaining_credits,
+                    imageUUID: response.imageUUID,
+                    taskUUID: response.taskUUID || generation.taskUUID
+                };
+
+                console.log('🎯 Data for preview replacement:', replacementData);
+
+                // 🔥 ЗАМЕНА АНИМАЦИИ НА ПРЕВЬЮ по taskUUID
+                if (window.replaceLoadingWithPreview) {
+                    const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
+                    if (replaced) {
+                        console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
+                    } else {
+                        console.warn('⚠️ Preview replacement failed, using fallback');
+                        // Fallback: используем старую логику
+                        if (window.updateHistoryItemWithImage) {
+                            window.updateHistoryItemWithImage(generation.id, response.image_url);
+                        }
+                    }
+                } else {
+                    console.warn('❌ replaceLoadingWithPreview not available - using fallback');
+                    if (window.updateHistoryItemWithImage) {
+                        window.updateHistoryItemWithImage(generation.id, response.image_url);
+                    }
+                }
+
+                // Обновляем текущую генерацию в памяти
+                generation.result = response.image_url;
+                generation.status = 'completed';
+
                 // Обновляем баланс если возвращается в ответе
                 if (response.remaining_credits !== undefined && window.updateUserBalance) {
                     window.updateUserBalance(response.remaining_credits);
                 }
 
-                // Сохраняем стоимость в объекте генерации (используем правильные имена полей из вебхука)
+                // Сохраняем дополнительные данные от webhook
                 if (response.generation_cost !== undefined) {
                     generation.generation_cost = response.generation_cost;
                     generation.cost_currency = response.cost_currency || 'Cr';
                 }
-
-                // Обновляем миниатюру в истории
-                if (window.updateHistoryItemWithImage) {
-                    window.updateHistoryItemWithImage(generation.id, response.image_url);
+                if (response.imageUUID) {
+                    generation.imageUUID = response.imageUUID;
                 }
 
-                // Показываем результат - устанавливаем текущую генерацию перед показом
-                console.log('🔍 Checking showResult conditions:', {
-                    showResult: !!window.showResult,
-                    appState: !!window.appState,
-                    generation: !!generation
-                });
-
-                // ✅ ПРЕВЬЮ ВАРИАНТ: Показываем превью снизу экрана
-                console.log('🎯 Generation completed successfully');
-
-                // Устанавливаем текущую генерацию в appState перед показом превью
+                // Сохраняем обновленное состояние
                 if (window.appState) {
                     window.appState.currentGeneration = generation;
+                    window.appState.saveHistory();
+                    console.log('💾 Generation state saved after webhook success');
                 }
 
-                // Показываем превью уведомление снизу экрана
+                // Показываем уведомление
                 try {
                     if (window.showResultToast) {
                         window.showResultToast({ image_url: response.image_url });
-                        console.log('🎯 Result preview toast shown for generation:', generation.id);
-                    } else if (window.showResult) {
-                        // Fallback на полный экран если превью недоступно
-                        window.showResult({ image_url: response.image_url });
-                        console.log('🎯 Fallback: Full result screen shown for generation:', generation.id);
-                    } else {
-                        console.error('❌ window.showResultToast and window.showResult not available!');
-                        // Fallback - тост уведомление
-                        if (window.showToast) {
-                            window.showToast('success', 'Image generated! Check history.');
-                        }
+                        console.log('🎯 Success notification shown for generation:', generation.id);
+                    } else if (window.showToast) {
+                        window.showToast('success', 'Изображение готово! Посмотрите в истории.');
                     }
                 } catch (e) {
-                    console.error('❌ Error showing result toast:', e);
-                    // Fallback - тост уведомление
-                    if (window.showToast) {
-                        window.showToast('success', 'Image generated! Check history.');
-                    }
+                    console.error('❌ Error showing success notification:', e);
                 }
 
-                // Финальный статус: превью показано пользователю
-                console.log(`✅ Generation ${generation.id} fully completed - preview shown to user`);
+                // Финальный статус: превью заменено успешно
+                console.log(`✅ Generation ${generation.id} completed successfully - preview replaced using taskUUID`);
 
                 this.completeGeneration(generation.id, response.image_url);
                 return;
