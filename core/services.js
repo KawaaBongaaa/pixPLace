@@ -41,6 +41,9 @@ class TelegramService {
                     this.tg.ready();
                     this.tg.expand();
 
+                    // 🔥 ДОБАВЛЕНО: Сохраняем Telegram объект в appState для использования в webhook
+                    this.appState.setTg(this.tg);
+
                     console.log('📱 WebApp available, initDataUnsafe:', {
                         hasInitData: !!this.tg.initDataUnsafe,
                         hasUser: !!this.tg.initDataUnsafe?.user,
