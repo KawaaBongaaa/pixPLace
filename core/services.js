@@ -18,29 +18,8 @@ class TelegramService {
     async initialize() {
         console.log('📱 Initializing Telegram WebApp service');
 
-        // Сначала проверяем, есть ли сохраненные данные авторизации
-        const authenticated = localStorage.getItem('telegram_auth_completed') === 'true';
-        const authToken = localStorage.getItem('telegram_auth_token');
-        const userData = JSON.parse(localStorage.getItem('telegram_user_data') || 'null');
-
-        if (authenticated && authToken && userData) {
-            console.log('✅ Using saved Telegram user data:', userData);
-
-            this.appState.setUser({
-                id: userData.id.toString(),
-                name: userData.first_name + (userData.last_name ? ' ' + user.last_name : ''),
-                username: userData.username || null,
-                language: user.language_code || 'en',
-                isPremium: userData.is_premium || false
-            });
-
-            // Автопереключение языка
-            if (userData.language_code && ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'vi', 'th', 'tr', 'pl'].includes(user.language_code)) {
-                this.appState.setLanguage(user.language_code);
-            }
-
-            return true; // НЕ ПОКАЗЫВАТЬ AUTH SCREEN
-        }
+        // 🔥 ИЗМЕНЕНИЕ: ЭТО ЖЕНСТАЯ АВТОРИЗАЦИЯ - ОБЯЗАТЕЛЬНО ПОЛУЧАЕМ СВЕЖИЕ ДАННЫЕ ОТ TELEGRAM
+        // Сохраненные данные используются ТОЛЬКО если Telegram недоступен (fallback для сессий)
 
         // Ждем доступности Telegram SDK с большими задержками
         console.log('⏳ Waiting for Telegram SDK to load...');
@@ -176,8 +155,8 @@ class TelegramService {
                 }
             };
 
-            // Начальная задержка 500ms перед первой проверкой
-            setTimeout(checkWebApp, 500);
+            // Начальная задержка 1500ms перед первой проверкой (больше времени на загрузку SDK)
+            setTimeout(checkWebApp, 1500);
         });
     }
 
