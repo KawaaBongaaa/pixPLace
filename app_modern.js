@@ -1893,6 +1893,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoadingScreen();
             showApp();
             updateUserBalanceDisplay(appState.userCredits);
+            updateUserNameDisplay(); // 🔥 ДОБАВЛЕНО: Обновление отображения имени пользователя после авторизации
             initAICoach();
             console.log('✅ Загрузочный экран скрыт через 2 секунды - нормальный поток');
         };
