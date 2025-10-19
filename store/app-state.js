@@ -90,6 +90,11 @@ export class AppStateManager {
     get tg() { return this.state.tg; }
     set tg(value) { this.updateState({ tg: value }); }
 
+    // Метод для установки Telegram объекта
+    setTg(tgObj) {
+        this.tg = tgObj;
+    }
+
     // Методы для обновления языка
     setLanguage(lang) {
         this.updateState({ language: lang });
