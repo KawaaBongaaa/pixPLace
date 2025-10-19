@@ -23,15 +23,15 @@ export function updateUserNameDisplay() {
     // Приоритет отображения: username > имя+фамилия > имя > userId
     let displayName = '';
 
-    if (state.userUsername) {
+    if (state.user?.username) {
         // Есть username - показываем с @
-        displayName = '@' + state.userUsername;
-    } else if (state.userName && state.userName.trim() !== '') {
+        displayName = '@' + state.user.username;
+    } else if (state.user?.name && state.user.name.trim() !== '') {
         // Есть имя/фамилия - показываем как есть
-        displayName = state.userName;
-    } else if (state.userId) {
+        displayName = state.user.name;
+    } else if (state.user?.id) {
         // Нет имени, но есть ID - используем как запасной вариант
-        displayName = 'ID: ' + state.userId.toString().substring(0, 8) + '...';
+        displayName = 'ID: ' + state.user.id.toString().substring(0, 8) + '...';
     } else {
         // Ничего нет - дефолтное значение
         displayName = '--';
@@ -57,10 +57,11 @@ export function updateUserBalanceDisplay(credits, reason = '') {
         }
 
         const newBalance = parseFloat(credits);
-        const oldBalance = state.userCredits;
+        const oldBalance = state.user?.credits || 0;
         const timestamp = Date.now();
 
         // Добавляем запись в историю ДО обновления баланса
+        if (!state.balanceHistory) state.balanceHistory = [];
         state.balanceHistory.push({
             balance: newBalance,
             timestamp: timestamp,
@@ -74,12 +75,13 @@ export function updateUserBalanceDisplay(credits, reason = '') {
         }
 
         // Сохраняем историю в localStorage
-        state.saveBalanceHistory();
+        if (state.saveBalanceHistory) state.saveBalanceHistory();
 
         // Обновляем текущий баланс
-        state.userCredits = newBalance;
+        if (!state.user) state.user = {};
+        state.user.credits = newBalance;
         state.lastBalanceUpdate = timestamp;
-        state.saveSettings(); // Сохраняем настройки в localStorage
+        if (state.saveSettings) state.saveSettings(); // Сохраняем настройки в localStorage
 
         // Обновляем отображение в header
         const balanceElement = document.getElementById('userCreditsDisplay');
@@ -616,6 +618,10 @@ export function toggleModeDetails() {
 import('./history-manager.js').then(module => {
     window.updateHistoryDisplay = module.updateHistoryDisplay;
 });
+
+// Экспортируем функции в глобальный scope
+window.updateUserNameDisplay = updateUserNameDisplay;
+window.updateUserBalanceDisplay = updateUserBalanceDisplay;
 
 // === ДОСТУПНЫЕ В ГЛОБАЛЬНОМ ОБЪЕКТЕ ===
 window.toggleModeDetails = toggleModeDetails;

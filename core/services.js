@@ -70,6 +70,16 @@ class TelegramService {
 
                             console.log('✅ Telegram user data loaded:', this.appState.user);
 
+                            // 🔥 ДОБАВИЛИ: Обновляем отображение имени и баланса
+                            setTimeout(() => {
+                                if (window.updateUserNameDisplay) {
+                                    window.updateUserNameDisplay();
+                                }
+                                if (window.updateUserBalanceDisplay && this.appState.user?.credits) {
+                                    window.updateUserBalanceDisplay(this.appState.user.credits);
+                                }
+                            }, 100);
+
                             // Сохраняем данные для будущих сессий
                             localStorage.setItem('telegram_auth_completed', 'true');
                             localStorage.setItem('telegram_auth_token', 'webapp_' + Date.now());
