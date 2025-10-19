@@ -1,3 +1,5 @@
+import { translate } from './store/app-state.js';
+
 // 🎯 Модуль управления историей генераций pixPLace
 // Импорт необходимых зависимостей
 // Импорт убрано - globalHistoryLoader доступен через window
@@ -116,15 +118,9 @@ class HistoryManagement {
             const mode = generation ? generation.mode : 'unknown';
             const style = generation ? generation.style : 'realistic';
 
-            // ЗАЩИТА: Убеждаемся что mode не undefined
-            const safeMode = (mode && mode !== 'undefined') ? mode : 'photo_session';
-            const translatedMode = window.appState.translate('mode_' + safeMode);
-
-            console.log(`🎯 Mode translation debug: mode='${mode}', safeMode='${safeMode}', translated='${translatedMode}'`);
-
             loadingCaption.innerHTML = `
         <span class="complete-status">✅ Complete</span><br>
-        <small class="history-date">${new Date().toLocaleDateString()} | ${window.appState.translate('style_' + style)} | ${translatedMode}</small>
+        <small class="history-date">${new Date().toLocaleDateString()} | ${style || 'unknown'} | ${mode || 'unknown'}</small>
     `;
 
             // Добавляем мягкую анимацию изменения текста
@@ -219,11 +215,9 @@ function replaceLoadingWithPreview(taskUUID, generationData) {
     if (caption) {
         const safeMode = (generationData.mode && generationData.mode !== 'undefined') ?
             generationData.mode : 'photo_session';
-        const translatedMode = window.appState.translate('mode_' + safeMode);
-
-        caption.innerHTML = `
+            caption.innerHTML = `
             <span class="complete-status">✅ Complete</span><br>
-            <small class="history-date">${new Date().toLocaleDateString()} | ${window.appState.translate('style_' + (generationData.style || 'realistic'))} | ${translatedMode}</small>
+            <small class="history-date">${new Date().toLocaleDateString()} | ${generationData.style || 'unknown'} | ${safeMode || 'unknown'}</small>
         `;
 
         // Добавляем анимацию изменения текста
@@ -546,10 +540,10 @@ function updateHistoryDisplay(page = 0) {
         return isValid;
     });
 
-    // Обновляем состояние если были изменения
+        // Обновляем состояние если были изменения
     if (filteredHistory.length !== generationHistory.length) {
         console.log(`🧹 Cleaned history: ${generationHistory.length} → ${filteredHistory.length} items`);
-        window.appState.generationHistory = filteredHistory;
+        window.appState.setGenerationHistory(filteredHistory);
         window.appState.saveHistory();
 
         // Принудительное обновление количества элементов в UI
@@ -626,6 +620,11 @@ function updateHistoryDisplay(page = 0) {
     if (pageItems.length > 0) {
         // Добавляем элементы страницы
         pageItems.forEach((item, index) => {
+            // Проверяем, не существует ли уже элемент для эту раздела (предотвращаем дубликаты)
+            if (document.getElementById(`history-${item.id}`)) {
+                console.log(`🚫 Skipping duplicate element for item ID ${item.id}`);
+                return;
+            }
             console.log(`🎨 Creating element ${index + 1}/${pageItems.length} for item ID ${item.id}`);
 
             const element = document.createElement('div');
@@ -666,7 +665,7 @@ function updateHistoryDisplay(page = 0) {
                     <div>Изображение недоступно</div>
                     <div style="font-size: 10px; margin-top: 2px;">Повторите генерацию</div>
                 </div>
-                        <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + (item.mode || 'photo_session')) || 'photo_session'}</p>
+                        <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${item.style || 'unknown'} | ${item.mode || 'unknown'}</p>
 
             <!-- 🔥 ДОБАВЛЕНИЕ: Сохраняем состояние для восстановления! -->
             <script type="application/json" class="generation-state" style="display:none;">
@@ -692,7 +691,7 @@ function updateHistoryDisplay(page = 0) {
                      loading="lazy"
                      decoding="async"
                      />
-                <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState?.translate?.('style_' + item.style) || item.style} | ${window.appState?.translate?.('mode_' + (item.mode || 'photo_session')) || 'photo_session'}</p>
+                        <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${item.style || 'unknown'} | ${item.mode || 'unknown'}</p>
             `;
 
             historyList.appendChild(element);
@@ -761,7 +760,7 @@ function updateHistoryDisplay(page = 0) {
         // Создаем новую кнопку
         const loadMoreBtn = document.createElement('button');
         loadMoreBtn.id = 'loadMoreHistoryBtn';
-        loadMoreBtn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;"><span style="color: var(--text-primary);">�</span> ${window.appState.translate('load_more_history')}...</div>
+        loadMoreBtn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;"><span style="color: var(--text-primary);"></span> ${translate('load_more_history', window.appState)}...</div>
                                 <div style="font-size: 12px; opacity: 0.7;">Показаны ${pageItems.length} из ${validItems.length}</div>`;
 
         loadMoreBtn.style.cssText = `
@@ -875,7 +874,7 @@ function loadNextHistoryPage() {
             } else {
                 const loadedSoFar = (currentHistoryPage + 1) * itemsPerPage;
                 const remaining = Math.min(validItems.length - loadedSoFar, itemsPerPage);
-                btn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;"><span style="color: var(--text-primary);"></span> ${window.appState.translate('load_more_history')} ${remaining}...</div>
+                btn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;"><span style="color: var(--text-primary);"></span> ${translate('load_more_history', window.appState)} ${remaining}...</div>
                                 <div style="font-size: 12px; opacity: 0.7;">Показаны ${Math.min(loadedSoFar, validItems.length)} из ${validItems.length}</div>`;
                 btn.disabled = false;
             }
@@ -1378,7 +1377,29 @@ function synchronizeHistoryState() {
     }
 }
 
+// 🔥 ДОБАВЛЕНИЕ: Функция для обновления языка в истории
+function updateHistoryLanguage(newLang) {
+    console.log(`🌍 Updating history language to ${newLang}`);
+
+    // Проверяем, открыта ли история
+    const historyList = document.getElementById('historyList');
+    if (historyList && !historyList.classList.contains('hidden')) {
+        console.log('📂 History is open, refreshing display with new language');
+        // Если история открыта, перерисовываем её
+        updateHistoryDisplay(); // Перерисовка с новым языком
+    } else {
+        console.log('📂 History is closed, language change will be applied on next open');
+        // Если закрыта, следующее открытие обновит язык
+    }
+
+    console.log(`✅ History language updated to ${newLang}`);
+}
+
+// Экспортируем функцию обновления языка
+export { updateHistoryLanguage };
+
 // Экспортируем master функцию
 window.synchronizeHistoryState = synchronizeHistoryState;
+window.updateHistoryLanguage = updateHistoryLanguage;
 
 console.log('🎯 History Management module loaded successfully with full state synchronization');

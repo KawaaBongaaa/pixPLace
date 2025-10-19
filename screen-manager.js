@@ -6,12 +6,24 @@ class ScreenManager {
 
     // Основная функция переключения экранов
     static show(screenId) {
+        console.log('🔄 ScreenManager.show called for:', screenId);
+
         // Сначала ищем нужный экран
         const targetScreen = document.getElementById(screenId);
         if (!targetScreen) {
             console.error('Screen not found:', screenId);
             return;
         }
+
+        // Логируем текущее состояние
+        console.log('📋 Current screens state:');
+        document.querySelectorAll('.screen').forEach(screen => {
+            const isActive = screen.classList.contains('active');
+            const isHidden = screen.classList.contains('hidden');
+            if (isActive || !isHidden) {
+                console.log(`   ${screen.id}: active=${isActive}, hidden=${isHidden}`);
+            }
+        });
 
         // Скрываем все экраны
         document.querySelectorAll('.screen').forEach(screen => {
@@ -23,14 +35,23 @@ class ScreenManager {
         targetScreen.classList.remove('hidden');
         targetScreen.classList.add('active');
         this.currentScreen = screenId;
+
+        console.log(`✅ Switched to screen: ${screenId}, target classes:`, targetScreen.className);
+
+        // Проверяем стиль после небольшой задержки
+        setTimeout(() => {
+            console.log(`🎯 Screen ${screenId} final display:`, window.getComputedStyle(targetScreen).display);
+            console.log(`🎯 Screen ${screenId} final visibility:`, window.getComputedStyle(targetScreen).visibility);
+            console.log(`🎯 Screen ${screenId} final opacity:`, window.getComputedStyle(targetScreen).opacity);
+        }, 10);
     }
 
     // Получить текущий видимый экран
     static getCurrent() {
         const generationEl = document.getElementById('generationScreen');
         const processingEl = document.getElementById('processingScreen');
-        const resultEl = document.getElementById('resultScreen');
-        const historyEl = document.getElementById('historyScreen');
+        const authScreen = document.getElementById('authScreen');
+        const chatScreen = document.getElementById('chatScreen');
 
         const isVisible = el => {
             if (!el) return false;
@@ -39,11 +60,61 @@ class ScreenManager {
             return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0';
         };
 
-        if (isVisible(resultEl)) return 'result';
         if (isVisible(processingEl)) return 'processing';
-        if (isVisible(historyEl)) return 'history';
         if (isVisible(generationEl)) return 'generation';
+        if (isVisible(chatScreen)) return 'chat';
+        if (isVisible(authScreen)) return 'auth';
         return 'unknown';
+    }
+
+    // Показать экран авторизации
+    static showAuth() {
+        this.show('authScreen');
+        console.log('🎯 Показан экран авторизации');
+
+        // Убедимся, что .app контейнер видимый
+        const app = document.querySelector('.app');
+        if (app && !app.classList.contains('loaded')) {
+            app.classList.add('loaded');
+            console.log('🎯 App container made visible for auth screen');
+        }
+
+        // Диагностика структуры экрана авторизации
+        const authScreen = document.getElementById('authScreen');
+        const authContainer = authScreen?.querySelector('.auth-container');
+        const authTitle = authScreen?.querySelector('.auth-title');
+        const authSubtitle = authScreen?.querySelector('.auth-subtitle');
+        const authContent = authScreen?.querySelector('.auth-content');
+        const authBtn = authScreen?.querySelector('.auth-btn');
+
+        console.log('👀 Auth screen structure:', {
+            screen: !!authScreen,
+            screenDisplay: authScreen ? getComputedStyle(authScreen).display : 'null',
+            screenClasses: authScreen?.className,
+            container: !!authContainer,
+            containerDisplay: authContainer ? getComputedStyle(authContainer).display : 'null',
+            containerPosition: authContainer ? getComputedStyle(authContainer).position : 'null',
+            containerWidth: authContainer ? getComputedStyle(authContainer).width : 'null',
+            containerHeight: authContainer ? getComputedStyle(authContainer).height : 'null',
+            containerMargin: authContainer ? getComputedStyle(authContainer).margin : 'null',
+            containerPadding: authContainer ? getComputedStyle(authContainer).padding : 'null',
+            containerLeft: authContainer ? getComputedStyle(authContainer).left : 'null',
+            containerTop: authContainer ? getComputedStyle(authContainer).top : 'null',
+            containerBgColor: authContainer ? getComputedStyle(authContainer).backgroundColor : 'null',
+            title: !!authTitle,
+            titleText: authTitle?.textContent?.substring(0, 20),
+            titleDisplay: authTitle ? getComputedStyle(authTitle).display : 'null',
+            titleColor: authTitle ? getComputedStyle(authTitle).color : 'null',
+            subtitle: !!authSubtitle,
+            subtitleDisplay: authSubtitle ? getComputedStyle(authSubtitle).display : 'null',
+            subtitleColor: authSubtitle ? getComputedStyle(authSubtitle).color : 'null',
+            content: !!authContent,
+            contentDisplay: authContent ? getComputedStyle(authContent).display : 'null',
+            btn: !!authBtn,
+            btnDisplay: authBtn ? getComputedStyle(authBtn).display : 'null',
+            btnBgColor: authBtn ? getComputedStyle(authBtn).backgroundColor : 'null'
+
+        });
     }
 
     // Показать обработку
@@ -91,48 +162,33 @@ class ScreenManager {
         }
     }
 
-    // Полный показ результата
+    // Полный показ результата - переход к модальному окну
     static displayFullResult(result) {
-        // Переключаемся на экран результата
-        this.show('resultScreen');
-        showBackButton(true);
+        console.log('🔄 displayFullResult: Redirecting to generationResultModal');
 
-        // Update result display
-        const resultImage = document.getElementById('resultImage');
-        const resultPrompt = document.getElementById('resultPrompt');
-        const resultStyle = document.getElementById('resultStyle');
-        const resultMode = document.getElementById('resultMode');
-        const resultTime = document.getElementById('resultTime');
+        // Проверяем наличие глобальной функции showGenerationResultModal
+        if (typeof window.showGenerationResultModal === 'function') {
+            // Создаем объект item в формате, ожидаемом showGenerationResultModal
+            const item = {
+                id: window.appState.currentGeneration?.id || Date.now(),
+                result: result.image_url,
+                dataUrl: result.image_url, // Предпочитаем dataUrl для лучшей совместимости
+                prompt: window.appState.currentGeneration?.prompt || '',
+                mode: window.appState.currentGeneration?.mode || 'unknown',
+                style: window.appState.currentGeneration?.style || 'unknown',
+                generation_cost: window.appState.currentGeneration?.generation_cost,
+                cost_currency: window.appState.currentGeneration?.cost_currency || 'Cr',
+                timestamp: window.appState.currentGeneration?.timestamp || new Date().toISOString()
+            };
 
-        // Очистка src + timestamp для предотвращения кэширования
-        if (resultImage) {
-            resultImage.src = ''; // Сначала очищаем
-            resultImage.src = result.image_url + '?t=' + Date.now(); // Добавляем timestamp для свежести
+            // Показываем модальное окно результата
+            window.showGenerationResultModal(item);
+            console.log('🎯 Opened generationResultModal for generation result');
+        } else {
+            console.error('❌ showGenerationResultModal function not available');
+            // Fallback - показываем тост об ошибке
+            this.showResultToast(result);
         }
-
-        // Используем глобальную переменную appState, которая должна быть доступна
-        if (resultPrompt) resultPrompt.textContent = window.appState.currentGeneration.prompt;
-        if (resultStyle) resultStyle.textContent = window.appState.translate('style_' + window.appState.currentGeneration.style);
-        if (resultMode) resultMode.textContent = window.appState.translate('mode_' + window.appState.currentGeneration.mode);
-
-        // Обновлено: отображаем стоимость генерации вместо времени
-        if (resultTime) {
-            const cost = window.appState.currentGeneration.generation_cost;
-            if (cost !== undefined && cost !== null && cost !== '' && !isNaN(parseFloat(cost))) {
-                const numericCost = parseFloat(cost);
-                const formattedCost = numericCost.toFixed(cost.includes('.') ? 1 : 0); // 1 знак для дробных, 0 для целых
-                const currency = window.appState.currentGeneration.cost_currency || 'Cr';
-                resultTime.textContent = `${formattedCost} ${currency.toUpperCase()}`;
-                console.log('💰 Cost displayed:', formattedCost, currency);
-            } else {
-                console.log('⚠️ Cost not found, showing duration fallback');
-                // Fallback если стоимость не пришла или равна 0/null
-                const duration = Math.round((window.appState.currentGeneration.duration || 0) / 1000);
-                resultTime.textContent = `${duration}s`;
-            }
-        }
-
-        console.log('🎯 Результат показан:', this.getCurrent());
     }
 
     // Тост-уведомление с результатом
@@ -147,8 +203,8 @@ class ScreenManager {
         toast.className = 'result-toast';
 
         // Получаем данные для отображения
-        const style = window.appState.translate('style_' + (generation.style || 'realistic'));
-        const mode = window.appState.translate('mode_' + (generation.mode || 'flux_shnel'));
+        const style = (generation.style || 'unknown');
+        const mode = (generation.mode || 'unknown');
 
         toast.innerHTML = `
             <div class="toast-content">
@@ -404,12 +460,13 @@ function getCurrentScreen() { return ScreenManager.getCurrent(); }
 function showProcessing() { return ScreenManager.showProcessing(); }
 function showApp() { return ScreenManager.showApp(); }
 function showResult(result) { return ScreenManager.showResult(result); }
+function showAuth() { return ScreenManager.showAuth(); }
 function displayFullResult(result) { return ScreenManager.displayFullResult(result); }
 function showResultToast(result) { return ScreenManager.showResultToast(result); }
 function removeResultToast(toast) { return ScreenManager.removeResultToast(toast); }
 
 // Экспортируем класс и функции
 export { ScreenManager };
-export { showScreen, getCurrentScreen, showProcessing, showApp, showResult, displayFullResult, showResultToast, removeResultToast };
+export { showScreen, getCurrentScreen, showProcessing, showApp, showResult, showAuth, displayFullResult, showResultToast, removeResultToast };
 
 console.log('✅ showToast function registered globally');

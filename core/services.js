@@ -48,34 +48,111 @@ class TelegramService {
             this.tg.ready();
             this.tg.expand();
 
-            // Загружаем пользовательские данные
-            if (this.tg.initDataUnsafe?.user) {
-                const user = this.tg.initDataUnsafe.user;
-                this.appState.setUser({
-                    id: user.id.toString(),
-                    name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-                    username: user.username || null,
-                    language: user.language_code || 'en',
-                    isPremium: user.is_premium || false
-                });
+            console.log('📱 WebApp available, initDataUnsafe:', {
+                hasInitData: !!this.tg.initDataUnsafe,
+                hasUser: !!this.tg.initDataUnsafe?.user,
+                userId: this.tg.initDataUnsafe?.user?.id,
+                userFirstName: this.tg.initDataUnsafe?.user?.first_name
+            });
 
-                // Автопереключение языка
-                if (user.language_code && ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'vi', 'th', 'tr', 'pl'].includes(user.language_code)) {
-                    this.appState.setLanguage(user.language_code);
+            // Функция для загрузки пользователя из initDataUnsafe
+            const loadUserFromInitData = () => {
+                if (this.tg.initDataUnsafe?.user) {
+                    const user = this.tg.initDataUnsafe.user;
+                    this.appState.setUser({
+                        id: user.id.toString(),
+                        name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                        username: user.username || null,
+                        language: user.language_code || 'en',
+                        isPremium: user.is_premium || false
+                    });
+
+                    // Автопереключение языка
+                    if (user.language_code && ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'vi', 'th', 'tr', 'pl'].includes(user.language_code)) {
+                        this.appState.setLanguage(user.language_code);
+                    }
+
+                    console.log('✅ Telegram user data loaded:', this.appState.user);
+
+                    // Сохраняем данные для будущих сессий
+                    localStorage.setItem('telegram_auth_completed', 'true');
+                    localStorage.setItem('telegram_auth_token', 'webapp_' + Date.now());
+                    localStorage.setItem('telegram_user_data', JSON.stringify(user));
+                    localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+                    return true;
                 }
+                return false;
+            };
 
-                console.log('✅ Telegram user data loaded:', this.appState.user);
+            // Пытаемся загрузить сразу
+            if (loadUserFromInitData()) {
                 return true;
-            } else {
-                console.log('⚠️ No Telegram user data available, using fallback');
-                this.appState.setUser({
-                    id: 'fallback_' + Date.now(),
-                    name: 'Anonymous',
-                    language: 'en',
-                    isPremium: false
-                });
-                return false; // ПОКАЗАТЬ AUTH SCREEN
             }
+
+            // Если initDataUnsafe.user пустой, проверяем URL параметры (fallback)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlUserId = urlParams.get('user_id');
+            const urlUserData = urlParams.get('user_data');
+
+            if (urlUserId && urlUserData) {
+                try {
+                    console.log('📡 User data from URL params detected');
+                    const parsedUserData = JSON.parse(decodeURIComponent(urlUserData));
+
+                    this.appState.setUser({
+                        id: parsedUserData.id.toString(),
+                        name: parsedUserData.first_name + (parsedUserData.last_name ? ' ' + parsedUserData.last_name : ''),
+                        username: parsedUserData.username || null,
+                        language: parsedUserData.language_code || 'en',
+                        isPremium: parsedUserData.is_premium || false
+                    });
+
+                    console.log('✅ Telegram user data loaded from URL:', this.appState.user);
+
+                    // Сохраняем данные
+                    localStorage.setItem('telegram_auth_completed', 'true');
+                    localStorage.setItem('telegram_auth_token', 'url_' + Date.now());
+                    localStorage.setItem('telegram_user_data', JSON.stringify(parsedUserData));
+                    localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+                    // Очищаем URL параметры
+                    const cleanUrl = window.location.pathname + window.location.hash;
+                    window.history.replaceState({}, document.title, cleanUrl);
+
+                    return true;
+                } catch (error) {
+                    console.error('❌ Error parsing URL user data:', error);
+                }
+            }
+
+            // Если данных нет ни в initDataUnsafe, ни в URL - пробуем с задержкой (SDK может загружаться асинхронно)
+            console.log('⏳ No user data found, trying with retry delay');
+
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const maxAttempts = 10;
+                const retryDelay = 200; // каждые 200мс
+
+                const checkWithDelay = () => {
+                    attempts++;
+                    console.log(`🔄 Retry attempt ${attempts}/${maxAttempts}`);
+
+                    if (loadUserFromInitData()) {
+                        resolve(true);
+                        return;
+                    }
+
+                    if (attempts >= maxAttempts) {
+                        console.warn('❌ No user data after max retries');
+                        resolve(false); // ПОКАЗАТЬ AUTH SCREEN
+                    } else {
+                        setTimeout(checkWithDelay, retryDelay);
+                    }
+                };
+
+                setTimeout(checkWithDelay, retryDelay);
+            });
         } else {
             console.warn('❌ Telegram WebApp not available');
             return false; // ПОКАЗАТЬ AUTH SCREEN

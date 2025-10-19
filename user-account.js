@@ -157,46 +157,76 @@ function showGenerationResultModal(item) {
     modal = document.createElement('div');
     modal.id = 'generationResultModal';
     modal.className = 'generation-result-modal';
+    modal.setAttribute('data-theme-modal', 'true');
     modal.innerHTML = `
         <div class="modal-backdrop" onclick="closeGenerationResultModal()"></div>
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Результат генерации</h3>
+                <h3>${window.appState?.translate?.('generation_result_title') || 'Generation Result'}</h3>
                 <button class="close-btn" onclick="closeGenerationResultModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div class="generation-result-container">
-                    <div class="generation-result-image">
-                        <img src="${imageSource}" alt="Generated Image" class="result-full-image" loading="lazy" />
-                    </div>
+                    <div class="generation-result-container">
+                        <!-- Кнопка закрытия модала на мобильных -->
+                        <button class="mobile-modal-close" onclick="closeGenerationResultModal()" style="display: none;" id="mobileModalClose">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                        <div class="generation-result-image-container">
+                            <img src="${imageSource}" alt="Generated Image" class="result-full-image" loading="lazy" />
+                            <div class="image-overlay">
+                                <button class="overlay-btn download-btn" onclick="downloadResultImage('${imageSource}', '${item.id}')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                        <polyline points="7,10 12,15 17,10" />
+                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
+                                </button>
+                                <button class="overlay-btn share-btn" onclick="shareResultImage('${imageSource}', '${item.id}')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="18" cy="5" r="3" />
+                                        <circle cx="6" cy="12" r="3" />
+                                        <circle cx="18" cy="19" r="3" />
+                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     <div class="generation-result-details">
                         <div class="result-meta">
                             <div class="result-meta-item">
-                                <span class="meta-label">Дата:</span>
+                                <span class="meta-label">${window.appState?.translate?.('date_label') || 'Date:'}</span>
                                 <span class="meta-value">${itemDate.toLocaleString()}</span>
                             </div>
                             <div class="result-meta-item">
-                                <span class="meta-label">Режим:</span>
+                                <span class="meta-label">${window.appState?.translate?.('mode_label_modal') || 'Mode:'}</span>
                                 <span class="meta-value">${window.appState?.translate?.('mode_' + getStyleName('') || getStyleName('')) || 'AI Generation'}</span>
                             </div>
                             <div class="result-meta-item">
-                                <span class="meta-label">Списано:</span>
+                                <span class="meta-label">${window.appState?.translate?.('charged_label') || 'Charged:'}</span>
                                 <span class="meta-value amount-negative">${Math.abs(costAmount)} ${currency}</span>
                             </div>
                         </div>
-                        <div class="result-prompt">
-                            <div class="prompt-label">Промпт:</div>
-                            <div class="prompt-text">${safeDescription}</div>
+                        <div class="result-prompt-container">
+                            <div class="prompt-input-row">
+                                <button class="reuse-prompt-btn theme-colored" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="${window.appState?.translate?.('reuse_prompt_title') || 'Repeat generation with this prompt'}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                        <polyline points="17,1 21,5 17,9"></polyline>
+                                        <path d="M3,11V9a4,4,0,0,1,4-4h14"></path>
+                                        <polyline points="7,23 3,19 7,15"></polyline>
+                                        <path d="M21,13v2a4,4,0,0,1-4,4H3"></path>
+                                    </svg>
+                                </button>
+                                <div class="prompt-text-area">
+                                    <div class="prompt-label">${window.appState?.translate?.('prompt_label_modal') || 'Prompt:'}</div>
+                                   <div class="prompt-text">${safeDescription}</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="result-actions">
-                            <button class="btn btn-primary download-result-btn" onclick="downloadResultImage('${imageSource}', '${item.id}')">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                    <polyline points="7,10 12,15 17,10" />
-                                    <line x1="12" y1="15" x2="12" y2="3" />
-                                </svg>
-                                Скачать
-                            </button>
                             <button class="btn btn-success use-for-generation-btn" onclick="useImageForGeneration('${imageSource}', '${item.id}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M14.828 14.828a4 4 0 0 1-5.656 0"/>
@@ -204,25 +234,7 @@ function showGenerationResultModal(item) {
                                     <circle cx="5" cy="19" r="2"/>
                                     <path d="M5 15V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-2"/>
                                 </svg>
-                                Использовать для генерации
-                            </button>
-                            <button class="btn btn-secondary share-result-btn" onclick="shareResultImage('${imageSource}', '${item.id}')">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="18" cy="5" r="3" />
-                                    <circle cx="6" cy="12" r="3" />
-                                    <circle cx="18" cy="19" r="3" />
-                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                                </svg>
-                                Поделиться
-                            </button>
-                            <button class="btn btn-outline reuse-prompt-btn" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polygon points="23,12 20.5,9.5 18,12 23,12" />
-                                    <polygon points="1,12 3.5,14.5 6,12 1,12" />
-                                    <rect x="2" y="3" rx="2" ry="2" width="20" height="8" />
-                                </svg>
-                                Повторить
+                                ${window.appState?.translate?.('use_for_generation') || 'Use for Generation'}
                             </button>
                         </div>
                     </div>
@@ -236,6 +248,12 @@ function showGenerationResultModal(item) {
     // Показываем модальное окно с анимацией
     setTimeout(() => {
         modal.classList.add('show');
+
+        // Показываем кнопку закрытия модала на мобильных устройствах
+        const mobileCloseBtn = document.getElementById('mobileModalClose');
+        if (mobileCloseBtn && window.innerWidth <= 768) {
+            mobileCloseBtn.style.display = 'flex';
+        }
     }, 10);
 
     // Добавляем обработчик клавиши ESC для закрытия
@@ -290,7 +308,7 @@ function downloadResultImage(imageUrl, itemId) {
     link.click();
     document.body.removeChild(link);
 
-    showToast('success', 'Изображение скачивается...');
+    showToast('success', window.appState?.translate?.('image_downloading') || 'Image downloading...');
 }
 
 // Функция поделиться результатом
@@ -298,14 +316,14 @@ function shareResultImage(imageUrl, itemId) {
     if (navigator.share) {
         // Используем Web Share API если доступно
         navigator.share({
-            title: 'Мое AI изображение из pixPLace',
-            text: 'Посмотрите на изображение, сгенерированное в pixPLace!',
+            title: window.appState?.translate?.('share_title') || 'My AI image from pixPLace',
+            text: window.appState?.translate?.('share_text') || 'Look at this AI-generated image from pixPLace!',
             url: imageUrl
         }).catch(console.error);
     } else {
-        // Фallback - копируем ссылку в буфер обмена
+        // Fallback - копируем ссылку в буфер обмена
         navigator.clipboard.writeText(imageUrl).then(() => {
-            showToast('info', 'Ссылка на изображение скопирована!');
+            showToast('info', window.appState?.translate?.('link_copied') || 'Link copied to clipboard!');
         }).catch(() => {
             // Дополнительный fallback - открываем в новой вкладке
             window.open(imageUrl, '_blank');
@@ -338,7 +356,7 @@ function reusePrompt(prompt, mode) {
             updateModeSelection(mode);
         }
 
-        showToast('info', 'Промпт применен! Прокрутите вниз и нажмите Generate');
+        showToast('info', window.appState?.translate?.('prompt_applied') || 'Prompt applied! Scroll down and click Generate');
     }, 300);
 }
 
@@ -861,7 +879,6 @@ async function useImageForGeneration(imageUrl, itemId) {
     showGeneration();
 
     // Показываем индикатор загрузки
-    showToast('info', 'Подготовка изображения...');
     const originalImageUrl = imageUrl;
 
     let processedImageUrl = imageUrl;
@@ -1000,7 +1017,7 @@ async function useImageForGeneration(imageUrl, itemId) {
                 }, 100);
 
                 // УСПЕХ!
-                showToast('success', 'Изображение добавлено для генерации!');
+                showToast('success', window.appState?.translate?.('image_added_success') || 'Image added for generation!');
                 console.log('✅ Image successfully added using direct UI manipulation');
 
                 // Прокручиваем к превью + финальное обновление UI
@@ -1019,7 +1036,7 @@ async function useImageForGeneration(imageUrl, itemId) {
 
             } catch (error) {
                 console.error('❌ UI manipulation error:', error);
-                showToast('error', 'Ошибка интерфейса: ' + error.message);
+                showToast('error', `${window.appState?.translate?.('ui_error_message') || 'Interface error:'} ${error.message}`);
             }
         }, 300);
 
