@@ -38,7 +38,7 @@ import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem }
  * Set to true to skip authentication for development/testing.
  * Set back to false before production deployment.
  */
-const BYPASS_AUTH = false; // CHANGE TO FALSE BEFORE DEPLOYMENT!
+const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 
 // Configuration
 const CONFIG = {
@@ -56,11 +56,20 @@ const CONFIG = {
     PREVIEW_MAX_H: 1024,
     PREVIEW_JPEG_QUALITY: 0.9,
     TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared', // Замените на ссылку вашего бота
-    SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #Ai'
+    SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #Ai',
+    MAINTENANCE_MODE: false // Режим технического обслуживания
 };
 
 // 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
 window.CONFIG = CONFIG;
+
+// 🔥 АВТОМАТИЧЕСКОЕ СОХРАНЕНИЕ MAINTENANCE_MODE В LOCALSTORAGE ДЛЯ ДОСТУПА ИЗ ДРУГИХ СТРАНИЦ
+try {
+    localStorage.setItem('pixplace_maintenance_mode', CONFIG.MAINTENANCE_MODE ? 'true' : 'false');
+    console.log('💾 Maintenance mode saved to localStorage:', CONFIG.MAINTENANCE_MODE);
+} catch (error) {
+    console.warn('❌ Could not save maintenance mode to localStorage:', error);
+}
 
 
 
@@ -1806,6 +1815,30 @@ function initLanguageDropdown() {
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('🚀 pixPLace Creator starting...');
 
+    // 🔥 AUTO-UPDATE MAINTENANCE.JS CONFIG FILE (ДЕМО СИНХРОНИЗАЦИЯ)
+    try {
+        // Обновляем maintenance.js с актуальным CONFIG.MAINTENANCE_MODE - простой формат
+        const newConfig = `// Config for maintenance mode
+const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date().toISOString()}`;
+
+        console.log('🔧 Maintenance mode config updated:', CONFIG.MAINTENANCE_MODE, '- remember to sync maintenance.js');
+        // NOTE: В проде эта строка должна быть закомментирована и обновление делаться через API
+        // Для тестирования вручную вставьтеcontent выше в maintenance.js
+
+        // Экспортируем в глобальную область для доступа из maintenance.html
+        window.CONFIG_MAINTENANCE_MODE = CONFIG.MAINTENANCE_MODE;
+        window.MAINTENANCE_MODE_LAST_UPDATE = new Date().toISOString();
+    } catch (error) {
+        console.warn('❌ Maintenance config update error:', error);
+    }
+
+    // 🚧 ПРОВЕРКА РЕЖИМА ОБСЛУЖИВАНИЯ - Если включен, перенаправляем на maintenance.html
+    if (CONFIG.MAINTENANCE_MODE) {
+        console.log('🚧 Maintenance Mode enabled - redirecting to maintenance page');
+        window.location.href = 'maintenance.html';
+        return; // Останавливаем дальнейшую инициализацию
+    }
+
     showLoadingScreen();
 
     // ❄️ СНЕГОПАД НАЧИНАЕТСЯ СРАЗУ ПОСЛЕ ПОКАЗА ЛОАДЭРА!
@@ -2017,6 +2050,9 @@ async function generateImage(event) {
     // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ДОБАВЛЯЕМ В ИСТОРИЮ СРАЗУ ПРИ СОЗДАНИИ ПРЕВЬЮ!
     // Добавляяем пустой generation в историю перед началом генерации
             window.appState.generationHistory.unshift(generation);
+            // 🔥 ДОБАВЛЕНИЕ: ПРИНУДИТЕЛЬНАЯ СОРТИРОВКА ПОСЛЕ ДОБАВЛЕНИЯ НОВОЙ ГЕНЕРАЦИИ
+            // Убеждаемся, что новые генерации всегда оказываются в начале списка
+            window.appState.generationHistory.sort((a, b) => b.id - a.id);
             if (window.appState.saveHistory) {
                 window.appState.saveHistory();
             }

@@ -592,13 +592,14 @@ function updateHistoryDisplay(page = 0) {
     }
 
     // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ЗАЩИТА АКТИВНЫХ АНИМАЦИЙ ОТ ОЧИСТКИ!
+    // ДОБАВЛЕНИЕ: СОРТИРОВКА ПО ПОРЯДКУ ДОБАВЛЕНИЯ (ID) ДЛЯ ПРАВИЛЬНОГО ПОРЯДКА GENERAЦИЙ
     // Если это первая страница - очищаем список, НО сохраняем активные анимации
     if (page === 0) {
         // Собираем все активные анимированные элементы перед очисткой
         const activeAnimationIds = getActiveAnimationIds ? getActiveAnimationIds() : [];
         const activeAnimationElements = activeAnimationIds.map(id => document.getElementById(`loading-${id}`)).filter(el => el);
 
-        console.log(`� Preserving ${activeAnimationElements.length} active animations before clearing history`);
+        console.log(` Preserving ${activeAnimationElements.length} active animations before clearing history`);
 
         // Очищаем список, удаляя только завершенные генерации
         const elementsToRemove = Array.from(historyList.children).filter(child =>
@@ -609,6 +610,10 @@ function updateHistoryDisplay(page = 0) {
 
         console.log(`📋 Cleared ${elementsToRemove.length} completed items, kept ${activeAnimationElements.length} active animations`);
     }
+
+    // 🔥 ДОБАВЛЕНИЕ: СОРТИРУЕМ ВСЕГДА ПО ID (ВРЕМЕНИ СОЗДАНИЯ) В НИСХОДЯЩЕМ ПОРЯДКЕ
+    // Новые генерации - ПЕРВЫЕ, старые - ПОСЛЕДНИЕ (правильный порядок добавления)
+    validItems.sort((a, b) => b.id - a.id); // Сортировка по ID в обратном порядке (новые сверху)
 
     // 🔥 НОВОЕ: Изменен лимит для показа только 6 изображений при первом заходе
     const start = page === 0 ? 0 : page * 15 - 9;  // page=0: 0, page=1:6, page=2:21, etc.

@@ -126,7 +126,10 @@ export class AppStateManager {
 
     // Методы для работы с историей генераций
     setGenerationHistory(history) {
-        this.updateState({ generationHistory: history });
+        // 🔥 ИСПРАВЛЕНИЕ ПОРЯДКА: СОРТИРУЕМ МАССИВ ПО ID В ОБРАТНОМ ПОРЯДКЕ ДЛЯ ЗАГРУЗКИ Из localStorage
+        // Новые генерации должны быть ПЕРВЫМИ (новые ID - большие числа)
+        const sortedHistory = Array.isArray(history) ? history.sort((a, b) => b.id - a.id) : history;
+        this.updateState({ generationHistory: sortedHistory });
     }
 
     addGeneration(generation) {

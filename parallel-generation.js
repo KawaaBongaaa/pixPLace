@@ -8,6 +8,212 @@ class GenerationManager {
         this.activeGenerations = new Map(); // id -> generation object
         this.generationQueue = []; // очередь ожидающих генераций
         this.maxConcurrentGenerations = 3; // максимум параллельных генераций
+
+        // Initialize persisting storage
+        this.storageKey = 'generationManager_state';
+        this.persistEnabled = true; // флаг для отключения persisting если нужно для отладки
+
+        this.initPersistentStorage();
+        this.loadPersistedState();
+        this.startCleanupInterval();
+        this.startBackgroundCompletionPolling();
+    }
+
+    // Initialize localStorage structure for persisting
+    initPersistentStorage() {
+        if (!this.persistEnabled) return;
+
+        try {
+            // Try to initialize storage
+            localStorage.setItem('generationManager_init', Date.now().toString());
+            localStorage.removeItem('generationManager_init');
+        } catch (error) {
+            console.warn('❌ localStorage not available for GenerationManager persisting:', error.message);
+            this.persistEnabled = false;
+        }
+    }
+
+    // Save current state to localStorage
+    persistState() {
+        if (!this.persistEnabled) return;
+
+        try {
+            const stateToSave = {
+                activeGenerations: Array.from(this.activeGenerations.entries()),
+                generationQueue: this.generationQueue,
+                timestamp: Date.now(),
+                version: '1.0'
+            };
+
+            localStorage.setItem(this.storageKey, JSON.stringify(stateToSave));
+        } catch (error) {
+            console.warn('❌ Failed to persist GenerationManager state:', error.message);
+        }
+    }
+
+    // Load and restore state from localStorage - ENHANCED VERSION with complete generationHistory backup
+    loadPersistedState() {
+        if (!this.persistEnabled) return;
+
+        try {
+            const savedState = localStorage.getItem(this.storageKey);
+            if (!savedState) {
+                console.log('📋 No persisted state found for GenerationManager');
+                return;
+            }
+
+            const state = JSON.parse(savedState);
+            if (!state || typeof state !== 'object') {
+                console.warn('❌ Invalid persisted state format');
+                this.clearPersistedState();
+                return;
+            }
+
+            // Check if state is not too old (24 hours max)
+            const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+            if (Date.now() - state.timestamp > maxAge) {
+                console.log('🧹 Persisted state is too old, discarding');
+                this.clearPersistedState();
+                return;
+            }
+
+            // 🔥 NEW: Restore complete generationHistory from persisted state
+            // This ensures generation IDs match exactly what was saved
+            if (state.generationHistory && Array.isArray(state.generationHistory)) {
+                if (window.appState) {
+                    // Sort by ID descending (newest first) to maintain proper order
+                    const sortedHistory = state.generationHistory.sort((a, b) => b.id - a.id);
+                    window.appState.setGenerationHistory(sortedHistory);
+                    console.log(`💾 Restored ${state.generationHistory.length} complete generations from persisted history`);
+                }
+            }
+
+            // Clear current state before loading
+            this.activeGenerations.clear();
+            this.generationQueue.length = 0;
+
+            // Restore activeGenerations Map
+            if (state.activeGenerations && Array.isArray(state.activeGenerations)) {
+                state.activeGenerations.forEach(([id, generation]) => {
+                    if (this.isValidGeneration(generation)) {
+                        this.activeGenerations.set(id, generation);
+                    }
+                });
+            }
+
+            // Restore generationQueue
+            if (state.generationQueue && Array.isArray(state.generationQueue)) {
+                state.generationQueue.forEach(generation => {
+                    if (this.isValidGeneration(generation)) {
+                        this.generationQueue.push(generation);
+                    }
+                });
+            }
+
+            console.log(`✅ Restored ${this.activeGenerations.size} active generations and ${this.generationQueue.length} queued from persisted state`);
+
+            // Restore visual elements for active and queued generations
+            this.restoreVisualElements(state);
+
+            // Resume processing for active generations that are not completed
+            this.activeGenerations.forEach((generation, id) => {
+                if (generation.status === 'processing' && !generation.result) {
+                    console.log(`🔄 Resuming processing for generation ${id}`);
+                    this.processGeneration(generation);
+                }
+            });
+
+        } catch (error) {
+            console.error('❌ Failed to load persisted state:', error);
+            this.clearPersistedState();
+        }
+    }
+
+    // Check if generation object is valid for restoration
+    isValidGeneration(generation) {
+        return generation &&
+               typeof generation === 'object' &&
+               typeof generation.id === 'number' &&
+               Date.now() - generation.id < 24 * 60 * 60 * 1000; // Not older than 24 hours
+    }
+
+    // Clear persisted state
+    clearPersistedState() {
+        try {
+            localStorage.removeItem(this.storageKey);
+        } catch (error) {
+            console.warn('Failed to clear persisted state:', error.message);
+        }
+    }
+
+    // Periodic cleanup of old data
+    startCleanupInterval() {
+        // Cleanup every 5 minutes for testing (can be changed to 30 minutes in production)
+        setInterval(() => {
+            this.cleanupExpiredGenerations();
+        }, 5 * 60 * 1000); // 5 minutes
+
+        console.log('🧹 Started cleanup interval (5 minutes)');
+    }
+
+    // Remove expired generations from persisted storage
+    cleanupExpiredGenerations() {
+        if (!this.persistEnabled) return;
+
+        try {
+            console.log('🧹 Running cleanup for GenerationManager persisted state');
+            const savedState = localStorage.getItem(this.storageKey);
+
+            if (!savedState) return;
+
+            const state = JSON.parse(savedState);
+            let cleanedCount = 0;
+
+            // Clean activeGenerations (remove too old or completed)
+            if (state.activeGenerations && Array.isArray(state.activeGenerations)) {
+                const filteredActive = state.activeGenerations.filter(([id, generation]) => {
+                    const isExpired = Date.now() - generation.startedAt > 5 * 60 * 1000; // 5 minutes timeout for active generations
+                    const isCompleted = generation.result || generation.error;
+
+                    if (isExpired || isCompleted) {
+                        cleanedCount++;
+                        console.log(`🧹 Cleaning expired generation ${id}: expired=${isExpired}, completed=${isCompleted}, startedAt=${generation.startedAt}`);
+                        return false;
+                    }
+                    return true;
+                });
+                state.activeGenerations = filteredActive;
+            }
+
+            // Clean generationQueue (remove very old items)
+            if (state.generationQueue && Array.isArray(state.generationQueue)) {
+                const filteredQueue = state.generationQueue.filter(generation => {
+                    const age = Date.now() - (generation.queuedAt || generation.id);
+                    if (age > 24 * 60 * 60 * 1000) { // 24 hours max queue age
+                        cleanedCount++;
+                        return false;
+                    }
+                    return true;
+                });
+                state.generationQueue = filteredQueue;
+            }
+
+            // Save back cleaned state or remove if empty
+            if (state.activeGenerations.length === 0 && state.generationQueue.length === 0) {
+                localStorage.removeItem(this.storageKey);
+                console.log('🗑️ All persisted generations cleaned up, removed storage');
+            } else {
+                state.timestamp = Date.now(); // Refresh timestamp
+                localStorage.setItem(this.storageKey, JSON.stringify(state));
+                if (cleanedCount > 0) {
+                    console.log(`🧹 Cleaned up ${cleanedCount} expired generations from persisted state`);
+                }
+            }
+
+        } catch (error) {
+            console.error('❌ Error during cleanup:', error);
+            this.clearPersistedState();
+        }
     }
 
     canStartNewGeneration() {
@@ -24,6 +230,9 @@ class GenerationManager {
             generation.status = 'queued';
             generation.queuedAt = Date.now();
             console.log(`📋 Generation ${generation.id} queued (${this.generationQueue.length} in queue)`);
+
+            // Persist state after queueing
+            this.persistState();
             return false;
         }
 
@@ -32,6 +241,9 @@ class GenerationManager {
         generation.status = 'processing';
         generation.startedAt = Date.now();
         console.log(`🚀 Generation ${generation.id} started (${this.activeGenerations.size}/${this.maxConcurrentGenerations} active)`);
+
+        // Persist state after adding to active
+        this.persistState();
 
         // НАЧИНАЕМ ПРОЦЕСС ГЕНЕРАЦИИ
         console.log(`⚡ Starting processGeneration for ${generation.id}`);
@@ -87,6 +299,9 @@ class GenerationManager {
             }
         }
 
+        // Persist state after completion
+        this.persistState();
+
         // Запускаем следующую из очереди
         this.startNextFromQueue();
     }
@@ -99,6 +314,10 @@ class GenerationManager {
             nextGeneration.status = 'processing';
             nextGeneration.startedAt = Date.now();
             this.activeGenerations.set(nextGeneration.id, nextGeneration);
+
+            // Persist state after moving from queue to active
+            this.persistState();
+
             this.processGeneration(nextGeneration);
             console.log(`🚀 Started queued generation ${nextGeneration.id}`);
         }
@@ -423,6 +642,202 @@ class GenerationManager {
                 });
                 console.log('🆙 Scrolled to top after removing failed preview');
             }, 300);
+        }
+    }
+
+    // Restore visual elements (animations) for persisted generations
+    restoreVisualElements(persistedState) {
+        try {
+            // Filter generations that need visual restoration
+            const generationsToRestore = [];
+
+            // Active generations that are processing
+            if (persistedState.activeGenerations && Array.isArray(persistedState.activeGenerations)) {
+                persistedState.activeGenerations.forEach(([id, generation]) => {
+                    if (generation.status === 'processing' && !generation.result) {
+                        generationsToRestore.push(generation);
+                    }
+                });
+            }
+
+            // Queued generations
+            if (persistedState.generationQueue && Array.isArray(persistedState.generationQueue)) {
+                persistedState.generationQueue.forEach(generation => {
+                    generationsToRestore.push(generation);
+                });
+            }
+
+            console.log(`🎨 Restoring visual elements for ${generationsToRestore.length} generations`);
+
+            // Create visual animations for restored generations
+            generationsToRestore.forEach(generation => {
+                // Add to history as processing
+                if (window.appState && window.appState.addGeneration) {
+                    // Ensure generation is in history for visual restoration
+                    if (!window.appState.generationHistory.find(g => g.id === generation.id)) {
+                        window.appState.addGeneration({
+                            ...generation,
+                            status: 'processing',
+                            timestamp: generation.timestamp || new Date().toISOString()
+                        });
+                        console.log(`📝 Added generation ${generation.id} to history for visual restoration`);
+                    }
+                }
+
+                // Create loading animation in DOM
+                setTimeout(() => {
+                    if (window.createLoadingHistoryItem) {
+                        const visualElement = window.createLoadingHistoryItem(generation);
+                        if (visualElement) {
+                            console.log(`✅ Restored visual animation for generation ${generation.id}`);
+                        } else {
+                            console.warn(`⚠️ Failed to create visual element for generation ${generation.id}`);
+                        }
+                    } else {
+                        console.warn('❌ createLoadingHistoryItem not available for visual restoration');
+                    }
+                }, 500); // Small delay to ensure DOM is ready
+            });
+
+        } catch (error) {
+            console.error('❌ Error restoring visual elements:', error);
+        }
+    }
+
+    // Override persistState to include generationHistory backup
+    persistState() {
+        if (!this.persistEnabled) return;
+
+        try {
+            const stateToSave = {
+                activeGenerations: Array.from(this.activeGenerations.entries()),
+                generationQueue: this.generationQueue,
+                generationHistory: window.appState?.generationHistory || [], // 🔥 NEW: Backup complete history
+                timestamp: Date.now(),
+                version: '1.0'
+            };
+
+            localStorage.setItem(this.storageKey, JSON.stringify(stateToSave));
+
+            // Update UI indicators
+            this.updateUIIndicators();
+
+        } catch (error) {
+            console.warn('❌ Failed to persist GenerationManager state:', error.message);
+        }
+    }
+
+    // Start background completion polling for cross-tab synchronization
+    startBackgroundCompletionPolling() {
+        if (!this.persistEnabled) return;
+
+        this.lastPollTimestamp = Date.now();
+        this.backgroundPollInterval = setInterval(() => {
+            this.checkBackgroundCompletions();
+        }, 3000); // Poll every 3 seconds
+
+        console.log('🔄 Started background completion polling (3s intervals)');
+
+        // Listen for storage changes from other tabs
+        window.addEventListener('storage', (event) => {
+            if (event.key === this.storageKey && event.newValue) {
+                console.log('🔄 Storage change detected from another tab, checking completions');
+                setTimeout(() => this.checkBackgroundCompletions(), 100);
+            }
+        });
+    }
+
+    // Check for completions from background processes or other tabs
+    checkBackgroundCompletions() {
+        if (!this.persistEnabled) return;
+
+        try {
+            const savedState = localStorage.getItem(this.storageKey);
+            if (!savedState) return;
+
+            const state = JSON.parse(savedState);
+            if (!state || !state.activeGenerations) return;
+
+            // Check for completed generations that we haven't processed yet
+            const completedGenerations = [];
+            state.activeGenerations.forEach(([id, generation]) => {
+                if (generation.result && generation.status === 'completed') {
+                    // Check if this generation is not already completed in our local state
+                    const localGen = this.activeGenerations.get(id);
+                    if (localGen && !localGen.result) {
+                        console.log(`🎯 Found background-completed generation ${id}, processing locally`);
+                        completedGenerations.push(generation);
+                    }
+                }
+            });
+
+            // Process background completions
+            completedGenerations.forEach(generation => {
+                // Update local active generation
+                const localGen = this.activeGenerations.get(generation.id);
+                if (localGen) {
+                    localGen.result = generation.result;
+                    localGen.status = 'completed';
+                    localGen.completedAt = generation.completedAt;
+                    localGen.generation_cost = generation.generation_cost;
+                    localGen.cost_currency = generation.cost_currency;
+                    localGen.imageUUID = generation.imageUUID;
+
+                    console.log(`✅ Processed background completion for generation ${generation.id}`);
+
+                    // Trigger visual update events
+                    const completionData = {
+                        image_url: generation.result,
+                        generation_id: generation.id,
+                        mode: generation.mode,
+                        style: generation.style,
+                        generation_cost: generation.generation_cost,
+                        cost_currency: generation.cost_currency,
+                        remaining_credits: generation.remaining_credits,
+                        imageUUID: generation.imageUUID,
+                        taskUUID: generation.taskUUID
+                    };
+
+                    // Send completion events
+                    const taskUUIDEvent = new CustomEvent(`generation:completed:${generation.taskUUID}`, {
+                        detail: completionData
+                    });
+                    document.dispatchEvent(taskUUIDEvent);
+
+                    const globalEvent = new CustomEvent('generation:completed', {
+                        detail: {
+                            ...completionData,
+                            generation_id: generation.id,
+                            taskUUID: generation.taskUUID
+                        }
+                    });
+                    document.dispatchEvent(globalEvent);
+
+                    console.log(`🎯 Background completion events sent for generation ${generation.id}`);
+
+                    // Remove from active list since it's completed
+                    this.activeGenerations.delete(generation.id);
+                    this.persistState();
+                }
+            });
+
+        } catch (error) {
+            console.error('❌ Error checking background completions:', error);
+        }
+    }
+
+    // Update UI indicators when persisting state
+    updateUIIndicators() {
+        try {
+            if (window.updateHistoryCount) {
+                // Include active animations in count
+                const animationCount = this.activeGenerations.size + this.generationQueue.length;
+
+                // Wait a bit for DOM updates
+                setTimeout(() => window.updateHistoryCount(), 100);
+            }
+        } catch (error) {
+            console.warn('Failed to update UI indicators:', error.message);
         }
     }
 }
