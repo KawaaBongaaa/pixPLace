@@ -3,11 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>pixPLace - Техническое обслуживание</title>
+    <title>pixPLace - Maintenance</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+
+                <!-- Maintenance Translations -->
+    <script type="module" src="./maintenance-translations.js"></script>
+
+    <script>
+        // Make maintenanceTranslator available globally for the language selector
+        window.addEventListener('DOMContentLoaded', () => {
+            // Will be set by the module after it loads
+            console.log('🌐 Translator module loading...');
+
+            // Provide fallback wrapper for immediate calls
+            window.maintenanceTranslator = window.maintenanceTranslator || {};
+
+            // Add method to transition
+            if (!window.maintenanceTranslator.changeLanguage) {
+                window.maintenanceTranslator.changeLanguage = async (lang) => {
+                    // Wait a bit for the real translator to load
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    if (window._realMaintenanceTranslator && window._realMaintenanceTranslator.changeLanguage) {
+                        return window._realMaintenanceTranslator.changeLanguage(lang);
+                    } else {
+                        console.error('❌ Real translator not available yet');
+                    }
+                };
+            }
+        });
+    </script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,7 +100,7 @@
         }
 
         .maintenance-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
             margin-bottom: 10px;
             background: linear-gradient(45deg, #fff, #e0e7ff);
@@ -83,32 +110,44 @@
         }
 
         .maintenance-subtitle {
-            font-size: 16px;
-            opacity: 0.9;
+            font-size: 18px;
             margin-bottom: 0;
+            color: white;
         }
 
         .maintenance-content h2 {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 600;
             margin: 30px 0 15px 0;
+            color: white;
         }
 
         .maintenance-content p {
-            font-size: 14px;
+            font-size: 16px;
             line-height: 1.6;
-            opacity: 0.9;
             margin: 0 0 20px 0;
+            color: white;
         }
 
         .maintenance-animation {
             position: relative;
             display: inline-block;
             margin: 30px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .maintenance-animation:hover {
+            transform: scale(1.05);
         }
 
         .maintenance-gear {
             animation: rotate 3s linear infinite;
+            transition: all 0.3s ease;
+        }
+
+        .maintenance-gear:hover {
+            animation: rotate-fast 0.8s linear infinite;
         }
 
         .maintenance-sparks {
@@ -124,6 +163,7 @@
             position: absolute;
             font-size: 24px;
             animation: float 2s ease-in-out infinite;
+            opacity: 0.8;
         }
 
         .spark:nth-child(1) {
@@ -145,14 +185,286 @@
             animation-delay: 1s;
         }
 
+        /* MINI-GAME STYLES */
+        .mini-game {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 18px;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .robot-assembly {
+            position: relative;
+            width: 260px;
+            height: 350px;
+            margin: 0 auto;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,255,255,0.1) 0%, rgba(0,255,255,0.05) 50%, transparent 100%);
+            border: 2px solid rgba(0,255,255,0.3);
+            box-shadow: 0 0 20px rgba(0,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .robot-part {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(0,255,255,0.9);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.5;
+            box-shadow: 0 0 10px rgba(0,255,255,0.5);
+        }
+
+        .robot-part:hover {
+            opacity: 0.7;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0,255,255,0.8);
+        }
+
+        .robot-part.collected {
+            opacity: 1;
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(0,255,255,1);
+        }
+
+        .robot-part:nth-child(1) {
+            top: 20px;
+            left: 80px; /* Head */
+        }
+        .robot-part:nth-child(2) {
+            top: 70px;
+            left: 60px; /* Left arm */
+        }
+        .robot-part:nth-child(3) {
+            top: 70px;
+            right: 60px; /* Right arm */
+        }
+        .robot-part:nth-child(4) {
+            top: 120px;
+            left: 80px; /* Body */
+        }
+        .robot-part:nth-child(5) {
+            bottom: 60px;
+            left: 70px; /* Left leg */
+        }
+        .robot-part:nth-child(6) {
+            bottom: 60px;
+            right: 70px; /* Right leg */
+        }
+
+        .game-progress {
+            margin-top: 15px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* DRAG-DROP GAME STYLES */
+        .robot-assembly-grid {
+            position: relative;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .robo-silhouette-zone {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .robot-silhouette {
+            position: relative;
+            cursor: not-allowed;
+        }
+
+        .robot-silhouette svg {
+            width: 180px;
+            height: 300px;
+        }
+
+        .parts-pool-zone {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .parts-pool {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* DRAGGABLE PARTS */
+        .robot-part-draggable {
+            cursor: grab;
+            user-select: none;
+            opacity: 1;
+            transition: all 0.2s ease;
+        }
+
+        .robot-part-draggable:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .robot-part-draggable:active {
+            cursor: grabbing;
+        }
+
+        .robot-part-draggable.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg) scale(1.1);
+        }
+
+        .robot-part-draggable svg {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        /* DROP ZONES */
+        .drop-zone {
+            position: absolute;
+            border: 2px dashed rgba(0,255,255,0.6);
+            border-radius: 8px;
+            background: rgba(0,255,255,0.1);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .drop-zone.visible,
+        .drop-zone.drag-highlight {
+            opacity: 0.8 !important;
+            background: rgba(0,255,255,0.2) !important;
+            border-color: rgba(0,255,255,1) !important;
+            box-shadow: 0 0 10px rgba(0,255,255,0.5) !important;
+            pointer-events: auto !important;
+        }
+
+        /* Highlight all drop zones during drag */
+        .drag-active .drop-zone {
+            opacity: 0.8 !important;
+            background: rgba(0,255,255,0.2) !important;
+            border-color: rgba(0,255,255,1) !important;
+            box-shadow: 0 0 10px rgba(0,255,255,0.5) !important;
+        }
+
+        /* Specific drop zone highlighting */
+        .drop-zone.correct:hover,
+        .drop-zone.hover {
+            opacity: 1 !important;
+            background: rgba(34, 197, 94, 0.3) !important;
+            border-color: #22c55e !important;
+            border-style: solid !important;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6) !important;
+        }
+
+        .drop-zone.hover {
+            opacity: 1;
+            background: rgba(0,255,255,0.2);
+            border-color: rgba(0,255,255,1);
+            border-style: solid;
+        }
+
+        .drop-zone.correct {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: #22c55e;
+        }
+
+        /* SUCCESS INDICATORS */
+        .part-success {
+            position: absolute;
+            font-size: 20px;
+            color: #22c55e;
+            animation: pop-in 0.5s ease-out;
+        }
+
+        @keyframes pop-in {
+            from { transform: scale(0) rotate(-180deg); opacity: 0; }
+            to { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* SCORE SYSTEM */
+        #game-score {
+            font-weight: 600;
+            color: #22c55e;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #game-score.show {
+            opacity: 1;
+        }
+
+        /* RESPONSIVE FOR DRAG GAME */
+        @media (max-width: 768px) {
+            .robot-assembly-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .robot-silhouette svg {
+                width: 100px;
+                height: 180px;
+            }
+
+            .robot-part-draggable svg {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        /* NEON MORPHING ANIMATIONS */
         @keyframes rotate {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
+        @keyframes rotate-fast {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         @keyframes float {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(180deg); }
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+            50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+        }
+
+        /* Pulsing glow effect */
+        @keyframes neon-pulse {
+            0% { box-shadow: 0 0 5px rgba(0,255,255,0.5); }
+            50% { box-shadow: 0 0 20px rgba(0,255,255,0.8), 0 0 30px rgba(0,255,255,0.6); }
+            100% { box-shadow: 0 0 5px rgba(0,255,255,0.5); }
+        }
+
+        /* Morphing border animation */
+        @keyframes border-morph {
+            0% { border-radius: 12px; }
+            25% { border-radius: 20px; }
+            50% { border-radius: 8px; }
+            75% { border-radius: 16px; }
+            100% { border-radius: 12px; }
+        }
+
+        /* Text morphing */
+        @keyframes text-glow {
+            0% { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+            50% { text-shadow: 0 0 20px rgba(0,255,255,0.8), 0 0 30px rgba(0,255,255,0.6), 0 0 40px rgba(0,255,255,0.4); }
+            100% { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
         }
 
         .maintenance-progress {
@@ -198,7 +510,7 @@
             align-items: center;
             gap: 10px;
             font-size: 13px;
-            opacity: 0.9;
+            color: white;
         }
 
         .feature-icon {
@@ -320,6 +632,53 @@
             animation: pulse 2s infinite;
         }
 
+        /* Language Toggle Styles - Compact & Stylish */
+        .maintenance-language-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .maintenance-language-toggle:hover {
+            opacity: 1;
+        }
+
+        .maintenance-language-toggle select {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            backdrop-filter: blur(10px);
+            -webkit-text-fill-color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            min-width: 80px;
+        }
+
+        .maintenance-language-toggle select:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: rgba(0, 255, 255, 0.8);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+        }
+
+        .maintenance-language-toggle select:focus {
+            border-color: rgba(0, 255, 255, 1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .maintenance-language-toggle select::before {
+            content: '🌐 ';
+            font-size: 14px;
+        }
+
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -385,6 +744,19 @@
             90% { opacity: 1; }
             100% { transform: translateY(100vh); opacity: 0; }
         }
+
+        /* SHAKE ANIMATION FOR WRONG DROPS */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* CONFETTI FALL ANIMATION */
+        @keyframes fall-down {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 
@@ -394,13 +766,35 @@
     <div class="maintenance-screen">
         <div class="maintenance-container">
             <div class="maintenance-header">
+                <!-- Language Toggle -->
+                <div class="maintenance-language-toggle">
+                    <select id="language-selector" onchange="(async()=>await window.maintenanceTranslator?.changeLanguage(this.value))()">
+                        <option value="en">English</option>
+                        <option value="ru">Русский</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="es">Español</option>
+                        <option value="it">Italiano</option>
+                        <option value="pt">Português</option>
+                        <option value="ar">العربية</option>
+                        <option value="hi">हिन्दी</option>
+                        <option value="ja">日本語</option>
+                        <option value="ko">한국어</option>
+                        <option value="pl">Polski</option>
+                        <option value="th">ไทย</option>
+                        <option value="tr">Türkçe</option>
+                        <option value="vi">Tiếng Việt</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
+
                 <div class="maintenance-logo">
                     <svg class="logo-img">
                         <use xlink:href="#pixplace-logo" />
                     </svg>
                 </div>
-                <h1 class="maintenance-title">🛠️ Техническое обслуживание</h1>
-                <p class="maintenance-subtitle">Мы работаем над улучшением pixPLace для вас!</p>
+                <h1 class="maintenance-title" data-i18n="maintenance_title"></h1>
+                <p class="maintenance-subtitle" data-i18n="maintenance_subtitle"></p>
             </div>
 
             <div class="maintenance-content">
@@ -418,44 +812,226 @@
                     </div>
                 </div>
 
+                <!-- MINI-GAME: Robot Assembly -->
+                <div class="mini-game">
+                    <div class="game-title" data-i18n="maintenance_game_title"></div>
+                    <!-- Fall-back версия для браузеров без drag-drop -->
+                    <div class="robot-assembly" id="robot-assembly">
+                        <div class="robot-part" data-part="head" title="Голова"></div>
+                        <div class="robot-part" data-part="left-arm" title="Левая рука"></div>
+                        <div class="robot-part" data-part="right-arm" title="Правая рука"></div>
+                        <div class="robot-part" data-part="body" title="Тело"></div>
+                        <div class="robot-part" data-part="left-leg" title="Левая нога"></div>
+                        <div class="robot-part" data-part="right-leg" title="Правая нога"></div>
+                    </div>
+                        <!-- Drag-Drop версия для современных браузеров -->
+                    <div class="robot-assembly-grid" id="robot-assembly-grid" style="display: none;">
+                        <!-- Левая зона - силуэт робота -->
+                        <div class="robo-silhouette-zone">
+                            <div class="robot-silhouette">
+                                <svg width="150" height="250" viewBox="0 0 150 250">
+                                    <defs>
+                                        <!-- Градиенты для каждой части -->
+                                        <radialGradient id="headGradient" cx="0.5" cy="0.5" r="0.8">
+                                            <stop offset="0%" stop-color="#4FC3F7"/>
+                                            <stop offset="70%" stop-color="#29B6F6"/>
+                                            <stop offset="100%" stop-color="#0277BD"/>
+                                        </radialGradient>
+                                        <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#81C784"/>
+                                            <stop offset="50%" stop-color="#4CAF50"/>
+                                            <stop offset="100%" stop-color="#2E7D32"/>
+                                        </linearGradient>
+                                        <linearGradient id="armGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#FFAB91"/>
+                                            <stop offset="50%" stop-color="#FF8A65"/>
+                                            <stop offset="100%" stop-color="#E64A19"/>
+                                        </linearGradient>
+                                        <linearGradient id="legGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#A5D6A7"/>
+                                            <stop offset="50%" stop-color="#66BB6A"/>
+                                            <stop offset="100%" stop-color="#388E3C"/>
+                                        </linearGradient>
+                                        <!-- Тени -->
+                                        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.3)"/>
+                                        </filter>
+                                    </defs>
+
+                                    <!-- Голова: логотип -->
+                                    <g class="robot-part-outline head">
+                                        <ellipse cx="75" cy="32" rx="20" ry="18" fill="none" stroke="rgba(79,195,247,0.4)" stroke-width="2" stroke-dasharray="3,3"/>
+                                        <!-- Логотип вместо головы -->
+                                        <use xlink:href="#pixplace-logo" x="57" y="16" width="36" height="32" fill="currentColor"/>
+                                    </g>
+
+                                    <!-- Тело: броня с панелью -->
+                                    <g class="robot-part-outline body">
+                                        <rect x="60" y="52" width="30" height="55" rx="8" fill="none" stroke="rgba(129,199,132,0.4)" stroke-width="2" stroke-dasharray="3,3"/>
+                                        <!-- Основное тело -->
+                                        <rect x="62" y="54" width="26" height="50" rx="6" fill="none" stroke="rgba(129,199,132,0.3)" stroke-width="1"/>
+                                        <!-- Панель управления -->
+                                        <rect x="67" y="58" width="16" height="25" rx="3" fill="none" stroke="rgba(129,199,132,0.3)" stroke-width="1"/>
+                                        <!-- Кнопки -->
+                                        <circle cx="70" cy="62" r="1.5" fill="none" stroke="rgba(129,199,132,0.3)" stroke-width="1"/>
+                                        <circle cx="75" cy="62" r="1.5" fill="none" stroke="rgba(129,199,132,0.3)" stroke-width="1"/>
+                                        <circle cx="80" cy="62" r="1.5" fill="none" stroke="rgba(129,199,132,0.3)" stroke-width="1"/>
+                                        <!-- Экран -->
+                                        <rect x="68.5" y="67" width="13" height="12" rx="1" fill="none" stroke="rgba(129,199,132,0.3)" stroke-width="1"/>
+                                        <!-- Светодиоды -->
+                                        <circle cx="85" cy="60" r="1" fill="none" stroke="rgba(129,199,132,0.3)" stroke-width="1"/>
+                                        <circle cx="85" cy="75" r="1" fill="none" stroke="rgba(129,199,132,0.3)" stroke-width="1"/>
+                                    </g>
+
+                                    <!-- Левая рука: механическая с суставами -->
+                                    <g class="robot-part-outline left-arm">
+                                        <g stroke="rgba(255,171,145,0.4)" stroke-width="2" stroke-dasharray="3,3" fill="none">
+                                            <!-- Плечо -->
+                                            <ellipse cx="35" cy="55" rx="8" ry="6"/>
+                                            <!-- Бицепс -->
+                                            <rect x="28" y="60" width="14" height="18" rx="7"/>
+                                            <!-- Локоть -->
+                                            <circle cx="35" cy="76" r="4"/>
+                                            <!-- Предплечье -->
+                                            <rect x="30" y="78" width="10" height="20" rx="5"/>
+                                            <!-- Кисть -->
+                                            <ellipse cx="35" cy="100" rx="6" ry="4"/>
+                                        </g>
+                                        <!-- Детали руки -->
+                                        <g stroke="rgba(255,171,145,0.3)" stroke-width="1" fill="none">
+                                            <!-- Плечевой шарнир -->
+                                            <circle cx="35" cy="55" r="6"/>
+                                            <!-- Суставы -->
+                                            <circle cx="35" cy="76" r="3"/>
+                                            <circle cx="35" cy="78" r="2"/>
+                                            <!-- Захват -->
+                                            <path d="M32 96 L35 100 L38 96" stroke-linecap="round"/>
+                                        </g>
+                                    </g>
+
+                                    <!-- Правая рука: зеркально -->
+                                    <g class="robot-part-outline right-arm">
+                                        <g stroke="rgba(255,171,145,0.4)" stroke-width="2" stroke-dasharray="3,3" fill="none">
+                                            <!-- Плечо -->
+                                            <ellipse cx="115" cy="55" rx="8" ry="6"/>
+                                            <!-- Бицепс -->
+                                            <rect x="108" y="60" width="14" height="18" rx="7"/>
+                                            <!-- Локоть -->
+                                            <circle cx="115" cy="76" r="4"/>
+                                            <!-- Предплечье -->
+                                            <rect x="110" y="78" width="10" height="20" rx="5"/>
+                                            <!-- Кисть -->
+                                            <ellipse cx="115" cy="100" rx="6" ry="4"/>
+                                        </g>
+                                        <!-- Детали руки -->
+                                        <g stroke="rgba(255,171,145,0.3)" stroke-width="1" fill="none">
+                                            <!-- Плечевой шарнир -->
+                                            <circle cx="115" cy="55" r="6"/>
+                                            <!-- Суставы -->
+                                            <circle cx="115" cy="76" r="3"/>
+                                            <circle cx="115" cy="78" r="2"/>
+                                            <!-- Захват -->
+                                            <path d="M112 96 L115 100 L118 96" stroke-linecap="round"/>
+                                        </g>
+                                    </g>
+
+                                    <!-- Левая нога: нога с коленом -->
+                                    <g class="robot-part-outline left-leg">
+                                        <g stroke="rgba(165,214,167,0.4)" stroke-width="2" stroke-dasharray="3,3" fill="none">
+                                            <!-- Бедро -->
+                                            <rect x="60" y="110" width="16" height="25" rx="6"/>
+                                            <!-- Колено -->
+                                            <ellipse cx="68" cy="137" rx="8" ry="3"/>
+                                            <!-- Голень -->
+                                            <rect x="60" y="138" width="16" height="22" rx="4"/>
+                                            <!-- Ступня -->
+                                            <ellipse cx="68" cy="165" rx="10" ry="5"/>
+                                        </g>
+                                        <!-- Детали ноги -->
+                                        <g stroke="rgba(165,214,167,0.3)" stroke-width="1" fill="none">
+                                            <!-- Шарниры -->
+                                            <circle cx="68" cy="135" r="2"/>
+                                            <circle cx="68" cy="140" r="1.5"/>
+                                            <!-- Подошва -->
+                                            <rect x="63" y="165" width="10" height="3" rx="1"/>
+                                        </g>
+                                    </g>
+
+                                    <!-- Правая нога: зеркально -->
+                                    <g class="robot-part-outline right-leg">
+                                        <g stroke="rgba(165,214,167,0.4)" stroke-width="2" stroke-dasharray="3,3" fill="none">
+                                            <!-- Бедро -->
+                                            <rect x="74" y="110" width="16" height="25" rx="6"/>
+                                            <!-- Колено -->
+                                            <ellipse cx="82" cy="137" rx="8" ry="3"/>
+                                            <!-- Голень -->
+                                            <rect x="74" y="138" width="16" height="22" rx="4"/>
+                                            <!-- Ступня -->
+                                            <ellipse cx="82" cy="165" rx="10" ry="5"/>
+                                        </g>
+                                        <!-- Детали ноги -->
+                                        <g stroke="rgba(165,214,167,0.3)" stroke-width="1" fill="none">
+                                            <!-- Шарниры -->
+                                            <circle cx="82" cy="135" r="2"/>
+                                            <circle cx="82" cy="140" r="1.5"/>
+                                            <!-- Подошва -->
+                                            <rect x="77" y="165" width="10" height="3" rx="1"/>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- Правая зона - части для перетаскивания -->
+                        <div class="parts-pool-zone">
+                            <div class="parts-pool">
+                                <!-- Части будут динамически добавлены JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="game-progress" data-i18n-template="maintenance_game_progress" data-template-text="{0}/6">
+                        Parts collected: <span id="collected-count">0</span>/6
+                        <span id="game-score" style="margin-left: 20px;"></span>
+                    </div>
+                </div>
+
                 <div class="maintenance-message">
-                    <h2>Приложение временно недоступно</h2>
-                    <p>Наши разработчики усердно работают над новыми функциями, исправлениями ошибок и улучшениями производительности.</p>
+                    <h2 data-i18n="maintenance_app_unavailable"></h2>
+                    <p data-i18n="maintenance_description"></p>
 
                     <div class="maintenance-progress">
                         <div class="progress-bar">
                             <div class="progress-fill maintenance-fill"></div>
                         </div>
-                        <span class="progress-text">Прогресс: 75% завершено</span>
+                        <span class="progress-text" data-i18n-template="maintenance_progress_template" data-template-text="{0}% completed">Progress: 75% completed</span>
                     </div>
 
                     <div class="maintenance-features">
                         <div class="feature-item">
                             <span class="feature-icon">🚀</span>
-                            <span>Новые AI модели</span>
+                            <span data-i18n="maintenance_feature_ai_models"></span>
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">⚡</span>
-                            <span>Улучшенная скорость генерации</span>
+                            <span data-i18n="maintenance_feature_speed"></span>
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">🎨</span>
-                            <span>Расширенная библиотека стилей</span>
+                            <span data-i18n="maintenance_feature_styles"></span>
                         </div>
                         <div class="feature-item">
                             <span class="feature-icon">🔒</span>
-                            <span>Дополнительная безопасность</span>
+                            <span data-i18n="maintenance_feature_security"></span>
                         </div>
                     </div>
 
                     <div class="maintenance-timeline">
-                        <h3>Ожидаемое время восстановления</h3>
-                        <p class="time-estimate">Примерно через 2-4 часа</p>
-                        <p class="update-info">Статус обновляется автоматически</p>
+                        <h3 data-i18n="maintenance_timeline_title"></h3>
+                        <p class="time-estimate" data-i18n="maintenance_time_estimate"></p>
+                        <p class="update-info" data-i18n="maintenance_update_info"></p>
                     </div>
 
                     <div class="maintenance-social">
-                        <p>Следите за обновлениями:</p>
+                        <p data-i18n="maintenance_social_title"></p>
                         <div class="social-links">
                             <a href="https://t.me/pixPLaceBot" class="social-link" target="_blank">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -469,21 +1045,21 @@
                     <div class="maintenance-notifications">
                         <button class="notify-btn" onclick="requestNotificationPermission()">
                             <span>🔔</span>
-                            Уведомить о готовности
+                            <span data-i18n="maintenance_notify_ready"></span>
                         </button>
                         <button class="notify-btn" onclick="checkAndGoBack()" style="margin-top: 10px; background: linear-gradient(135deg, #4CAF50, #388E3C);">
                             <span>🔄</span>
-                            Проверить статус
+                            <span data-i18n="maintenance_check_status"></span>
                         </button>
                     </div>
                 </div>
             </div>
 
             <div class="maintenance-footer">
-                <p>Спасибо за ваше понимание! pixPLace скоро вернется в лучшем виде.</p>
+                <p data-i18n="maintenance_footer"></p>
                 <div class="maintenance-status">
                     <span class="status-dot"></span>
-                    <span>Сервис на обслуживании</span>
+                    <span data-i18n="maintenance_status"></span>
                 </div>
             </div>
         </div>
@@ -494,6 +1070,13 @@
         async function checkMaintenance() {
             try {
                 console.log('🔍 checkMaintenance: starting fetch...');
+
+                // Skip fetch if running locally (file:// protocol)
+                if (window.location.protocol === 'file:') {
+                    console.log('🔍 checkMaintenance: running locally, skipping fetch');
+                    return;
+                }
+
                 const cacheBust = Date.now() + Math.random() * 1000; // уникальный timestamp
                 const url = './maintenance.js?v=' + cacheBust;
                 console.log('🔍 checkMaintenance: fetching URL:', url);
@@ -514,13 +1097,10 @@
 
                 const text = await response.text();
                 console.log('🔍 checkMaintenance: fetched text length:', text.length);
-                console.log('🔍 checkMaintenance: full fetched text:', text);
 
-                const match = text.match(/MAINTENANCE_MODE:\s*(true|false)|MAINTENANCE_CONFIG\s*=.*MAINTENANCE_MODE:\s*(true|false)/);
-                console.log('🔍 checkMaintenance: regex match:', match);
-
-                const maintenanceMode = match && match[1] === 'true';
-                console.log('🔍 checkMaintenance: final maintenanceMode:', maintenanceMode);
+                // Simple and robust maintenance mode check
+                const maintenanceMode = text.includes('MAINTENANCE_MODE: true');
+                console.log('🔍 checkMaintenance: maintenanceMode:', maintenanceMode);
 
                 if (!maintenanceMode) {
                     console.log('🔍 checkMaintenance: redirecting to index.html - maintenance disabled');
@@ -530,8 +1110,8 @@
                 }
             } catch (error) {
                 console.error('🔍 checkMaintenance: error occurred:', error);
-                // On error - redirect to app
-                window.location.href = 'index.html';
+                // On fetch error - stay on maintenance page (works for local development)
+                console.log('🔍 checkMaintenance: fetch failed, staying on maintenance (likely local development)');
             }
         }
 
@@ -559,40 +1139,820 @@
         // Start periodic checking every 30 seconds for status updates
         setInterval(checkMaintenance, 30000);
 
-        // Request notification permission
+        // Request notification permission with enhanced feature
         function requestNotificationPermission() {
             if ('Notification' in window) {
                 Notification.requestPermission().then(function(result) {
                     if (result === 'granted') {
                         alert('Уведомления включены! Мы сообщим вам, когда сервис станет доступен.');
+                        // Schedule a test notification
+                        scheduleTestNotification();
                     } else {
                         alert('Уведомления отклонены. Вы можете включить их позже в настройках браузера.');
                     }
+                }).catch(function(error) {
+                    console.error('Ошибка при запросе разрешения на уведомления:', error);
+                    alert('Произошла ошибка при настройке уведомлений. Попробуйте позже.');
                 });
             } else {
                 alert('Ваш браузер не поддерживает уведомления.');
             }
         }
 
+        // Schedule a test notification to show it works
+        function scheduleTestNotification() {
+            if (Notification.permission === 'granted') {
+                setTimeout(() => {
+                    const notification = new Notification('pixPLace Service', {
+                        body: 'Уведомления настроены! Мы сообщим когда сервис станет доступен.',
+                        icon: './favicon.svg',
+                        badge: './favicon.svg',
+                        tag: 'maintenance-notification-test'
+                    });
+
+                    notification.onclick = function() {
+                        window.focus();
+                        this.close();
+                    };
+
+                    // Auto-close after 5 seconds
+                    setTimeout(() => notification.close(), 5000);
+                }, 2000); // Show test notification after 2 seconds
+            }
+        }
+
+        // Enhanced notification system for background monitoring
+        function scheduleServiceNotification() {
+            if (Notification.permission === 'granted') {
+                // Check service status every 15 minutes and notify if available
+                const checkInterval = setInterval(async () => {
+                    try {
+                        const response = await fetch('./maintenance.js');
+                        const text = await response.text();
+                        const maintenanceMode = text.includes('MAINTENANCE_MODE: false') ||
+                                               !text.includes('MAINTENANCE_MODE: true');
+
+                        if (maintenanceMode) {
+                            // Service is back online!
+                            const notification = new Notification('pixPLace Service Available! 🎉', {
+                                body: 'Обслуживание завершено! Теперь вы можете пользоваться сервисом.',
+                                icon: './favicon.svg',
+                                badge: './favicon.svg',
+                                tag: 'service-available',
+                                requireInteraction: true,
+                                silent: false
+                            });
+
+                            notification.onclick = function() {
+                                window.location.href = 'index.html';
+                                this.close();
+                            };
+
+                            // Clear the interval since service is up
+                            clearInterval(checkInterval);
+                        }
+                    } catch (error) {
+                        console.error('Error checking service status for notifications:', error);
+                    }
+                }, 15 * 60 * 1000); // Check every 15 minutes
+
+                // Also clean up interval on page unload
+                window.addEventListener('beforeunload', () => clearInterval(checkInterval));
+            }
+        }
+
         // Auto-update progress (mock)
+        let progressInterval = null;
         function updateProgress() {
             const progressBar = document.querySelector('.maintenance-fill');
             const progressText = document.querySelector('.progress-text');
             let progress = 75; // starting progress
 
-            setInterval(() => {
+            // Clear any existing interval
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+
+            progressInterval = setInterval(() => {
                 progress += Math.random() * 2 - 1; // random change -1 to +1
                 progress = Math.max(0, Math.min(100, progress));
 
-                progressBar.style.width = progress + '%';
-                progressText.textContent = `Прогресс: ${Math.round(progress)}% завершено`;
+                if (progressBar) progressBar.style.width = progress + '%';
+                if (progressText) progressText.textContent = `Прогресс: ${Math.round(progress)}% завершено`;
             }, 30000); // update every 30 seconds
         }
+
+        // Cleanup function for timers and resources
+        function cleanupResources() {
+            console.log('🧹 Cleaning up maintenance page resources...');
+
+            // Clear progress interval
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+
+            // Clear maintenance check interval
+            // Note: setInterval from checkMaintenance собственный scope
+
+            // Remove any confetti elements
+            const confettiElements = document.querySelectorAll('[style*="fall-down"]');
+            confettiElements.forEach(el => el.remove());
+
+            // Clear any timers from spark animations
+            const sparkTimers = document.querySelectorAll('[data-timer-id]');
+            sparkTimers.forEach(el => {
+                const timerId = el.getAttribute('data-timer-id');
+                if (timerId) clearTimeout(parseInt(timerId));
+                el.remove();
+            });
+        }
+
+        // Add cleanup on page unload
+        window.addEventListener('beforeunload', cleanupResources);
+        window.addEventListener('pagehide', cleanupResources);
 
         // Start progress updates
         updateProgress();
 
-        console.log('�️ pixPLace Maintenance Page Loaded');
+        // ===== FEATURE DETECTION & GAME INITIALIZATION =====
+        const gameScore = document.getElementById('game-score');
+        let draggedElement = null;
+
+        function isDragDropSupported() {
+            const testElement = document.createElement('div');
+            return 'ondragstart' in testElement &&
+                   'ondrop' in testElement &&
+                   'ondragover' in testElement;
+        }
+
+        // ===== MINI-GAME FUNCTIONALITY (FALLBACK) =====
+        let collectedParts = 0;
+        const totalParts = 6;
+        const collectedCount = document.getElementById('collected-count');
+        const robotParts = document.querySelectorAll('.robot-part');
+
+        function initializeFallbackGame() {
+            console.log('🎮 Initializing fallback click game');
+            collectedParts = 0;
+            collectedCount.textContent = collectedParts;
+
+            robotParts.forEach(part => {
+                part.classList.remove('collected');
+                part.addEventListener('click', handlePartClick);
+            });
+
+            // Show fallback game
+            document.getElementById('robot-assembly').style.display = 'block';
+            document.getElementById('robot-assembly-grid').style.display = 'none';
+            gameScore.textContent = 'Клик-версия';
+            gameScore.classList.remove('show');
+        }
+
+        // ===== DRAG-DROP GAME FUNCTIONALITY (ADVANCED) =====
+        const robotPartsData = [
+            {
+                type: 'head',
+                svg: '<use xlink:href="#pixplace-logo" x="5" y="4" width="30" height="24" fill="currentColor"/>'
+            },
+            {
+                type: 'left-arm',
+                svg: '<defs><linearGradient id="armMiniGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFAB91"/><stop offset="100%" stop-color="#E64A19"/></linearGradient></defs><ellipse cx="20" cy="8" rx="6" ry="4" fill="#FFAB91" stroke="#E64A19" stroke-width="1"/><rect x="17" y="9" width="6" height="16" rx="3" fill="url(#armMiniGrad)" stroke="#E64A19" stroke-width="1"/><circle cx="20" cy="22" r="4" fill="#FFAB91" stroke="#E64A19" stroke-width="1"/><circle cx="20" cy="10" r="2" fill="#E64A19"/><circle cx="20" cy="20" r="1.5" fill="#E64A19"/><path d="M18 25 L20 22 L22 25" stroke="#E64A19" stroke-linecap="round" fill="none"/>'
+            },
+            {
+                type: 'right-arm',
+                svg: '<defs><linearGradient id="armMiniGradR" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFAB91"/><stop offset="100%" stop-color="#E64A19"/></linearGradient></defs><ellipse cx="20" cy="8" rx="6" ry="4" fill="#FFAB91" stroke="#E64A19" stroke-width="1"/><rect x="17" y="9" width="6" height="16" rx="3" fill="url(#armMiniGradR)" stroke="#E64A19" stroke-width="1"/><circle cx="20" cy="22" r="4" fill="#FFAB91" stroke="#E64A19" stroke-width="1"/><circle cx="20" cy="10" r="2" fill="#E64A19"/><circle cx="20" cy="20" r="1.5" fill="#E64A19"/><path d="M18 25 L20 22 L22 25" stroke="#E64A19" stroke-linecap="round" fill="none"/>'
+            },
+            {
+                type: 'body',
+                svg: '<defs><linearGradient id="bodyMiniGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#81C784"/><stop offset="50%" stop-color="#4CAF50"/><stop offset="100%" stop-color="#2E7D32"/></linearGradient></defs><rect x="10" y="6" width="20" height="24" rx="4" fill="url(#bodyMiniGrad)" stroke="#4CAF50" stroke-width="1"/><rect x="13" y="10" width="14" height="10" rx="2" fill="none" stroke="#4CAF50" stroke-width="1"/><circle cx="16" cy="12" r="1" fill="none" stroke="#4CAF50" stroke-width="1"/><circle cx="20" cy="12" r="1" fill="none" stroke="#4CAF50" stroke-width="1"/><circle cx="24" cy="12" r="1" fill="none" stroke="#4CAF50" stroke-width="1"/><circle cx="20" cy="24" r="4" stroke="#4CAF50" stroke-width="1" fill="none"/><polygon points="15,9 20,13 25,9" fill="none" stroke="#4CAF50" stroke-width="1"/>'
+            },
+            {
+                type: 'left-leg',
+                svg: '<defs><linearGradient id="legMiniGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#A5D6A7"/><stop offset="100%" stop-color="#388E3C"/></linearGradient></defs><rect x="17" y="8" width="8" height="12" rx="3" fill="url(#legMiniGrad)" stroke="#4CAF50" stroke-width="1"/><ellipse cx="20" cy="18" rx="4" ry="3" fill="url(#legMiniGrad)" stroke="#4CAF50" stroke-width="1"/><ellipse cx="20" cy="25" rx="5" ry="3" fill="#A5D6A7" stroke="#4CAF50" stroke-width="1"/><rect x="18" y="25" width="4" height="2" rx="1" fill="#2E7D32"/><circle cx="20" cy="12" r="1" fill="#4CAF50"/>'
+            },
+            {
+                type: 'right-leg',
+                svg: '<defs><linearGradient id="legMiniGradR" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#A5D6A7"/><stop offset="100%" stop-color="#388E3C"/></linearGradient></defs><rect x="17" y="8" width="8" height="12" rx="3" fill="url(#legMiniGradR)" stroke="#4CAF50" stroke-width="1"/><ellipse cx="20" cy="18" rx="4" ry="3" fill="url(#legMiniGradR)" stroke="#4CAF50" stroke-width="1"/><ellipse cx="20" cy="25" rx="5" ry="3" fill="#A5D6A7" stroke="#4CAF50" stroke-width="1"/><rect x="18" y="25" width="4" height="2" rx="1" fill="#2E7D32"/><circle cx="20" cy="12" r="1" fill="#4CAF50"/>'
+            }
+        ];
+
+        let dragDropCollectedCount = 0;
+        let gameStartTime = null;
+
+        function initializeDragDropGame() {
+            console.log('🎮 Initializing advanced drag-drop game');
+            gameStartTime = Date.now();
+            dragDropCollectedCount = 0;
+            collectedCount.textContent = collectedCount.innerHTML;
+
+            // Hide fallback, show advanced
+            document.getElementById('robot-assembly').style.display = 'none';
+            document.getElementById('robot-assembly-grid').style.display = 'grid';
+
+            // Clear previous parts
+            const partsPool = document.querySelector('.parts-pool');
+            partsPool.innerHTML = '';
+
+            // Create drop zones
+            createDropZones();
+
+            // Shuffle and create robot parts
+            const shuffledParts = [...robotPartsData].sort(() => Math.random() - 0.5);
+            shuffledParts.forEach(partData => {
+                const partElement = createDraggablePart(partData);
+                partsPool.appendChild(partElement);
+            });
+
+            gameScore.textContent = `Drag & Drop версия`;
+            gameScore.classList.remove('show');
+        }
+
+        function createDraggablePart(partData) {
+            const partDiv = document.createElement('div');
+            partDiv.className = 'robot-part-draggable';
+            partDiv.setAttribute('data-part', partData.type);
+            partDiv.setAttribute('draggable', 'true');
+            partDiv.title = getPartName(partData.type);
+
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '40');
+            svg.setAttribute('height', '40');
+            svg.setAttribute('viewBox', '0 0 40 40');
+            svg.innerHTML = partData.svg;
+
+            partDiv.appendChild(svg);
+
+            // Drag events
+            partDiv.addEventListener('dragstart', handleDragStart);
+            partDiv.addEventListener('dragend', handleDragEnd);
+
+            return partDiv;
+        }
+
+        function createDropZones() {
+            const silhouetteElement = document.querySelector('.robot-silhouette');
+            robotPartsData.forEach(part => {
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.setAttribute('data-part-type', part.type);
+                dropZone.addEventListener('dragover', handleDragOver);
+                dropZone.addEventListener('dragleave', handleDragLeave);
+                dropZone.addEventListener('drop', handleDrop);
+                silhouetteElement.appendChild(dropZone);
+
+                console.log(`Created drop zone for ${part.type}`);
+                // Position drop zones correctly
+                positionDropZone(dropZone, part.type);
+            });
+        }
+
+        function positionDropZone(dropZone, partType) {
+            // Fixed pixel positions matching the SVG viewBox exactly (0 0 150 250)
+            let left, top, width, height;
+
+            switch (partType) {
+                case 'head':
+                    left = 55; top = 24; width = 40; height = 36; // addr ellipse around head
+                    break;
+                case 'body':
+                    left = 60; top = 52; width = 30; height = 55; // rect body area
+                    break;
+                case 'left-arm':
+                    left = 25; top = 52; width = 30; height = 50; // larger area around left arm
+                    break;
+                case 'right-arm':
+                    left = 95; top = 52; width = 30; height = 50; // larger area around right arm
+                    break;
+                case 'left-leg':
+                    left = 55; top = 110; width = 20; height = 60; // larger area around left leg
+                    break;
+                case 'right-leg':
+                    left = 75; top = 110; width = 20; height = 60; // larger area around right leg
+                    break;
+            }
+
+            // Convert to percentage of parent container
+            const silhouetteElement = document.querySelector('.robot-silhouette');
+            const containerWidth = silhouetteElement.offsetWidth;
+            const containerHeight = silhouetteElement.offsetHeight;
+
+            // SVG viewBox is 150x250, but we scale to container
+            const scaleX = containerWidth / 150;
+            const scaleY = containerHeight / 250;
+
+            dropZone.style.position = 'absolute';
+            dropZone.style.left = (left * scaleX) + 'px';
+            dropZone.style.top = (top * scaleY) + 'px';
+            dropZone.style.width = (width * scaleX) + 'px';
+            dropZone.style.height = (height * scaleY) + 'px';
+
+            console.log(`Positioning ${partType}: left=${left * scaleX}px, top=${top * scaleY}px, w=${width * scaleX}px, h=${height * scaleY}px`);
+        }
+
+        function getPartName(type) {
+            const names = {
+                'head': 'Голова 🧠',
+                'body': 'Тело 💪',
+                'left-arm': 'Левая рука ⚡',
+                'right-arm': 'Правая рука 💥',
+                'left-leg': 'Левая нога 🦵',
+                'right-leg': 'Правая нога 🦵'
+            };
+            return names[type] || type;
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target.closest('.robot-part-draggable');
+            draggedElement.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', draggedElement.outerHTML);
+
+            console.log('🚀 Started dragging:', draggedElement.getAttribute('data-part'));
+
+            // Highlight correct drop zone immediately when drag starts
+            const draggedPartType = draggedElement.getAttribute('data-part');
+            const matchingZone = document.querySelector(`.drop-zone[data-part-type="${draggedPartType}"]`);
+            if (matchingZone) {
+                matchingZone.classList.add('visible');
+            }
+        }
+
+        function handleDragEnd(e) {
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                draggedElement.style.cursor = ''; // Reset cursor
+            }
+
+            // Reset all drop zones back to invisible state
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => {
+                zone.classList.remove('hover');
+                zone.classList.remove('drag-highlight');
+            });
+
+            // Clear dragged state safely after potential drop event
+            setTimeout(() => {
+                draggedElement = null;
+            }, 0);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone) {
+                dropZone.classList.add('hover');
+            }
+        }
+
+        function handleDragLeave(e) {
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone) {
+                dropZone.classList.remove('hover');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+
+            console.log('📦 Drop event at:', dropZone ? `zone-${dropZone.getAttribute('data-part-type')}` : 'outside zone');
+
+            if (!dropZone) {
+                console.log('❌ Drop outside any zone');
+                const originalElement = draggedElement;
+                handleWrongDrop(originalElement);
+                return;
+            }
+
+            dropZone.classList.remove('hover');
+
+            const draggedPartType = draggedElement.getAttribute('data-part');
+            const expectedPartType = dropZone.getAttribute('data-part-type');
+
+            console.log(`🔍 Checking drop: ${draggedPartType} -> ${expectedPartType}`);
+
+            if (draggedPartType === expectedPartType) {
+                console.log('✅ Correct placement!');
+                // Correct placement!
+                handleCorrectPlacement(draggedElement, dropZone);
+            } else {
+                console.log('❌ Wrong placement');
+                // Wrong placement - shake effect
+                dropZone.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    dropZone.style.animation = '';
+                }, 500);
+                // Reset dragged element position
+                if (draggedElement) {
+                    draggedElement.style.opacity = '0';
+                    setTimeout(() => {
+                        draggedElement.style.opacity = '1';
+                    }, 300);
+                }
+            }
+        }
+
+        function handleWrongDrop(draggedElement) {
+            console.log('❌ Wrong drop - outside zone');
+            if (draggedElement && draggedElement.parentNode) {
+                // Reattach to pool with visual feedback
+                draggedElement.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    draggedElement.style.animation = '';
+                }, 500);
+            }
+        }
+
+        function handleCorrectPlacement(draggedElement, dropZone) {
+            console.log('🎯 handleCorrectPlacement called with:', draggedElement, dropZone);
+
+            if (!draggedElement) {
+                console.error('❌ draggedElement is null in handleCorrectPlacement');
+                return;
+            }
+
+            // Store part type before removing
+            const partType = draggedElement.getAttribute('data-part');
+            console.log('🔧 Removing part:', partType);
+
+            draggedElement.remove();
+            dropZone.classList.remove('hover');
+            dropZone.classList.add('correct');
+            dropZone.classList.remove('visible'); // Also remove visible class
+
+            // Activate robot part in silhouette
+            activateRobotPart(partType);
+
+            // Add success indicator
+            const successIndicator = document.createElement('div');
+            successIndicator.className = 'part-success';
+            successIndicator.textContent = '✅';
+            const rect = dropZone.getBoundingClientRect();
+            successIndicator.style.left = rect.left + rect.width / 2 + 'px';
+            successIndicator.style.top = rect.top + rect.height / 2 + 'px';
+            document.body.appendChild(successIndicator);
+
+            setTimeout(() => successIndicator.remove(), 1000);
+
+            dragDropCollectedCount++;
+            collectedCount.textContent = dragDropCollectedCount;
+            console.log('📊 Count updated to:', dragDropCollectedCount);
+
+            // Haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+
+            // Check win condition
+            if (dragDropCollectedCount === totalParts) {
+                celebrateDragDropWin();
+            }
+        }
+
+        function activateRobotPart(partType) {
+            const silhouetteSvg = document.querySelector('.robot-silhouette svg');
+            if (!silhouetteSvg) {
+                console.error('❌ Robot silhouette SVG not found');
+                return;
+            }
+
+            let targetElement;
+
+            switch (partType) {
+                case 'head':
+                    // Голова: логотип use (find element by xlink:href attribute)
+                    targetElement = silhouetteSvg.querySelector('use');
+                    break;
+                case 'body':
+                    // Тело: основной прямоугольник корпуса (find by coordinates)
+                    targetElement = silhouetteSvg.querySelector('rect[x="62"]');
+                    break;
+                case 'left-arm':
+                    // Левая рука: плечо ellipse (find by coordinates)
+                    targetElement = silhouetteSvg.querySelector('ellipse[cx="35"]');
+                    break;
+                case 'right-arm':
+                    // Правая рука: плечо ellipse (find by coordinates)
+                    targetElement = silhouetteSvg.querySelector('ellipse[cx="115"]');
+                    break;
+                case 'left-leg':
+                    // Левая нога: бедро (find by coordinates)
+                    targetElement = silhouetteSvg.querySelector('rect[x="60"][y="110"]');
+                    break;
+                case 'right-leg':
+                    // Правая нога: бедро (find by coordinates)
+                    targetElement = silhouetteSvg.querySelector('rect[x="74"][y="110"]');
+                    break;
+            }
+
+            if (targetElement) {
+                // Определить цвет заливки по типу части
+                const partColors = {
+                    'head': 'url(#headGradient)',
+                    'body': 'url(#bodyGradient)',
+                    'left-arm': 'url(#armGradient)',
+                    'right-arm': 'url(#armGradient)',
+                    'left-leg': 'url(#legGradient)',
+                    'right-leg': 'url(#legGradient)'
+                };
+
+                const strokeColors = {
+                    'head': '#29B6F6',
+                    'body': '#4CAF50',
+                    'left-arm': '#FF8A65',
+                    'right-arm': '#FF8A65',
+                    'left-leg': '#66BB6A',
+                    'right-leg': '#66BB6A'
+                };
+
+                // Log what we're doing for debugging
+                console.log(`🎨 Activating ${partType}:`, targetElement, 'with color', partColors[partType]);
+
+                // Activate with proper colors and remove dasharray
+                targetElement.setAttribute('fill', partColors[partType]);
+                targetElement.setAttribute('stroke', strokeColors[partType]);
+                targetElement.setAttribute('stroke-dasharray', 'none');
+                targetElement.setAttribute('fill-opacity', '1');
+                targetElement.setAttribute('stroke-opacity', '1');
+                console.log(`⚡ Successfully activated robot part: ${partType}`);
+
+                // Активировать дополнительные элементы для некоторых частей
+                activateAdditionalElements(partType);
+            } else {
+                console.error(`❌ Could not find target element for ${partType}`);
+              // Debug: print all elements of this type
+                const allElements = silhouetteSvg.querySelectorAll('*');
+                console.log('Available elements:', Array.from(allElements).map(el => `${el.tagName}[${Array.from(el.attributes).map(attr => `${attr.name}="${attr.value}"`).join(' ')}]`));
+            }
+        }
+
+        function activateAdditionalElements(partType) {
+            const silhouetteSvg = document.querySelector('.robot-silhouette svg');
+
+            switch (partType) {
+                case 'head':
+                    // Активировать экран и элементы головы
+                    activateElements(silhouetteSvg, [
+                        'rect[x="68"][y="28"]', // экран
+                        'circle[cx="70"][cy="30"]', // левый глаз
+                        'circle[cx="80"][cy="30"]', // правый глаз
+                        'line[x1="75"][y1="16"]', // антенна
+                        'circle[cx="75"][cy="15"]' // верх антенны
+                    ], '#29B6F6');
+                    break;
+
+                case 'body':
+                    // Активировать панель управления и элементы
+                    activateElements(silhouetteSvg, [
+                        'rect[x="67"][y="58"]', // панель
+                        'circle[cx="70"][cy="62"]', // кнопка 1
+                        'circle[cx="75"][cy="62"]', // кнопка 2
+                        'circle[cx="80"][cy="62"]', // кнопка 3
+                        'rect[x="68.5"][y="67"]', // экран
+                        'circle[cx="85"][cy="60"]', // светодиод 1
+                        'circle[cx="85"][cy="75"]' // светодиод 2
+                    ], '#4CAF50');
+                    break;
+
+                case 'left-arm':
+                    // Активировать детали левой руки
+                    activateElements(silhouetteSvg, [
+                        'ellipse[cx="35"][cy="55"]', // плечо (уже активировано выше)
+                        'rect[x="28"][y="60"]', // бицепс
+                        'circle[cx="35"][cy="76"]', // локоть
+                        'rect[x="30"][y="78"]', // предплечье
+                        'ellipse[cx="35"][cy="100"]', // кисть
+                        'circle[cx="35"]', // все шарниры
+                        'path[d*="35 96"]' // захват
+                    ], '#FF8A65');
+                    break;
+
+                case 'right-arm':
+                    // Активировать детали правой руки
+                    activateElements(silhouetteSvg, [
+                        'ellipse[cx="115"][cy="55"]', // плечо (уже активировано выше)
+                        'rect[x="108"][y="60"]', // бицепс
+                        'circle[cx="115"][cy="76"]', // локоть
+                        'rect[x="110"][y="78"]', // предплечье
+                        'ellipse[cx="115"][cy="100"]', // кисть
+                        'circle[cx="115"]', // все шарниры (кроме головы)
+                        'path[d*="115 96"]' // захват
+                    ], '#FF8A65');
+                    break;
+
+                case 'left-leg':
+                    // Активировать детали левой ноги
+                    activateElements(silhouetteSvg, [
+                        'rect[x="60"][y="110"]', // бедро (уже активировано выше)
+                        'ellipse[cx="68"][cy="137"]', // колено
+                        'rect[x="60"][y="138"]', // голень
+                        'ellipse[cx="68"][cy="165"]', // ступня
+                        'circle[cx="68"]', // шарниры (кроме головы)
+                        'rect[x="63"][y="165"]' // подошва
+                    ], '#66BB6A');
+                    break;
+
+                case 'right-leg':
+                    // Активировать детали правой ноги
+                    activateElements(silhouetteSvg, [
+                        'rect[x="74"][y="110"]', // бедро (уже активировано выше)
+                        'ellipse[cx="82"][cy="137"]', // колено
+                        'rect[x="74"][y="138"]', // голень
+                        'ellipse[cx="82"][cy="165"]', // ступня
+                        'circle[cx="82"]', // шарниры (кроме головы)
+                        'rect[x="77"][y="165"]' // подошва
+                    ], '#66BB6A');
+                    break;
+            }
+        }
+
+        function activateElements(svg, selectors, strokeColor) {
+            selectors.forEach(selector => {
+                const elements = svg.querySelectorAll(selector);
+                elements.forEach(element => {
+                    if (element) {
+                        element.setAttribute('stroke', strokeColor);
+                        element.setAttribute('stroke-dasharray', 'none');
+                        // Для элементов, которые должны иметь заливку
+                        if (element.tagName === 'rect' || element.tagName === 'ellipse' || element.tagName === 'circle') {
+                            const currentFill = element.getAttribute('fill');
+                            if (!currentFill || currentFill === 'transparent' || currentFill === 'none') {
+                                element.setAttribute('fill', strokeColor);
+                                element.setAttribute('fill-opacity', '0.3');
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function celebrateDragDropWin() {
+            const timeTaken = Math.round((Date.now() - gameStartTime) / 1000);
+            gameScore.textContent = `🏆 Победили за ${timeTaken} сек!`;
+            gameScore.classList.add('show');
+
+            // Confetti effect
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.textContent = ['🎉', '⭐', '🎊', '✨'][Math.floor(Math.random() * 4)];
+                    confetti.style.position = 'absolute';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '-20px';
+                    confetti.style.fontSize = '20px';
+                    confetti.style.animation = 'fall-down 3s ease-out forwards';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+
+            // Reset game after celebration
+            setTimeout(() => {
+                initializeDragDropGame();
+            }, 5000);
+        }
+
+        // ===== GAME INITIALIZATION =====
+        function initializeGame() {
+            console.log('🧪 Testing drag-drop support...');
+            const dragSupported = isDragDropSupported();
+            console.log('🚀 isDragDropSupported result:', dragSupported);
+
+            if (dragSupported) {
+                console.log('🚀 Initializing drag-drop game');
+                initializeDragDropGame();
+            } else {
+                console.log('⚠️ Drag & Drop не поддерживается, использую fallback');
+                initializeFallbackGame();
+            }
+        }
+
+        function handlePartClick(e) {
+            const part = e.target;
+            if (!part.classList.contains('collected')) {
+                part.classList.add('collected');
+                collectedParts++;
+                collectedCount.textContent = collectedParts;
+
+                // Add click haptic feedback (if supported)
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+
+                // Celebration animation when all parts collected
+                if (collectedParts === totalParts) {
+                    celebrateWin();
+                }
+            }
+        }
+
+        function celebrateWin() {
+            // Create particles effect
+            const robotAssembly = document.querySelector('.robot-assembly');
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    createSpark(robotAssembly);
+                }, i * 100);
+            }
+
+            // Pulse effect on container
+            document.querySelector('.maintenance-container').style.animation = 'neon-pulse 2s ease-in-out infinite';
+
+            setTimeout(() => {
+                document.querySelector('.maintenance-container').style.animation = '';
+            }, 4000);
+        }
+
+        function createSpark(parent) {
+            const spark = document.createElement('div');
+            spark.textContent = '✨';
+            spark.style.position = 'absolute';
+            spark.style.fontSize = '20px';
+            spark.style.left = Math.random() * 100 + '%';
+            spark.style.top = Math.random() * 100 + '%';
+            spark.style.pointerEvents = 'none';
+            spark.style.animation = 'float 1s ease-out forwards';
+            parent.appendChild(spark);
+
+            setTimeout(() => {
+                spark.remove();
+            }, 1000);
+        }
+
+        // ===== NEON MORPHING EFFECTS =====
+        function applyMorphingEffects() {
+            // Apply text glow to title
+            const title = document.querySelector('.maintenance-title');
+            title.style.animation = 'text-glow 3s ease-in-out infinite';
+
+            // Apply border morphing to containers
+            const container = document.querySelector('.maintenance-container');
+            container.style.animation = 'border-morph 5s ease-in-out infinite';
+
+            // Apply pulsing to buttons
+            const buttons = document.querySelectorAll('.notify-btn, .social-link');
+            buttons.forEach(btn => {
+                btn.style.boxShadow = '0 0 10px rgba(0,255,255,0.5), 0 0 20px rgba(0,255,255,0.3)';
+                btn.style.animation = 'neon-pulse 2s ease-in-out infinite';
+            });
+        }
+
+        // ===== ENHANCED INTERACTIVITY =====
+        function enhanceInteractivity() {
+            // Gear hover effects
+            const gear = document.querySelector('.maintenance-gear');
+            const sparks = document.querySelector('.maintenance-sparks');
+
+            gear.addEventListener('mouseenter', () => {
+                gear.style.animationDuration = '0.5s';
+                sparks.style.animation = 'float 0.5s ease-in-out infinite';
+            });
+
+            gear.addEventListener('mouseleave', () => {
+                gear.style.animationDuration = '3s';
+                sparks.style.animation = '';
+            });
+
+            // Container hover effects - DISABLED SCALE TO AVOID POSITIONING ISSUES
+            const container = document.querySelector('.maintenance-container');
+            container.addEventListener('mouseenter', () => {
+                // container.style.transform = 'scale(1.02)'; // DISABLED - breaks drop zone positioning
+                container.style.boxShadow = '0 30px 80px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0,255,255,0.2)';
+            });
+
+            container.addEventListener('mouseleave', () => {
+                container.style.transform = 'scale(1)';
+                container.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
+            });
+
+            // Button press effects
+            const buttons = document.querySelectorAll('.notify-btn, .social-link');
+            buttons.forEach(btn => {
+                btn.addEventListener('mousedown', () => {
+                    btn.style.transform = 'translateY(0) scale(0.98)';
+                });
+
+                btn.addEventListener('mouseup', () => {
+                    btn.style.transform = 'translateY(-2px) scale(1)';
+                });
+
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        }
+
+        // Initialize all enhancements
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGame();
+            applyMorphingEffects();
+            enhanceInteractivity();
+        });
+
+        console.log('️ pixPLace Maintenance Page Loaded - Enhanced Version');
     </script>
 </body>
 </html>
