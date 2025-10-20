@@ -530,6 +530,14 @@ class GenerationManager {
                 generation.result = response.image_url;
                 generation.status = 'completed';
 
+                // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ДОБАВЛЯЕМ ГЕНЕРАЦИЮ В ИСТОРИЮ ПРИ ЗАВЕРШЕНИИ
+                if (window.appState) {
+                    window.appState.addGeneration(generation);
+                    window.appState.currentGeneration = generation;
+                    window.appState.saveHistory();
+                    console.log('💾 Generation successfully added to history and saved');
+                }
+
                 // Обновляем баланс если возвращается в ответе
                 if (response.remaining_credits !== undefined && window.updateUserBalance) {
                     window.updateUserBalance(response.remaining_credits);
@@ -542,13 +550,6 @@ class GenerationManager {
                 }
                 if (response.imageUUID) {
                     generation.imageUUID = response.imageUUID;
-                }
-
-                // Сохраняем обновленное состояние
-                if (window.appState) {
-                    window.appState.currentGeneration = generation;
-                    window.appState.saveHistory();
-                    console.log('💾 Generation state saved after webhook success');
                 }
 
                 // Показываем уведомление

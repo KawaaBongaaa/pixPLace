@@ -2047,17 +2047,9 @@ async function generateImage(event) {
     // Теперь генерация добавляется в историю ТОЛЬКО после получения реального результата в parallel-generation.js
     console.log('🗂️ History storage STARTED EARLY - adding to history NOW, result deferred - GEN:', generation.id);
 
-    // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ДОБАВЛЯЕМ В ИСТОРИЮ СРАЗУ ПРИ СОЗДАНИИ ПРЕВЬЮ!
-    // Добавляяем пустой generation в историю перед началом генерации
-            window.appState.generationHistory.unshift(generation);
-            // 🔥 ДОБАВЛЕНИЕ: ПРИНУДИТЕЛЬНАЯ СОРТИРОВКА ПОСЛЕ ДОБАВЛЕНИЯ НОВОЙ ГЕНЕРАЦИИ
-            // Убеждаемся, что новые генерации всегда оказываются в начале списка
-            window.appState.generationHistory.sort((a, b) => b.id - a.id);
-            if (window.appState.saveHistory) {
-                window.appState.saveHistory();
-            }
-
-    console.log('✅ Generation added to history (status:', generation.status, ')');
+    // 🔥 ИСПРАВЛЕНИЕ ПРОБЛЕМЫ: НЕ ДОБАВЛЯЕМ В ИСТОРИЮ СРАЗУ!
+    // Загрузочные превью будут созданы без истории, история добавится только при успешном compleition
+    console.log('📋 Generation object created, history will be added only on successful completion');
 
     setTimeout(() => {
         console.log('🚀 Starting preview creation in generateImage (FORCED TO HISTORY) - GEN:', generation.id);
