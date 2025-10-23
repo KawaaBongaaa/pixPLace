@@ -3,8 +3,9 @@ export class AppStateManager {
     constructor() {
         this.listeners = new Set();
         this.state = {
-            // Язык и тема
+            // Язык и тема (флаг для пользовательского выбора)
             language: 'en',
+            isLanguageSetByUser: false, // Пользователь сам выбрал язык vs дефолт браузера
             theme: 'dark',
 
             // Пользователь
@@ -89,6 +90,7 @@ export class AppStateManager {
     set selectedStyle(value) { this.updateState({ selectedStyle: value }); }
     get tg() { return this.state.tg; }
     set tg(value) { this.updateState({ tg: value }); }
+    get isLanguageSetByUser() { return this.state.isLanguageSetByUser; }
 
     // Метод для установки Telegram объекта
     setTg(tgObj) {
@@ -97,7 +99,10 @@ export class AppStateManager {
 
     // Методы для обновления языка
     setLanguage(lang) {
-        this.updateState({ language: lang });
+        this.updateState({
+            language: lang,
+            isLanguageSetByUser: true // Пользователь явно выбрал этот язык
+        });
         document.body.setAttribute('data-lang', lang);
 
         // Обновить статические переводы
@@ -109,6 +114,9 @@ export class AppStateManager {
                 module.updateHistoryLanguage(lang);
             }
         }).catch(console.warn);
+
+        // Сохранить настройки после изменения языка
+        this.saveSettings();
     }
 
     // Методы для обновления темы
@@ -174,7 +182,9 @@ export class AppStateManager {
     loadSettings() {
         try {
             const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
-            if (settings.language) this.setLanguage(settings.language);
+            if (settings.language) {
+                this.setLanguage(settings.language);
+            }
             if (settings.theme) this.setTheme(settings.theme);
         } catch (error) {
             console.error('Failed to load settings:', error);

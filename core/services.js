@@ -63,9 +63,20 @@ class TelegramService {
                                 isPremium: user.is_premium || false
                             });
 
-                            // Автопереключение языка
+                            // 🔥 ПРИОРИТЕТ 2: Установка языка из Telegram, только если пользователь НЕ выбирал сам
+                            // Приоритет 1: localStorage (пользовательский выбор с флагом isLanguageSetByUser)
+                            // Приоритет 2: Telegram language_code - только для новых пользователей
+                            // Приоритет 3: 'en' - жесткий дефолт
                             if (user.language_code && ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'vi', 'th', 'tr', 'pl'].includes(user.language_code)) {
-                                this.appState.setLanguage(user.language_code);
+                                // 🌍 НОВАЯ ЛОГИКА ПРИОРИТЕТОВ:
+                                // Если пользователь НЕ выбирал язык сам (флаг false), берем из Telegram браузера
+                                // Если пользователь выбирал (флаг true), игнорируем Telegram настройки
+                                if (!this.appState.isLanguageSetByUser) {
+                                    console.log(`🌍 Using Telegram language (new user): ${user.language_code}`);
+                                    this.appState.setLanguage(user.language_code);
+                                } else {
+                                    console.log(`🌍 Keeping user-selected language: ${this.appState.language} (Telegram ignored)`);
+                                }
                             }
 
                             console.log('✅ Telegram user data loaded:', this.appState.user);
@@ -219,9 +230,31 @@ class StorageService {
     // Загрузка настроек
     loadSettings() {
         try {
-            const data = JSON.parse(localStorage.getItem('appSettings') || '{}');
-            this.appState.deserialize(data);
-            console.log('📚 Settings loaded from localStorage');
+            const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+
+            if (settings.language) {
+                // 🔥 ЗАГРУЗКА ПОЛЬЗОВАТЕЛЬСКОГО ЯЗЫКА: устанавливаем язык И флаг вместе
+                this.appState.updateState({
+                    language: settings.language,
+                    isLanguageSetByUser: true
+                });
+
+                // Применяем UI изменения напрямую, как в setLanguage()
+                document.body.setAttribute('data-lang', settings.language);
+                this.appState.updateTranslations();
+
+                // Обновляем язык истории
+                import('../history-manager.js').then(module => {
+                    if (module.updateHistoryLanguage) {
+                        module.updateHistoryLanguage(settings.language);
+                    }
+                }).catch(console.warn);
+
+                console.log(`🌍 Loaded user's preferred language: ${settings.language}, flag=true`);
+            } else {
+                // Нет сохраненного языка - новый пользователь
+                console.log('🌍 No saved language - Telegram can set browser language');
+            }
         } catch (error) {
             console.error('❌ Failed to load settings:', error);
         }

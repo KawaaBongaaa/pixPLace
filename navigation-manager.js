@@ -363,9 +363,9 @@ export async function showWarningAboutNoImage() {
                 </div>
             </div>
             <div style="text-align: center; margin-bottom: 1rem;">
-                <h3 style="margin: 0 0 1rem 0; color: var(--text-primary, #333); font-size: 1.25rem; font-weight: 600;">Предупреждение</h3>
+                <h3 style="margin: 0 0 1rem 0; color: var(--text-primary, #333); font-size: 1.25rem; font-weight: 600;">${typeof appState !== 'undefined' ? appState.translate('photo_warning_title') : 'For better results, upload an image'}</h3>
                 <p style="margin: 0; color: var(--text-secondary, #666); font-size: 1rem; line-height: 1.5;">
-                    Для лучшего результата в режиме Photo Session рекомендуется добавить изображение.
+                    ${typeof appState !== 'undefined' ? appState.translate('photo_warning_text') : 'The "Nano Banana" mode works better with an image for img2img generation. Would you like to upload an image or continue without it?'}
                 </p>
             </div>
             <div style="display: flex; gap: 1rem; justify-content: center;">
@@ -382,7 +382,7 @@ export async function showWarningAboutNoImage() {
                     transition: all 0.2s ease;
                     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
                 ">
-                    Загрузить изображение
+                    ${typeof appState !== 'undefined' ? appState.translate('photo_warning_upload_btn') : 'Upload Image'}
                 </button>
                 <button id="continue-without-btn" style="
                     flex: 1;
@@ -397,7 +397,7 @@ export async function showWarningAboutNoImage() {
                     transition: all 0.2s ease;
                     box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
                 ">
-                    Продолжить без фото
+                    ${typeof appState !== 'undefined' ? appState.translate('photo_warning_continue_btn') : 'Continue without'}
                 </button>
             </div>
         `;
