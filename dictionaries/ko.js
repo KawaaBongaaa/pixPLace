@@ -67,6 +67,8 @@ export const ko = {
     generation_started: "생성이 시작됨",
     limit_title: "생성 한계에 도달함",
     limit_message: "귀하의 생성 크레딧이 소진되었습니다. 당사 비공개 채널의 하나의 구독 플랜을 결제하여 더 많은 크레딧을 얻을 수 있습니다. 모든 카드 또는 암호화폐로 결제, Tribute Telegram Payment Service를 통해.",
+    premium_limit_title: "프리미엄 리미트가 소진되었습니다!",
+    premium_limit_message: "표준 기능으로 계속하거나 전체 액세스를 위해 업그레이드하세요.",
     closeLimitModal: "나중에 할게요",
     upgradeBtn: "결제하기",
     remove_user_image: "제거",

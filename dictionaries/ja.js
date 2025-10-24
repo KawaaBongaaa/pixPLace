@@ -67,6 +67,8 @@ export const ja = {
     generation_started: "生成が開始されました",
     limit_title: "生成上限に達しました",
     limit_message: "あなたの生成クレジットが終了しました。当社のプライベートチャンネルのいずれかのサブスクリプションプランを支払うことで、より多くのクレジットを取得できます。任意のカードまたは暗号通貨による支払い、Tribute Telegram Payment Service経由。",
+    premium_limit_title: "プレミアムリミットが終了しました！",
+    premium_limit_message: "標準機能で続行するか、全アクセスためのアップグレードしてください。",
     closeLimitModal: "また後で",
     upgradeBtn: "支払う",
     remove_user_image: "削除",

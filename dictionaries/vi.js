@@ -62,6 +62,8 @@ export const vi = {
     download_started: "Đã bắt đầu tải xuống",
     limit_title: "Đã đạt giới hạn tạo ảnh",
     limit_message: "Credit tạo ảnh của bạn đã hết. Bạn có thể nhận thêm credit bằng cách thanh toán một trong các gói đăng ký của kênh riêng tư của chúng tôi. Thanh toán bằng bất kỳ thẻ hoặc tiền điện tử nào, qua Dịch vụ thanh toán Tribute Telegram.",
+    premium_limit_title: "Giới hạn cao cấp của bạn đã hết!",
+    premium_limit_message: "Tiếp tục với các tính năng tiêu chuẩn hoặc nâng cấp để truy cập đầy đủ.",
     closeLimitModal: "Có lẽ sau",
     upgradeBtn: "Thanh toán",
     remove_user_image: "Xóa",

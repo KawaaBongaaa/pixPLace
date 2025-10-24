@@ -65,6 +65,8 @@ export const fr = {
     download_started: "Téléchargement démarré",
     limit_title: "Limite de génération atteinte",
     limit_message: "Vos crédits pour la génération sont épuisés. Vous pouvez obtenir plus de crédits en payant l'un des plans d'abonnement de notre chaîne privée. Paiement avec n'importe quelle carte ou crypto, via Tribute Telegram Payment Service.",
+    premium_limit_title: "Votre limite premium est épuisée!",
+    premium_limit_message: "Continuez avec les fonctions standard ou mettez à niveau pour un accès complet.",
     closeLimitModal: "Plus tard peut-être",
     upgradeBtn: "Payer",
     remove_user_image: "Supprimer",

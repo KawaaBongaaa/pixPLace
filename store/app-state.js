@@ -105,12 +105,9 @@ export class AppStateManager {
         });
         document.body.setAttribute('data-lang', lang);
 
-        // 🔥 ИСПОЛЬЗУЕМ НОВЫЙ DICTIONARY MANAGER ДЛЯ LAZY LOADING
+        // 🔥 ИСПОЛЬЗУЕМ DICTIONARY MANAGER ДЛЯ LAZY LOADING (должен быть загружен)
         if (window.dictionaryManager) {
             await window.dictionaryManager.setLanguage(lang);
-        } else {
-            console.warn('⚠️ DictionaryManager not loaded, fallback to old method');
-            this.updateTranslations();
         }
 
         // Сохранить настройки после изменения языка
@@ -248,39 +245,11 @@ export class AppStateManager {
         this.setTheme(themes[nextIndex]);
     }
 
-    // Метод обновления переводов в UI (из старого AppState)
-    updateTranslations() {
-        // Получаем переводы для текущего языка
-        const currentTranslations = getTranslations(this.state.language);
-        if (!currentTranslations) return;
 
-        // Обновляем обычные элементы с data-i18n
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const translation = currentTranslations[key] || key;
-            element.textContent = translation;
-        });
 
-        // Обновляем элементы с placeholder
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-            const key = element.getAttribute('data-i18n-placeholder');
-            const translation = currentTranslations[key] || key;
-            element.placeholder = translation;
-        });
-
-        // Обновляем элементы с data-i18n-price для ценовых данных
-        document.querySelectorAll('[data-i18n-price]').forEach(element => {
-            const key = element.getAttribute('data-i18n-price');
-            const translation = currentTranslations[key] || key;
-            element.textContent = translation;
-        });
-
-        console.log(`📝 Updated translations to ${this.state.language}`);
-    }
-
-    // Метод translate для обратной совместимости
+    // Метод translate для обратной совместимости - теперь использует DictionaryManager
     translate(key) {
-        return getTranslations(this.state.language)?.[key] || key;
+        return window.dictionaryManager?.translate(key) || key;
     }
 
     // Методы для работы с изображениями
@@ -322,43 +291,8 @@ export class AppStateManager {
     }
 }
 
-// Глобальный переводчик с учетом состояния
+// Глобальный переводчик с учетом состояния для backward compatibility
 export function translate(key, stateManager) {
     const language = stateManager?.language || 'en';
-    // Получаем словарь для текущего языка
-    const translations = getTranslations(language);
-    return translations?.[key] || key;
-}
-
-// Доступ к статическому объекту TRANSLATIONS из app_modern.js
-let translationsObject = null;
-
-function getTranslations(lang) {
-    // Если TRANSLATIONS объект еще не доступен - создаем базовый
-    if (!translationsObject) {
-        // Базовые переводы для обратной совместимости
-        const defaultTranslations = {
-            'error_prompt_required': 'Please enter a prompt',
-            'error_prompt_too_short': 'Prompt too short, minimum 5 characters',
-            'error_webhook_not_configured': 'Webhook not configured',
-            'error_server_overloaded': 'Server overloaded, please try again later',
-            'error_timeout': 'Request timeout',
-            'connected': 'Connected successfully',
-            'download_started': 'Download started',
-            'copied_to_clipboard': 'Copied to clipboard',
-            'please_upload_for_upscale': 'Please upload an image to upscale',
-            'please_upload_for_background_removal': 'Please upload an image for background removal',
-            'please_upload_photo_session': 'Please upload an image for photo session',
-            'image_limit_error': 'Maximum of {{count}} images allowed'
-        };
-
-        // Пытаемся получить доступ к TRANSLATIONS из window
-        try {
-            translationsObject = window.TRANSLATIONS || defaultTranslations;
-        } catch (e) {
-            translationsObject = defaultTranslations;
-        }
-    }
-
-    return translationsObject[lang] || translationsObject['en'] || {};
+    return window.dictionaryManager?.translate(key) || key;
 }

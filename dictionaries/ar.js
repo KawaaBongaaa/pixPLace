@@ -67,6 +67,8 @@ export const ar = {
     generation_started: "بدأ التوليد",
     limit_title: "وصلت إلى حدود التوليد",
     limit_message: "إنتهت الاعتمادات الخاصة بك للتوليد. يمكنك الحصول على المزيد من الاعتمادات من خلال دفع أحد خطط الاشتراك في قناتنا الخاصة. الدفع بأي بطاقة أو عملة مشفرة، عبر Tribute Telegram Payment Service.",
+    premium_limit_title: "انتهت صلاحية الحدود المميزة!",
+    premium_limit_message: "استمر مع الميزات القياسية أو قم بالترقية للوصول الكامل.",
     closeLimitModal: "ربما لاحقاً",
     upgradeBtn: "الدفع",
     remove_user_image: "إزالة",

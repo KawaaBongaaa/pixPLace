@@ -171,8 +171,22 @@ export function showSubscriptionNotice(result, limitType = 'trial') {
     }
 
     // Получаем тексты из словаря по выбранному языку
-    const title = appState?.translate(limitType === 'premium' ? 'premium_limit_title' : 'limit_title');
-    const message = appState?.translate(limitType === 'premium' ? 'premium_limit_message' : 'limit_message');
+    const titleKey = limitType === 'premium' ? 'premium_limit_title' : 'limit_title';
+    const messageKey = limitType === 'premium' ? 'premium_limit_message' : 'limit_message';
+
+    const title = appState?.translate(titleKey);
+    const message = appState?.translate(messageKey);
+
+    console.log('🌍 TRANSLATION DEBUG:', {
+        limitType,
+        currentLanguage: appState?.language || window.appState?.language,
+        titleKey,
+        messageKey,
+        title,
+        message,
+        titleFallback: title || 'Generation Limit Reached',
+        messageFallback: message || 'Your credits are depleted. Upgrade for more!'
+    });
 
     // Динамически устанавливаем текст модального окна
     const titleElement = modal.querySelector('.limit-title');

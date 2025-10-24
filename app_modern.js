@@ -1872,19 +1872,32 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     // 🔥 НЕТ ДУБЛИРОВАНИЯ - язык загружен выше
 
     // 🔥 НОВОЕ: Используем сервисы вместо прямого доступа к appState
-    let services;
+    let services; // ОБЪЯВЛЕНИЕ ПЕРЕД TRY
     try {
         services = await initializeGlobalServices();
     } catch (error) {
         console.error('❌ Failed to initialize global services:', error);
         // Fallback - continue without services for basic functionality
-        services = {
-            appState: new AppStateManager(),
-            eventBus: null,
-            telegram: null,
-            storage: null,
-            notifications: null
-        };
+        try {
+            services = {
+                appState: new AppStateManager(),
+                eventBus: null,
+                telegram: null,
+                storage: null,
+                notifications: null,
+                ui: null  // Добавляем ui чтобы избежать undefined ошибки
+            };
+        } catch (fallbackError) {
+            console.error('❌ Fallback services creation also failed:', fallbackError);
+            services = {
+                appState: null,
+                eventBus: null,
+                telegram: null,
+                storage: null,
+                notifications: null,
+                ui: null  // Гарантируем наличие ui
+            };
+        }
     }
 
     // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: СИНХРОНИЗИРУЕМ appState.language С dictionaryManager.currentLanguage
@@ -3000,7 +3013,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(() => {
                         initPlansCarousel();
                         initPlanCards();
-                        services?.ui?.initGlassmorphismEffects();
+                        // Use global services if available
+                        if (window.appServices?.ui?.initGlassmorphismEffects) {
+                            window.appServices.ui.initGlassmorphismEffects();
+                        } else {
+                            console.log('🔄 UI services not ready yet, skipping glassmorphism effects');
+                        }
                     }, 100);
                 }
             }

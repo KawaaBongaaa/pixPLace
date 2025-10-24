@@ -128,20 +128,7 @@ class DictionaryManager {
         }
     }
 
-    // 🔥 НОВОЕ: Populate window.TRANSLATIONS for backward compatibility
-    populateWindowTranslations() {
-        const currentDict = this.getCurrentDictionary();
-        if (window.TRANSLATIONS) {
-            // Merge with existing translations
-            window.TRANSLATIONS[this.currentLanguage] = { ...window.TRANSLATIONS[this.currentLanguage], ...currentDict };
-        } else {
-            // Create new structure
-            window.TRANSLATIONS = {
-                [this.currentLanguage]: currentDict
-            };
-        }
-        console.log('🌍 Updated window.TRANSLATIONS with', this.currentLanguage, 'dictionary');
-    }
+
 
     // 🔥 ВНУТРЕННИЙ МЕТОД: Установка языка БЕЗ ОБНОВЛЕНИЯ UI (для инициализации)
     async setLanguageInternal(lang) {
@@ -165,15 +152,7 @@ class DictionaryManager {
             console.log('🌍 Language initialized internally: using cached dict for ' + lang);
         }
 
-        // 🔥 ОБНОВЛЯЕМ window.TRANSLATIONS для совместимости с appState.translate()
-        this.populateWindowTranslations();
 
-        console.log('🔍 After populateWindowTranslations - window.TRANSLATIONS status:', {
-            exists: !!window.TRANSLATIONS,
-            hasCurrentLang: window.TRANSLATIONS ? !!window.TRANSLATIONS[this.currentLanguage] : false,
-            currentLangSize: window.TRANSLATIONS?.[this.currentLanguage] ? Object.keys(window.TRANSLATIONS[this.currentLanguage]).length : 0,
-            languages: window.TRANSLATIONS ? Object.keys(window.TRANSLATIONS) : []
-        });
 
         return this.getCurrentDictionary();
     }
@@ -198,10 +177,7 @@ class DictionaryManager {
         // 🔥 ОБНОВЛЯЕМ ПЕРЕВОДЫ СРАЗУ ПОСЛЕ СМЕНЫ
         this.updateTranslations();
 
-        // 🔥 НОВОЕ: Populate window.TRANSLATIONS для обратной совместимости
-        this.populateWindowTranslations();
-
-        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Синхронизируем appState.language для правильной работы appState.translate()
+        // 🔥 КРИТИЧЕСКОЕ: Синхронизируем appState.language для правильной работы appState.translate()
         if (window.appState && window.appState.setLanguage) {
             window.appState.setLanguage(lang);
             console.log('🔄 Synced appState.language with dictionaryManager change');

@@ -316,18 +316,19 @@ class UIService {
         const cards = document.querySelectorAll('.plan-card');
 
         cards.forEach((card, index) => {
+            // Добавляем анимацию через CSS классы без постоянных inline стилей
+            card.classList.add('glassmorphism-animate-in');
             card.style.animationDelay = `${index * 0.2}s`;
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
 
+            // Через задержку убираем анимационные стили для чистоты
             setTimeout(() => {
-                card.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 200);
+                card.classList.remove('glassmorphism-animate-in');
+                // Очищаем inline стили анимации
+                card.style.animationDelay = '';
+            }, 1000 + index * 200); // После завершения анимации + задержка
         });
 
-        console.log('✨ Glassmorphism effects initialized');
+        console.log('✨ Glassmorphism effects initialized with cleanup');
     }
 }
 

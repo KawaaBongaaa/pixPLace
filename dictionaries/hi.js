@@ -67,6 +67,8 @@ export const hi = {
     generation_started: "जनरेशन शुरू हुआ",
     limit_title: "जनरेशन लिमिट तक पहुंच गए",
     limit_message: "आपका जनरेशन के लिए क्रेडिट खत्म हो गया है। आप हमारे प्राइवेट चैनल के किसी एक सब्स्क्रिप्शन प्लान का भुगतान करके अधिक क्रेडिट प्राप्त कर सकते हैं। किसी भी कार्ड या क्रिप्टो के साथ भुगतान, Tribute Telegram Payment Service के माध्यम से।",
+    premium_limit_title: "आपकी प्रीमियम लिमिट खत्म हो गई है!",
+    premium_limit_message: "मानक सुविधाओं के साथ जारी रखें या पूर्ण एक्सेस के लिए अपग्रेड करें।",
     closeLimitModal: "शायद बाद में",
     upgradeBtn: "भुगतान करें",
     remove_user_image: "हटाएं",

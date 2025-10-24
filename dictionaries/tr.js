@@ -62,6 +62,8 @@ export const tr = {
     download_started: "İndirme başladı",
     limit_title: "Üretim limiti aşıldı",
     limit_message: "Üretim kredileriniz tükendi. Özel kanalımızın abonelik planlarından birini ödeyerek daha fazla kredi alabilirsiniz. Herhangi bir kart veya kripto ile ödeme, Tribute Telegram Payment Service aracılığıyla.",
+    premium_limit_title: "Premium limitiniz tükendi!",
+    premium_limit_message: "Standart özelliklerle devam edin veya tam erişim için yükseltin.",
     closeLimitModal: "Belki sonra",
     upgradeBtn: "Öde",
     remove_user_image: "Kaldır",

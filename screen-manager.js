@@ -86,6 +86,14 @@ class ScreenManager {
             console.log('🎯 App container made visible for auth screen');
         }
 
+        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Обновить переводы для аутентификации
+        if (typeof window.dictionaryManager !== 'undefined' && window.dictionaryManager.updateTranslations) {
+            setTimeout(() => {
+                window.dictionaryManager.updateTranslations();
+                console.log('✅ Translations updated for auth screen');
+            }, 100); // Небольшая задержка для гарантии готовности DOM
+        }
+
         // Диагностика структуры экрана авторизации
         const authScreen = document.getElementById('authScreen');
         const authContainer = authScreen?.querySelector('.auth-container');

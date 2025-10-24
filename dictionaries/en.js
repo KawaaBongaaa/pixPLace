@@ -3,6 +3,12 @@ export const en = {
     app_title: "pixPLace",
     connecting: "Connecting...",
     connected: "Connected to Telegram",
+    // Authentication screen keys
+    auth_title: "Welcome to pixPLace!",
+    auth_subtitle1: "A space where your ideas come to life and creativity flows.",
+    auth_subtitle2: "Just sign in with Telegram and start creating with joy.",
+    auth_button_text: "SIGN IN WITH TELEGRAM",
+    auth_notice: "💜 Your data's safe with us — we value your trust.",
     prompt_label: "Prompt",
     prompt_placeholder: "Describe your vision and watch AI bring it to life...",
     style_label: "Choose a Style",

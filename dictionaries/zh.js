@@ -67,6 +67,8 @@ export const zh = {
     generation_started: "生成已开始",
     limit_title: "达到生成限制",
     limit_message: "你的生成积分已用完。你可以通过支付我们私人频道的其中一个订阅计划来获得更多积分。使用任何卡或加密货币付款，通过 Tribute Telegram Payment Service。",
+    premium_limit_title: "你的高级限制已耗尽！",
+    premium_limit_message: "继续使用标准功能或升级以获取完整访问。",
     closeLimitModal: "稍后再说",
     upgradeBtn: "付款",
     remove_user_image: "移除",

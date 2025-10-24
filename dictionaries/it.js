@@ -67,6 +67,8 @@ export const it = {
     generation_started: "Generazione avviata",
     limit_title: "Limite Generazione Raggiunto",
     limit_message: "I tuoi crediti per la generazione sono finiti. Puoi ottenere più crediti pagando uno dei piani di abbonamento del nostro canale privato. Pagamento con qualsiasi carta o crypto, via Tribute Telegram Payment Service.",
+    premium_limit_title: "Il tuo limite premium è finito!",
+    premium_limit_message: "Continua con le funzioni standard o effettua l'upgrade per accesso completo.",
     closeLimitModal: "Forse dopo",
     upgradeBtn: "Paga",
     remove_user_image: "Rimuovi",

@@ -1,3 +1,21 @@
+/* ===== GLASSMORPHISM ANIMATION ===== */
+@keyframes glassmorphismFadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.glassmorphism-animate-in {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: glassmorphismFadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
 /* ===== GENERATION RESULT MODAL STYLES ===== */
 /* MINIMALIST DESIGN - clean, compact and effective */
 

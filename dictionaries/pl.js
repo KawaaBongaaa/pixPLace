@@ -75,4 +75,48 @@ export const pl = {
     // Additional Messages
     image_added_success: "Obraz dodany do generacji!",
     ui_error_message: "Błąd interfejsu:",
+
+    // Limit Modal
+    limit_title: "Osiągnięto Limit Generacji",
+    limit_message: "Twoje kredyty na generowanie zostały wyczerpane. Możesz uzyskać więcej kredytów płacąc za jeden z planów subskrypcji naszego prywatnego kanału. Płatność dowolną kartą lub kryptowalutą, poprzez usługę płatności Tribute Telegram.",
+    premium_limit_title: "Twój limit premium wyczerpał się!",
+    premium_limit_message: "Kontynuuj z funkcjami standardowymi lub zaktualizuj dla pełnego dostępu.",
+    most_popular: "Najpopularniejszy",
+    closeLimitModal: "Może Później",
+
+    // Plans
+    plan_lite_title: "LITE",
+    plan_lite_price: "199zł",
+    plan_lite_desc: "Doskonale dla okazjonalnego użytku",
+    plan_lite_credits: "500 Kredytów",
+    plan_lite_feature1: "• Wysokiej jakości modele",
+    plan_lite_feature2: "• Asystent AI (limitowany)",
+    plan_lite_feature3: "• Licencja do użytku włączona",
+    plan_lite_feature4: "• Szybka generacja",
+    plan_lite_select: "Zapłać",
+    plan_pro_title: "PRO",
+    plan_pro_price: "299zł",
+    plan_pro_desc: "Najlepszy wybór dla ciężkich użytkowników & profesjonalistów",
+    plan_pro_credits: "1000 Kredytów",
+    plan_pro_feature1: "• Wszystko z Lite..+",
+    plan_pro_feature2: "• Asystent AI (większe limity)",
+    plan_pro_feature3: "• Priorytetowy serwis od zespołu pixPlace",
+    plan_pro_feature4: "• 25% Zniżki na kredyty pixPlace",
+    plan_pro_select: "Zapłać",
+    plan_studio_title: "STUDIA",
+    plan_studio_price: "499zł",
+    plan_studio_desc: "Maksymalna swoboda twórcza — świetne dla zespołów",
+    plan_studio_credits: "2000 Kredytów",
+    plan_studio_feature1: "• Wszystko z Pro..+",
+    plan_studio_feature2: "• Asystent AI (bez limitów)",
+    plan_studio_feature3: "• Wczesny dostęp do nowych funkcji",
+    plan_studio_feature4: "• Ponad 30% Zniżki na kredyty pixPlace",
+    plan_studio_select: "Zapłać",
+
+    // Auth section (if needed)
+    auth_title: "Witaj w pixPlace!",
+    auth_subtitle1: "Przestrzeń, w której Twoje pomysły ożywają i kreatywność płynie.",
+    auth_subtitle2: "Po prostu zaloguj się przez Telegram i zacznij tworzyć z przyjemnością.",
+    auth_button_text: "ZALOGUJ SIĘ PRZEZ TELEGRAM",
+    auth_notice: "💜 Twoje dane są dla nas bezpieczne — cenimy Twoje zaufanie.",
 }
