@@ -344,7 +344,7 @@ class GenerationManager {
                 user_id: appState?.user?.id || null,
                 user_name: appState?.user?.name || null,
                 user_username: appState?.user?.username || null,
-                user_language: appState?.user?.language || 'en',
+                user_language: appState?.language || 'en',
                 user_is_premium: appState?.user?.isPremium || false,
                 telegram_platform: appState?.tg?.platform || 'unknown',
                 telegram_version: appState?.tg?.version || 'unknown',

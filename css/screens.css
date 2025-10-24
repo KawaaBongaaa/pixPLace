@@ -371,7 +371,7 @@
     align-items: flex-start;
     justify-content: center;
     padding-top: 2vh;
-    z-index: 99997;
+    z-index: 150000;
     overflow: hidden;
     font-family: 'Inter', sans-serif;
     background: rgba(0, 0, 0, 0.6);
@@ -395,7 +395,7 @@
     -webkit-backdrop-filter: blur(6px);
     opacity: 0;
     animation: fadeInBackdrop 0.3s ease forwards;
-    z-index: 99998;
+    z-index: 150001;
 }
 
 .limit-modal-content {
@@ -411,7 +411,7 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
     color: #f0f0f5;
     text-align: center;
-    z-index: 99999;
+    z-index: 150002;
     transform: translateY(-50px);
     opacity: 0;
     animation: slideInFullscreen 0.5s ease-out forwards;
@@ -1432,7 +1432,7 @@
     pointer-events: auto !important;
     cursor: pointer !important;
     position: relative !important;
-    z-index: 100002 !important;
+    z-index: 150003 !important;
 }
 
 .plan-btn {
