@@ -51,5 +51,28 @@ export const pl = {
     photo_warning_upload_btn: "Prześlij obraz",
     photo_warning_continue_btn: "Kontynuuj bez",
     image_limit_error: "Maksymalnie 4 obrazy. Możesz przesłać {{count}} więcej.",
-    load_more_history: "Pokaż więcej"
+    load_more_history: "Pokaż więcej",
+    history_toggle: "Historia generowań",
+
+    // Generation Result Modal
+    generation_result_title: "Wynik Generacji",
+    date_label: "Data:",
+    mode_label_modal: "Tryb:",
+    charged_label: "Obciążony:",
+    prompt_label_modal: "Prompt:",
+    use_for_generation: "Użyj obrazu do nowej generacji",
+    reuse_prompt_title: "Powtórz generację z tym promptem",
+
+    // Generation Result Modal - Toast Messages
+    image_downloading: "Obraz zostanie pobrany...",
+    link_copied: "Link skopiowany do schowka!",
+    prompt_applied: "Prompt zastosowany! Przewiń w dół i kliknij Generuj",
+
+    // Generation Result Modal - Share
+    share_title: "Mój obraz AI z pixPlace",
+    share_text: "Zobacz obraz wygenerowany przez pixPlace!",
+
+    // Additional Messages
+    image_added_success: "Obraz dodany do generacji!",
+    ui_error_message: "Błąd interfejsu:",
 }

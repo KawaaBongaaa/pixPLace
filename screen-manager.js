@@ -15,6 +15,13 @@ class ScreenManager {
             return;
         }
 
+        // 🔥 ОСТАНОВКА СНЕГОПАДА: завершаем снегопад при переключении на любой экран приложения
+        // (но НЕ при переходе на loading screen)
+        if (typeof window.stopSnowfall === 'function' && screenId !== 'loadingScreen') {
+            console.log('❄️ Stopping snowfall on screen switch to:', screenId);
+            window.stopSnowfall();
+        }
+
         // Логируем текущее состояние
         console.log('📋 Current screens state:');
         document.querySelectorAll('.screen').forEach(screen => {

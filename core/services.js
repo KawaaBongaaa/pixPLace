@@ -63,21 +63,9 @@ class TelegramService {
                                 isPremium: user.is_premium || false
                             });
 
-                            // 🔥 ПРИОРИТЕТ 2: Установка языка из Telegram, только если пользователь НЕ выбирал сам
-                            // Приоритет 1: localStorage (пользовательский выбор с флагом isLanguageSetByUser)
-                            // Приоритет 2: Telegram language_code - только для новых пользователей
-                            // Приоритет 3: 'en' - жесткий дефолт
-                            if (user.language_code && ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'vi', 'th', 'tr', 'pl'].includes(user.language_code)) {
-                                // 🌍 НОВАЯ ЛОГИКА ПРИОРИТЕТОВ:
-                                // Если пользователь НЕ выбирал язык сам (флаг false), берем из Telegram браузера
-                                // Если пользователь выбирал (флаг true), игнорируем Telegram настройки
-                                if (!this.appState.isLanguageSetByUser) {
-                                    console.log(`🌍 Using Telegram language (new user): ${user.language_code}`);
-                                    this.appState.setLanguage(user.language_code);
-                                } else {
-                                    console.log(`🌍 Keeping user-selected language: ${this.appState.language} (Telegram ignored)`);
-                                }
-                            }
+                            // 🔥 РЕМОВЕР: УБРАНА ЛОГИКА ИЗМЕНЕНИЯ ЯЗЫКА
+                            // DictionaryManager.determineAndSetBaseLanguage() сам решит какой язык использовать
+                            console.log(`📱 Telegram language detected: ${user.language_code} (DictionaryManager will decide priority)`);
 
                             console.log('✅ Telegram user data loaded:', this.appState.user);
 
@@ -227,34 +215,17 @@ class StorageService {
         }
     }
 
-    // Загрузка настроек
+    // Загрузка настроек - УПРОЩЕННАЯ! Язык теперь управляется централизованно DictionaryManager
     loadSettings() {
         try {
+            // 🔥 РЕМОВЕР: УБРАНА ЛОГИКА ЯЗЫКА - теперь это делает DictionaryManager.determineAndSetBaseLanguage()
             const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
 
-            if (settings.language) {
-                // 🔥 ЗАГРУЗКА ПОЛЬЗОВАТЕЛЬСКОГО ЯЗЫКА: устанавливаем язык И флаг вместе
-                this.appState.updateState({
-                    language: settings.language,
-                    isLanguageSetByUser: true
-                });
-
-                // Применяем UI изменения напрямую, как в setLanguage()
-                document.body.setAttribute('data-lang', settings.language);
-                this.appState.updateTranslations();
-
-                // Обновляем язык истории
-                import('../history-manager.js').then(module => {
-                    if (module.updateHistoryLanguage) {
-                        module.updateHistoryLanguage(settings.language);
-                    }
-                }).catch(console.warn);
-
-                console.log(`🌍 Loaded user's preferred language: ${settings.language}, flag=true`);
-            } else {
-                // Нет сохраненного языка - новый пользователь
-                console.log('🌍 No saved language - Telegram can set browser language');
+            if (settings.theme) {
+                this.appState.setTheme(settings.theme);
             }
+
+            console.log('✅ Settings loaded (language handled centrally)');
         } catch (error) {
             console.error('❌ Failed to load settings:', error);
         }
@@ -334,6 +305,32 @@ class NotificationService {
     }
 }
 
+// Сервис UI эффектов
+class UIService {
+    constructor() {
+        // Сервис для управления UI эффектами и анимациями
+    }
+
+    // 🎨 ЭФФЕКТЫ СТЕКЛА
+    initGlassmorphismEffects() {
+        const cards = document.querySelectorAll('.plan-card');
+
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.2}s`;
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+
+        console.log('✨ Glassmorphism effects initialized');
+    }
+}
+
 // Фабрика сервисов
 export function createAppServices() {
     // Создаем менеджер состояния
@@ -348,7 +345,8 @@ export function createAppServices() {
         eventBus: evBus,
         telegram: new TelegramService(appState, evBus),
         storage: new StorageService(appState),
-        notifications: new NotificationService(evBus)
+        notifications: new NotificationService(evBus),
+        ui: new UIService()
     };
 
     // Загружаем сохраненные настройки при старте
@@ -369,15 +367,12 @@ export function initializeGlobalServices() {
         // Делаем доступным глобально для legacy поддержки
         if (typeof window !== 'undefined') {
             window.appServices = globalServices;
+
+            // Экспортируем UI функции для глобального доступа (совместимость с plans-modal.js)
+            if (globalServices.ui) {
+                window.initGlassmorphismEffects = globalServices.ui.initGlassmorphismEffects.bind(globalServices.ui);
+            }
         }
     }
     return globalServices;
-}
-
-// Автоматическая инициализация при импорте
-if (typeof window !== 'undefined') {
-    // Инициализируем сервисы при первой загрузке страницы
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeGlobalServices();
-    });
 }

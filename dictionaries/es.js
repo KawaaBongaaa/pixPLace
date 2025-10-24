@@ -1,3 +1,4 @@
+// Spanish translations for PixPlace (Latin America style)
 export const es = {
     loading: "The pixPLace",
     app_title: "pixPLace",
@@ -89,6 +90,7 @@ export const es = {
     most_popular: "Más Popular",
     elapsed_time: "Tiempo transcurrido:",
     view_history: "Ver Historial",
+    history_toggle: "Resultado de Generación",
     history_title: "Historial",
     ai_chat_title: "Asistente IA",
     plan_lite_title: "LITE",
@@ -120,5 +122,28 @@ export const es = {
     photo_warning_upload_btn: "Subir imagen",
     photo_warning_continue_btn: "Continuar sin",
     image_limit_error: "Máximo 4 imágenes. Puedes subir {{count}} más.",
+
+    // Generation Result Modal
+    generation_result_title: "Resultado de Generación",
+    date_label: "Fecha:",
+    mode_label_modal: "Modo:",
+    charged_label: "Cargado:",
+    prompt_label_modal: "Prompt:",
+    use_for_generation: "Usar para nueva generación",
+    reuse_prompt_title: "Repetir generación con este prompt",
+
+    // Generation Result Modal - Toast Messages
+    image_downloading: "Descargando imagen...",
+    link_copied: "¡Enlace copiado al portapapeles!",
+    prompt_applied: "¡Prompt aplicado! Desliza hacia abajo y haz clic en Generar",
+
+    // Generation Result Modal - Share
+    share_title: "Mi imagen IA de pixPLace",
+    share_text: "¡Mira esta imagen generada por IA de pixPLace!",
+
+    // Additional Messages
+    image_added_success: "¡Imagen agregada para generación!",
+    ui_error_message: "Error de interfaz:",
+
     load_more_history: "Mostrar más"
 };

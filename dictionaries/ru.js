@@ -84,6 +84,7 @@ export const ru = {
     most_popular: "Выбор Большинства",
     elapsed_time: "Прошло времени:",
     view_history: "Посмотреть историю",
+    history_toggle: "История генераций",
     history_title: "История генераций",
     plan_lite_title: "LITE",
     plan_lite_price: "1100₽",

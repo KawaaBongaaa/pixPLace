@@ -549,9 +549,9 @@ function updateHistoryDisplay(page = 0) {
         // Принудительное обновление количества элементов в UI
         setTimeout(() => {
             const historyToggleBtn = document.getElementById('historyToggleBtn');
-            if (historyToggleBtn) {
+    if (historyToggleBtn) {
                 const count = filteredHistory.length;
-                const baseText = 'Generation History';
+                const baseText = appState.translate('history_toggle') || 'Generation History';
                 historyToggleBtn.textContent = count > 0 ? `${baseText} (${count})` : baseText;
             }
         }, 100);
@@ -816,7 +816,7 @@ function updateHistoryCount() {
 
         const historyToggleBtn = document.getElementById('historyToggleBtn');
         if (historyToggleBtn) {
-            const baseText = 'Generation History';
+            const baseText = appState.translate('history_toggle') || 'Generation History';
             historyToggleBtn.textContent = totalHistoryItems > 0 ? `${baseText} (${totalHistoryItems})` : baseText;
             console.log(`📊 History count updated: ${totalHistoryItems} total (completed: ${window.appState.generationHistory.length}, animations: ${activeAnimations.length})`);
         }
@@ -1144,6 +1144,27 @@ window.viewHistoryItem = viewHistoryItem;
 // 🔥 ДОБАВЛЕНИЕ: Новый экспорт функции замены превью по taskUUID
 window.replaceLoadingWithPreview = replaceLoadingWithPreview;
 window.restoreActiveAnimations = restoreActiveAnimations;
+
+// 🔥 ДОБАВЛЕНИЕ: СЛУШАТЕЛЬ ИЗМЕНЕНИЯ ЯЗЫКА ДЛЯ АВТОМАТИЧЕСКОГО ОБНОВЛЕНИЯ ПЕРЕВОДОВ
+document.addEventListener('dictionary:language-changed', (event) => {
+    const { newLang, oldLang } = event.detail;
+    console.log(`🔫 History received language change: ${oldLang} → ${newLang}`);
+
+    // Обновляем любые видимые элементы истории с новыми переводами
+    updateHistoryLanguage(newLang);
+
+    // 🔥 ДОБАВЛЕНИЕ: Обновляем счетчик истории с новым языком
+    setTimeout(() => {
+        const historyToggleBtn = document.getElementById('historyToggleBtn');
+        if (historyToggleBtn) {
+            const baseText = window.appState?.translate('history_toggle') || 'Generation History';
+            const count = window.appState?.generationHistory?.length || 0;
+            historyToggleBtn.textContent = count > 0 ? `${baseText} (${count})` : baseText;
+        }
+    }, 100);
+
+    console.log(`✅ History translations updated for new language: ${newLang}`);
+});
 
 // 🔥 ДОБАВЛЕНИЕ: Функция для отсоединения активных анимаций от DOM при закрытии истории
 // Это позволяет завершить генерации даже когда история скрыта

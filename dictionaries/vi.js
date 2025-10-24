@@ -113,5 +113,29 @@ export const vi = {
     photo_warning_text: "Chế độ \"Nano Banana\" hoạt động tốt hơn với ảnh để tạo img2img. Bạn có muốn tải ảnh lên hoặc tiếp tục mà không có?",
     photo_warning_upload_btn: "Tải ảnh lên",
     photo_warning_continue_btn: "Tiếp tục mà không có",
-    image_limit_error: "Tối đa 4 ảnh. Bạn có thể tải lên {{count}} ảnh nữa."
+    image_limit_error: "Tối đa 4 ảnh. Bạn có thể tải lên {{count}} ảnh nữa.",
+    load_more_history: "Hiển thị thêm",
+    history_toggle: "Lịch sử Tạo ảnh",
+
+    // Generation Result Modal
+    generation_result_title: "Kết quả Tạo ảnh",
+    date_label: "Ngày:",
+    mode_label_modal: "Chế độ:",
+    charged_label: "Đã tính:",
+    prompt_label_modal: "Prompt:",
+    use_for_generation: "Sử dụng ảnh cho việc tạo mới",
+    reuse_prompt_title: "Lặp lại việc tạo với prompt này",
+
+    // Generation Result Modal - Toast Messages
+    image_downloading: "Đang tải ảnh xuống...",
+    link_copied: "Đã sao chép liên kết vào clipboard!",
+    prompt_applied: "Đã áp dụng prompt! Cuộn xuống và nhấp Tạo",
+
+    // Generation Result Modal - Share
+    share_title: "Ảnh AI của tôi từ pixPlace",
+    share_text: "Hãy xem ảnh được tạo bởi AI từ pixPlace!",
+
+    // Additional Messages
+    image_added_success: "Đã thêm ảnh để tạo!",
+    ui_error_message: "Lỗi giao diện:",
 };

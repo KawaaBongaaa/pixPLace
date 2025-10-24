@@ -1,31 +1,17 @@
-import { en } from './dictionaries/en.js';
-import { ru } from './dictionaries/ru.js';
-import { es } from './dictionaries/es.js';
-import { fr } from './dictionaries/fr.js';
-import { de } from './dictionaries/de.js';
-import { zh } from './dictionaries/zh.js';
-import { pt } from './dictionaries/pt.js';
-import { ar } from './dictionaries/ar.js';
-import { hi } from './dictionaries/hi.js';
-import { ja } from './dictionaries/ja.js';
-import { it } from './dictionaries/it.js';
-import { ko } from './dictionaries/ko.js';
-import { vi } from './dictionaries/vi.js';
-import { th } from './dictionaries/th.js';
-import { tr } from './dictionaries/tr.js';
-import { pl } from './dictionaries/pl.js';
+// 🔥 LAZY LOADING словарей - только текущий язык загружается по требованию
 
 // ✅ НОВЫЕ: Импорт сервисов вместо прямых зависимостей
 import { initializeGlobalServices } from './core/services.js';
 import { AppStateManager } from './store/app-state.js';
 import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
+import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
-import { ScreenManager } from './screen-manager.js';
 import { updateUserNameDisplay, updateUserBalanceDisplay, showSubscriptionNotice, showWarningAboutNoImage, toggleModeDetails, showHistory } from './navigation-manager.js';
 import { startSnowfall, readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback } from './utils.js';
 import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem } from './history-manager.js';
+import { generationManager } from './parallel-generation.js';
 
 
 // 🚀 Modern AI Image Generator WebApp
@@ -38,7 +24,7 @@ import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem }
  * Set to true to skip authentication for development/testing.
  * Set back to false before production deployment.
  */
-const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
+const BYPASS_AUTH = false; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 
 // Configuration
 const CONFIG = {
@@ -71,41 +57,56 @@ try {
     console.warn('❌ Could not save maintenance mode to localStorage:', error);
 }
 
-
-
-// 🌍 Translations
-const TRANSLATIONS = {
-    en,
-    ru,
-    es,
-    fr,
-    de,
-    zh,
-    pt,
-    ar,
-    hi,
-    ja,
-    it,
-    ko,
-    tr,
-    pl,
-    vi,
-    th
-};
-
-// Экспортируем TRANSLATIONS для доступа из AppStateManager
-window.TRANSLATIONS = TRANSLATIONS;
-
 // 🎯 Global state - теперь используем AppStateManager из модуля store/app-state.js
 const appState = new AppStateManager();
 
 // Экспортируем appState в window для доступа из параллельной генерации
 window.appState = appState;
 
-// 🔥 ДОБАВЛЕНИЕ: Инициализация переводов для обратной совместимости
-appState.loadSettings();
 
 
+    // 🔥 ДОБАВЛЕНИЕ: Инициализация переводов для обратной совместимости
+    appState.loadSettings();
+    // 🔥 ДОБАВЛЕНИЕ: Загрузка баланса из localStorage при старте приложения
+    appState.loadBalanceHistory();
+
+
+
+// 🔥 ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ ЯЗЫКА И ПЕРЕВОДОВ (будет вызвана синхронно до показа UI)
+async function initBaseLanguageAndTranslations() {
+    try {
+        console.log('🚀 Starting app initialization with centralized language detection...');
+
+        // 🔥 ЦЕНТРАЛИЗОВАННЫЙ МЕТОД: ОПРЕДЕЛЯЕМ И УСТАНАВЛИВАЕМ БАЗОВЫЙ ЯЗЫК ОДИН РАЗ
+        const baseLanguage = await dictionaryManager.determineAndSetBaseLanguage();
+
+        console.log('✅ Base translations initialized centrally for language:', baseLanguage);
+
+        // 🔥 ПРОВЕРКА: Проверим что заполнилось в window.TRANSLATIONS
+        console.log('🔍 window.TRANSLATIONS check:', {
+            hasTRANSLATIONS: !!window.TRANSLATIONS,
+            languages: window.TRANSLATIONS ? Object.keys(window.TRANSLATIONS) : [],
+            currentLang: dictionaryManager.currentLanguage,
+            translationsCount: window.TRANSLATIONS?.[dictionaryManager.currentLanguage]
+                ? Object.keys(window.TRANSLATIONS[dictionaryManager.currentLanguage]).length
+                : 0
+        });
+
+        // 🔥 ОБНОВИТЬ ПЕРЕВОДЫ НЕМЕДЛЕННО после установки языка
+        dictionaryManager.updateTranslations();
+        console.log('✅ Translations updated after base language set');
+
+    } catch (error) {
+        console.error('❌ Failed to initialize base translations centrally:', error);
+        // В крайнем случае - хотя бы English
+        try {
+            await dictionaryManager.setLanguage('en');
+            dictionaryManager.updateTranslations();
+        } catch (fallbackError) {
+            console.error('❌ Even fallback language failed:', fallbackError);
+        }
+    }
+}
 
 // ⚡ Ultra-Fast Global Image Loading Manager - Max Performance
 class GlobalHistoryLoader {
@@ -609,14 +610,23 @@ function showStatus(type, message) {
     // Удаляем дубликаты функций, которые теперь в history-manager.js
 
     // Проверяем импортированные функции на доступность
-console.log('🔧 Checking imported functions availability:');
-console.log('- showWarningAboutNoImage:', typeof showWarningAboutNoImage);
-console.log('- showScreen, showApp, showResult, displayFullResult:', typeof showScreen, typeof showApp, typeof showResult, typeof displayFullResult);
-console.log('- updateUserNameDisplay, updateUserBalanceDisplay:', typeof updateUserNameDisplay, typeof updateUserBalanceDisplay);
-console.log('- startSnowfall, readFileAsDataURL, maybeCompressImage:', typeof startSnowfall, typeof readFileAsDataURL, typeof maybeCompressImage);
-console.log('- updateHistoryItemWithImage:', typeof updateHistoryItemWithImage);
-console.log('- createLoadingHistoryItem:', typeof createLoadingHistoryItem);
-console.log('- viewHistoryItem:', typeof viewHistoryItem);
+    console.log('🔧 Checking imported functions availability:');
+    console.log('- showWarningAboutNoImage:', typeof showWarningAboutNoImage);
+    console.log('- showScreen, showApp, showResult, displayFullResult:', typeof showScreen, typeof showApp, typeof showResult, typeof displayFullResult);
+    console.log('- updateUserNameDisplay, updateUserBalanceDisplay:', typeof updateUserNameDisplay, typeof updateUserBalanceDisplay);
+    console.log('- startSnowfall, readFileAsDataURL, maybeCompressImage:', typeof startSnowfall, typeof readFileAsDataURL, typeof maybeCompressImage);
+    console.log('- updateHistoryItemWithImage:', typeof updateHistoryItemWithImage);
+    console.log('- createLoadingHistoryItem:', typeof createLoadingHistoryItem);
+    console.log('- viewHistoryItem:', typeof viewHistoryItem);
+
+    // 🔥 ИНИЦИАЛИЗАЦИЯ ТЕКСТА КНОПКИ ИСТОРИИ
+    setTimeout(() => {
+        const historyBtn = document.getElementById('historyToggleBtn');
+        if (historyBtn && appState && appState.translate) {
+            historyBtn.textContent = appState.translate('history_toggle');
+            console.log('✅ History button text initialized:', historyBtn.textContent);
+        }
+    }, 100);
 
 function triggerHaptic(type) {
     if (appState.tg?.HapticFeedback) {
@@ -802,9 +812,6 @@ function initializeUI() {
 
     // 🔧 ИНИЦИАЛИЗАЦИЯ НОВОЙ КАРУСЕЛИ РЕЖИМОВ
     initModeCarousel();
-
-    // Update translations
-    appState.updateTranslations();
 
     console.log('✅ UI initialized');
 }
@@ -1749,16 +1756,20 @@ function initLanguageDropdown() {
     const menu = document.getElementById('langMenu');
     if (!btn || !menu) return;
 
-    // Карта языков с флагами и названиями
+    // Предотвращаем двойную инициализацию
+    if (menu.dataset.initialized === 'true') return;
+    menu.dataset.initialized = 'true';
+
+    // Карта языков с флагами и названиями - исправлены спорные региональные флаги
     const languageMap = {
-        'en': { flag: '🇺🇸', name: 'English' },
+        'en': { flag: '🇬🇧', name: 'English' },     // Великобритания как "родина" английского
         'ru': { flag: '🇷🇺', name: 'Русский' },
         'es': { flag: '🇪🇸', name: 'Español' },
         'fr': { flag: '🇫🇷', name: 'Français' },
         'de': { flag: '🇩🇪', name: 'Deutsch' },
         'zh': { flag: '🇨🇳', name: '中文' },
-        'pt': { flag: '🇧🇷', name: 'Português' },
-        'ar': { flag: '🇸🇦', name: 'العربية' },
+        'pt': { flag: '🇵🇹', name: 'Português' },   // Португалия вместо Бразилии
+        'ar': { flag: '🇦🇪', name: 'العربية' },    // ОАЭ как нейтральный арабский вариант
         'hi': { flag: '🇮🇳', name: 'हिंदी' },
         'ja': { flag: '🇯🇵', name: '日本語' },
         'it': { flag: '🇮🇹', name: 'Italiano' },
@@ -1777,8 +1788,19 @@ function initLanguageDropdown() {
         li.innerHTML = `<span class="flag">${langInfo.flag}</span> <span class="lang-name">${langInfo.name}</span>`;
         li.dataset.lang = l; // сохранить код языка для поиска
 
-        li.addEventListener('click', (evt) => {
+        li.addEventListener('click', async (evt) => {
             evt.stopPropagation();
+
+            try {
+                // 🔥 LAZY LOADING: Загружаем словарь при выборе языка
+                console.log('🌍 Loading dictionary for language:', l);
+                await dictionaryManager.setLanguage(l);
+                console.log('✅ Dictionary loaded and set for language:', l);
+            } catch (error) {
+                console.error('❌ Failed to load dictionary for language:', l, error);
+                // Продолжаем с appState.setLanguage даже если загрузка словаря не удалась
+            }
+
             appState.setLanguage(l);        // сохранится в localStorage через saveSettings()
             menu.style.display = 'none';    // скрыть после выбора
         });
@@ -1839,14 +1861,51 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
         return; // Останавливаем дальнейшую инициализацию
     }
 
+    // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: инициализируем переводы ДО показа loading screen
+    console.log('🌍 Initializing language and translations BEFORE loading screen...');
+
+    // 1. СНАЧАЛА загружаем базовый язык и словарь
+    await initBaseLanguageAndTranslations();
+
+    // 2. ПРИМЕНИМ переводы к loading screen и всей странице
+    try {
+        dictionaryManager.updateTranslations();
+        console.log('✅ Translations applied to loading screen');
+    } catch (error) {
+        console.error('❌ Failed to apply initial translations:', error);
+    }
+
+    // 3. ТОЛЬКО ТЕПЕРЬ показываем loading screen (уже с переведенными текстами)
+    // 🚀 ПОКАЗАТЬ LOADING SCREEN СРАЗУ (только logo, частицы - ничего не нужно переводить)
     showLoadingScreen();
 
     // ❄️ СНЕГОПАД НАЧИНАЕТСЯ СРАЗУ ПОСЛЕ ПОКАЗА ЛОАДЭРА!
     startSnowfall();
     console.log('❄️ Snowfall started immediately - right after loading screen');
 
+    // 🔥 НЕТ ДУБЛИРОВАНИЯ - язык загружен выше
+
     // 🔥 НОВОЕ: Используем сервисы вместо прямого доступа к appState
-    const services = await initializeGlobalServices();
+    let services;
+    try {
+        services = await initializeGlobalServices();
+    } catch (error) {
+        console.error('❌ Failed to initialize global services:', error);
+        // Fallback - continue without services for basic functionality
+        services = {
+            appState: new AppStateManager(),
+            eventBus: null,
+            telegram: null,
+            storage: null,
+            notifications: null
+        };
+    }
+
+    // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: СИНХРОНИЗИРУЕМ appState.language С dictionaryManager.currentLanguage
+    if (services.appState) {
+        services.appState.setLanguage(dictionaryManager.currentLanguage);
+        console.log('✅ appState.language synchronized with dictionaryManager.currentLanguage:', dictionaryManager.currentLanguage);
+    }
 
     let telegramInitialized = false;
 
@@ -1890,9 +1949,15 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
             img.decoding = 'async';
         });
 
+        // 🔥 ЯЗЫК УЖЕ ИНИЦИАЛИЗИРОВАН ВЫШЕ
+
         // 🔥 ТОЧНЫЙ КОНТРОЛЬ: 2 СЕКУНДЫ - ДОСТАТОЧНО ДЛЯ ЗАВЕРШЕНИЯ АНИМАЦИЙ
         const finishLoading = () => {
             hideLoadingScreen();
+            // 🔥 ПРИМЕНЯЕМ ПЕРЕВОДЫ ПОСЛЕ ПОКАЗА UI (когда элементы уже созданы)
+            setTimeout(() => {
+                dictionaryManager.updateTranslations();
+            }, 50);
             showAuth();
             initAICoach();
             console.log('✅ Загрузочный экран скрыт через 2 секунды - показан экран авторизации');
@@ -1921,9 +1986,15 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
             img.decoding = 'async';
         });
 
+        // 🔥 ЯЗЫК ИНИЦИАЛИЗИРОВАН - УБИРАЕМ ДУБЛИ
+
         // 🔥 ТОЧНЫЙ КОНТРОЛЬ: НЕМЕДЛЕННЫЙ ЗАПУСК ПОСЛЕ ИНИЦИАЛИЗАЦИИ
         const finishLoading = () => {
             hideLoadingScreen();
+            // 🔥 ПРИМЕНЯЕМ ПЕРЕВОДЫ ПОСЛЕ ПОКАЗА UI (когда элементы уже созданы)
+            setTimeout(() => {
+                dictionaryManager.updateTranslations();
+            }, 50);
             showApp();
             updateUserBalanceDisplay(appState.userCredits);
             updateUserNameDisplay(); // 🔥 ДОБАВЛЕНО: Обновление отображения имени пользователя после авторизации
@@ -2929,22 +3000,7 @@ function initPlanCards() {
     });
 }
 
-// 🎨 ЭФФЕКТЫ СТЕКЛА
-function initGlassmorphismEffects() {
-    const cards = document.querySelectorAll('.plan-card');
 
-    cards.forEach((card, index) => {
-        card.style.animationDelay = `${index * 0.2}s`;
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
-
-        setTimeout(() => {
-            card.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 200);
-    });
-}
 
 // ИНИЦИАЛИЗАЦИЯ КАРУСЕЛИ ПРИ ПОКАЗЕ МОДАЛА
 document.addEventListener('DOMContentLoaded', function () {
@@ -2958,7 +3014,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(() => {
                         initPlansCarousel();
                         initPlanCards();
-                        initGlassmorphismEffects();
+                        services?.ui?.initGlassmorphismEffects();
                     }, 100);
                 }
             }

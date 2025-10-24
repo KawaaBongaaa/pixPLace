@@ -19,59 +19,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=block" rel="stylesheet">
     <script>
-        // Глобальные переменные для совместимости - фикс проблемы с appState
+        // Глобальные переменные для совместимости - переводы через DictionaryManager
         window.showToast = (type, message) => console.log(`Toast (${type}): ${message}`);
         window.appState = {
-            translate: (key) => {
-                // Прямые переводы для ранней инициализации Telegram
-                const translations = {
-                    'telegram_webapp_warning': '⚠️ Приложение запущено в режиме разработки. Telegram интеграция недоступна.',
-                    'telegram_integration_unavailable': 'Telegram интеграция недоступна',
-                    'connecting': 'Connecting...',
-                    'app_title': 'pixPLace',
-                    'loading': 'Loading...',
-                    'connecting': 'Connecting...',
-                    'mode_photo_session': '🔧 Nano Banana Editor',
-                    'mode_fast_generation': '⚡ Flux Fast Generation',
-                    'mode_pixplace_pro': '✨ Flux Pro Advanced',
-                    'mode_print_maker': '👕 Print on Demand',
-                    'mode_background_removal': '✂️ Remove Background',
-                    'mode_upscale_image': '🔍 Upscale Image',
-                    'prompt_placeholder': 'Describe your vision and watch AI bring it to life',
-                    'prompt_label': 'Describe your image',
-                    'mode_label': 'Generation Mode',
-                    'size_label': 'Size',
-                    'upload_image': 'Upload Image',
-                    'generate_btn': 'Generate Image',
-                    'mode_details': 'Подробнее о режимах',
-                    'style_label': 'Style',
-                    'history_toggle': 'Generation History',
-                    'empty_history_title': 'No history yet',
-                    'empty_history_subtitle': 'Generate your first image!',
-                    'style_realistic': 'Realistic',
-                    'style_popart': 'Pop Art',
-                    'style_cyberpunk': 'Cyberpunk',
-                    'style_cartoon': 'Cartoon',
-                    'style_sketch': 'Sketch',
-                    'style_anime': 'Anime',
-                    'style_fantasy': 'Fantasy',
-                    'style_surrealism': 'Surrealism',
-                    'style_artistic': 'Artistic',
-                    'style_abstract': 'Abstract',
-                    'style_minimalism': 'Minimalism',
-                    'style_fashion': 'Fashion',
-                    'style_3d': '3D',
-                    'style_interior': 'Interior',
-                    'style_architecture': 'Architecture',
-                    'style_print': 'Print',
-                    'style_sticker': 'Sticker',
-                    'style_banner': 'Banner',
-                    'style_infographic': 'Infografic',
-                    'style_logo': 'Logo',
-                    'style_vector': 'Vector'
-                };
-                return translations[key] || key;
-            },
+            // УБРАНА СТАРАЯ ФУНКЦИЯ translate - теперь через DictionaryManager
             currentLanguage: 'en',
             // Базовые свойства для совместимости с ранней инициализацией
             tg: null,
@@ -668,7 +619,7 @@
                             </div>
                         </div>
                         <button type="button" id="historyToggleBtn" class="history-toggle-btn"
-                            onclick="toggleHistoryList()">Generation History <span class="toggle-icon">▼</span></button>
+                            onclick="toggleHistoryList()" data-i18n="history_toggle"><span class="toggle-icon">▼</span></button>
                         <div id="historyList" class="history-list hidden"></div>
                     </form>
                 </div>
@@ -813,7 +764,7 @@
     <script type="module" src="ai-coach.js"></script>
     <script type="module" src="user-account.js"></script>
     <script type="module" src="app_modern.js"></script>
-    <script src="parallel-generation.js"></script>
+    <script type="module" src="parallel-generation.js"></script>
     <script src="telegram-auth.js"></script>
 
     <!-- ФИНАЛЬНЫЙ ТЕСТ - КНОПКА В BODY - ВРЕМЕННО ОТКЛЮЧЕНА -->

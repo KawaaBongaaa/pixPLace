@@ -120,5 +120,28 @@ export const th = {
     photo_warning_upload_btn: "อัปโหลดรูปภาพ",
     photo_warning_continue_btn: "ดำเนินการต่อโดยไม่ต้องอัปโหลด",
     image_limit_error: "สูงสุด 4 รูปภาพ. คุณสามารถอัปโหลดได้ {{count}} รูปเพิ่มเติม.",
-    load_more_history: "แสดงเพิ่มเติม"
+    load_more_history: "แสดงเพิ่มเติม",
+    history_toggle: "ประวัติการสร้าง",
+
+    // Generation Result Modal
+    generation_result_title: "ผลการสร้าง",
+    date_label: "วันที่:",
+    mode_label_modal: "โหมด:",
+    charged_label: "คิดค่าบริการ:",
+    prompt_label_modal: "ข้อความ:",
+    use_for_generation: "ใช้ภาพสำหรับการสร้างใหม่",
+    reuse_prompt_title: "สร้างซ้ำโดยใช้ข้อความเดียวกัน",
+
+    // Generation Result Modal - Toast Messages
+    image_downloading: "กำลังดาวน์โหลดภาพ...",
+    link_copied: "คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว!",
+    prompt_applied: "ใช้ข้อความแล้ว! เลื่อนลงและคลิกสร้าง",
+
+    // Generation Result Modal - Share
+    share_title: "ภาพ AI ของฉันจาก pixPlace",
+    share_text: "ดูภาพที่สร้างโดย AI จาก pixPlace!",
+
+    // Additional Messages
+    image_added_success: "เพิ่มภาพสำหรับการสร้างแล้ว!",
+    ui_error_message: "ข้อผิดพลาดของอินเทอร์เฟซ:",
 };

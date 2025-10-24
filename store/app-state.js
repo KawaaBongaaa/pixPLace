@@ -98,22 +98,20 @@ export class AppStateManager {
     }
 
     // Методы для обновления языка
-    setLanguage(lang) {
+    async setLanguage(lang) {
         this.updateState({
             language: lang,
             isLanguageSetByUser: true // Пользователь явно выбрал этот язык
         });
         document.body.setAttribute('data-lang', lang);
 
-        // Обновить статические переводы
-        this.updateTranslations();
-
-        // Обновить динамические элементы (история, модалы и т.д.)
-        import('../history-manager.js').then(module => {
-            if (module.updateHistoryLanguage) {
-                module.updateHistoryLanguage(lang);
-            }
-        }).catch(console.warn);
+        // 🔥 ИСПОЛЬЗУЕМ НОВЫЙ DICTIONARY MANAGER ДЛЯ LAZY LOADING
+        if (window.dictionaryManager) {
+            await window.dictionaryManager.setLanguage(lang);
+        } else {
+            console.warn('⚠️ DictionaryManager not loaded, fallback to old method');
+            this.updateTranslations();
+        }
 
         // Сохранить настройки после изменения языка
         this.saveSettings();
@@ -172,6 +170,7 @@ export class AppStateManager {
         try {
             localStorage.setItem('appSettings', JSON.stringify({
                 language: this.state.language,
+                isLanguageSetByUser: this.state.isLanguageSetByUser, // 🔥 ДОБАВЛЕНО: сохраняем флаг!
                 theme: this.state.theme
             }));
         } catch (error) {
@@ -182,10 +181,19 @@ export class AppStateManager {
     loadSettings() {
         try {
             const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
-            if (settings.language) {
-                this.setLanguage(settings.language);
+
+            // 🔥 РЕМОВЕР: УБРАНА ЛОГИКА ЯЗЫКА - DictionaryManager теперь отвечает за определение базового языка
+            // Язык загружается ТОЛЬКО через DictionaryManager.determineAndSetBaseLanguage()
+
+            if (settings.theme) {
+                this.setTheme(settings.theme);
             }
-            if (settings.theme) this.setTheme(settings.theme);
+
+            // 🔥 ДОБАВЛЕНИЕ: ВОССТАНАВЛИВАЕМ ФЛАГ isLanguageSetByUser ИЗ localStorage
+            if (settings.isLanguageSetByUser !== undefined) {
+                this.updateState({ isLanguageSetByUser: settings.isLanguageSetByUser });
+            }
+
         } catch (error) {
             console.error('Failed to load settings:', error);
         }

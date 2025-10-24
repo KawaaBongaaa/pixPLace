@@ -113,5 +113,29 @@ export const tr = {
     photo_warning_text: " \"Nano Banana\" modu img2img üretimi için bir görüntüyle daha iyi çalışır. Bir görüntü yüklemek mi istiyorsunuz yoksa yüklemeden devam mı edeceksiniz?",
     photo_warning_upload_btn: "Görüntü yükle",
     photo_warning_continue_btn: "Yüklemeden devam et",
-    image_limit_error: "Maksimum 4 görüntü. {{count}} tane daha yükleyebilirsiniz."
+    image_limit_error: "Maksimum 4 görüntü. {{count}} tane daha yükleyebilirsiniz.",
+    load_more_history: "Daha fazla göster",
+    history_toggle: "Üretim Geçmişi",
+
+    // Generation Result Modal
+    generation_result_title: "Üretim Sonucu",
+    date_label: "Tarih:",
+    mode_label_modal: "Mod:",
+    charged_label: "Ücretli:",
+    prompt_label_modal: "İstem:",
+    use_for_generation: "Görüntüyü yeni üretim için kullan",
+    reuse_prompt_title: "Bu istem ile üretimi tekrarla",
+
+    // Generation Result Modal - Toast Messages
+    image_downloading: "Görüntü indiriliyor...",
+    link_copied: "Bağlantı panoya kopyalandı!",
+    prompt_applied: "İstem uygulandı! Aşağı kaydırın ve Üret'e tıklayın",
+
+    // Generation Result Modal - Share
+    share_title: "pixPlace'den AI görüntüm",
+    share_text: "pixPlace'den AI tarafından üretilen görüntüye bakın!",
+
+    // Additional Messages
+    image_added_success: "Üretim için görüntü eklendi!",
+    ui_error_message: "Arayüz hatası:",
 };

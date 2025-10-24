@@ -120,5 +120,28 @@ export const pt = {
     photo_warning_upload_btn: "Enviar imagem",
     photo_warning_continue_btn: "Continuar sem",
     image_limit_error: "Máximo 4 imagens. Você pode enviar {{count}} mais.",
-    load_more_history: "Mostrar mais"
+    load_more_history: "Mostrar mais",
+    history_toggle: "Histórico de Gerações",
+
+    // Generation Result Modal
+    generation_result_title: "Resultado da Geração",
+    date_label: "Data:",
+    mode_label_modal: "Modo:",
+    charged_label: "Cobrado:",
+    prompt_label_modal: "Prompt:",
+    use_for_generation: "Usar imagem para nova geração",
+    reuse_prompt_title: "Repetir geração com este prompt",
+
+    // Generation Result Modal - Toast Messages
+    image_downloading: "Imagem baixando...",
+    link_copied: "Link copiado para a área de transferência!",
+    prompt_applied: "Prompt aplicado! Role para baixo e clique em Gerar",
+
+    // Generation Result Modal - Share
+    share_title: "Minha imagem IA do pixPlace",
+    share_text: "Veja a imagem gerada pela IA no pixPlace!",
+
+    // Additional Messages
+    image_added_success: "Imagem adicionada para geração!",
+    ui_error_message: "Erro da interface:",
 }

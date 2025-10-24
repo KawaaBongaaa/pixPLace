@@ -10,6 +10,71 @@ const userAccountState = {
     isInitialized: false // Флаг предотвращения повторной инициализации
 };
 
+// 🔥 СЛУШАТЕЛЬ НА СМЕНУ ЯЗЫКА ДЛЯ МОДАЛЬНЫХ ОКОН
+document.addEventListener('dictionary:language-changed', (event) => {
+    const { newLang, oldLang } = event.detail;
+    console.log('🌍 Dictionary language changed:', oldLang, '→', newLang, '- updating modals');
+
+    // 🔄 ОБНОВЛЯЕМ ВСЕ ЭЛЕМЕНТЫ С ПЕРЕВОДАМИ В ОТКРЫТЫХ МОДАЛЬНЫХ ОКНАХ
+    const openModals = document.querySelectorAll('.financial-history-modal, .credit-packs-modal, .generation-result-modal');
+
+    if (openModals.length > 0) {
+        console.log('📜 Found', openModals.length, 'open modals to update');
+
+        openModals.forEach(modal => {
+            // 🔥 ИСПРАВЛЕНИЕ: Обновляем стандартные элементы с data-i18n
+            modal.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                const translation = window.appState?.translate?.(key) || key;
+                element.textContent = translation;
+            });
+
+            // 🔥 ДОБАВЛЕНИЕ: Обновляем элементы с data-i18n-placeholder
+            modal.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                const translation = window.appState?.translate?.(key) || key;
+                element.placeholder = translation;
+            });
+
+            // 🔥 ОБНОВЛЯЕМ УНИКАЛЬНЫЕ ЭЛЕМЕНТЫ В ГЕНЕРАЦИОННОМ МОДАЛЬНОМ ОКНЕ
+            if (modal.classList.contains('generation-result-modal')) {
+                // Обновляем переводные элементы в модальном окне результата
+                const translateElements = [
+                    { selector: '.modal-header h3', key: 'generation_result_title' },
+                    { selector: '.use-overlay-btn', key: 'use_for_generation' },
+                    { selector: '[data-i18n-placeholder]', keys: ['date_label_modal', 'mode_label_modal', 'charged_label'] }
+                ];
+
+                translateElements.forEach(item => {
+                    if (item.selector) {
+                        const elements = modal.querySelectorAll(item.selector);
+                        elements.forEach(el => {
+                            if (el.hasAttribute('data-i18n')) {
+                                const key = el.getAttribute('data-i18n');
+                                const translation = window.appState?.translate?.(key) || key;
+                                el.textContent = translation;
+                            }
+                        });
+                    }
+                });
+
+                console.log('✅ Updated translations in generation result modal');
+            }
+
+            // 🔥 ОБНОВЛЯЕМ ЭЛЕМЕНТЫ В ФИНАНСОВОЙ ИСТОРИИ
+            if (modal.classList.contains('financial-history-modal')) {
+                // Перезагружаем финансовую историю
+                loadFinancialHistory();
+                console.log('✅ Refreshed financial history with new language');
+            }
+        });
+
+        console.log('✅ All open modal translations updated successfully');
+    } else {
+        console.log('📜 No open modals to update');
+    }
+});
+
 // 🎯 Инициализация модуля личного кабинета
 function initUserAccount() {
     // Проверяем, была ли уже вызвана инициализация
@@ -175,24 +240,41 @@ function showGenerationResultModal(item) {
                             </svg>
                         </button>
                         <div class="generation-result-image-container">
-                            <img src="${imageSource}" alt="Generated Image" class="result-full-image" loading="lazy" />
-                            <div class="image-overlay">
-                                <button class="overlay-btn download-btn" onclick="downloadResultImage('${imageSource}', '${item.id}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                        <polyline points="7,10 12,15 17,10" />
-                                        <line x1="12" y1="15" x2="12" y2="3" />
-                                    </svg>
-                                </button>
-                                <button class="overlay-btn share-btn" onclick="shareResultImage('${imageSource}', '${item.id}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="18" cy="5" r="3" />
-                                        <circle cx="6" cy="12" r="3" />
-                                        <circle cx="18" cy="19" r="3" />
-                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                                    </svg>
-                                </button>
+                            <div class="image-wrapper-relative">
+                                <div class="img-positioning-container">
+                                    <div class="img-relative-div">
+                                        <img src="${imageSource}" alt="Generated Image" class="result-full-image" loading="lazy" />
+                                        <div class="image-overlay">
+                                            <button class="overlay-btn download-btn" onclick="downloadResultImage('${imageSource}', '${item.id}')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                    <polyline points="7,10 12,15 17,10" />
+                                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                                </svg>
+                                            </button>
+                                            <button class="overlay-btn share-btn" onclick="shareResultImage('${imageSource}', '${item.id}')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="18" cy="5" r="3" />
+                                                    <circle cx="6" cy="12" r="3" />
+                                                    <circle cx="18" cy="19" r="3" />
+                                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="image-overlay-bottom">
+                                        <button class="use-overlay-btn" onclick="useImageForGeneration('${imageSource}', '${item.id}')">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14.828 14.828a4 4 0 0 1-5.656 0"/>
+                                                <path d="M9 10h1.586a1 1 0 0 1 .707.293l.707.707A1 1 0 0 0 12.414 11H15m-3-3V6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1m-4 4V9"/>
+                                                <circle cx="5" cy="19" r="2"/>
+                                                <path d="M5 15V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-2"/>
+                                            </svg>
+                                            ${window.appState?.translate?.('use_for_generation') || 'Use for Generation'}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     <div class="generation-result-details">
@@ -226,17 +308,7 @@ function showGenerationResultModal(item) {
                                 </div>
                             </div>
                         </div>
-                        <div class="result-actions">
-                            <button class="btn btn-success use-for-generation-btn" onclick="useImageForGeneration('${imageSource}', '${item.id}')">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14.828 14.828a4 4 0 0 1-5.656 0"/>
-                                    <path d="M9 10h1.586a1 1 0 0 1 .707.293l.707.707A1 1 0 0 0 12.414 11H15m-3-3V6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1m-4 4V9"/>
-                                    <circle cx="5" cy="19" r="2"/>
-                                    <path d="M5 15V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-2"/>
-                                </svg>
-                                ${window.appState?.translate?.('use_for_generation') || 'Use for Generation'}
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </div>

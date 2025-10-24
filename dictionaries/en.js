@@ -88,6 +88,7 @@ export const en = {
     most_popular: "Most Popular",
     elapsed_time: "Elapsed time:",
     view_history: "View History",
+    history_toggle: "Generation History",
     history_title: "History",
     ai_chat_title: "AI Assistant",
     plan_lite_title: "LITE",

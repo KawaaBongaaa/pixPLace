@@ -160,26 +160,7 @@ window.initPlanCards = function() {
     });
 };
 
-window.initGlassmorphismEffects = function() {
-    const cards = document.querySelectorAll('.plan-card');
 
-    return new Promise((resolve) => {
-        cards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.2}s`;
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-
-            setTimeout(() => {
-                card.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 200);
-        });
-
-        console.log('✨ Glassmorphism effects applied');
-        resolve(true);
-    });
-};
 
 // Отложенная инициализация - модуль загружен, инициализация будет при первом показе модала
 let plansModalInitialized = false;

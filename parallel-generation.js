@@ -851,3 +851,6 @@ const generationManager = new GenerationManager();
 // Экспорт для использования в других файлах
 window.GenerationManager = GenerationManager;
 window.generationManager = generationManager;
+
+// 🔥 Экспорт для ES6 модулей
+export { generationManager, GenerationManager };

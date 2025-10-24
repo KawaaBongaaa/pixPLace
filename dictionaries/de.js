@@ -85,6 +85,7 @@ mode_label: "Modus",
     most_popular: "Beliebteste",
     elapsed_time: "Verstrichene Zeit:",
     view_history: "Verlauf Anzeigen",
+    history_toggle: "Generierungsergebnis",
     history_title: "Verlauf",
     ai_chat_title: "KI-Assistent",
     plan_lite_title: "LITE",
@@ -116,5 +117,28 @@ mode_label: "Modus",
     photo_warning_upload_btn: "Bild hochladen",
     photo_warning_continue_btn: "Ohne weitermachen",
     image_limit_error: "Maximal 4 Bilder. Du kannst noch {{count}} hochladen.",
+
+    // Generation Result Modal
+    generation_result_title: "Generierungsergebnis",
+    date_label: "Datum:",
+    mode_label_modal: "Modus:",
+    charged_label: "Abgebucht:",
+    prompt_label_modal: "Prompt:",
+    use_for_generation: "Für neue Generierung verwenden",
+    reuse_prompt_title: "Generierung mit diesem Prompt wiederholen",
+
+    // Generation Result Modal - Toast Messages
+    image_downloading: "Bild wird heruntergeladen...",
+    link_copied: "Link in die Zwischenablage kopiert!",
+    prompt_applied: "Prompt angewendet! Nach unten scrollen und Generieren klicken",
+
+    // Generation Result Modal - Share
+    share_title: "Mein KI-Bild von pixPLace",
+    share_text: "Schaue dir dieses KI-generierte Bild von pixPLace an!",
+
+    // Additional Messages
+    image_added_success: "Bild für Generierung hinzugefügt!",
+    ui_error_message: "Interface-Fehler:",
+
     load_more_history: "Mehr anzeigen"
 };
