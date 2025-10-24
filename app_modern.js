@@ -63,12 +63,14 @@ const appState = new AppStateManager();
 // Экспортируем appState в window для доступа из параллельной генерации
 window.appState = appState;
 
+// 🔥 ДОБАВЛЕНИЕ: Инициализация дефолтных значений в localStorage при первом запуске
+appState.initializeDefaults();
 
-
-    // 🔥 ДОБАВЛЕНИЕ: Инициализация переводов для обратной совместимости
-    appState.loadSettings();
     // 🔥 ДОБАВЛЕНИЕ: Загрузка баланса из localStorage при старте приложения
     appState.loadBalanceHistory();
+
+    // 🔥 ПЕРЕНОСИМ loadSettings ПОЗЖЕ: загружаем настройки ПЕРЕД ПОКАЗОМ UI
+    // appState.loadSettings(); // УБРАНО СЮДА - NOW AFTER DOM LOADED
 
 
 
@@ -1871,30 +1873,31 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     // 🔥 НЕТ ДУБЛИРОВАНИЯ - язык загружен выше
 
     // 🔥 НОВОЕ: Используем сервисы вместо прямого доступа к appState
+    // Теперь передаем существующий appState в сервисы
     let services; // ОБЪЯВЛЕНИЕ ПЕРЕД TRY
     try {
-        services = await initializeGlobalServices();
+        services = await initializeGlobalServices(appState); // ПЕРЕДАЕМ СУЩЕСТВУЮЩИЙ appState!
     } catch (error) {
         console.error('❌ Failed to initialize global services:', error);
         // Fallback - continue without services for basic functionality
         try {
             services = {
-                appState: new AppStateManager(),
+                appState: appState, // Используем существующий appState в fallback
                 eventBus: null,
                 telegram: null,
                 storage: null,
                 notifications: null,
-                ui: null  // Добавляем ui чтобы избежать undefined ошибки
+                ui: null
             };
         } catch (fallbackError) {
             console.error('❌ Fallback services creation also failed:', fallbackError);
             services = {
-                appState: null,
+                appState: appState, // По крайней мере правильный appState
                 eventBus: null,
                 telegram: null,
                 storage: null,
                 notifications: null,
-                ui: null  // Гарантируем наличие ui
+                ui: null
             };
         }
     }
@@ -1917,6 +1920,22 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     }
 
     console.log('🔄 Eureka Branch:', telegramInitialized ? 'TELEGRAM OK' : 'SHOW AUTH (or TESTING without auth)');
+
+    // 🔥 ДОБАВЛЕНО: ТОЛЬКО ЗДЕСЬ загружаем настройки! После инициализации всех сервисов
+    console.log('🔄 READY TO LOAD SETTINGS - calling loadSettings()');
+    console.log('🔄 Current localStorage:', {
+        appSettings: localStorage.getItem('appSettings'),
+        allKeys: Object.keys(localStorage)
+    });
+    appState.loadSettings();
+    console.log('🎨 Settings loaded, current theme:', appState.theme);
+    console.log('🎨 DOM theme attribute:', document.body.getAttribute('data-theme'));
+    console.log('🎨 System detected theme:', appState.detectSystemTheme());
+    console.log('🎨 Prefers color scheme matches:', {
+        dark: window.matchMedia('(prefers-color-scheme: dark)').matches,
+        light: window.matchMedia('(prefers-color-scheme: light)').matches
+    });
+
     if (!telegramInitialized && !BYPASS_AUTH) {
         // ВРЕМЕННО ОТКЛЮЧЕНО: Если Telegram не доступен, показываем экран авторизации НЕМЕДЛЕННО
         console.log('⚠️ Telegram not available - PROCEEDING WITHOUT AUTH (TEMPORARILY DISABLED)');

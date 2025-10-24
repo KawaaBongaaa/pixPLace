@@ -215,20 +215,11 @@ class StorageService {
         }
     }
 
-    // Загрузка настроек - УПРОЩЕННАЯ! Язык теперь управляется централизованно DictionaryManager
+    // Загрузка настроек - УПРОЩЕННАЯ! Теперь только получает готовые данные от AppState
     loadSettings() {
-        try {
-            // 🔥 РЕМОВЕР: УБРАНА ЛОГИКА ЯЗЫКА - теперь это делает DictionaryManager.determineAndSetBaseLanguage()
-            const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
-
-            if (settings.theme) {
-                this.appState.setTheme(settings.theme);
-            }
-
-            console.log('✅ Settings loaded (language handled centrally)');
-        } catch (error) {
-            console.error('❌ Failed to load settings:', error);
-        }
+        console.log('📋 Services loadSettings: using AppState data (theme already loaded):', this.appState.theme);
+        // 🔥 РЕМОВЕР: НЕ ЗАГРУЖАЕМ ТЕМУ СНОВА - AppState уже загрузил её
+        // Тема и язык теперь управляются централизованно через AppState
     }
 
     // Сохранение истории генераций
@@ -332,10 +323,10 @@ class UIService {
     }
 }
 
-// Фабрика сервисов
-export function createAppServices() {
-    // Создаем менеджер состояния
-    const appState = new AppStateManager();
+// Фабрика сервисов - получает существующий AppStateManager
+export function createAppServices(existingAppState) {
+    // Используем существующий appState или создаем новый
+    const appState = existingAppState || new AppStateManager();
 
     // Создаем сервис событий
     const evBus = eventBus;
