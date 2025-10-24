@@ -1826,7 +1826,7 @@ img.lazy-loaded[data-src] {
 @media (max-width: 768px) {
     .toast-container {
         /* ПОД HEADER НА МОБИЛЬНЫХ */
-        top: rem !important; /* ниже хедера */
+        top: 5rem !important; /* ниже хедера */
         right: var(--space-2);
         left: var(--space-2);
     }

@@ -449,72 +449,13 @@ export function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 
     });
 }
 
-// 🍃 Простые функции снегопада (упрощенная версия для тестов)
-export function createSnowflake() {
-    const snowflake = document.createElement('div');
-    snowflake.className = 'snowflake';
-
-    // 🔥 Реалистичные мелкие символы без окантовки
-    const snowSymbols = ['·', '•', '◦', '*', '⁃', '.'];
-    snowflake.textContent = snowSymbols[Math.floor(Math.random() * snowSymbols.length)];
-
-    // 🔥 Только мелкие размеры для более плотного снегопада
-    const sizes = ['extra-small', 'small', 'mini'];
-    const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
-    snowflake.classList.add(randomSize);
-
-    // 🔥 Расширенная позиция по горизонтали для большего покрытия
-    snowflake.style.left = Math.random() * 150 + 'vw';
-
-    // 🔥 ГАРАНТИРОВАННАЯ СТАРТОВАЯ ПОЗИЦИЯ ВЫШЕ ДИСПЛЕЯ: от -100vh до -20vh (очень высоко!)
-    snowflake.style.top = -(Math.random() * 80 + 20) + 'vh'; // от -100vh до -20vh рандомно
-
-    // 🔥 НЕ ПЛАВНЫЙ СТАРТ: без задержки на старт - мгновенное появление
-    snowflake.style.animationDelay = '0s'; // МГНОВЕННО без задержки!
-
-    // 🔥 ПЛАВНОЕ ПОЯВЛЕНИЕ: добавляем начальную невидимость и fade in в CSS
-    snowflake.style.opacity = '0';
-
-    return snowflake;
-}
-
-export function startSnowfall() {
-    const snowfallContainer = document.querySelector('.snowfall');
-    if (!snowfallContainer) {
-        console.warn('Snowfall container not found');
-        return;
-    }
-
-    // 🔥 БОЛЬШЕ СНЕЖИНОК для плотности
-    const maxSnowflakes = 900;
-    for (let i = 0; i < maxSnowflakes; i++) {
-        const snowflake = createSnowflake();
-        snowfallContainer.appendChild(snowflake);
-    }
-
-    console.log(`❄️ Rich snowfall started - ${maxSnowflakes} snowflakes from above`);
-
-    // 🔥 Периодическая поддержка непрерывности
-    setInterval(() => {
-        if (snowfallContainer.children.length < maxSnowflakes) {
-            const snowflake = createSnowflake();
-            snowfallContainer.appendChild(snowflake);
-        }
-    }, 1400); // каждые 2 секунды добавляем если нужно
-}
-
-export function stopSnowfall() {
-    const snowfallContainer = document.querySelector('.snowfall');
-    if (!snowfallContainer) return;
-
-    // Очищаем все снежинки
-    snowfallContainer.innerHTML = '';
-    console.log('❄️ Snowfall stopped - all snowflakes removed');
-}
+// 🔄 REMOVED: Old JS snowfall functions - migrated to CSS-only approach
+// The snowfall is now handle entirely via CSS with .snowfall-layer containers
+// Performance improved from 900 DOM elements to 0 JS-managed elements
 
 console.log('🎯 Utils module loaded successfully');
 
-// 💰 BALANCE MANAGEMENT - Синхронизация баланса кредитов
+// � BALANCE MANAGEMENT - Синхронизация баланса кредитов
 export function updateUserBalance(newBalance) {
     console.log(`💰 updateUserBalance called with: ${newBalance}`);
 

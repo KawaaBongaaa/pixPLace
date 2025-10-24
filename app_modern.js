@@ -8,7 +8,7 @@ import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
 import { updateUserNameDisplay, updateUserBalanceDisplay, showSubscriptionNotice, showWarningAboutNoImage, toggleModeDetails, showHistory } from './navigation-manager.js';
-import { startSnowfall, readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback } from './utils.js';
+import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback } from './utils.js';
 import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem } from './history-manager.js';
 import { generationManager } from './parallel-generation.js';
@@ -1865,9 +1865,8 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     // 🚀 ПОКАЗАТЬ LOADING SCREEN СРАЗУ (только logo, частицы - ничего не нужно переводить)
     showLoadingScreen();
 
-    // ❄️ СНЕГОПАД НАЧИНАЕТСЯ СРАЗУ ПОСЛЕ ПОКАЗА ЛОАДЭРА!
-    startSnowfall();
-    console.log('❄️ Snowfall started immediately - right after loading screen');
+    // ❄️ СНЕГОПАД: Теперь CSS-only снегопад автоматически включается через CSS :has() селекторы
+    console.log('❄️ CSS-only snowfall is now handled automatically via CSS :has() selectors');
 
     // 🔥 НЕТ ДУБЛИРОВАНИЯ - язык загружен выше
 
