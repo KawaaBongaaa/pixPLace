@@ -24,7 +24,7 @@ import { generationManager } from './parallel-generation.js';
  * Set to true to skip authentication for development/testing.
  * Set back to false before production deployment.
  */
-const BYPASS_AUTH = false; // CHANGE TO FALSE BEFORE DEPLOYMENT!
+const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 
 // Configuration
 const CONFIG = {
@@ -584,20 +584,6 @@ class HistoryManager {
 
 
 // 🎯 Utility Functions
-function showStatus(type, message) {
-    const statusBar = document.getElementById('statusBar');
-    const statusText = document.querySelector('.status-text');
-
-    if (statusBar && statusText) {
-        statusText.textContent = message;
-        statusBar.className = `status-bar ${type} show`;
-
-        setTimeout(() => {
-            statusBar.classList.remove('show');
-        }, 3000);
-    }
-}
-
 // showToast функция теперь импортируется из screen-manager.js
 
     // Экспортируем другие функции для параллельной генерации
