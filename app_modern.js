@@ -24,7 +24,7 @@ import { generationManager } from './parallel-generation.js';
  * Set to true to skip authentication for development/testing.
  * Set back to false before production deployment.
  */
-const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
+const BYPASS_AUTH = false; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 
 // Configuration
 const CONFIG = {
@@ -602,7 +602,7 @@ class HistoryManager {
     console.log('- showWarningAboutNoImage:', typeof showWarningAboutNoImage);
     console.log('- showScreen, showApp, showResult, displayFullResult:', typeof showScreen, typeof showApp, typeof showResult, typeof displayFullResult);
     console.log('- updateUserNameDisplay, updateUserBalanceDisplay:', typeof updateUserNameDisplay, typeof updateUserBalanceDisplay);
-    console.log('- startSnowfall, readFileAsDataURL, maybeCompressImage:', typeof startSnowfall, typeof readFileAsDataURL, typeof maybeCompressImage);
+    console.log('- readFileAsDataURL, maybeCompressImage:', typeof readFileAsDataURL, typeof maybeCompressImage);
     console.log('- updateHistoryItemWithImage:', typeof updateHistoryItemWithImage);
     console.log('- createLoadingHistoryItem:', typeof createLoadingHistoryItem);
     console.log('- viewHistoryItem:', typeof viewHistoryItem);
@@ -1868,7 +1868,7 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     showLoadingScreen();
 
     // ❄️ СНЕГОПАД: Теперь CSS-only снегопад автоматически включается через CSS :has() селекторы
-    console.log('❄️ CSS-only snowfall is now handled automatically via CSS :has() selectors');
+
 
     // 🔥 НЕТ ДУБЛИРОВАНИЯ - язык загружен выше
 

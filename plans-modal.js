@@ -145,7 +145,7 @@ window.initPlanCards = function() {
 
             // Эффекты при наведении
             card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-12px) scale(1.03)';
+                card.style.transform = 'translateY(-8px) scale(1.03)';
             });
 
             card.addEventListener('mouseleave', () => {
