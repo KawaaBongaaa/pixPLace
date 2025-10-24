@@ -493,8 +493,12 @@ class GenerationManager {
                                 console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
                                 visualUpdateDone = true;
                             } else {
-                                console.warn(`⚠️ Preview replacement failed (history closed: ${!isHistoryClosed}), not updating DOM`);
-                                // НЕ используем fallback когда история закрыта - обновление будет при следующем открытии
+                                console.warn(`⚠️ Preview replacement failed - using mandatory fallback`);
+                                // ДОБАВИЛИ: ОБЯЗАТЕЛЬНЫЙ FALLBACK когда replaceLoadingWithPreview вернул false
+                                if (window.updateHistoryItemWithImage) {
+                                    window.updateHistoryItemWithImage(generation.id, response.image_url);
+                                    visualUpdateDone = true;
+                                }
                             }
                         } else {
                             console.warn('❌ replaceLoadingWithPreview not available');

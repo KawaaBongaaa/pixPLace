@@ -320,9 +320,12 @@ export function showSubscriptionNotice(result) {
     }
 }
 
-// Функция из app_modern.js - showWarningAboutNoImage (упрощенная версия без конфликтов с импортами)
+// Функция из app_modern.js - showWarningAboutNoImage (исправленная версия с улучшенным удалением overlay)
 export async function showWarningAboutNoImage() {
     return new Promise((resolve) => {
+        // Флаг для предотвращения двойного удаления
+        let isResolved = false;
+
         // Создаем оверлей и модал
         const overlay = document.createElement('div');
         overlay.id = 'photo-warning-overlay';
@@ -425,41 +428,109 @@ export async function showWarningAboutNoImage() {
             modal.style.transform = 'translateY(0)';
         });
 
+        // Функция безопасного удаления overlay
+        const safeRemoveOverlay = () => {
+            console.log('🔧 Attempting to remove photo-warning-overlay...');
+
+            try {
+                // Проверяем существует ли overlay еще
+                if (overlay && overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                    console.log('✅ Overlay successfully removed from DOM');
+                } else {
+                    console.log('⚠️ Overlay already removed or not in DOM');
+                }
+            } catch (error) {
+                console.error('❌ Error removing overlay:', error);
+            }
+
+            try {
+                // Безопасное удаление стиля
+                if (style && style.parentNode) {
+                    style.parentNode.removeChild(style);
+                    console.log('✅ Hover styles successfully removed');
+                } else {
+                    console.log('⚠️ Hover styles already removed');
+                }
+            } catch (error) {
+                console.error('❌ Error removing hover styles:', error);
+            }
+        };
+
+        // Функция резолва с проверкой двойного вызова
+        const safeResolve = (value) => {
+            if (isResolved) {
+                console.log('⚠️ Attempted to resolve already resolved promise');
+                return;
+            }
+            isResolved = true;
+            console.log(`🔧 Resolving promise with: ${value}`);
+            resolve(value);
+        };
+
         // Обработчики кнопок
         const uploadBtn = modal.querySelector('#upload-image-btn');
         const continueBtn = modal.querySelector('#continue-without-btn');
 
         uploadBtn.addEventListener('click', () => {
-            // Закрываем модал
-            overlay.style.opacity = '0';
-            modal.style.transform = 'translateY(20px)';
+            console.log('🖱️ Upload Image button clicked');
+
+            // 🔥 КРИТИЧНОЕ ИСПРАВЛЕНИЕ: ГАРАНТИРОВАННОЕ НЕМЕДЛЕННОЕ УДАЛЕНИЕ OVERLAY
+            // Мгновенное скрытие без анимации для предотвращения "залипания"
+            overlay.style.display = 'none';
+
+            // Синхронное forceful удаление из DOM
+            try {
+                if (overlay && overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                    console.log('🚨 FORCE REMOVED overlay immediately after upload click');
+                }
+            } catch (error) {
+                console.error('❌ Failed force removal:', error);
+            }
+
+            // 🔥 ЕДИНСТВЕННОЕ УДАЛЕНИЕ - больше не дублируется!
+            // CSS переходы можно игнорировать с display: none
+            // Но реальный DOM элемент нужно убрать немедленно
+
+            // Прокручиваем к кнопке загрузки изображения
             setTimeout(() => {
-                document.body.removeChild(overlay);
-                document.head.removeChild(style);
-                resolve(false); // false значит не продолжаем генерацию, пользователь пойдет загружать изображение
-            }, 300);
+                const chooseBtn = document.getElementById('chooseUserImage');
+                if (chooseBtn) {
+                    chooseBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    console.log('📋 Scrolled to upload button after modal close');
+                }
+            }, 100);
+
+            safeResolve(false); // false значит не продолжаем генерацию, пользователь пойдет загружать изображение
         });
 
         continueBtn.addEventListener('click', () => {
+            console.log('🖱️ Continue without button clicked');
             // Закрываем модал
             overlay.style.opacity = '0';
             modal.style.transform = 'translateY(20px)';
             setTimeout(() => {
-                document.body.removeChild(overlay);
-                document.head.removeChild(style);
-                resolve(true); // true значит продолжаем генерацию
+                safeRemoveOverlay();
+                // 🔥 ДОБАВЛЕНО: Создаем превью карточку после выбора "Continue without"
+                if (window.createPreviewForGeneration && window.currentGeneration) {
+                    console.log('🎯 Creating preview after Continue without button clicked');
+                    window.createPreviewForGeneration(window.currentGeneration);
+                }
+                safeResolve(true); // true значит продолжаем генерацию
             }, 300);
         });
 
         // Закрытие по клику на оверлей
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
+                console.log('🖱️ Overlay background clicked');
+                // Закрываем модал
                 overlay.style.opacity = '0';
                 modal.style.transform = 'translateY(20px)';
                 setTimeout(() => {
-                    document.body.removeChild(overlay);
-                    document.head.removeChild(style);
-                    resolve(false); // Закрытие = отмена генерации
+                    safeRemoveOverlay();
+                    safeResolve(false); // Закрытие = отмена генерации
                 }, 300);
             }
         });

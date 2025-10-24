@@ -120,7 +120,7 @@ class HistoryManagement {
 
             loadingCaption.innerHTML = `
         <span class="complete-status">✅ Complete</span><br>
-        <small class="history-date">${new Date().toLocaleDateString()} | ${style || 'unknown'} | ${mode || 'unknown'}</small>
+        <small class="history-date">${new Date().toLocaleDateString()} | ${translate('style_' + style, window.appState) || style || 'unknown'} | ${translate('mode_' + mode, window.appState) || mode || 'unknown'}</small>
     `;
 
             // Добавляем мягкую анимацию изменения текста
@@ -217,7 +217,7 @@ function replaceLoadingWithPreview(taskUUID, generationData) {
             generationData.mode : 'photo_session';
             caption.innerHTML = `
             <span class="complete-status">✅ Complete</span><br>
-            <small class="history-date">${new Date().toLocaleDateString()} | ${generationData.style || 'unknown'} | ${safeMode || 'unknown'}</small>
+            <small class="history-date">${new Date().toLocaleDateString()} | ${translate('style_' + generationData.style, window.appState) || generationData.style || 'unknown'} | ${translate('mode_' + safeMode, window.appState) || safeMode || 'unknown'}</small>
         `;
 
         // Добавляем анимацию изменения текста
@@ -670,7 +670,7 @@ function updateHistoryDisplay(page = 0) {
                     <div>Изображение недоступно</div>
                     <div style="font-size: 10px; margin-top: 2px;">Повторите генерацию</div>
                 </div>
-                        <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${item.style || 'unknown'} | ${item.mode || 'unknown'}</p>
+                        <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
 
             <!-- 🔥 ДОБАВЛЕНИЕ: Сохраняем состояние для восстановления! -->
             <script type="application/json" class="generation-state" style="display:none;">
@@ -696,7 +696,7 @@ function updateHistoryDisplay(page = 0) {
                      loading="lazy"
                      decoding="async"
                      />
-                        <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${item.style || 'unknown'} | ${item.mode || 'unknown'}</p>
+                        <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
             `;
 
             historyList.appendChild(element);
@@ -922,7 +922,7 @@ function showAllHistory() {
                  decoding="async"
                  ${item.result ? '' : 'style="opacity: 0.7;"'}
                  />
-            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${window.appState.translate('style_' + item.style)} | $${item.credits || 'N/A'}</p>
+            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
         `;
 
         return element.outerHTML;

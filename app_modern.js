@@ -2051,8 +2051,9 @@ async function generateImage(event) {
     // Загрузочные превью будут созданы без истории, история добавится только при успешном compleition
     console.log('📋 Generation object created, history will be added only on successful completion');
 
-    setTimeout(() => {
-        console.log('🚀 Starting preview creation in generateImage (FORCED TO HISTORY) - GEN:', generation.id);
+    // Функция создания превью карточки (доступна глобально для callback из модального окна)
+    window.createPreviewForGeneration = (gen) => {
+        console.log('🚀 Starting preview creation in createPreviewForGeneration - GEN:', gen.id);
 
         const historyList = document.getElementById('historyList');
         const historyBtn = document.getElementById('historyToggleBtn');
@@ -2061,11 +2062,11 @@ async function generateImage(event) {
 
         // 📍 2. Создаем превью элемент
         console.log('🔧 Calling createLoadingHistoryItem...');
-        const previewItem = createLoadingHistoryItem(generation);
+        const previewItem = createLoadingHistoryItem(gen);
         console.log('✅ Preview item created:', previewItem ? 'SUCCESS' : 'FAILED', previewItem);
 
         // 📍 ПРОВЕРКА: Есть ли элемент в DOM после создания?
-        const checkElement = document.getElementById(`loading-${generation.id}`);
+        const checkElement = document.getElementById(`loading-${gen.id}`);
         console.log('🔍 Check - element exists in DOM:', !!checkElement);
         if (checkElement) {
             console.log('🎯 Element DOM details:', {
@@ -2089,7 +2090,7 @@ async function generateImage(event) {
 
         // 📍 4. НЕМЕДЛЕННАЯ ПРОКРУТКА К НОВОМУ ПРЕВЬЮ
         setTimeout(() => {
-            const finalElement = document.getElementById(`loading-${generation.id}`);
+            const finalElement = document.getElementById(`loading-${gen.id}`);
             console.log('🎯 Scrolling attempt - element exists:', !!finalElement);
 
             if (finalElement) {
@@ -2101,9 +2102,9 @@ async function generateImage(event) {
                 });
                 console.log('📋 Scrolled to new preview successfully');
             } else {
-                console.error('❌ Preview element NOT found for scrolling, generation:', generation.id);
+                console.error('❌ Preview element NOT found for scrolling, generation:', gen.id);
                 // ☠️ ЭКСТРЕНАЯ МЕРА: Принудительно пересоздаем элемент
-                const emergencyPreview = createLoadingHistoryItem(generation);
+                const emergencyPreview = createLoadingHistoryItem(gen);
                 if (emergencyPreview) {
                     emergencyPreview.scrollIntoView({
                         behavior: 'smooth',
@@ -2115,16 +2116,26 @@ async function generateImage(event) {
             }
         }, 300); // Ждем открытия истории
 
-        console.log('📋 Generation preview flow completed for:', generation.id);
-    }, 100);
+        console.log('📋 Generation preview flow completed for:', gen.id);
+    };
+
+    // Создаем превью СРАЗУ для всех режимов КРОМЕ photo_session без изображений
+    if (!(mode === 'photo_session' && userImageState.images.length === 0)) {
+        console.log('🎯 Creating preview immediately for mode:', mode);
+        window.createPreviewForGeneration(generation);
+    } else {
+        console.log('⚠️ Skipping preview creation for photo_session without images - will create after modal choice');
+    }
 
     // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session без изображения ===
     if (mode === 'photo_session' && userImageState.images.length === 0) {
+        // 🔥 ДОБАВЛЕНО: Сохраняем generation в глобальную переменную для доступа из модального окна
+        window.currentGeneration = generation;
+
         // Останавливаем немедленную генерацию и показываем предупреждение
         const shouldContinue = await showWarningAboutNoImage();
         if (!shouldContinue) {
-            // Пользователь решил добавить изображение - моргает кнопка загрузки
-            startUploadButtonBlink();
+            // Пользователь решил добавить изображение - прокрутка к кнопке загрузки теперь в модальном окне
             showGeneration();
             return; // НЕ отправляем webhook
         }
