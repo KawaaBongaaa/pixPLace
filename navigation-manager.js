@@ -159,15 +159,33 @@ export function showHistory() {
 }
 
 // Функция из app_modern.js - showSubscriptionNotice
-export function showSubscriptionNotice(result) {
+export function showSubscriptionNotice(result, limitType = 'trial') {
     console.log('🔗 Full result object:', result);
     console.log('🔗 Payment URLs from result:', result.payment_urls);
+    console.log('🔗 Limit type:', limitType);
 
     const modal = document.getElementById('limitModal');
     if (!modal) {
         console.error('❌ Modal not found!');
         return;
     }
+
+    // Получаем тексты из словаря по выбранному языку
+    const title = appState?.translate(limitType === 'premium' ? 'premium_limit_title' : 'limit_title');
+    const message = appState?.translate(limitType === 'premium' ? 'premium_limit_message' : 'limit_message');
+
+    // Динамически устанавливаем текст модального окна
+    const titleElement = modal.querySelector('.limit-title');
+    const messageElement = modal.querySelector('.limit-message');
+
+    if (titleElement) {
+        titleElement.textContent = title || 'Generation Limit Reached';  // Fallback английский
+    }
+    if (messageElement) {
+        messageElement.textContent = message || 'Your credits are depleted. Upgrade for more!';  // Fallback английский
+    }
+
+    console.log('📝 Set modal text for limit type:', limitType, { title, message });
 
     // 🔍 ДИАГНОСТИКА: Проверяем все элементы которые могут быть поверх модального окна
     console.log('🔍 DIAGNOSING modal overlay elements...');

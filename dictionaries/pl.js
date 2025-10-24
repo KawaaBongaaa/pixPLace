@@ -26,6 +26,7 @@ export const pl = {
     style_logo: "Logo",
     style_minimalism: "style_minimalism",
     style_banner: "Baner",
+    style_infographic: "Infografika",
     mode_label: "Tryb",
     mode_background_removal: "Usuń tło",
     mode_upscale_image: "Popraw obraz",

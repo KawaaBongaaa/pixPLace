@@ -442,16 +442,14 @@ class GenerationManager {
             }
 
             // Проверка лимитов кредитов
-            const limitReached = response.limit_reached === true ||
-                response.limit_reached === 'true' ||
-                response.limit_reached === '1' ||
-                response.limit_reached === 1;
+            const limitType = (response.limit_reached === true || response.limit_reached === 'true' || response.limit_reached === '1' || response.limit_reached === 1) ? 'trial' :
+                             (response.premium_limit_reached === true || response.premium_limit_reached === 'true' || response.premium_limit_reached === '1' || response.premium_limit_reached === 1) ? 'premium' : null;
 
-            if (limitReached) {
-                console.log(`🚨 CREDIT LIMIT REACHED: ${response.message || 'Generation limit reached'}`);
+            if (limitType) {
+                console.log(`🚨 ${limitType.toUpperCase()} LIMIT REACHED: ${response.message || 'Generation limit reached'}`);
                 generation.status = 'limit';
                 if (window.showSubscriptionNotice) {
-                    window.showSubscriptionNotice(response);
+                    window.showSubscriptionNotice(response, limitType);
                 }
                 if (window.showToast) {
                     window.showToast('warning', response.message || 'Generation limit reached');
