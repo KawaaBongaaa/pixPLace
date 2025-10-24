@@ -1890,17 +1890,17 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
             img.decoding = 'async';
         });
 
-        // 🔥 ТОЧНЫЙ КОНТРОЛЬ: НЕМЕДЛЕННО - показать экран авторизации поскольку Telegram недоступен
+        // 🔥 ТОЧНЫЙ КОНТРОЛЬ: 2 СЕКУНДЫ - ДОСТАТОЧНО ДЛЯ ЗАВЕРШЕНИЯ АНИМАЦИЙ
         const finishLoading = () => {
             hideLoadingScreen();
             showAuth();
             initAICoach();
-            console.log('✅ Загрузочный экран скрыт - показан экран авторизации');
+            console.log('✅ Загрузочный экран скрыт через 2 секунды - показан экран авторизации');
         };
 
-        // НЕМЕДЛЕННАЯ ЗАГРУЗКА - без таймаута!
-        console.log('⏳ Начинаем немедленную загрузку интерфейса');
-        finishLoading();
+        // Принудительный таймаут 2 секунды - анимациям хватает времени завершиться
+        console.log('⏳ Начинаем отсчет 2 секунд для анимаций');
+        setTimeout(finishLoading, 2000);
 
     } else {
         // Telegram доступен - обычный поток
@@ -1921,19 +1921,19 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
             img.decoding = 'async';
         });
 
-        // 🔥 ТОЧНЫЙ КОНТРОЛЬ: 2 СЕКУНДЫ - ДОСТАТОЧНО ДЛЯ ЗАВЕРШЕНИЯ АНИМАЦИЙ
+        // 🔥 ТОЧНЫЙ КОНТРОЛЬ: НЕМЕДЛЕННЫЙ ЗАПУСК ПОСЛЕ ИНИЦИАЛИЗАЦИИ
         const finishLoading = () => {
             hideLoadingScreen();
             showApp();
             updateUserBalanceDisplay(appState.userCredits);
             updateUserNameDisplay(); // 🔥 ДОБАВЛЕНО: Обновление отображения имени пользователя после авторизации
             initAICoach();
-            console.log('✅ Загрузочный экран скрыт через 2 секунды - нормальный поток');
+            console.log('✅ Загрузочный экран скрыт немедленно - быстрый запуск');
         };
 
-        // Принудительный таймаут 2 секунды - анимаций хватает времени завершиться
-        console.log('⏳ Начинаем отсчет 2 секунд для анимаций');
-        setTimeout(finishLoading, 2000);
+        // Принудительный немедленный запуск без задержки
+        console.log('🚀 Запуск приложения немедленно');
+        finishLoading();
     }
 });
 
