@@ -120,15 +120,9 @@ export class AppStateManager {
         const oldTheme = this.state.theme;
         this.updateState({ theme });
 
-        // 🔥 ИСПРАВЛЕНИЕ ДЛЯ 'AUTO' ТЕМЫ: Определяем системную тему на лету
-        let appliedTheme = theme;
-        if (theme === 'auto') {
-            appliedTheme = this.detectSystemTheme();
-            console.log('🎨 Auto theme detected as:', appliedTheme);
-        }
-
-        document.body.setAttribute('data-theme', appliedTheme);
-        console.log('🎨 Theme set to:', theme, 'applied DOM attribute:', appliedTheme, '(was:', oldTheme, ')');
+        // 🔥 ИСПРАВЛЕНИЕ ДЛЯ 'AUTO' ТЕМЫ: Используем 'auto' напрямую для CSS media queries
+        document.body.setAttribute('data-theme', theme);
+        console.log('🎨 Theme set to:', theme, 'DOM attribute:', theme, '(was:', oldTheme, ')');
 
         // 🔥 ДОБАВЛЕНИЕ: Сохраняем тему сразу при изменении!
         this.saveSettings();
