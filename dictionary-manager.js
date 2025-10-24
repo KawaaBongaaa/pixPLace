@@ -42,7 +42,7 @@ class DictionaryManager {
             }
 
             // 2. ПРОВЕРЯЕМ TELEGRAM ТОЛЬКО ЕСЛИ НЕТ ПОЛЬЗОВАТЕЛЬСКОГО ВЫБОРА
-            if (baseLang === 'en' || !settings.isLanguageSetByUser) {
+            if (!settings.isLanguageSetByUser) {
                 try {
                     // Доступен ли Telegram SDK?
                     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
