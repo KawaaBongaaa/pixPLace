@@ -138,6 +138,7 @@ export const ru = {
     prompt_label_modal: "Промпт:",
     use_for_generation: "Использовать изображение для новой генерации",
     reuse_prompt_title: "Повторить генерацию с этим промптом",
+    reuse_prompt: "Повторить",
 
     // Generation Result Modal - Toast Messages
     image_downloading: "Изображение скачивается...",

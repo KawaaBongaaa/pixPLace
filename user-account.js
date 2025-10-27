@@ -280,7 +280,12 @@ function showGenerationResultModal(item) {
 
                         <div class="result-prompt-container">
                             <div class="prompt-input-row">
-                                <button class="reuse-prompt-btn theme-colored" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="${window.appState?.translate?.('reuse_prompt_title') || 'Repeat generation with this prompt'}">
+                                <div class="prompt-text-area">
+                                    <div class="prompt-label">${window.appState?.translate?.('prompt_label_modal') || 'Prompt:'}</div>
+                                   <div class="prompt-text">${safeDescription}</div>
+                                </div>
+                                <button class="reuse-prompt-btn" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="${window.appState?.translate?.('reuse_prompt_title') || 'Repeat generation with this prompt'}">
+                                    <span class="reuse-btn-text">${window.appState?.translate?.('reuse_prompt') || 'Повторить'}</span>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                                         <polyline points="17,1 21,5 17,9"></polyline>
                                         <path d="M3,11V9a4,4,0,0,1,4-4h14"></path>
@@ -288,10 +293,6 @@ function showGenerationResultModal(item) {
                                         <path d="M21,13v2a4,4,0,0,1-4,4H3"></path>
                                     </svg>
                                 </button>
-                                <div class="prompt-text-area">
-                                    <div class="prompt-label">${window.appState?.translate?.('prompt_label_modal') || 'Prompt:'}</div>
-                                   <div class="prompt-text">${safeDescription}</div>
-                                </div>
                             </div>
                         </div>
 

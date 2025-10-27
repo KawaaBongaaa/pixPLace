@@ -141,6 +141,7 @@ export const en = {
     prompt_label_modal: "Prompt:",
     use_for_generation: "Use image for new Generation",
     reuse_prompt_title: "Repeat generation with this prompt",
+    reuse_prompt: "Repeat",
 
     // Generation Result Modal - Toast Messages
     image_downloading: "Image downloading...",

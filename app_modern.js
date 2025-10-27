@@ -24,7 +24,7 @@ import { generationManager } from './parallel-generation.js';
  * Set to true to skip authentication for development/testing.
  * Set back to false before production deployment.
  */
-const BYPASS_AUTH = false; // CHANGE TO FALSE BEFORE DEPLOYMENT!
+const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 
 // Configuration
 const CONFIG = {
