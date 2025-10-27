@@ -24,37 +24,105 @@ export function updateUserBalance(newBalance) {
     console.log(`💰 updateUserBalance called with: ${newBalance} (type: ${typeof newBalance})`);
 
     try {
-        // 1. Обновляем appState
-        if (window.appState) {
-            const oldCredits = window.appState.userCredits;
-            window.appState.userCredits = newBalance;
-            console.log(`✅ appState.userCredits updated from ${oldCredits} to: ${newBalance}`);
+        // 🔥 ИСПРАВЛЕНИЕ: Более надежная валидация входного значения
+        if (newBalance === null || newBalance === undefined || isNaN(newBalance)) {
+            console.warn(`⚠️ Invalid balance value: ${newBalance}, skipping update`);
+            return;
         }
 
-        // 2. Добавляем в историю баланса
+        const numericBalance = parseFloat(newBalance);
+        console.log(`🔧 Converted balance to: ${numericBalance} (from: ${newBalance})`);
+
+        // 1. Обновляем appState с дополнительной защитой
+        if (window.appState) {
+            const oldCredits = window.appState.userCredits;
+            window.appState.userCredits = numericBalance;
+
+            // 🔥 ИСПРАВЛЕНИЕ: Прямое присвоение через state.user.credits для синхронизации
+            if (window.appState.state && window.appState.state.user) {
+                window.appState.state.user.credits = numericBalance;
+            }
+
+            console.log(`✅ appState.userCredits updated from ${oldCredits} to: ${numericBalance}`);
+        }
+
+        // 2. Добавляем в историю баланса с дополнительными проверками
         if (window.appState && window.appState.balanceHistory) {
             const entry = {
-                balance: newBalance,
+                balance: numericBalance,
                 timestamp: Date.now(),
                 reason: 'generation_complete'
             };
             window.appState.balanceHistory.push(entry);
-            window.appState.saveBalanceHistory();
-            window.appState.saveCurrentBalance(); // 🔥 НОВОЕ: Дублируем сохранение текущего баланса для надежности
+
+            // 🔥 ИСПРАВЛЕНИЕ: Убеждаемся что функции сохранения доступны
+            if (typeof window.appState.saveBalanceHistory === 'function') {
+                window.appState.saveBalanceHistory();
+            }
+            if (typeof window.appState.saveCurrentBalance === 'function') {
+                window.appState.saveCurrentBalance(); // 🔥 НОВОЕ: Дублируем сохранение текущего баланса для надежности
+            } else {
+                // 🔥 ДОБАВЛЕНИЕ: Резервное прямое сохранение в localStorage
+                try {
+                    localStorage.setItem('currentBalance', numericBalance.toString());
+                    console.log('💾 Emergency balance save to localStorage:', numericBalance);
+                } catch (emergencyError) {
+                    console.error('❌ Emergency balance save failed:', emergencyError);
+                }
+            }
+
             console.log(`📊 Balance history entry added: ${entry.balance} credits, history length: ${window.appState.balanceHistory.length}`);
+        } else {
+            console.warn('⚠️ appState.balanceHistory not available, using direct localStorage save');
+            try {
+                localStorage.setItem('currentBalance', numericBalance.toString());
+            } catch (error) {
+                console.error('❌ Direct localStorage save failed:', error);
+            }
         }
 
         // 3. Обновляем UI через существующую функцию из navigation-manager
-        console.log(`🔄 About to call updateUserBalanceDisplay with: ${newBalance}`);
+        console.log(`🔄 About to call updateUserBalanceDisplay with: ${numericBalance}`);
         if (window.updateUserBalanceDisplay) {
-            window.updateUserBalanceDisplay(newBalance, 'webhook_update');
+            window.updateUserBalanceDisplay(numericBalance, 'webhook_update');
             console.log(`🔄 updateUserBalanceDisplay called successfully`);
         } else {
             console.warn('⚠️ updateUserBalanceDisplay function not available');
         }
 
+        // 🔥 ДОБАВЛЕНИЕ: Финальная проверка что баланс сохранен
+        setTimeout(() => {
+            try {
+                const savedBalance = localStorage.getItem('currentBalance');
+                if (savedBalance !== numericBalance.toString()) {
+                    console.warn('⚠️ Balance save verification failed:', {
+                        expected: numericBalance.toString(),
+                        saved: savedBalance
+                    });
+                    localStorage.setItem('currentBalance', numericBalance.toString());
+                    console.log('🔧 Balance re-saved after verification failure');
+                } else {
+                    console.log('✅ Balance save verified successfully:', numericBalance);
+                }
+            } catch (verifyError) {
+                console.error('❌ Balance verification failed:', verifyError);
+            }
+        }, 100);
+
     } catch (error) {
         console.error('❌ Error in updateUserBalance:', error);
+        // 🔥 ДОБАВЛЕНИЕ: Экстренное сохранение при ошибке
+        try {
+            if (newBalance !== null && newBalance !== undefined) {
+                const numericBalance = parseFloat(newBalance);
+                if (!isNaN(numericBalance)) {
+                    localStorage.setItem('currentBalance', numericBalance.toString());
+                    console.log('🚨 Emergency balance save on error:', numericBalance);
+                }
+            }
+        } catch (emergencyError) {
+            console.error('❌ Emergency save also failed:', emergencyError);
+        }
     }
 }
 

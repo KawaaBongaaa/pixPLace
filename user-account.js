@@ -277,21 +277,7 @@ function showGenerationResultModal(item) {
                                 </div>
                             </div>
                         </div>
-                    <div class="generation-result-details">
-                        <div class="result-meta">
-                            <div class="result-meta-item">
-                                <span class="meta-label">${window.appState?.translate?.('date_label') || 'Date:'}</span>
-                                <span class="meta-value">${itemDate.toLocaleString()}</span>
-                            </div>
-                            <div class="result-meta-item">
-                                <span class="meta-label">${window.appState?.translate?.('mode_label_modal') || 'Mode:'}</span>
-                                <span class="meta-value">${window.appState?.translate?.('mode_' + getStyleName('') || getStyleName('')) || 'AI Generation'}</span>
-                            </div>
-                            <div class="result-meta-item">
-                                <span class="meta-label">${window.appState?.translate?.('charged_label') || 'Charged:'}</span>
-                                <span class="meta-value amount-negative">${Math.abs(costAmount)} ${currency}</span>
-                            </div>
-                        </div>
+
                         <div class="result-prompt-container">
                             <div class="prompt-input-row">
                                 <button class="reuse-prompt-btn theme-colored" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="${window.appState?.translate?.('reuse_prompt_title') || 'Repeat generation with this prompt'}">
@@ -309,6 +295,21 @@ function showGenerationResultModal(item) {
                             </div>
                         </div>
 
+                    <div class="generation-result-details">
+                        <div class="result-meta">
+                            <div class="result-meta-item">
+                                <span class="meta-label">${window.appState?.translate?.('date_label') || 'Date:'}</span>
+                                <span class="meta-value">${itemDate.toLocaleString()}</span>
+                            </div>
+                            <div class="result-meta-item">
+                                <span class="meta-label">${window.appState?.translate?.('mode_label_modal') || 'Mode:'}</span>
+                                <span class="meta-value">${window.appState?.translate?.('mode_' + getStyleName('') || getStyleName('')) || 'AI Generation'}</span>
+                            </div>
+                            <div class="result-meta-item">
+                                <span class="meta-label">${window.appState?.translate?.('charged_label') || 'Charged:'}</span>
+                                <span class="meta-value amount-negative">${Math.abs(costAmount)} ${currency}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

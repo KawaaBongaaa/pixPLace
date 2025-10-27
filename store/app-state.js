@@ -300,7 +300,18 @@ export class AppStateManager {
         const existingBalanceBackup = localStorage.getItem('currentBalance');
         const balanceValue = existingBalanceBackup ? parseFloat(existingBalanceBackup) : NaN;
 
-        if (!existingBalanceBackup || isNaN(balanceValue) || balanceValue < 0) {
+        // 🔥 ИСПРАВЛЕНИЕ: Приоритет currentBalance над любыми другими инициализациями
+        if (existingBalanceBackup && !isNaN(balanceValue) && balanceValue >= 0) {
+            console.log('💰 Valid balance backup found:', balanceValue, '- using as primary balance');
+            this.updateState({
+                user: {
+                    ...this.state.user,
+                    credits: balanceValue
+                }
+            });
+            this.state.user.credits = balanceValue; // 🔥 ДОБАВЛЕНИЕ: Прямое присвоение
+            this.saveCurrentBalance(); // Подтверждаем сохранение валидного баланса
+        } else {
             console.log('💰 No valid balance backup found, initializing with 20 credits...');
             // Очищаем поврежденные данные
             if (existingBalanceBackup !== null) {
@@ -317,8 +328,6 @@ export class AppStateManager {
             this.state.user.credits = 20; // 🔥 ДОБАВЛЕНИЕ: Прямое присвоение
             console.log('💰 State directly set to:', this.state.user.credits);
             this.saveCurrentBalance(); // Сохраняем начальный баланс
-        } else {
-            console.log('💰 Valid balance backup found:', balanceValue);
         }
 
         console.log('✅ Defaults initialized successfully');
@@ -326,169 +335,69 @@ export class AppStateManager {
 
     loadBalanceHistory() {
         try {
-            const storedHistory = localStorage.getItem('balanceHistory');
-            console.log('💰 Loading balance history from localStorage:', storedHistory);
+            // 🔥 ИСПРАВЛЕНИЕ: ПРИОРИТЕТ ПРЯМОГО БЭКАПА BALANCE НАД HISTORIAЙ
+            // Сначала проверяем currentBalance, так как ЭТО основной источник баланса
+            const directBalance = localStorage.getItem('currentBalance');
+            console.log('💰 Loading balance: checking direct backup first...');
 
-            if (storedHistory) {
-                const history = JSON.parse(storedHistory);
-                console.log('✅ Parsed balance history:', history);
+            if (directBalance !== null) {
+                const balanceValue = parseFloat(directBalance);
+                console.log('🧮 currentBalance found:', directBalance, 'parsed as:', balanceValue, 'isNaN:', isNaN(balanceValue), 'valid:', !isNaN(balanceValue) && balanceValue >= 0);
 
-                if (Array.isArray(history)) {
-                    this.updateState({ balanceHistory: history });
-
-                    // Инициализируем текущий баланс самым свежим значением из истории
-                    if (history.length > 0) {
-                        const latestEntry = history[history.length - 1];
-                        if (latestEntry && typeof latestEntry.balance === 'number') {
-                            console.log('🪙 Setting current balance to:', latestEntry.balance);
-                            this.updateState({
-                                user: {
-                                    ...this.state.user,
-                                    credits: latestEntry.balance
-                                }
-                            });
-                        } else {
-                            console.warn('⚠️ Latest balance entry is invalid:', latestEntry);
+                if (!isNaN(balanceValue) && balanceValue >= 0) {
+                    console.log('🪙 ☝️ PRIMARY: Using currentBalance as main balance:', balanceValue);
+                    this.updateState({
+                        user: {
+                            ...this.state.user,
+                            credits: balanceValue
                         }
-                    } else {
-                        console.log('📭 No balance history entries found - checking direct backup...');
-                        // 🔥 НОВОЕ: Проверить бэкап даже при пустой истории
-                        const directBalance = localStorage.getItem('currentBalance');
-                        console.log('🔍 DEBUG: directBalance from localStorage:', directBalance, 'type:', typeof directBalance);
-
-                        if (directBalance !== null) {
-                            const balance = parseFloat(directBalance);
-                            console.log('🧮 DEBUG: parsed balance:', balance, 'isNaN:', isNaN(balance), 'balance >= 0:', balance >= 0);
-
-                            if (!isNaN(balance) && balance >= 0) {
-                                console.log('🪙 Loaded balance from direct backup:', balance);
-                                this.updateState({
-                                    balanceHistory: [],
-                                    user: {
-                                        ...this.state.user,
-                                        credits: balance
-                                    }
-                                });
-                                // 🔥 ДОБАВЛЕНИЕ: Прямое присвоение credits чтоб избежать racing conditions
-                                this.state.user.credits = balance;
-                                console.log('💰 State directly set to:', this.state.user.credits);
-                            } else {
-                                console.warn('⚠️ Invalid direct balance backup:', directBalance, 'parsed as:', balance);
-                                this.updateState({
-                                    balanceHistory: [],
-                                    user: {
-                                        ...this.state.user,
-                                        credits: 20
-                                    }
-                                });
-                            }
-                        } else {
-                            console.log('📭 No direct balance backup found - setting initial 20 credits');
-                            this.updateState({
-                                balanceHistory: [],
-                                user: {
-                                    ...this.state.user,
-                                    credits: 20
-                                }
-                            });
-                        }
-                    }
+                    });
+                    this.state.user.credits = balanceValue;
+                    this.saveCurrentBalance(); // Подтверждаем валидность
                 } else {
-                    console.error('❌ Balance history is not an array:', history);
-                    this.updateState({ balanceHistory: [] });
-                    // 🔥 НОВОЕ: При невалидной истории тоже проверить бэкап
-                    const directBalance = localStorage.getItem('currentBalance');
-                    if (directBalance !== null) {
-                        const balance = parseFloat(directBalance);
-                        if (!isNaN(balance) && balance >= 0) {
-                            console.log('🪙 Recovered balance from direct backup after invalid history:', balance);
-                            this.updateState({
-                                user: {
-                                    ...this.state.user,
-                                    credits: balance
-                                }
-                            });
-                        } else {
-                            this.updateState({
-                                user: {
-                                    ...this.state.user,
-                                    credits: 20
-                                }
-                            });
-                        }
-                    }
-                }
-            } else {
-                console.log('📭 No balance history in localStorage, checking for direct balance backup...');
-
-                // 🔥 НОВОЕ: Проверяем прямой бэкап баланса
-                const directBalance = localStorage.getItem('currentBalance');
-                console.log('🔍 DEBUG: directBalance from localStorage:', directBalance, 'type:', typeof directBalance);
-
-                if (directBalance !== null) {
-                    const balance = parseFloat(directBalance);
-                    console.log('🧮 DEBUG: parsed balance:', balance, 'isNaN:', isNaN(balance), 'balance >= 0:', balance >= 0);
-
-                    if (!isNaN(balance) && balance >= 0) {
-                        console.log('🪙 Loaded balance from direct backup:', balance);
-                        this.updateState({
-                            balanceHistory: [],
-                            user: {
-                                ...this.state.user,
-                                credits: balance
-                            }
-                        });
-                    } else {
-                        console.warn('⚠️ Invalid direct balance backup:', directBalance, 'parsed as:', balance);
-                        // Устанавливаем стартовый баланс для новых пользователей
-                        console.log('🎯 Setting initial 20 credits due to invalid backup');
-                        this.updateState({
-                            balanceHistory: [],
-                            user: {
-                                ...this.state.user,
-                                credits: 20
-                            }
-                        });
-                    }
-                } else {
-                    console.log('📭 No direct balance backup found - setting initial 20 credits');
-                    this.updateState({ balanceHistory: [] });
-                    // 🔥 НОВОЕ: Устанавливаем стартовый баланс для новых пользователей
+                    console.warn('⚠️ Invalid currentBalance, clearing and using defaults');
+                    localStorage.removeItem('currentBalance');
+                    // Устанавливаем дефолтный баланс
                     this.updateState({
                         user: {
                             ...this.state.user,
                             credits: 20
                         }
                     });
+                    this.state.user.credits = 20;
                 }
             }
 
-            // 🔥 ДОБАВЛЕНИЕ: Финальная проверка целостности баланса
-            // Гарантируем что баланс всегда корректное число
-            if (!this.state.user || typeof this.state.user.credits !== 'number' || isNaN(this.state.user.credits) || this.state.user.credits < 0) {
-                console.log('⚠️ Balance corrupted or not set, resetting to 20 credits');
+            // 🔥 ДОБАВЛЕНИЕ: Загружаем историю, если она есть, НО НЕ ПЕРЕЗАПИСЫВАЕМ баланс!
+            const storedHistory = localStorage.getItem('balanceHistory');
+            console.log('📊 Loading balance history (after direct balance check):', !!storedHistory);
 
-                // Очищаем поврежденные данные из localStorage
-                try {
-                    localStorage.removeItem('balanceHistory');
-                    localStorage.removeItem('currentBalance');
-                    console.log('🧹 Cleared corrupted balance data from localStorage');
-                } catch (cleanupError) {
-                    console.warn('❌ Failed to cleanup corrupted data:', cleanupError);
+            if (storedHistory) {
+                const history = JSON.parse(storedHistory);
+                console.log('✅ Parsed balance history:', history?.length || 0, 'entries');
+
+                if (Array.isArray(history)) {
+                    this.updateState({ balanceHistory: history });
+                    console.log('📊 Balance history loaded successfully');
+                } else {
+                    console.warn('⚠️ Balance history is not an array, initializing empty');
+                    this.updateState({ balanceHistory: [] });
                 }
+            } else {
+                console.log('📭 No balance history found, initializing empty array');
+                this.updateState({ balanceHistory: [] });
+            }
 
-                // Устанавливаем дефолтный баланс
+            // Если баланс все еще не установлен, устанавливаем дефолтный
+            if (this.state.user.credits === null || this.state.user.credits === undefined) {
+                console.log('⚠️ Balance still not set, using default 20 credits');
                 this.updateState({
-                    balanceHistory: [],
                     user: {
                         ...this.state.user,
                         credits: 20
                     }
                 });
                 this.state.user.credits = 20;
-                this.saveCurrentBalance();
-
-                console.log('🛠️ Balance reset to default 20 credits');
             }
 
             console.log('✅ Balance loaded successfully');
