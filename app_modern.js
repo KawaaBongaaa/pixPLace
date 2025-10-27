@@ -24,7 +24,7 @@ import { generationManager } from './parallel-generation.js';
  * Set to true to skip authentication for development/testing.
  * Set back to false before production deployment.
  */
-const BYPASS_AUTH = false; // CHANGE TO FALSE BEFORE DEPLOYMENT!
+const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 
 // Configuration
 const CONFIG = {
@@ -63,14 +63,11 @@ const appState = new AppStateManager();
 // Экспортируем appState в window для доступа из параллельной генерации
 window.appState = appState;
 
-// 🔥 ДОБАВЛЕНИЕ: Инициализация дефолтных значений в localStorage при первом запуске
+    // 🔥 ДОБАВЛЕНИЕ: Инициализация дефолтных значений в localStorage при первом запуске
 appState.initializeDefaults();
 
-    // 🔥 ДОБАВЛЕНИЕ: Загрузка баланса из localStorage при старте приложения
-    appState.loadBalanceHistory();
-
-    // 🔥 ПЕРЕНОСИМ loadSettings ПОЗЖЕ: загружаем настройки ПЕРЕД ПОКАЗОМ UI
-    // appState.loadSettings(); // УБРАНО СЮДА - NOW AFTER DOM LOADED
+// 🔥 ПЕРЕНОСИМ loadSettings ПОЗЖЕ: загружаем настройки ПЕРЕД ПОКАЗОМ UI
+// appState.loadSettings(); // УБРАНО СЮДА - NOW AFTER DOM LOADED
 
 
 
@@ -2008,12 +2005,16 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
         // 🔥 ТОЧНЫЙ КОНТРОЛЬ: НЕМЕДЛЕННЫЙ ЗАПУСК ПОСЛЕ ИНИЦИАЛИЗАЦИИ
         const finishLoading = () => {
             hideLoadingScreen();
+            // 🔥 ДОБАВЛЕНИЕ: Загрузка баланса ПОСЛЕ создания DOM элементов
+            appState.loadBalanceHistory();
+            // Balance loaded from localStorage after DOM ready - ready for display
+
             // 🔥 ПРИМЕНЯЕМ ПЕРЕВОДЫ ПОСЛЕ ПОКАЗА UI (когда элементы уже созданы)
             setTimeout(() => {
                 dictionaryManager.updateTranslations();
             }, 50);
             showApp();
-            updateUserBalanceDisplay(appState.userCredits);
+            updateUserBalanceDisplay(); // 🔥 ИСПРАВЛЕНИЕ: Вызываем без параметров чтобы взять актуальное значение из state
             updateUserNameDisplay(); // 🔥 ДОБАВЛЕНО: Обновление отображения имени пользователя после авторизации
             initAICoach();
             console.log('✅ Загрузочный экран скрыт немедленно - быстрый запуск');

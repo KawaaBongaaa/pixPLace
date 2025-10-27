@@ -325,8 +325,9 @@ class UIService {
 
 // Фабрика сервисов - получает существующий AppStateManager
 export function createAppServices(existingAppState) {
-    // Используем существующий appState или создаем новый
-    const appState = existingAppState || new AppStateManager();
+    // 🔥 ИСПРАВЛЕНИЕ: Всегда используем существующий appState, если передан
+    // Не создаем новый, если передан existingAppState
+    const appState = existingAppState;
 
     // Создаем сервис событий
     const evBus = eventBus;
@@ -352,9 +353,9 @@ export function createAppServices(existingAppState) {
 // Экспорт глобальных экземпляров для совместимости
 export let globalServices = null;
 
-export function initializeGlobalServices() {
+export function initializeGlobalServices(existingAppState) {
     if (!globalServices) {
-        globalServices = createAppServices();
+        globalServices = createAppServices(existingAppState);
 
         // Делаем доступным глобально для legacy поддержки
         if (typeof window !== 'undefined') {

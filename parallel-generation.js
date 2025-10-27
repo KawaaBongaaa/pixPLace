@@ -541,8 +541,19 @@ class GenerationManager {
                 }
 
                 // Обновляем баланс если возвращается в ответе
-                if (response.remaining_credits !== undefined && window.updateUserBalance) {
-                    window.updateUserBalance(response.remaining_credits);
+                // 🔥 ИСПРАВЛЕНИЕ: Преобразуем пустую строку в 0 для корректной работы с NaN
+                let remainingCredits = response.remaining_credits;
+                if (remainingCredits === "" || remainingCredits === null || remainingCredits === undefined) {
+                    remainingCredits = 0;
+                    console.log('🔧 Converted empty remaining_credits to 0');
+                } else {
+                    remainingCredits = parseFloat(remainingCredits) || 0;
+                    console.log(`🔧 Parsed remaining_credits to: ${remainingCredits}`);
+                }
+
+                if (remainingCredits !== undefined && window.updateUserBalance) {
+                    window.updateUserBalance(remainingCredits);
+                    console.log(`💰 Updated user balance to: ${remainingCredits}`);
                 }
 
                 // Сохраняем дополнительные данные от webhook

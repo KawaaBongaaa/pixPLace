@@ -1,6 +1,3 @@
-// 🎯 UI Navigation Manager - Вынос функций навигации из app_modern.js
-// Управление экранами, историей, навигацией
-
 import { showResult, displayFullResult, showResultToast, removeResultToast, showApp } from './screen-manager.js';
 
 // ================================================
@@ -48,13 +45,37 @@ export function updateUserNameDisplay() {
 
 
 export function updateUserBalanceDisplay(credits, reason = '') {
+    console.log('💰 updateUserBalanceDisplay called with:', credits, 'reason:', reason);
+    console.log(' Current appState balance:', window.appState?.user?.credits);
+
+    // Получаем appState из window или из local переменной
+    let state = appState || window.appState;
+    if (!state) {
+        console.warn('❌ updateUserBalanceDisplay: appState не найден ни в module, ни в window');
+        return;
+    }
+
+    // 🔥 ОБЯЗАТЕЛЬНАЯ ИНИЦИАЛИЗАЦИЯ user объекта если его нет
+    // Это важно для предотвращения ошибки state.user?.credits = undefined
+    if (!state.user) {
+        console.log('🔧 Initializing user object in state');
+        state.user = {};
+    }
+
+    console.log('🔍 state.user before:', state.user);
+    console.log('🔍 state.user.credits before:', state.user.credits);
+
+    // Если credits не переданы - взять текущее значение из state
+    if (credits === null || credits === undefined) {
+        credits = state.user.credits; // НЕ используем optional chaining здесь!
+        console.log('💰 Taking credits from state:', credits, 'state.user.credits:', state.user.credits);
+    }
+
+    // Найдем элемент для отображения баланса
+    const balanceElement = document.getElementById('userCreditsDisplay');
+    console.log('🔍 Looking for balance element #userCreditsDisplay:', !!balanceElement);
+
     if (credits !== null && credits !== undefined) {
-        // Получаем appState из window или из local переменной (аналогично updateUserNameDisplay)
-        let state = appState || window.appState;
-        if (!state) {
-            console.warn('❌ updateUserBalanceDisplay: appState не найден ни в module, ни в window');
-            return;
-        }
 
         const newBalance = parseFloat(credits);
         const oldBalance = state.user?.credits || 0;
@@ -75,22 +96,36 @@ export function updateUserBalanceDisplay(credits, reason = '') {
         }
 
         // Сохраняем историю в localStorage
-        if (state.saveBalanceHistory) state.saveBalanceHistory();
+        if (window.appState && window.appState.saveBalanceHistory) window.appState.saveBalanceHistory();
 
-        // Обновляем текущий баланс
+        // 🔥 НОВОЕ: Сохраняем текущий баланс для надежности
+        if (window.appState && window.appState.saveCurrentBalance) window.appState.saveCurrentBalance();
+
+        // 🔥 ДОБАВЛЕНИЕ: Прямое присвоение к state ссылке для надежности
         if (!state.user) state.user = {};
         state.user.credits = newBalance;
+        if (window.appState?.state?.user) {
+            window.appState.state.user.credits = newBalance;
+        }
+        console.log('💰 Direct state assignment: state.user.credits =', newBalance);
+
         state.lastBalanceUpdate = timestamp;
         if (state.saveSettings) state.saveSettings(); // Сохраняем настройки в localStorage
 
         // Обновляем отображение в header
         const balanceElement = document.getElementById('userCreditsDisplay');
+        console.log('🔍 Updating balance display element:', balanceElement, 'credits value:', credits);
         if (balanceElement) {
             if (!isNaN(credits) && credits !== null) {
-                balanceElement.textContent = parseFloat(credits).toLocaleString('en-US');
+                const formattedBalance = parseFloat(credits).toLocaleString('en-US');
+                console.log('💰 Setting balance display to:', formattedBalance);
+                balanceElement.textContent = formattedBalance;
             } else {
+                console.log('💰 Setting balance display to: -- (because credits is null/undefined)');
                 balanceElement.textContent = '--';
             }
+        } else {
+            console.warn('❌ Balance element not found in DOM!');
         }
 
         console.log('💳 Balance updated:', { old: oldBalance, new: newBalance, reason });

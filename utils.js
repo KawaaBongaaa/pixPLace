@@ -19,6 +19,51 @@ export function supportsShare() {
     return navigator.share && navigator.canShare;
 }
 
+// 💰 BALANCE MANAGEMENT - Синхронизация баланса кредитов
+export function updateUserBalance(newBalance) {
+    console.log(`💰 updateUserBalance called with: ${newBalance} (type: ${typeof newBalance})`);
+
+    try {
+        // 1. Обновляем appState
+        if (window.appState) {
+            const oldCredits = window.appState.userCredits;
+            window.appState.userCredits = newBalance;
+            console.log(`✅ appState.userCredits updated from ${oldCredits} to: ${newBalance}`);
+        }
+
+        // 2. Добавляем в историю баланса
+        if (window.appState && window.appState.balanceHistory) {
+            const entry = {
+                balance: newBalance,
+                timestamp: Date.now(),
+                reason: 'generation_complete'
+            };
+            window.appState.balanceHistory.push(entry);
+            window.appState.saveBalanceHistory();
+            window.appState.saveCurrentBalance(); // 🔥 НОВОЕ: Дублируем сохранение текущего баланса для надежности
+            console.log(`📊 Balance history entry added: ${entry.balance} credits, history length: ${window.appState.balanceHistory.length}`);
+        }
+
+        // 3. Обновляем UI через существующую функцию из navigation-manager
+        console.log(`🔄 About to call updateUserBalanceDisplay with: ${newBalance}`);
+        if (window.updateUserBalanceDisplay) {
+            window.updateUserBalanceDisplay(newBalance, 'webhook_update');
+            console.log(`🔄 updateUserBalanceDisplay called successfully`);
+        } else {
+            console.warn('⚠️ updateUserBalanceDisplay function not available');
+        }
+
+    } catch (error) {
+        console.error('❌ Error in updateUserBalance:', error);
+    }
+}
+
+// Делаем функцию глобальной для совместимости с parallel-generation.js
+window.updateUserBalance = updateUserBalance;
+
+console.log('💰 Balance management initialized');
+
+
 // 🔥 УЛУЧШЕННАЯ ОПТИМИЗИРОВАННАЯ ЛОГИКА СКАЧИВАНИЯ/ШАРИНГА
 // 🎯 Smart platform detection with comprehensive support
 export function getDeviceCapabilities() {
@@ -149,7 +194,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
         return { method: 'open-with-save-instructions', success: true };
     }
 
-    // � EMERGENCY MANUAL DOWNLOAD FOR BROKEN ENVIRONMENTS
+    //  EMERGENCY MANUAL DOWNLOAD FOR BROKEN ENVIRONMENTS
     console.log('🚨 Emergency manual download for broken environment');
 
     // Create a temporary download button
@@ -187,7 +232,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
     if (showToast) showToastNat('warning', 'Download button created - click top-right blue button');
     return { method: 'emergency-manual', success: true };
 
-    // �📱 MOBILE DEVICES LOGIC BELOW
+    // 📱 MOBILE DEVICES LOGIC BELOW
 
     // 1️⃣ MOBILE WITH SHARE API SUPPORT
     if (caps.api.share && caps.api.canShare) {
@@ -454,44 +499,3 @@ export function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 
 // Performance improved from 900 DOM elements to 0 JS-managed elements
 
 console.log('🎯 Utils module loaded successfully');
-
-// � BALANCE MANAGEMENT - Синхронизация баланса кредитов
-export function updateUserBalance(newBalance) {
-    console.log(`💰 updateUserBalance called with: ${newBalance}`);
-
-    try {
-        // 1. Обновляем appState
-        if (window.appState) {
-            window.appState.userCredits = newBalance;
-            console.log(`✅ appState.userCredits updated to: ${newBalance}`);
-        }
-
-        // 2. Добавляем в историю баланса
-        if (window.appState && window.appState.balanceHistory) {
-            const entry = {
-                balance: newBalance,
-                timestamp: Date.now(),
-                reason: 'generation_complete'
-            };
-            window.appState.balanceHistory.push(entry);
-            window.appState.saveBalanceHistory();
-            console.log(`📊 Balance history entry added: ${entry.balance} credits`);
-        }
-
-        // 3. Обновляем UI через существующую функцию из navigation-manager
-        if (window.updateUserBalanceDisplay) {
-            window.updateUserBalanceDisplay(newBalance);
-            console.log(`🔄 UI balance display updated`);
-        } else {
-            console.warn('⚠️ updateUserBalanceDisplay function not available');
-        }
-
-    } catch (error) {
-        console.error('❌ Error in updateUserBalance:', error);
-    }
-}
-
-// Делаем функцию глобальной для совместимости с parallel-generation.js
-window.updateUserBalance = updateUserBalance;
-
-console.log('💰 Balance management initialized');
