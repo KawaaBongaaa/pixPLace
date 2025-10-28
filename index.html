@@ -493,9 +493,16 @@
                             </span>
                             <div class="btn-ripple"></div>
                         </button>
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="style_label">Style</label>
-                            <div class="style-grid">
+                        <!-- Choose a Style Section -->
+                        <div class="form-group" id="chooseStyleSection">
+                            <div class="form-label-row style-checkbox-row">
+                                <div class="checkbox-label small-checkbox style-left-align" onclick="document.getElementById('styleCheckbox').click()">
+                                    <input type="checkbox" id="styleCheckbox">
+                                    <span class="checkbox-custom"></span>
+                                </div>
+                                <label class="form-label style-left-label" data-i18n="use_style_selection" onclick="document.getElementById('styleCheckbox').click(); document.querySelector('#chooseStyleSection label').style.cursor='pointer'">Choose a Style</label>
+                            </div>
+                            <div class="style-grid" id="styleGrid">
                                 <div class="carousel-2d-wrapper">
                                     <div class="carousel-2d" id="carousel2d">
                                         <div class="carousel-2d-item" data-style="realistic">
@@ -752,6 +759,7 @@
     </footer>
     <script type="module" src="mode-cards.js"></script>
     <script type="module" src="cost-badge.js"></script>
+    <script type="module" src="style-management.js"></script>
     <script type="module" src="ai-coach.js"></script>
     <script type="module" src="user-account.js"></script>
     <script type="module" src="strength-slider.js"></script>

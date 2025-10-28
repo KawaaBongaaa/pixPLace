@@ -5,7 +5,7 @@ export const de = {
     connected: "Mit Telegram verbunden",
     prompt_label: "Prompt",
     prompt_placeholder: "Beschreibe deine Vision und sieh zu, wie KI sie zum Leben erweckt...",
-    style_label: "Stil",
+    use_style_selection: "Stil",
     style_realistic: "Realistisch",
     style_artistic: "Künstlerisch",
     style_cartoon: "Cartoon",
@@ -44,10 +44,8 @@ mode_label: "Modus",
     mode_background_removal_desc: "Schneidet Hintergründe wie ein Chirurg raus — behält nur das Hauptobjekt. Wirf ein Foto rein, bekomm ein cooles PNG mit transparentem Background ✨",
     mode_upscale_image_desc: "Pumpt Pixel und Qualität hoch — deine Fotos werden so scharf wie auf Apple Vision Pro Screens 🔍",
 
-    size_label: "Größe",
-    size_square: "1:1",
+    size_label: " Größe",
     size_portrait: "9:16",
-    size_landscape: "16:9",
     generate_btn: "Bild Generieren",
     create_new: "Neu Erstellen",
     empty_history_title: "Noch keine Generierungen",
@@ -99,7 +97,7 @@ mode_label: "Modus",
     plan_lite_feature3: "• Beste Qualität",
     plan_lite_select: "Abonnieren",
     plan_pro_title: "PRO",
-    plan_pro_price: "€17",
+    plan_pro_price: "€19",
     plan_pro_desc: "Ideal für Enthusiasten",
     plan_pro_credits: "1000 Credits",
     plan_pro_feature1: "• FLUX Modelle",
@@ -118,7 +116,35 @@ mode_label: "Modus",
     photo_warning_text: "Der \"Nano Banana\" Modus funktioniert besser mit einem Bild für img2img Generierung. Möchtest du ein Bild hochladen oder ohne fortfahren?",
     photo_warning_upload_btn: "Bild hochladen",
     photo_warning_continue_btn: "Ohne weitermachen",
-    image_limit_error: "Maximal 4 Bilder. Du kannst noch {{count}} hochladen.",
+    image_limit_error: "Maximal 4 Bilder. Du kannst noch {{count}} mehr hochladen.",
+
+    // Authentication screen keys
+    auth_title: "Willkommen bei pixPLace!",
+    auth_subtitle1: "Ein Raum, in dem deine Ideen zum Leben erwachen und die Kreativität fließt.",
+    auth_subtitle2: "Melden dich einfach mit Telegram an und fange an zu kreieren mit Spaß.",
+    auth_button_text: "MIT TELEGRAM ANMELDEN",
+    auth_notice: "💜 Deine Daten sind bei uns sicher — wir schätzen dein Vertrauen.",
+
+    strength_label: "Bildstärke",
+    use_negative_prompt: "Negativen Prompt verwenden",
+    negative_prompt_label: "Negativer Prompt",
+
+    style_surrealism: "Surrealismus",
+
+    mode_dreamshaper_xl: "DreamShaper XL",
+    mode_dreamshaper_xl_desc: "Schnelles Generierungsmodell, das als All-in-One für Fotos, stilisierte Kunst und Anime/Manga entwickelt wurde.",
+
+    generation_queued: "Generierung zur Warteschlange hinzugefügt",
+    generation_started: "Generierung gestartet",
+
+    telegram_webapp_warning: "WebApp außerhalb von Telegram gestartet - einige Funktionen sind nicht verfügbar",
+    telegram_integration_unavailable: "Telegram-Integration nicht verfügbar. App funktioniert im Vorschau-Modus.",
+
+    plan_lite_feature4: "• Schnelle Generierung",
+    plan_pro_feature4: "• 25% Rabatt auf pixPLace-Guthaben",
+    plan_studio_feature4: "• Mehr als 30% Rabatt auf pixPLace-Guthaben",
+
+    reuse_prompt: "Wiederholen",
 
     // Generation Result Modal
     generation_result_title: "Generierungsergebnis",

@@ -4,8 +4,19 @@ export const ja = {
     app_title: "pixPLace",
     connecting: "接続中...",
     connected: "Telegramに接続されました",
+    // Authentication screen keys
+    auth_title: "pixPLaceへようこそ!",
+    auth_subtitle1: "あなたのアイデアが生き、ロマン性が流れる場所。",
+    auth_subtitle2: "Telegramで単にサインインして、喜びに満ちて作成を開始してください。",
+    auth_button_text: "TELEGRAMでSIGN IN",
+    auth_notice: "💜 あなたのデータは私たちと安全です — 私たちはあなたの信頼を大切にします。",
     prompt_label: "プロンプト",
     prompt_placeholder: "あなたのビジョンを説明して、AIがそれを実現するのを観て...",
+    strength_label: "画像の強さ",
+    strength_hint: "アップロードされた画像が生成にどのように影響するかを制御します",
+    use_negative_prompt: "ネガティブプロンプトを使用",
+    negative_prompt_label: "ネガティブプロンプト",
+    use_style_selection: "スタイルを選択",
     style_label: "スタイル",
     style_realistic: "リアル",
     style_artistic: "アーティスティック",
@@ -102,7 +113,7 @@ export const ja = {
     plan_lite_feature3: "• 最高品質",
     plan_lite_select: "購読",
     plan_pro_title: "PRO",
-    plan_pro_price: "€17",
+    plan_pro_price: "€19",
     plan_pro_desc: "エンスージアスト向けに理想",
     plan_pro_credits: "1000クレジット",
     plan_pro_feature1: "• FLUXモデル",
@@ -123,12 +134,22 @@ export const ja = {
     photo_warning_continue_btn: "アップロードせずに続ける",
     image_limit_error: "最大4画像。{{count}} 枚追加でアップロードできます。",
 
+    style_surrealism: "シュルレアリスム",
+    mode_dreamshaper_xl: "DreamShaper XL",
+    mode_dreamshaper_xl_desc: "写真、スタイル化されたアート、アニメ/マンガのためのオールインワンとして設計された高速生成モデル。",
+    telegram_webapp_warning: "WebAppがTelegramの外部で起動されました - 一部の機能が利用できません",
+    telegram_integration_unavailable: "Telegram統合が利用できません。アプリはプレビューモードで動作します。",
+    plan_lite_feature4: "• 高速生成",
+    plan_pro_feature4: "• 25% pixPlace クレジットの割引",
+    plan_studio_feature4: "• 30%+ pixPlace クレジットの割引",
+    reuse_prompt: "繰り返す",
+
     // Generation Result Modal
     generation_result_title: "生成結果",
-    date_label: "日付：",
-    mode_label_modal: "モード：",
-    charged_label: "請求：",
-    prompt_label_modal: "プロンプト：",
+    date_label: "日付:",
+    mode_label_modal: "モード:",
+    charged_label: "請求:",
+    prompt_label_modal: "プロンプト:",
     use_for_generation: "新しい生成に使用",
     reuse_prompt_title: "このプロンプトで生成を繰り返す",
 
@@ -138,15 +159,17 @@ export const ja = {
     prompt_applied: "プロンプト適用！下にスクロールして生成をクリック",
 
     // Generation Result Modal - Share
-    share_title: "pixPLaceの私のAI画像",
-    share_text: "pixPLaceのAI生成画像を見てください！",
-
-    // Additional Messages
-    image_added_success: "生成用の画像を追加しました！",
-    ui_error_message: "インターフェースエラー：",
+    share_title: "私の pixPLace AI 画像",
+    share_text: "pixPLace の AI 生成画像を見てください!",
 
     // Badges
-    badge_premium: "Premium",
-    badge_free: "Gratuito",
-    badge_standard: "Standard",    load_more_history: "さらに表示"
+    badge_premium: "プレミアム",
+    badge_free: "無料",
+    badge_standard: "スタンダード",
+
+    // Additional Messages
+    image_added_success: "画像を生成に追加しました！",
+    ui_error_message: "インターフェースエラー:",
+
+    load_more_history: "さらに表示"
 };

@@ -6,7 +6,7 @@ export const fr = {
     connected: "Connecté à Telegram",
     prompt_label: "Prompt",
     prompt_placeholder: "Décrivez votre vision et regardez l'IA lui donner vie...",
-    style_label: "Style",
+    use_style_selection: "Style",
     style_realistic: "Réaliste",
     style_artistic: "Artistique",
     style_cartoon: "Dessin animé",
@@ -45,10 +45,7 @@ export const fr = {
     mode_background_removal_desc: "Coupe les arrière-plans comme un chirurgien — garde seulement l'objet principal. Jetez une photo, obtenez un PNG cool avec arrière-plan transparent ✨",
     mode_upscale_image_desc: "Monte les pixels et la qualité — vos photos deviennent aussi nettes que sur Apple Vision Pro Screens 🔍",
 
-    size_label: "Taille",
-    size_square: "1:1",
-    size_portrait: "9:16",
-    size_landscape: "16:9",
+    size_label: "Taille",size_portrait: "9:16",
     generate_btn: "Générer l'image",
     create_new: "Créer nouveau",
     empty_history_title: "Aucune génération encore",
@@ -100,7 +97,7 @@ export const fr = {
     plan_lite_feature3: "• Meilleure qualité",
     plan_lite_select: "S'abonner",
     plan_pro_title: "PRO",
-    plan_pro_price: "€17",
+    plan_pro_price: "€19",
     plan_pro_desc: "Idéal pour les passionnés",
     plan_pro_credits: "1000 Crédits",
     plan_pro_feature1: "• Modèles FLUX",
@@ -120,8 +117,34 @@ export const fr = {
     photo_warning_upload_btn: "Télécharger une image",
     photo_warning_continue_btn: "Continuer sans",
     image_limit_error: "Maximum 4 images. Vous pouvez en télécharger {{count}} de plus.",
+
+    // Authentication screen keys
+    auth_title: "Bienvenue sur pixPLace !",
+    auth_subtitle1: "Un espace où vos idées prennent vie et la créativité circule.",
+    auth_subtitle2: "Connectez-vous simplement avec Telegram et commencez à créer avec joie !",
+    auth_button_text: "SE CONNECTER AVEC TELEGRAM",
+    auth_notice: "💜 Vos données sont en sécurité auprès de nous — nous valorisons votre confiance.",
+
+    strength_label: "Force de l'Image",
+    use_negative_prompt: "Utiliser le Prompt Négatif",
+    negative_prompt_label: "Prompt Négatif",
+
+    style_surrealism: "Surréalisme",
+
+    mode_dreamshaper_xl: "DreamShaper XL",
+    mode_dreamshaper_xl_desc: "Modèle de génération rapide conçu comme tout-en-un pour les photos, l'art stylisé et anime/manga.",
+
     generation_queued: "Génération ajoutée à la file d'attente",
     generation_started: "Génération démarrée",
+
+    telegram_webapp_warning: "WebApp lancé en dehors de Telegram - certaines fonctionnalités indisponibles",
+    telegram_integration_unavailable: "Intégration Telegram indisponible. App fonctionne en mode aperçu.",
+
+    plan_lite_feature4: "• Génération Rapide",
+    plan_pro_feature4: "• 25% de réduction sur les crédits pixPlace",
+    plan_studio_feature4: "• Plus de 30% de réduction sur les crédits pixPlace",
+
+    reuse_prompt: "Répéter",
 
     // Generation Result Modal
     generation_result_title: "Résultat de Génération",

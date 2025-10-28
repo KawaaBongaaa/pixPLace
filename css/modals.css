@@ -593,6 +593,7 @@
 /* CUSTOM CHECKBOX STYLING - MICRO SIZE */
 .checkbox-custom {
     position: relative;
+    left: 10px;
     height: 12px;
     width: 12px;
     background: rgba(255, 255, 255, 0.05);
@@ -625,7 +626,6 @@
 .checkbox-label input:checked ~ .checkbox-custom::after {
     content: '';
     position: absolute;
-    top: 2px;
     left: 4px;
     width: 3px;
     height: 5px;
@@ -740,4 +740,104 @@
 
 #negativePromptSection #negativePromptFormGroup {
     margin-bottom: 0.5rem;
+}
+
+/* ===== FORM COMPONENTS - STYLE SELECTION ===== */
+
+/* FORM LABEL ROW - CONTAINS LABEL AND DETAILS BUTTON */
+.form-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+    gap: var(--space-3);
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+/* STYLE SECTION - SPECIFIC ROW FOR STYLE SELECTION */
+#chooseStyleSection .form-label-row {
+    justify-content: flex-start;
+    gap: var(--space-1); /* Уменьшенный отступ между чекбоксом и текстом */
+    align-items: center;
+}
+
+#chooseStyleSection .checkbox-label.small-checkbox {
+    margin-left: 0; /* Убрали auto отступ */
+    margin-right: 0;
+}
+
+/* STYLE CHECKBOX - FIX POSITIONING */
+#chooseStyleSection .checkbox-label.small-checkbox {
+    display: flex !important;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    margin-left: 0; /* Вплотную к тексту */
+}
+
+#chooseStyleSection .checkbox-custom {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-primary);
+    border-radius: 3px;
+    position: relative;
+    transition: all 0.2s ease;
+    background: var(--bg-secondary);
+    margin-right: 6px;
+    cursor: pointer;
+}
+
+#chooseStyleSection .checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 4px;
+    height: 7px;
+    border: solid var(--primary-500);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 1;
+}
+
+#chooseStyleSection .checkbox-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+#chooseStyleSection .checkbox-label input[type="checkbox"]:checked + .checkbox-custom + .checkbox-text {
+    color: var(--primary-500);
+}
+
+/* UPLOAD IMAGE SPACING - ADD MARGIN FROM GENERATE BUTTON */
+.user-image-upload {
+    margin-bottom: 10px !important; /* Увеличен отступ от upload к generate кнопке */
+}
+
+.modern-upload-btn {
+    margin-bottom: var(--space-2);
+}
+
+/* GENERATE BUTTON TOP SPACING - EXTRA SPACE FROM FORM */
+.generate-btn {
+    margin-top: 10px !important; /* Дополнительный отступ сверху от чекбокса секции */
+    margin-bottom: 10px !important;
+}
+
+/* FORM ROW - USED FOR INLINE FORM CONTROLS */
+.form-row {
+    display: flex;
+    flex-direction: row !important;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.form-row .form-group {
+    display: block;
+    margin-bottom: 0 !important;
 }

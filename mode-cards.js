@@ -1,11 +1,11 @@
 // ОТДЕЛЬНЫЙ МОДУЛЬ ДЛЯ УПРАВЛЕНИЕ КАРТОЧКАМИ РЕЖИМОВ
 // (LAZY LOADING разделен по модулям для лучшей производительности)
 
-let selectedMode = 'photo_session';
+let selectedMode = 'dreamshaper_xl';
 let currentExpandedCard = null;
-let activeTooltip = null;
-let tooltipShowTimer = null;
-let tooltipHideTimer = null;
+let tooltipElement = null;
+let globalTooltipShowTimer = null;
+let globalTooltipHideTimer = null;
 
 // ЭКСПОРТИРУЕМ ФУНКЦИЮ ДЛЯ ПОЛУЧЕНИЯ ВЫБРАННОГО РЕЖИМА
 export function getSelectedMode() {
@@ -43,57 +43,60 @@ async function initializeModeCardsLazy() {
     // Создаем карточки режимов с полными описаниями для tooltip
     const cardsHTML = `
         <div class="mode-cards-grid">
-            <div class="mode-card" data-mode="photo_session" data-full-description="Perfect for photo editing. Upload an image and describe what to change - adjust lighting, composition, colors, or add creative elements. Supports various image formats with precise control over each modification.">
+            <div class="mode-card" data-mode="photo_session">
                 <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
                 <div class="mode-icon">🍌</div>
                 <h4 class="mode-title">Nano Banana Editor</h4>
-                <p class="mode-description">Perfect for photo editing. Upload an image and describe what to change</p>
+                <p class="mode-description" data-i18n="mode_photo_session_desc">Perfect for photo editing. Upload an image and describe what to change</p>
             </div>
 
-            <div class="mode-card" data-mode="dreamshaper_xl" data-full-description="Fast generation model designed as an all-in-one solution for photos, stylized art, anime, and manga. Optimized for quick results with high quality output across multiple styles and creative directions.">
+            <div class="mode-card" data-mode="dreamshaper_xl">
                 <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
                 <div class="mode-icon">⋆.˚🦋༘⋆</div>
                 <h4 class="mode-title">DreamShaper XL</h4>
-                <p class="mode-description">Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.</p>
+                <p class="mode-description" data-i18n="mode_dreamshaper_xl_desc">Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.</p>
             </div>
-            <div class="mode-card" data-mode="fast_generation" data-full-description="The fastest mode for simple picture generation without requiring image upload. Perfect for quick concepts, ideas, or basic illustrations that don't need reference material.">
+            <div class="mode-card" data-mode="fast_generation">
                 <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
                 <div class="mode-icon">⚡</div>
                 <h4 class="mode-title">Flux Fast Generation</h4>
-                <p class="mode-description">Fastest mode for simple pictures generation without image upload</p>
+                <p class="mode-description" data-i18n="mode_fast_generation_desc">Fastest mode for simple pictures generation without image upload</p>
             </div>
 
-            <div class="mode-card" data-mode="pixplace_pro" data-full-description="Advanced mode with comprehensive text support, logos, and complex multi-element compositions. Ideal for professional projects requiring precise placement, typography, and layered designs with multiple visual components.">
+            <div class="mode-card" data-mode="pixplace_pro">
                 <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
                 <div class="mode-icon">𝓟𝓻𝓸</div>
                 <h4 class="mode-title">Flux Pro Advanced</h4>
-                <p class="mode-description">Advanced mode with text support, logos and complex compositions</p>
+                <p class="mode-description" data-i18n="mode_pixplace_pro_desc">Advanced mode with text support, logos and complex compositions</p>
             </div>
 
-            <div class="mode-card" data-mode="print_maker" data-full-description="Specialized for Print on Demand industry. Creates ready-made designs optimized for clothes, accessories, and merchandise. Automatically adapts to different print surfaces with proper color profiles and sizing.">
+            <div class="mode-card" data-mode="print_maker">
                 <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
                 <div class="mode-icon">👕</div>
                 <h4 class="mode-title">Print on Demand</h4>
-                <p class="mode-description">Specialized for Print on Demand. Creates ready-made prints for clothes and accessories</p>
+                <p class="mode-description" data-i18n="mode_print_maker_desc">Specialized for Print on Demand. Creates ready-made prints for clothes and accessories</p>
             </div>
 
-            <div class="mode-card" data-mode="background_removal" data-full-description="Advanced background removal that preserves objects with pixel-perfect accuracy. Uses AI to detect and isolate subjects while maintaining edge quality and transparency for professional results.">
+            <div class="mode-card" data-mode="background_removal">
                 <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
                 <div class="mode-icon">✂</div>
                 <h4 class="mode-title">Remove Background</h4>
-                <p class="mode-description">Removes background from image while preserving the object</p>
+                <p class="mode-description" data-i18n="mode_background_removal_desc">Removes background from image while preserving the object</p>
             </div>
 
-            <div class="mode-card" data-mode="upscale_image" data-full-description="Improves quality and resolution of existing images up to 4K using advanced AI algorithms. Enhances details, reduces noise, and restores clarity without losing original characteristics.">
+            <div class="mode-card" data-mode="upscale_image">
                 <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
                 <div class="mode-icon">*ੈ✩‧₊˚</div>
                 <h4 class="mode-title">Upscale Image</h4>
-                <p class="mode-description">Improves quality and resolution of existing image up to 4K</p>
+                <p class="mode-description" data-i18n="mode_upscale_image_desc">Improves quality and resolution of existing image up to 4K</p>
             </div>
         </div>
     `;
 
     modeCardsWrapper.innerHTML = cardsHTML;
+
+    // 🔥 СОЗДАЕМ ЕДИНЫЙ TOOLTIP ELEMENT (ДО СЛУШАТЕЛЕЙ!)
+    initTooltipElement();
 
     // Инициализируем обработчики карточек
     initModeCardListeners();
@@ -104,7 +107,13 @@ async function initializeModeCardsLazy() {
     // Устанавливаем начальный выбранный режим
     selectModeCard(selectedMode);
 
+    // 🔥 ОБНОВЛЯЕМ ПЕРЕВОДЫ ДЛЯ НОВЫХ ЭЛЕМЕНТОВ
+    if (window.dictionaryManager && window.dictionaryManager.updateTranslations) {
+        window.dictionaryManager.updateTranslations();
+    }
+
     console.log('✅ Mode cards HTML created and inserted to modeCardsWrapper');
+    console.log('✅ Mode cards translations applied');
     console.log('✅ Mode cards tooltips initialized');
 }
 
@@ -190,28 +199,30 @@ export function setSelectedMode(mode) {
     selectModeCard(mode);
 }
 
-// ФУНКЦИЯ СОЗДАНИЯ TOOLTIP ЭЛЕМЕНТА
-function createTooltipElement(text, targetRect) {
-    // Удаляем существующий tooltip с анимацией
-    if (activeTooltip) {
-        activeTooltip.classList.remove('visible');
-        setTimeout(() => {
-            if (activeTooltip) {
-                activeTooltip.remove();
-                activeTooltip = null;
-            }
-        }, 200);
-    }
+// ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ ЕДИНОГО TOOLTIP ЭЛЕМЕНТА
+function initTooltipElement() {
+    if (tooltipElement) return; // Уже инициализирован
 
-    // Создаем новый tooltip
-    const tooltip = document.createElement('div');
-    tooltip.className = 'mode-tooltip';
-    tooltip.textContent = text;
-    tooltip.setAttribute('data-tooltip-id', 'mode-tooltip-' + Date.now());
+    tooltipElement = document.createElement('div');
+    tooltipElement.className = 'mode-tooltip';
+    tooltipElement.style.position = 'fixed';
+    tooltipElement.style.zIndex = '10000';
+    tooltipElement.style.opacity = '0';
+    tooltipElement.style.pointerEvents = 'none';
+    document.body.appendChild(tooltipElement);
+
+    console.log('✅ Single tooltip element created');
+}
+
+// ФУНКЦИЯ ОБНОВЛЕНИЯ ПОЗИЦИИ И СОДЕРЖИМОГО TOOLTIP
+function updateTooltipPosition(text, targetRect) {
+    if (!tooltipElement) return;
+
+    // Обновляем текст
+    tooltipElement.textContent = text;
 
     // Определяем позицию (предпочитаем сверху, иначе снизу)
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
@@ -223,15 +234,18 @@ function createTooltipElement(text, targetRect) {
     let top, left;
     const tooltipMaxHeight = 120; // Предполагаемая высота tooltip
 
+    // Сбрасываем позиционные классы
+    tooltipElement.classList.remove('position-top', 'position-bottom');
+
     // Проверяем, есть ли место сверху
     if (targetRect.top - 10 >= tooltipMaxHeight) {
         // Размещаем сверху
         top = absTop - 10;
-        tooltip.classList.add('position-top');
+        tooltipElement.classList.add('position-top');
     } else {
         // Размещаем снизу
         top = absBottom + 10;
-        tooltip.classList.add('position-bottom');
+        tooltipElement.classList.add('position-bottom');
     }
 
     // Центрируем по горизонтали
@@ -241,103 +255,98 @@ function createTooltipElement(text, targetRect) {
     const tooltipWidth = 300;
     left = Math.max(10, Math.min(left, viewportWidth - tooltipWidth - 10));
 
-    // Устанавливаем позицию как fixed для корректной работы с мобильными устройствами
-    tooltip.style.position = 'fixed';
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = top + 'px';
-    tooltip.style.maxWidth = Math.min(300, viewportWidth - 20) + 'px';
-    tooltip.style.zIndex = '10000';
+    // Устанавливаем позицию и размеры
+    tooltipElement.style.top = top + 'px';
+    tooltipElement.style.left = left + 'px';
+    tooltipElement.style.maxWidth = Math.min(300, viewportWidth - 20) + 'px';
 
-    // Добавляем fade-in анимацию после установки позиции
-    requestAnimationFrame(() => {
-        document.body.appendChild(tooltip);
-        activeTooltip = tooltip;
-        requestAnimationFrame(() => tooltip.classList.add('visible'));
-    });
-
-    return tooltip;
+    // Показываем просто и напрямую без переходов
+    tooltipElement.classList.add('visible');
+    tooltipElement.style.opacity = '1';
+    tooltipElement.style.visibility = 'visible';
+    tooltipElement.style.pointerEvents = 'none';
 }
 
-// ФУНКЦИЯ ПОКАЗА TOOLTIP ПРИ HOVER
+// ФУНКЦИЯ ПОКАЗА TOOLTIP ПРИ HOVER - ПОЛНАЯ ИНФОРМАЦИЯ О РЕЖИМЕ
 function showModeTooltip(card) {
-    const fullDescription = card.dataset.fullDescription;
-    if (!fullDescription) return;
+    const mode = card.dataset.mode;
+    // Получаем полное описание режима из переводов через dictionaryManager
+    const fullDescription = window.dictionaryManager ?
+        window.dictionaryManager.translate(`mode_${mode}_desc`) : '';
+
+    if (!fullDescription || !tooltipElement) return;
 
     const cardRect = card.getBoundingClientRect();
-    createTooltipElement(fullDescription, cardRect);
-
-    // После показа tooltip, увеличиваем задержку скрытия для плавности
-    if (activeTooltip) {
-        activeTooltip.style.transitionDelay = '0ms';
-    }
+    updateTooltipPosition(fullDescription, cardRect);
 }
 
 // ФУНКЦИЯ СКРЫТИЯ TOOLTIP
 function hideModeTooltip() {
-    if (activeTooltip) {
-        activeTooltip.classList.remove('visible');
-        setTimeout(() => {
-            if (activeTooltip) {
-                activeTooltip.remove();
-                activeTooltip = null;
-            }
-        }, 200);
-    }
+    if (!tooltipElement) return;
+
+    tooltipElement.classList.remove('visible');
+    tooltipElement.style.opacity = '0';
+    tooltipElement.style.visibility = 'hidden';
 }
 
 // ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ TOOLTIP ОБРАБОТЧИКОВ
 function initTooltipListeners() {
     const modeCards = document.querySelectorAll('.mode-card');
+    let currentHoveredCard = null;
+    let touchData = { timer: null, startX: 0, startY: 0, isLongPress: false };
+
+    function clearAllTimers() {
+        clearTimeout(globalTooltipShowTimer);
+        clearTimeout(globalTooltipHideTimer);
+        clearTimeout(touchData.timer);
+        globalTooltipShowTimer = null;
+        globalTooltipHideTimer = null;
+        touchData.timer = null;
+    }
+
+    function hideTooltipWithDelay(delay = 250) {
+        clearTimeout(globalTooltipHideTimer);
+        globalTooltipHideTimer = setTimeout(() => {
+            const isAnyCardHovered = currentHoveredCard !== null;
+            if (!isAnyCardHovered && !touchData.isLongPress) {
+                hideModeTooltip();
+                touchData.isLongPress = false;
+            }
+        }, delay);
+    }
 
     modeCards.forEach(card => {
-        let touchTimer;
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let isLongPress = false;
-        let showTimer;
-        let hideTimer;
-
         // Hover события для desktop
         card.addEventListener('mouseenter', () => {
-            if (!('ontouchstart' in window) || !isLongPress) {
-                clearTimeout(showTimer);
-                clearTimeout(hideTimer);
+            if (!('ontouchstart' in window) || !touchData.isLongPress) {
+                clearAllTimers();
+                currentHoveredCard = card;
 
-                // Маленькая задержка перед показом
-                showTimer = setTimeout(() => {
-                    showModeTooltip(card);
-                }, 200);
+                globalTooltipShowTimer = setTimeout(() => {
+                    if (currentHoveredCard === card && !touchData.isLongPress) {
+                        showModeTooltip(card);
+                    }
+                }, 300); // Увеличенная задержка для предотвращения моргания
             }
         });
 
         card.addEventListener('mouseleave', () => {
-            if (!isLongPress) {
-                clearTimeout(showTimer);
-                clearTimeout(hideTimer);
-
-                // Задержка больше задержки показа для плавных переходов
-                hideTimer = setTimeout(() => {
-                    // Проверяем что мышь не на какой-то другой карте
-                    const anyCardHovered = Array.from(modeCards).some(c => c.matches(':hover'));
-                    if (!anyCardHovered) {
-                        hideModeTooltip();
-                    }
-                }, 300);
+            if (!touchData.isLongPress) {
+                currentHoveredCard = null;
+                hideTooltipWithDelay();
             }
         });
 
         // Touch события для мобильных устройств
         card.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            isLongPress = false;
+            clearAllTimers();
+            touchData.startX = e.touches[0].clientX;
+            touchData.startY = e.touches[0].clientY;
+            touchData.isLongPress = false;
+            currentHoveredCard = card;
 
-            clearTimeout(touchTimer);
-            clearTimeout(showTimer);
-            clearTimeout(hideTimer);
-
-            touchTimer = setTimeout(() => {
-                isLongPress = true;
+            touchData.timer = setTimeout(() => {
+                touchData.isLongPress = true;
                 if (navigator.vibrate) {
                     navigator.vibrate(50);
                 }
@@ -346,62 +355,64 @@ function initTooltipListeners() {
         });
 
         card.addEventListener('touchend', () => {
-            clearTimeout(touchTimer);
-
-            if (isLongPress) {
+            clearTimeout(touchData.timer);
+            if (touchData.isLongPress) {
                 setTimeout(() => {
                     hideModeTooltip();
-                    isLongPress = false;
-                }, 200);
+                    touchData.isLongPress = false;
+                }, 300);
             }
         });
 
         card.addEventListener('touchmove', (e) => {
-            if (!touchTimer) return;
+            if (!touchData.timer) return;
 
             const touch = e.touches[0];
-            const deltaX = Math.abs(touch.clientX - touchStartX);
-            const deltaY = Math.abs(touch.clientY - touchStartY);
+            const deltaX = Math.abs(touch.clientX - touchData.startX);
+            const deltaY = Math.abs(touch.clientY - touchData.startY);
 
             if (deltaX > 10 || deltaY > 10) {
-                clearTimeout(touchTimer);
-                clearTimeout(showTimer);
-                clearTimeout(hideTimer);
-                touchTimer = null;
+                clearAllTimers();
                 hideModeTooltip();
+                touchData.isLongPress = false;
             }
         });
 
         card.addEventListener('click', () => {
-            clearTimeout(showTimer);
-            clearTimeout(hideTimer);
-            clearTimeout(touchTimer);
+            clearAllTimers();
             hideModeTooltip();
+            touchData.isLongPress = false;
         });
     });
 
     // Глобальные обработчики для скрытия tooltip
     document.addEventListener('scroll', () => {
-        clearTimeout(tooltipShowTimer);
-        clearTimeout(tooltipHideTimer);
+        clearAllTimers();
         hideModeTooltip();
+        touchData.isLongPress = false;
     }, { passive: true });
 
     document.addEventListener('resize', () => {
+        clearAllTimers();
         hideModeTooltip();
+        touchData.isLongPress = false;
     });
 
     document.addEventListener('orientationchange', () => {
+        clearAllTimers();
         hideModeTooltip();
+        touchData.isLongPress = false;
     });
 
     if ('ontouchstart' in window) {
         document.addEventListener('touchstart', (e) => {
             const target = e.target;
             if (!target.closest('.mode-card') && !target.closest('.mode-tooltip')) {
-                clearTimeout(tooltipShowTimer);
-                clearTimeout(tooltipHideTimer);
+                clearTimeout(globalTooltipShowTimer);
+                clearTimeout(globalTooltipHideTimer);
+                clearTimeout(touchData.timer);
                 hideModeTooltip();
+                touchData.isLongPress = false;
             }
         }, { passive: true });
     }

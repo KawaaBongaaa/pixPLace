@@ -6,7 +6,7 @@ export const ar = {
     connected: "متصل بالتليجرام",
     prompt_label: "المطالبة",
     prompt_placeholder: "وصف رؤيتك وشاهد الذكاء الاصطناعي يجعلها حقيقة...",
-    style_label: "النمط",
+    use_style_selection: "النمط",
     style_realistic: "واقعي",
     style_artistic: "فني",
     style_cartoon: "كرتون",
@@ -45,10 +45,7 @@ export const ar = {
     mode_background_removal_desc: "إزالة الخلفية والحفاظ على الكائن الرئيسي. قم بتحميل صورة للبدء",
     mode_upscale_image_desc: "تحسين جودة الصور ودقتها — جعل محتوى البصري مناسب للشاشات الكبيرة",
 
-    size_label: "الحجم",
-    size_square: "1:1",
-    size_portrait: "9:16",
-    size_landscape: "16:9",
+    size_label: "الحجم",size_portrait: "9:16",
     generate_btn: "توليد الصورة",
     create_new: "إنشاء جديد",
     empty_history_title: "لا توليدات بعد",
@@ -102,7 +99,7 @@ export const ar = {
     plan_lite_feature3: "• أعلى جودة",
     plan_lite_select: "اشتراك",
     plan_pro_title: "PRO",
-    plan_pro_price: "€17",
+    plan_pro_price: "€19",
     plan_pro_desc: "مثالي للمتحمسين",
     plan_pro_credits: "1000 اعتماد",
     plan_pro_feature1: "• نماذج FLUX",
@@ -121,7 +118,35 @@ export const ar = {
     photo_warning_text: "\"Nano Banana\" عمل أفضل مع صورة للتوليد img2img. هل تريد تحميل صورة أم المتابعة دون تحميل?",
     photo_warning_upload_btn: "تحميل صورة",
     photo_warning_continue_btn: "المتابعة دون تحميل",
-    image_limit_error: "أقصى 4 صور. يمكنك تحميل {{count}} إضافية.",
+    image_limit_error: "أقصى 4 صور. يمكنك تحميل {{count}} واحده إضافية.",
+
+    style_surrealism: "سوريالية",
+    mode_dreamshaper_xl: "DreamShaper XL",
+    mode_dreamshaper_xl_desc: "نموذج توليد سريع مصمم كحل شامل للصور والفن المصمم والأنمي/مانجا.",
+    telegram_webapp_warning: "تم تشغيل التطبيق خارج Telegram - بعض الميزات غير متوفرة",
+    telegram_integration_unavailable: "التكامل مع Telegram غير متوفر. التطبيق يعمل في وضع المعاينة.",
+    plan_lite_feature4: "• توليد سريع",
+    plan_pro_feature4: "• خصم 25% على رصيد pixPlace",
+    plan_studio_feature4: "• خصم 30%+ على رصيد pixPlace",
+    reuse_prompt: "تكرار",
+
+    // Authentication screen keys
+    auth_title: "مرحباً بك في pixPLace!",
+    auth_subtitle1: "مكان تتحول فيه أفكارك إلى واقع وتتدفق الإبداعية.",
+    auth_subtitle2: "فقط قم بتسجيل الدخول عبر Telegram وابدأ في الإنشاء بالفرح.",
+    auth_button_text: "تسجيل الدخول بـ TELEGRAM",
+    auth_notice: "💜 بياناتك آمنة معنا - نحن نقدر ثقتك.",
+
+    strength_label: "قوة الصورة",
+    strength_hint: "التحكم في كيفية تأثير الصورة المرفوعة على التوليد",
+
+    use_negative_prompt: "استخدام النطاق السلبي",
+    negative_prompt_label: "النطاق السلبي",
+
+    // Badges
+    badge_premium: "مميز",
+    badge_free: "مجاني",
+    badge_standard: "قياسي",
 
     // Generation Result Modal
     generation_result_title: "نتيجة التوليد",

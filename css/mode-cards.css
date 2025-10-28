@@ -277,14 +277,18 @@
     }
 
     .mode-cards-grid {
-        gap: 8px;
+        gap: 6px;
         padding: 12px;
+        margin-right: -9px; /* 5% of card width (180px) for peek effect */
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
     }
 
     .mode-card {
         flex: 0 0 180px;
         height: 120px;
         padding: 10px;
+        scroll-snap-align: start;
     }
 
     .mode-icon {
@@ -548,4 +552,17 @@
     .mode-tooltip {
         display: none !important;
     }
+}
+
+/* =============================================================================
+   STYLE CHOICE LABEL - JAPANESE SIZE AND BRIGHTNESS
+   ============================================================================= */
+#chooseStyleSection label.style-left-label {
+    font-size: var(--font-size-xs) !important;
+    font-weight: 700 !important;
+    opacity: 0.9 !important;
+    color: var(--primary-200) !important;
+    padding-left: 0 !important;
+    padding-top: 0 !important;
+    letter-spacing: 0.5px;
 }

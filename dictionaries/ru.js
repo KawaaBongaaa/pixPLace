@@ -14,7 +14,7 @@ export const ru = {
     strength_label: "Сила влияния",
     use_negative_prompt: "Использовать негативный промпт",
     negative_prompt_label: "Негативный промпт",
-    style_label: "Выберите Стиль",
+    use_style_selection: "Выберите Стиль",
     style_realistic: "Реализм",
     style_artistic: "Арт",
     style_cartoon: "Мульт",

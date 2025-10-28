@@ -12,11 +12,11 @@
     border-radius: 12px;
     padding: 2px 8px;
     font-size: 10px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.65);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.786);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    opacity: 0.8;
+    opacity: 0.9;
     z-index: 2;
     pointer-events: none;
     transition: all var(--transition-fast);

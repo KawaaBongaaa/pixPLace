@@ -3,9 +3,18 @@ export const pt = {
     app_title: "pixPLace",
     connecting: "Conectando...",
     connected: "Conectado ao Telegram",
+    // Authentication screen keys
+    auth_title: "Bem-vindo ao pixPLace!",
+    auth_subtitle1: "Um espaço onde suas ideias ganham vida e a criatividade flui.",
+    auth_subtitle2: "Apenas faça login com Telegram e comece a criar com alegria.",
+    auth_button_text: "ENTRAR COM TELEGRAM",
+    auth_notice: "💜 Seus dados estão seguros conosco — valorizamos sua confiança.",
     prompt_label: "Prompt",
     prompt_placeholder: "Descreva sua visão e veja a IA dar vida a ela...",
-    style_label: "Estilo",
+    strength_label: "Força da Imagem",
+    use_negative_prompt: "Usar Prompt Negativo",
+    negative_prompt_label: "Prompt Negativo",
+    use_style_selection: "Estilo",
     style_realistic: "Realista",
     style_artistic: "Artístico",
     style_cartoon: "Cartoon",
@@ -100,7 +109,7 @@ export const pt = {
     plan_lite_feature3: "• Melhor qualidade",
     plan_lite_select: "Assinar",
     plan_pro_title: "PRO",
-    plan_pro_price: "€17",
+    plan_pro_price: "€19",
     plan_pro_desc: "Ideal para entusiastas",
     plan_pro_credits: "1000 créditos",
     plan_pro_feature1: "• Modelos FLUX",
@@ -144,4 +153,18 @@ export const pt = {
     // Additional Messages
     image_added_success: "Imagem adicionada para geração!",
     ui_error_message: "Erro da interface:",
+
+    // Additional keys to match en.js
+    style_surrealism: "Surrealismo",
+    mode_dreamshaper_xl: "DreamShaper XL",
+    mode_dreamshaper_xl_desc: "Modelo de geração rápida projetado como tudo-em-um para fotos, arte estilizada e anime/manga.",
+    telegram_webapp_warning: "WebApp iniciado fora do Telegram - algumas funcionalidades indisponíveis",
+    telegram_integration_unavailable: "Integração Telegram indisponível. Aplicação funciona em modo de visualização.",
+    plan_lite_feature4: "• Geração Rápida",
+    plan_pro_feature4: "• 25% de desconto nos créditos pixPlace",
+    plan_studio_feature4: "• Mais de 30% de desconto nos créditos pixPlace",
+    reuse_prompt: "Repetir",
+    badge_premium: "Premium",
+    badge_free: "Grátis",
+    badge_standard: "Padrão"
 }

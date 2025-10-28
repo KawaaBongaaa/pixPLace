@@ -473,45 +473,9 @@
 
 /* COMPONENTS MODULE - Buttons, Forms, Modals */
 
-/* FORM LABEL ROW - CONTAINS LABEL AND DETAILS BUTTON */
-.form-label-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
-    gap: var(--space-3);
-}
-
-.mode-details-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-sm);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    white-space: nowrap;
-    opacity: 0.8;
-    backdrop-filter: blur(4px);
-}
-
-.mode-details-btn:hover {
-    background: var(--primary-50);
-    border-color: var(--primary-500);
-    color: var(--primary-700);
-    opacity: 1;
-    transform: translateY(-1px);
-}
-
-[data-theme="dark"] .mode-details-btn:hover,
-[data-theme="auto"] .mode-details-btn:hover {
-    background: var(--primary-900);
-    color: var(--primary-200);
+/* MAKING MICRO OFFSET WORKS - MODERN STYLE */
+.mode-details-btn:hover svg {
+    transform: rotate(5deg);
 }
 
 .mode-details-btn svg {
@@ -524,28 +488,29 @@
     transform: rotate(5deg);
 }
 
-/* Form Styles */
-.generation-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+
+/* Small checkbox for style section header */
+.small-checkbox {
+    font-size: 12px;
+    margin-left: auto;
+    position: relative;
+    cursor: pointer;
 }
 
-.form-group {
-    display: column;
-    flex-direction: column;
-    gap: var(--space-2);
+.small-checkbox .checkbox-text {
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
 }
 
-.form-row {
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
-    flex-direction: row;
-    gap: var(--space-10);
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 10px;
+.small-checkbox .checkbox-custom {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    /* Убрать любые pointer-events которые могут блокировать клик */
+    pointer-events: auto !important;
 }
 
 .form-label {
@@ -1630,6 +1595,16 @@ footer a:hover {
     transform: scale(1.2);
 }
 
+/* form-group STYLE SPACING - MICRO OFFSET */
+.form-group:has(#carousel2d) {
+    margin-bottom: 8px; /* микро отступ от кнопки генерации */
+}
+
+/* STYLE SELECTION CHECKBOX - SPACING FROM STYLES CAROUSEL */
+#styleSelectionSection {
+    margin-bottom: 12px; /* микро отступ между чекбоксом и каруселью стилей */
+}
+
 /* MOBILE RESPONSIVE FOR MODE CAROUSEL */
 @media (max-width: 768px) {
     .mode-card {
@@ -2509,6 +2484,7 @@ img.lazy-loaded[data-src] {
     border: 2px solid var(--border-primary);
     border-radius: 6px;
     position: relative;
+    right: 10px;
     background: var(--bg-secondary);
 }
 
@@ -3032,6 +3008,19 @@ img.lazy-loaded[data-src] {
 [data-theme="light"] .modern-upload-btn:hover .btn-link-text,
 [data-theme="auto"] .modern-upload-btn:hover .btn-link-text {
     -webkit-text-fill-color: #ffffff;
+}
+
+/* FORM ROW - USED FOR INLINE FORM CONTROLS */
+.form-row {
+    display: flex;
+    flex-direction: row !important;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.form-row .form-group {
+    display: block;
+    margin-bottom: 0 !important;
 }
 
 /* Photo Warning Modal Icon - Upload Style */

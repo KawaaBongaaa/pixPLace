@@ -9,7 +9,7 @@ export const es = {
     strength_label: "Fuerza de Imagen",
     use_negative_prompt: "Usar Prompt Negativo",
     negative_prompt_label: "Prompt Negativo",
-    style_label: "Estilo",
+    use_style_selection: "Estilo",
     style_realistic: "Realista",
     style_artistic: "Artístico",
     style_cartoon: "Cartoon",
@@ -48,10 +48,7 @@ export const es = {
     mode_background_removal_desc: "Remueve el fondo y mantiene el objeto principal. Sube una foto para empezar ✨",
     mode_upscale_image_desc: "Mejora calidad y resolución de imagen — hace que tus visuales se vean nítidos y detallados 🔍",
 
-    size_label: "Tamaño",
-    size_square: "1:1",
-    size_portrait: "9:16",
-    size_landscape: "16:9",
+    size_label: "Tamaño",size_portrait: "9:16",
     generate_btn: "Generar Imagen",
     create_new: "Crear Nuevo",
     empty_history_title: "Aún no hay generaciones",
@@ -105,7 +102,7 @@ export const es = {
     plan_lite_feature3: "• Mejor calidad",
     plan_lite_select: "Suscribirse",
     plan_pro_title: "PRO",
-    plan_pro_price: "€17",
+    plan_pro_price: "€19",
     plan_pro_desc: "Ideal para entusiastas",
     plan_pro_credits: "1000 créditos",
     plan_pro_feature1: "• Modelos FLUX",
@@ -125,6 +122,25 @@ export const es = {
     photo_warning_upload_btn: "Subir imagen",
     photo_warning_continue_btn: "Continuar sin",
     image_limit_error: "Máximo 4 imágenes. Puedes subir {{count}} más.",
+
+    // Authentication screen keys
+    auth_title: "¡Bienvenido a PixPlace!",
+    auth_subtitle1: "Un espacio donde tus ideas cobran vida y fluye la creatividad.",
+    auth_subtitle2: "¡Inicia sesión con Telegram y comienza a crear con alegría!",
+    auth_button_text: "INICIAR SESIÓN CON TELEGRAM",
+    auth_notice: "💜 Tus datos están seguros con nosotros — valoramos tu confianza.",
+
+    style_surrealism: "Surrealismo",
+
+    mode_dreamshaper_xl: "DreamShaper XL",
+    mode_dreamshaper_xl_desc: "Modelo de generación rápida diseñado como todo-en-uno para fotos, arte estilizado y anime/manga.",
+
+    telegram_webapp_warning: "WebApp iniciado fuera de Telegram - algunas funciones no disponibles",
+    telegram_integration_unavailable: "Integración Telegram no disponible. App funciona en modo de vista previa.",
+
+    plan_lite_feature4: "• Generación Rápida",
+    plan_pro_feature4: "• 25% de descuento en créditos PixPlace",
+    plan_studio_feature4: "• Más del 30% de descuento en créditos PixPlace",
 
     // Generation Result Modal
     generation_result_title: "Resultado de Generación",

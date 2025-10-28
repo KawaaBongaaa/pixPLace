@@ -58,9 +58,17 @@ class DictionaryManager {
                                 'tr': 'tr', 'pl': 'pl', 'vi': 'vi', 'th': 'th'
                             };
 
-                            if (langMap[tgLang] && langMap[tgLang] !== baseLang) {
-                                baseLang = langMap[tgLang];
-                                console.log('✅ Language from Telegram:', tgLang, '->', baseLang);
+                            // 🔥 УЛУЧШЕННОЕ МЭППИНГ: Обработка языков с регионами (ru-RU -> ru)
+                            let mappedLang = langMap[tgLang];
+                            if (!mappedLang) {
+                                // Попробуем удалить регион (ru-RU -> ru, es-ES -> es)
+                                const baseTgLang = tgLang.split('-')[0];
+                                mappedLang = langMap[baseTgLang];
+                            }
+
+                            if (mappedLang && mappedLang !== baseLang) {
+                                baseLang = mappedLang;
+                                console.log('✅ Language from Telegram:', tgLang, '->', baseLang, '(with region handling)');
                             }
                         } else {
                             console.log('⚠️ Telegram available but no language_code');

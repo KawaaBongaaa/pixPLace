@@ -8,8 +8,8 @@
 /* SPECIAL STYLES FOR SLIDER ABOVE PREVIEW - MINIMAL FLOATING BADGE */
 .strength-above-preview {
     position: absolute !important;
-    right: 8px !important;
-    top: 10px;
+    right: 14px !important;
+    top: -14px;
     z-index: 10 !important;
     border: none !important;
     border-radius: 2px !important;
@@ -184,9 +184,9 @@
 
     .strength-above-preview {
         /* Компактнее на планшетах */
-        top: 3px !important;
-        right: 3px !important;
-        padding: 2px 3px !important;
+        top: -10px !important;
+        right: 11px !important;
+        padding: 1px 3px !important;
         max-width: 70px !important;
         font-size: 10px !important;
     }
@@ -211,7 +211,7 @@
     .strength-above-preview {
         /* Минимальный размер на телефонах */
         top: 2px !important;
-        right: 2px !important;
+        right: 22px !important;
         padding: 1px 3px !important;
         max-width: 60px !important;
         font-size: 9px !important;

@@ -757,6 +757,186 @@ import('./history-manager.js').then(module => {
     window.updateHistoryDisplay = module.updateHistoryDisplay;
 });
 
+// ================================================
+// 🎨 STYLE SELECTION CAROUSEL
+// ================================================
+
+// 🎨 Style Selection Carousel with Lazy Loading
+let carouselInitialized = false;
+
+export async function initStyleCarousel() {
+    if (carouselInitialized) return;
+    carouselInitialized = true;
+
+    console.log('🎨 Initializing style carousel...');
+
+    // Находим трек по id или по классу
+    const track = document.getElementById('carousel2d') || document.querySelector('.carousel-2d');
+    if (!track) {
+        console.warn('[carousel2d] трек не найден');
+        return;
+    }
+    if (track._carouselInited) return; // защита от двойной инициализации
+    track._carouselInited = true;
+
+    const cards = Array.from(track.querySelectorAll('.carousel-2d-item'));
+    if (!cards.length) {
+        console.warn('[carousel2d] карточки не найдены');
+        return;
+    }
+
+    let selectedStyle = (cards[0].dataset.style || '').toLowerCase();
+    let isPointerDown = false;
+    let isPointerInteracting = false;
+    let isHighlighting = false;
+    let moved = false;
+    let startX = 0, startY = 0, startScroll = 0;
+    let insideToggle = false;
+
+    // ===== helpers =====
+    function updateGutters() {
+        const cardW = cards[0]?.offsetWidth || 0;
+        const viewport = track.clientWidth || 0;
+        if (!cardW || !viewport) return;
+        const gutter = Math.max(0, (viewport - cardW) / 2);
+        track.style.paddingLeft = `${gutter}px`;
+        track.style.paddingRight = `${gutter}px`;
+    }
+
+    function centerCard(card, smooth = true) {
+        if (!card) return;
+        const viewport = track.clientWidth;
+        const left = card.offsetLeft - (viewport - card.offsetWidth) / 2;
+        const maxScroll = track.scrollWidth - viewport;
+        const clamped = Math.max(0, Math.min(left, maxScroll));
+        track.scrollTo({ left: clamped, behavior: smooth ? 'smooth' : 'auto' });
+    }
+
+    function highlight(card, { scroll = false } = {}) {
+        if (!card || !card.dataset.style) return;
+
+        const style = card.dataset.style.toLowerCase();
+        const isCurrentlyActive = card.classList.contains('active');
+
+        if (isCurrentlyActive) {
+            // Если карточка уже активна - снимаем выбор
+            cards.forEach(c => c.classList.remove('active'));
+            selectedStyle = '';
+            if (window.appState) window.appState.selectedStyle = '';
+
+            console.log('🎨 Style deselected:', style);
+        } else {
+            // Если карточка не активна - выбираем её
+            cards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            selectedStyle = style;
+            if (window.appState) window.appState.selectedStyle = selectedStyle;
+
+            console.log('🎨 Style selected:', style);
+        }
+
+        // Сообщаем наружу о изменении стиля
+        document.dispatchEvent(new CustomEvent('style:change', { detail: { style: selectedStyle } }));
+
+        if (scroll) centerCard(card, true);
+    }
+
+    function nearestCard() {
+        const trackRect = track.getBoundingClientRect();
+        const centerX = trackRect.left + trackRect.width / 2;
+        let best = null, bestDist = Infinity;
+        for (const c of cards) {
+            const r = c.getBoundingClientRect();
+            const cardCenter = r.left + r.width / 2;
+            const dist = Math.abs(cardCenter - centerX);
+            if (dist < bestDist) { bestDist = dist; best = c; }
+        }
+        return best;
+    }
+    // ===== /helpers =====
+
+    // Pointer-события (универсально для мыши/тача/пера)
+    track.addEventListener('pointerdown', (e) => {
+        isPointerDown = true;
+        isPointerInteracting = true;
+        moved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        startScroll = track.scrollLeft;
+        track.setPointerCapture?.(e.pointerId);
+    });
+
+    track.addEventListener('pointermove', (e) => {
+        if (!isPointerDown) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (!moved && Math.hypot(dx, dy) > 8) moved = true; // чуть больше порог «дрожания»
+        track.scrollLeft = startScroll - dx;
+    });
+
+    function endPointer(e) {
+        if (!isPointerDown) return;
+        isPointerDown = false;
+
+        requestAnimationFrame(() => {
+            isPointerInteracting = false;
+        });
+
+        if (moved) {
+            // после свайпа — снэп к ближайшей
+            requestAnimationFrame(() => {
+                const c = nearestCard();
+                if (c) highlight(c, { scroll: true });
+            });
+        } else {
+            // это «тап»: возьмём элемент под пальцем/мышью
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            const card = el?.closest?.('.carousel-2d-item');
+            if (card && track.contains(card)) {
+                highlight(card, { scroll: true });
+            }
+        }
+    }
+
+    track.addEventListener('pointerup', endPointer);
+    track.addEventListener('pointercancel', endPointer);
+    track.addEventListener('pointerleave', endPointer);
+
+    // ADD THIS: scroll event listener for manual scroll selection
+    track.addEventListener('scroll', () => {
+        if (isPointerInteracting || insideToggle) return; // Don't update during pointer interaction or toggle operation
+
+        const card = nearestCard();
+        if (card && !card.classList.contains('active')) {
+            requestAnimationFrame(() => {
+                highlight(card, { scroll: false }); // Select without scrolling to prevent infinite loop
+            });
+        }
+    });
+
+    // Публичный API (если где-то вызывается)
+    window.getSelectedStyle = function () { return selectedStyle; };
+    window.setCarouselStyle = function (style) {
+        const target = String(style || '').toLowerCase();
+        const card = cards.find(c => (c.dataset.style || '').toLowerCase() === target);
+        if (card) highlight(card, { scroll: true });
+    };
+
+    // 🔥 ИСПРАВЛЕНИЕ: Не выделяем стиль по умолчанию при инициализации карусели
+    // Это позволяет mode-cards компоненту самостоятельно управлять выделением
+    console.log('🎨 Style carousel initialized without default selection');
+
+    window.addEventListener('resize', () => {
+        updateGutters();
+        const active = track.querySelector('.carousel-2d-item.active');
+        if (active) centerCard(active, true);
+    });
+
+    // Инициализация размеров сразу
+    updateGutters();
+}
+
+
 // Экспортируем функции в глобальный scope
 window.updateUserNameDisplay = updateUserNameDisplay;
 window.updateUserBalanceDisplay = updateUserBalanceDisplay;
