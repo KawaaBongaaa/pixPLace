@@ -160,6 +160,7 @@ export const ru = {
     // Badges
     badge_premium: "Премиум",
     badge_free: "Бесплатно",
+    badge_standard: "Стандарт",
 
     load_more_history: "Показать больше"
 }

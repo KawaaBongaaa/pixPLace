@@ -160,6 +160,7 @@ export const en = {
     // Badges
     badge_premium: "Premium",
     badge_free: "Free",
+    badge_standard: "Standard",
 
     // Additional Messages
     image_added_success: "Image added for generation!",

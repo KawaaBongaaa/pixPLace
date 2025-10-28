@@ -145,5 +145,10 @@ export const fr = {
     image_added_success: "Image ajoutée pour génération!",
     ui_error_message: "Erreur d'interface:",
 
+    // Badges
+    badge_premium: "Premium",
+    badge_free: "Gratuit",
+    badge_standard: "Standard",
+
     load_more_history: "Voir plus"
 };

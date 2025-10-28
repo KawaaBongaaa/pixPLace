@@ -152,6 +152,7 @@ export const es = {
     // Badges
     badge_premium: "Premium",
     badge_free: "Gratis",
+    badge_standard: "Estándar",
 
     load_more_history: "Mostrar más"
 };

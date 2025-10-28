@@ -51,10 +51,7 @@ export const pl = {
     photo_warning_upload_btn: "Prześlij obraz",
     photo_warning_continue_btn: "Kontynuuj bez",
     image_limit_error: "Maksymalnie 4 obrazy. Możesz przesłać {{count}} więcej.",
-    // Badges
-    badge_premium: "Premium",
-    badge_free: "Gratuito",
-    badge_standard: "Standard",    load_more_history: "Pokaż więcej",
+    load_more_history: "Pokaż więcej",
     history_toggle: "Historia generowań",
 
     // Generation Result Modal

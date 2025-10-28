@@ -145,8 +145,5 @@ export const ja = {
     image_added_success: "生成用の画像を追加しました！",
     ui_error_message: "インターフェースエラー：",
 
-    // Badges
-    badge_premium: "Premium",
-    badge_free: "Gratuito",
-    badge_standard: "Standard",    load_more_history: "さらに表示"
+    load_more_history: "さらに表示"
 };

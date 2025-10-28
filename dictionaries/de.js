@@ -142,5 +142,10 @@ mode_label: "Modus",
     image_added_success: "Bild für Generierung hinzugefügt!",
     ui_error_message: "Interface-Fehler:",
 
+    // Badges
+    badge_premium: "Premium",
+    badge_free: "Kostenlos",
+    badge_standard: "Standard",
+
     load_more_history: "Mehr anzeigen"
 };
