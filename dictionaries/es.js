@@ -6,6 +6,9 @@ export const es = {
     connected: "Conectado a Telegram",
     prompt_label: "Prompt",
     prompt_placeholder: "Describe tu visión y mira cómo la IA la hace realidad...",
+    strength_label: "Fuerza de Imagen",
+    use_negative_prompt: "Usar Prompt Negativo",
+    negative_prompt_label: "Prompt Negativo",
     style_label: "Estilo",
     style_realistic: "Realista",
     style_artistic: "Artístico",
@@ -131,6 +134,7 @@ export const es = {
     prompt_label_modal: "Prompt:",
     use_for_generation: "Usar para nueva generación",
     reuse_prompt_title: "Repetir generación con este prompt",
+    reuse_prompt: "Repetir",
 
     // Generation Result Modal - Toast Messages
     image_downloading: "Descargando imagen...",
@@ -144,6 +148,10 @@ export const es = {
     // Additional Messages
     image_added_success: "¡Imagen agregada para generación!",
     ui_error_message: "Error de interfaz:",
+
+    // Badges
+    badge_premium: "Premium",
+    badge_free: "Gratis",
 
     load_more_history: "Mostrar más"
 };

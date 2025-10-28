@@ -436,17 +436,29 @@ function reusePrompt(prompt, mode) {
 
 // Вспомогательная функция для обновления выбора режима в карусели
 function updateModeSelection(mode) {
-    // Ищем кнопку режима в карусели
-    const modeCards = document.querySelectorAll('.mode-card');
-    modeCards.forEach(card => {
-        const cardMode = card.getAttribute('data-mode');
-        if (cardMode === mode) {
-            // Кликаем по карточке режима чтобы активировать ее
-            setTimeout(() => {
-                card.click();
-            }, 50);
+    // Используем новый API из mode-cards.js если доступен
+    if (window.modeCardsExports && window.modeCardsExports.selectModeByName) {
+        console.log('🔄 Using mode-cards API to select mode:', mode);
+        window.modeCardsExports.selectModeByName(mode);
+
+        // Синхронизируем старый hidden select для совместимости
+        const modeSelect = document.getElementById('modeSelect');
+        if (modeSelect) {
+            modeSelect.value = mode;
         }
-    });
+    } else {
+        // Fallback для старого метода карусели
+        const modeCards = document.querySelectorAll('.mode-card');
+        modeCards.forEach(card => {
+            const cardMode = card.getAttribute('data-mode');
+            if (cardMode === mode) {
+                // Кликаем по карточке режима чтобы активировать ее
+                setTimeout(() => {
+                    card.click();
+                }, 50);
+            }
+        });
+    }
 }
 
 // Вспомогательная функция для переключения на экран генерации
@@ -942,7 +954,7 @@ async function convertToBlob(imageUrl) {
     });
 }
 
-// Функция использования изображения для генерации - С ПОИСКОМ DATAURL В ИСТОРИИ
+// Функция использования изображения для генерации - НАПРЯМУЮ ДОБАВЛЯЕМ В СОСТОЯНИЕ БЕЗ СИМУЛЯЦИИ ЗАГРУЗКИ
 async function useImageForGeneration(imageUrl, itemId) {
     console.log('🎯 Starting image usage for generation, itemId:', itemId, 'URL:', imageUrl?.substring(0, 50) + '...');
 
@@ -952,171 +964,166 @@ async function useImageForGeneration(imageUrl, itemId) {
     // Переходим к экрану генерации
     showGeneration();
 
-    // Показываем индикатор загрузки
-    const originalImageUrl = imageUrl;
-
-    let processedImageUrl = imageUrl;
+    await new Promise(resolve => setTimeout(resolve, 300)); // Ждем завершения анимации перехода
 
     try {
-        // 🔥 КРАЙНЕ ПРОСТОЕ РЕШЕНИЕ БЕЗ CORS ПРОБЛЕМ:
-        // Просто добавляем изображение в состояние И создаем превью напрямую!
+        // 🔥 НАПРЯМУЮ ДОБАВЛЯЕМ ИЗОБРАЖЕНИЕ В СОСТОЯНИЕ БЕЗ СИМУЛЯЦИИ ФАЙЛА
+        // Это решает проблемы CORS и непредсказуемого поведения симуляции
 
-        setTimeout(async () => {
+        // 1. Очищаем все существующие изображения
+        clearAllImages();
+        console.log('✅ Cleared existing images');
+
+        // 2. Конвертируем изображение в dataURL если оно еще не таковое
+        let processedImageUrl = imageUrl;
+        if (!imageUrl.startsWith?.('data:')) {
+            console.log('🔄 Converting external URL to dataURL for reliability');
             try {
-                console.log('🎯 Adding image directly to UI - bypassing cors issues');
-
-                // 🔥 ЧИСТКА: Подготовка к добавлению нового изображения
-                if (window.userImageState) {
-                    window.userImageState.images = [];
-                    console.log('✅ Cleared userImageState manually');
-                }
-
-                const previewContainer = document.getElementById('previewContainer');
-                if (previewContainer) {
-                    previewContainer.innerHTML = '';
-                    console.log('✅ Cleared DOM preview container');
-                }
-
-                const preview = document.getElementById('userImagePreview');
-                if (preview) {
-                    // Убираем display, но НЕ добавляем hidden - пусть создастся без классов
-                    preview.style.removeProperty('display');
-                    console.log('✅ Reset preview container display property only');
-                }
-
-                const wrapper = document.getElementById('userImageWrapper');
-                if (wrapper) {
-                    wrapper.classList.remove('has-image');
-                    wrapper.classList.add('need-image');
-                    console.log('✅ Reset wrapper classes');
-                }
-
-                // 🔥 СОЗДАЕМ ОБЪЕКТ ИЗОБРАЖЕНИЯ ДЛЯ СОСТОЯНИЯ
-                const imageId = 'history_' + Date.now() + Math.random().toString(36).substr(2, 9);
-                const imageObj = {
-                    id: imageId,
-                    file: null, // Нет файла, но есть dataUrl
-                    dataUrl: processedImageUrl,
-                    uploadedUrl: null
-                };
-
-                window.userImageState.images.push(imageObj);
-                console.log(`📦 Added history image to userImageState: ${imageObj.id}`);
-
-                // 🔥 СОЗДАЕМ ПРЕВЬЮ ТАК ЖЕ, КАК В createPreviewItem В app_modern.js
-                createPreviewItem(imageId, processedImageUrl, 'History Image');
-                console.log('✅ Created preview element using same logic as upload button');
-
-                // 🔥 ОБНОВЛЯЕМ ВИДИМОСТЬ UI (с двойным обеспечением)
-                setTimeout(() => {
-                    if (window.updateImageUploadVisibility) {
-                        window.updateImageUploadVisibility();
-                        console.log('✅ First UI visibility update');
-                    }
-
-                    // 🔥 ДОПОЛНИТЕЛЬНЫЙ ОБЕСПЕЧИВАЮЩИЙ ВЫЗОВ для гарантированного скрытия кнопки
-                    setTimeout(() => {
-                        if (window.updateImageUploadVisibility) {
-                            window.updateImageUploadVisibility();
-                            console.log('✅ Second UI visibility update (safety check)');
-                        }
-
-                // 🔥 АГРЕССИВНАЯ ОЧИСТКА АНИМАЦИЙ С КНОПКИ ЗАГРУЗКИ
-                        const chooseBtn = document.getElementById('chooseUserImage');
-                        if (chooseBtn) {
-                            // Убираем все возможные анимации
-                            chooseBtn.style.animation = '';
-                            chooseBtn.style.animationName = '';
-                            chooseBtn.style.animationDuration = '';
-                            chooseBtn.style.animationDelay = '';
-                            chooseBtn.style.animationIterationCount = '';
-
-                            // Убираем CSS классы анимации если есть
-                            chooseBtn.classList.remove('need-image-pulse', 'blink', 'flashing', 'upload-blink');
-
-                            // 🔥 ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА - ФОРСИРОВАННО ПРЯЧЕМ КНОПКУ
-                            chooseBtn.style.setProperty('display', 'none', 'important');
-                            chooseBtn.classList.add('flux-shnel-hidden');
-
-                            console.log('🔧 Force cleared all animations and HIDDEN upload button permanently');
-                        }
-                    }, 50);
-
-                    // 🔥 ДОБАВИТЬ: ЕСЛИ ПРЕВЬЮ ЕЩЁ НЕ ПОКАЗАНОСЬ - ЯВНО СНЯТЬ КЛАССЫ HIDDEN
-                    setTimeout(() => {
-                        const finalPreview = document.getElementById('userImagePreview');
-                        if (finalPreview) {
-                            finalPreview.classList.remove('hidden', 'flux-shnel-hidden');
-                            finalPreview.style.setProperty('display', 'block', 'important');
-                            console.log('✅ Explicitly showed preview container with !important');
-                        }
-
-                        // 🔥 ДОБАВИТЬ: ДВОЙНАЯ ПРОВЕРКА ДЛЯ ГАРАНТИРОВАННОГО СКРЫТИЯ КНОПКИ
-                        const finalChooseBtn = document.getElementById('chooseUserImage');
-                        if (finalChooseBtn) {
-                            finalChooseBtn.style.setProperty('display', 'none', 'important');
-                            finalChooseBtn.classList.add('flux-shnel-hidden');
-                            console.log('✅ Double-check: upload button hidden via CSS !important');
-                        }
-                    }, 150);
-
-                    // 🔥 ОБНОВЛЯЕМ СЧЕТЧИК ИЗОБРАЖЕНИЙ
-                    if (window.updateInnerUploadButtonVisibility) {
-                        window.updateInnerUploadButtonVisibility();
-                        console.log('✅ Updated inner button visibility');
-                    }
-
-                    // 🔥 ДОБАВИТЬ: Автоматический выбор режима photo_session (Nano Banana) при работе с изображениями
-                    setTimeout(() => {
-                        const modeSelect = document.getElementById('modeSelect');
-                        if (modeSelect && modeSelect.value !== 'photo_session') {
-                            modeSelect.value = 'photo_session';
-                            console.log('🔄 Auto-switched to photo_session mode for image editing');
-
-                            // Обновляем режим в глобальном состоянии
-                            if (window.appState) {
-                                window.appState.currentMode = 'photo_session';
-                            }
-
-                            // Синхронизируем с каруселью режимов - найдем и кликнем карточку photo_session
-                            const photoSessionCard = document.querySelector('.mode-card[data-mode="photo_session"]');
-                            if (photoSessionCard) {
-                                photoSessionCard.click();
-                                console.log('✅ Mode carousel synchronized with photo_session');
-                            }
-                        } else {
-                            console.log('✅ Mode already set to photo_session or select not found');
-                        }
-                    }, 200);
-                }, 100);
-
-                // УСПЕХ!
-                showToast('success', window.appState?.translate?.('image_added_success') || 'Image added for generation!');
-                console.log('✅ Image successfully added using direct UI manipulation');
-
-                // Прокручиваем к превью + финальное обновление UI
-                setTimeout(() => {
-                    const preview = document.getElementById('userImagePreview');
-                    if (preview) {
-                        preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-
-                    // 🔥 ФИНАЛЬНЫЙ ЗАЩИТНЫЙ ОБЕСПЕЧИВАЮЩИЙ ВЫЗОВ
-                    if (window.updateImageUploadVisibility) {
-                        window.updateImageUploadVisibility();
-                        console.log('✅ Final safety UI update completed');
-                    }
-                }, 800);
-
-            } catch (error) {
-                console.error('❌ UI manipulation error:', error);
-                showToast('error', `${window.appState?.translate?.('ui_error_message') || 'Interface error:'} ${error.message}`);
+                processedImageUrl = await downloadAndConvertImage(imageUrl);
+                console.log('✅ Image successfully converted to dataURL');
+            } catch (conversionError) {
+                console.warn('⚠️ Failed to convert image to dataURL, using original URL:', conversionError.message);
+                // Продолжаем с оригинальным URL если конверсия не удалась
+                processedImageUrl = imageUrl;
             }
-        }, 300);
+        } else {
+            console.log('✅ Image is already a dataURL, no conversion needed');
+        }
+
+        // 3. Создаем объект изображения напрямую
+        const imageId = 'history_' + Date.now();
+        const imageObj = {
+            id: imageId,
+            file: null, // файл не нужен для существующих изображений из истории
+            dataUrl: processedImageUrl, // используем обработанный URL
+            uploadedUrl: null
+        };
+
+        // 4. Добавляем в глобальное состояние
+        window.userImageState.images.push(imageObj);
+        console.log('✅ Added image to userImageState:', window.userImageState.images.length, 'images');
+
+        // 5. Создаем превью элемент напрямую
+        if (window.createPreviewItem) {
+            window.createPreviewItem(imageId, processedImageUrl, 'History Image');
+            console.log('✅ Preview item created');
+        }
+
+        // 6. Проверяем и переключаем режим если нужно
+        setTimeout(async () => {
+            // Получаем текущий выбранный режим несколькими способами для надежности
+            let currentMode = null;
+
+            // Способ 1: Через функцию getCurrentSelectedMode
+            if (window.getCurrentSelectedMode) {
+                try {
+                    currentMode = await window.getCurrentSelectedMode();
+                } catch (error) {
+                    console.warn('❌ getCurrentSelectedMode failed:', error);
+                }
+            }
+
+            // Способ 2: Через mode-cards API если доступен
+            if (!currentMode && window.modeCardsExports?.getSelectedMode) {
+                currentMode = window.modeCardsExports?.getSelectedMode();
+            }
+
+            // Способ 3: Через DOM select элемент
+            if (!currentMode) {
+                const modeSelect = document.getElementById('modeSelect');
+                currentMode = modeSelect?.value;
+            }
+
+            // Способ 4: Через активную карточку
+            if (!currentMode) {
+                const activeCard = document.querySelector('.mode-card.active, .carousel-2d-item.active');
+                currentMode = activeCard?.getAttribute('data-mode');
+            }
+
+            console.log('🎯 Current selected mode when using image:', currentMode, {
+                from_getCurrentSelectedMode: window.getCurrentSelectedMode ? await window.getCurrentSelectedMode().catch(e => 'error') : 'not_available',
+                from_modeCards: window.modeCardsExports?.getSelectedMode?.(),
+                from_DOM: document.getElementById('modeSelect')?.value,
+                from_activeCard: document.querySelector('.mode-card.active, .carousel-2d-item.active')?.getAttribute('data-mode')
+            });
+
+            // 🔥 переключаемся на photo_session ТОЛЬКО если текущий режим - fast_generation (Flux Fast)
+            if (currentMode === 'fast_generation') {
+                console.log(`🔄 Current mode is fast_generation, switching to photo_session for image editing`);
+
+                // Используем новый API из mode-cards если доступен
+                if (window.modeCardsExports?.selectModeByName) {
+                    console.log('🎯 Using mode-cards API to switch to photo_session');
+                    window.modeCardsExports.selectModeByName('photo_session');
+                    console.log('✅ Mode switched using mode-cards API');
+                } else {
+                    // Fallback к старому методу
+                    console.log('🔄 Using fallback mode switching');
+                    const modeSelect = document.getElementById('modeSelect');
+                    if (modeSelect) {
+                        modeSelect.value = 'photo_session';
+
+                        // Обновляем режим в глобальном состоянии
+                        if (window.appState) {
+                            window.appState.currentMode = 'photo_session';
+                        }
+
+                        // Синхронизируем с каруселью режимов - найдем и кликнем карточку photo_session
+                        const photoSessionCard = document.querySelector('.mode-card[data-mode="photo_session"]');
+                        if (photoSessionCard) {
+                            photoSessionCard.click();
+                            console.log('✅ Mode carousel synchronized with photo_session (fallback)');
+                        }
+                    } else {
+                        console.log('❌ Mode select element not found');
+                    }
+                }
+
+                // 🔧 ДОБАВИЛИ: Ждем завершения переключения режима перед обновлением UI
+                await new Promise(resolve => setTimeout(resolve, 200));
+                console.log('⏱️ Waited for mode switch to complete');
+
+            } else {
+                console.log(`✅ Current mode is ${currentMode}, keeping as is (supports images)`);
+            }
+
+            // Финальное обновление UI после всех изменений
+            setTimeout(() => {
+                if (window.updateImageUploadVisibility) {
+                    window.updateImageUploadVisibility();
+                    console.log('✅ Final UI update after mode switch');
+                }
+
+                // 🔥 ИСПРАВЛЕНИЕ: Принудительное обновление слайдера strength после добавления изображения из истории
+                if (window.strengthSlider?.updateVisibility) {
+                    window.strengthSlider.updateVisibility();
+                    console.log('✅ Strength slider visibility updated after image addition');
+                } else if (window.strengthSlider) {
+                    console.warn('⚠️ Strength slider updateVisibility method not available, using force update');
+                    // Fallback - попробуем обновить через событие
+                    document.dispatchEvent(new CustomEvent('images:updated', {
+                        detail: { imageCount: window.userImageState?.images?.length || 0 }
+                    }));
+                }
+            }, 100);
+        }, 100);
+
+        // УСПЕХ!
+        showToast('success', window.appState?.translate?.('image_added_success') || 'Image added for generation!');
+        console.log('✅ Image successfully added using direct state manipulation');
+
+        // Прокручиваем к превью с небольшой задержкой
+        setTimeout(() => {
+            const preview = document.getElementById('userImagePreview');
+            if (preview) {
+                preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                console.log('✅ Scrolled to preview');
+            }
+        }, 500);
 
     } catch (error) {
-        console.error('❌ Setup error:', error);
-        showToast('error', 'Ошибка подготовки: ' + error.message);
+        console.error('❌ Direct image addition error:', error);
+        showToast('error', `${window.appState?.translate?.('ui_error_message') || 'Interface error:'} ${error.message}`);
     }
 }
 
@@ -1133,7 +1140,7 @@ function removeImageFromState(imageId) {
 
 // 🔥 ИСПРАВЛЕНИЕ: Использование глобального userImageState из app_modern.js для совместимости
 function clearAllImages() {
-    console.log('🔥 Clearing all existing images for history integration');
+    console.log('� Clearing all existing images for history integration');
 
     // Теперь функция очищает глобальное состояние userImageState из app_modern.js
     console.log('🔥 Clearing all existing images for history integration');

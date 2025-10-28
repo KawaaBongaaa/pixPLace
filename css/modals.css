@@ -552,3 +552,192 @@
     max-height: 60px;
     overflow-y: auto;
 }
+
+/* NEGATIVE PROMPT CHECKBOX - MODERN DISCREET DESIGN */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 0;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.checkbox-label:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+/* LIMIT CLICKABLE AREA - ONLY CHECKBOX AND TEXT */
+.checkbox-label {
+    pointer-events: none; /* Disable clicking on entire label area */
+}
+
+.checkbox-label input[type="checkbox"],
+.checkbox-label .checkbox-custom,
+.checkbox-label .checkbox-text {
+    pointer-events: auto; /* Enable clicking only on checkbox and text */
+}
+
+/* HIDE DEFAULT CHECKBOX */
+.checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* CUSTOM CHECKBOX STYLING - MICRO SIZE */
+.checkbox-custom {
+    position: relative;
+    height: 12px;
+    width: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Dark theme checkbox */
+[data-theme="dark"] .checkbox-custom {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme checkbox */
+[data-theme="light"] .checkbox-custom {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Checked state - subtle animation */
+.checkbox-label input:checked ~ .checkbox-custom {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+    border-color: rgba(14, 165, 233, 0.5);
+    transform: scale(1.05);
+}
+
+.checkbox-label input:checked ~ .checkbox-custom::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    width: 3px;
+    height: 5px;
+    border: solid white;
+    border-width: 0 1px 1px 0;
+    transform: rotate(45deg);
+    opacity: 0.9;
+}
+
+/* CHECKBOX TEXT - MINI SIZE */
+.checkbox-text {
+    font-size: 10px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+    font-family: "Inter", sans-serif;
+}
+
+.checkbox-label:hover .checkbox-text {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.checkbox-label input:checked ~ .checkbox-text {
+    color: rgba(14, 165, 233, 0.8);
+    font-weight: 500;
+}
+
+/* Dark theme text */
+[data-theme="dark"] .checkbox-text {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .checkbox-label:hover .checkbox-text {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .checkbox-label input:checked ~ .checkbox-text {
+    color: rgba(14, 165, 233, 0.9);
+    font-weight: 500;
+}
+
+/* Light theme text */
+[data-theme="light"] .checkbox-text {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] .checkbox-label:hover .checkbox-text {
+    color: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="light"] .checkbox-label input:checked ~ .checkbox-text {
+    color: rgba(14, 165, 233, 0.9);
+    font-weight: 500;
+}
+
+/* NEGATIVE PROMPT INPUT - COMPACT DESIGN */
+/* More compact negative prompt input compared to regular prompt */
+#negativePromptInput {
+    min-height: 80px !important;
+    max-height: 80px !important;
+    font-size: var(--font-size-sm) !important;
+    padding: var(--space-1) var(--space-2) !important;
+    margin: 0 !important;
+    border-radius: var(--radius-md) !important;
+    resize: none !important;
+}
+
+/* Even more compact on mobile */
+@media (max-width: 768px) {
+    #negativePromptInput {
+        min-height: 70px !important;
+        max-height: 70px !important;
+        font-size: calc(var(--font-size-sm) - 1px) !important;
+        padding: calc(var(--space-1) - 2px) var(--space-2) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #negativePromptInput {
+        min-height: 65px !important;
+        max-height: 65px !important;
+        font-size: calc(var(--font-size-sm) - 2px) !important;
+        padding: calc(var(--space-1) - 3px) var(--space-2) !important;
+    }
+}
+
+/* Make it narrower than regular prompt input */
+@media (min-width: 768px) {
+    #negativePromptInput {
+        width: 92% !important; /* Slightly narrower than 100% */
+    }
+}
+
+/* Add space between checkbox and input field to prevent overlap */
+#negativePromptFormGroup {
+    margin-top: 8px !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure checkbox doesn't get covered when input expands */
+.checkbox-label {
+    position: relative;
+    z-index: 10;
+}
+
+/* Make sure input field doesn't overlap button area */
+#negativePromptSection {
+    position: relative;
+}
+
+#negativePromptSection #negativePromptFormGroup {
+    margin-bottom: 0.5rem;
+}

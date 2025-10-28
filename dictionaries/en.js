@@ -11,6 +11,9 @@ export const en = {
     auth_notice: "💜 Your data's safe with us — we value your trust.",
     prompt_label: "Prompt",
     prompt_placeholder: "Describe your vision and watch AI bring it to life...",
+    strength_label: "Image Strength",
+    use_negative_prompt: "Use Negative Prompt",
+    negative_prompt_label: "Negative Prompt",
     style_label: "Choose a Style",
     style_realistic: "Realistic",
     style_artistic: "Artistic",
@@ -42,6 +45,7 @@ export const en = {
     mode_photo_session: "Nano Banana",
     mode_fast_generation: "Flux Fast Generation",
     mode_pixplace_pro: "Flux Pro Advanced",
+    mode_dreamshaper_xl: "DreamShaper XL",
     mode_details: "Model Details",
 
     // Human-like dialog mode descriptions
@@ -51,6 +55,7 @@ export const en = {
     mode_print_maker_desc: "Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond",
     mode_background_removal_desc: "Remove the background and keep the main object. Upload a photo to start",
     mode_upscale_image_desc: "Boost image quality and resolution — make your visuals look crisp and detailed",
+    mode_dreamshaper_xl_desc: "Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.",
     generate_btn: "Generate Image",
     create_new: "Create New",
     empty_history_title: "No generations yet",
@@ -151,6 +156,10 @@ export const en = {
     // Generation Result Modal - Share
     share_title: "My AI image from pixPLace",
     share_text: "Look at this AI-generated image from pixPLace!",
+
+    // Badges
+    badge_premium: "Premium",
+    badge_free: "Free",
 
     // Additional Messages
     image_added_success: "Image added for generation!",

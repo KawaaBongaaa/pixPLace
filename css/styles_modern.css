@@ -9,6 +9,9 @@
 /* Component specific styles */
 @import url('components.css');
 
+/* Mode Cards Component */
+@import url('mode-cards.css');
+
 /* Screen layouts and views */
 @import url('screens.css');
 

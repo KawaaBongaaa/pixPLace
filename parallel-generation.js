@@ -325,6 +325,278 @@ class GenerationManager {
 
     async processGeneration(generation) {
         try {
+            // 🔥 ULTIMATE DEBUGGING: Log all generation details
+            console.log('🎯 processGeneration START - Full generation object:', {
+                id: generation.id,
+                mode: generation.mode,
+                modeType: typeof generation.mode,
+                prompt: generation.prompt,
+                imageUUIDs: generation.imageUUIDs,
+                imageUUID: generation.imageUUID,
+                style: generation.style,
+                size: generation.size,
+                taskUUID: generation.taskUUID,
+                allProps: Object.keys(generation)
+            });
+
+            // 🔥 DEBUG: Log what mode is actually being processed
+            console.log('🔍 DEBUG: Processing generation mode:', {
+                mode: generation.mode,
+                modeType: typeof generation.mode,
+                modeLength: generation.mode ? generation.mode.length : 'N/A',
+                modeToLower: generation.mode ? generation.mode.toLowerCase() : 'N/A',
+                isStrictEqual: generation.mode === 'background_removal',
+                isEqualIgnoreCase: generation.mode?.toLowerCase() === 'background_removal'
+            });
+
+            // 🔥 SPECIAL HANDLING FOR DREAMSHAPER XL MODE
+            if (generation.mode === 'dreamshaper_xl') {
+                console.log('🎨 🔥 DREAMSHAPER XL MODE DETECTED - Starting specialized processing');
+                console.log('🎨 Detected dreamshaper_xl mode, using specialized module');
+
+                // Lazy loading of the module only when needed
+                let dreamShaperGeneratorModule;
+                try {
+                    const module = await import('./dreamshaper-generator.js');
+                    dreamShaperGeneratorModule = module.dreamShaperGeneratorModule;
+                    // Initialize if not initialized
+                    if (!dreamShaperGeneratorModule.initialized) {
+                        dreamShaperGeneratorModule.init();
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to load dreamshaper-generator module:', error);
+                    throw new Error('DreamShaper XL module loading failed');
+                }
+
+                // Process using the specialized module with API key from CONFIG
+                const apiKey = CONFIG?.RUNWARE_API_KEY;
+                if (!apiKey) {
+                    throw new Error('Runware API key not configured');
+                }
+
+                const result = await dreamShaperGeneratorModule.processGeneration(generation, apiKey);
+                console.log('🎨 DreamShaper XL result:', result);
+
+                if (result.status === 'success') {
+                    // Success - complete the generation with the result
+                    const responseImageUrl = result.image_url;
+                    const replacementData = {
+                        image_url: responseImageUrl,
+                        generation_id: generation.id,
+                        mode: generation.mode,
+                        style: generation.style,
+                        generation_cost: result.cost,
+                        cost_currency: result.cost_currency || 'Cr',
+                        remaining_credits: result.remaining_credits,
+                        taskUUID: generation.taskUUID
+                    };
+
+                    console.log('🎯 DreamShaper XL success data:', replacementData);
+
+                    // Send completion events
+                    const completionEvent = new CustomEvent(`generation:completed:${generation.taskUUID}`, {
+                        detail: replacementData
+                    });
+                    document.dispatchEvent(completionEvent);
+
+                    const globalCompletionEvent = new CustomEvent('generation:completed', {
+                        detail: {
+                            ...replacementData,
+                            generation_id: generation.id,
+                            taskUUID: generation.taskUUID
+                        }
+                    });
+                    document.dispatchEvent(globalCompletionEvent);
+
+                    // Update generation state
+                    generation.result = responseImageUrl;
+                    generation.status = 'completed';
+
+                    if (window.appState) {
+                        window.appState.addGeneration(generation);
+                        window.appState.currentGeneration = generation;
+                        window.appState.saveHistory();
+                        console.log('💾 DreamShaper XL generation added to history');
+                    }
+
+                    // 🔥 ЗАМЕНА АНИМАЦИИ НА ПРЕВЬЮ по taskUUID (как в обычной логике)
+                    let visualUpdateDone = false;
+
+                    // 🔥 ПРОВЕРЯЕМ: Закрыта ли история перед обновлением DOM
+                    const isHistoryClosed = !document.getElementById('historyList')?.classList.contains('hidden');
+
+                    if (window.replaceLoadingWithPreview) {
+                        const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
+                        if (replaced) {
+                            console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
+                            visualUpdateDone = true;
+                        } else {
+                            console.warn(`⚠️ Preview replacement failed - using mandatory fallback`);
+                            // ДОБАВИЛИ: ОБЯЗАТЕЛЬНЫЙ FALLBACK когда replaceLoadingWithPreview вернул false
+                            if (window.updateHistoryItemWithImage) {
+                                window.updateHistoryItemWithImage(generation.id, responseImageUrl);
+                                visualUpdateDone = true;
+                            }
+                        }
+                    } else {
+                        console.warn('❌ replaceLoadingWithPreview not available');
+                        // Если история открыта, используем fallback
+                        if (window.updateHistoryItemWithImage && isHistoryClosed) {
+                            console.log('🔄 Using fallback visual update while history is open');
+                            window.updateHistoryItemWithImage(generation.id, responseImageUrl);
+                            visualUpdateDone = true;
+                        }
+                    }
+
+                    console.log(`🎯 DreamShaper XL completion events sent (visualUpdateDone: ${visualUpdateDone})`);
+
+                    // ❌ DISABLED: Не обновляем баланс для прямых запросов к Runware
+                    // window.updateUserBalance() disabled for dreamshaper_xl mode
+
+                    // Show success notification
+                    if (window.showResultToast) {
+                        window.showResultToast({ image_url: responseImageUrl });
+                    } else if (window.showToast) {
+                        window.showToast('success', 'Изображение сгенерировано! Посмотрите в истории.');
+                    }
+
+                    console.log(`✅ DreamShaper XL ${generation.id} completed successfully`);
+                    this.completeGeneration(generation.id, responseImageUrl);
+                    return;
+
+                } else {
+                    // Error - complete with error
+                    const errorMessage = result.error || 'DreamShaper XL generation failed';
+                    console.error('❌ DreamShaper XL error:', errorMessage);
+                    this.completeGeneration(generation.id, null, new Error(errorMessage));
+                    return;
+                }
+            }
+
+            // 🔥 SPECIAL HANDLING FOR BACKGROUND REMOVAL MODE
+            if (generation.mode === 'background_removal') {
+                console.log('🎨 🔥 BACKGROUND REMOVAL MODE DETECTED - Starting specialized processing');
+                console.log('🎨 Detected background_removal mode, using specialized module');
+
+                // Lazy loading of the module only when needed
+                let removeBackgroundModule;
+                try {
+                    const module = await import('./remove-background.js');
+                    removeBackgroundModule = module.removeBackgroundModule;
+                    // Initialize if not initialized
+                    if (!removeBackgroundModule.initialized) {
+                        removeBackgroundModule.init();
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to load remove-background module:', error);
+                    throw new Error('Remove background module loading failed');
+                }
+
+                // Process using the specialized module with API key from CONFIG
+                const apiKey = CONFIG?.RUNWARE_API_KEY;
+                if (!apiKey) {
+                    throw new Error('Runware API key not configured');
+                }
+
+                const result = await removeBackgroundModule.processRemoval(generation, apiKey);
+                console.log('🎨 Background removal result:', result);
+
+                if (result.status === 'success') {
+                    // Success - complete the generation with the result
+                    const responseImageUrl = result.image_url;
+                    const replacementData = {
+                        image_url: responseImageUrl,
+                        generation_id: generation.id,
+                        mode: generation.mode,
+                        style: generation.style,
+                        generation_cost: result.cost,
+                        cost_currency: result.cost_currency || 'Cr',
+                        remaining_credits: result.remaining_credits,
+                        taskUUID: generation.taskUUID
+                    };
+
+                    console.log('🎯 Background removal success data:', replacementData);
+
+                    // Send completion events
+                    const completionEvent = new CustomEvent(`generation:completed:${generation.taskUUID}`, {
+                        detail: replacementData
+                    });
+                    document.dispatchEvent(completionEvent);
+
+                    const globalCompletionEvent = new CustomEvent('generation:completed', {
+                        detail: {
+                            ...replacementData,
+                            generation_id: generation.id,
+                            taskUUID: generation.taskUUID
+                        }
+                    });
+                    document.dispatchEvent(globalCompletionEvent);
+
+                    // Update generation state
+                    generation.result = responseImageUrl;
+                    generation.status = 'completed';
+
+                    if (window.appState) {
+                        window.appState.addGeneration(generation);
+                        window.appState.currentGeneration = generation;
+                        window.appState.saveHistory();
+                        console.log('💾 Background removal generation added to history');
+                    }
+
+                    // 🔥 ЗАМЕНА АНИМАЦИИ НА ПРЕВЬЮ по taskUUID (как в обычной логике)
+                    let visualUpdateDone = false;
+
+                    // 🔥 ПРОВЕРЯЕМ: Закрыта ли история перед обновлением DOM
+                    const isHistoryClosed = !document.getElementById('historyList')?.classList.contains('hidden');
+
+                    if (window.replaceLoadingWithPreview) {
+                        const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
+                        if (replaced) {
+                            console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
+                            visualUpdateDone = true;
+                        } else {
+                            console.warn(`⚠️ Preview replacement failed - using mandatory fallback`);
+                            // ДОБАВИЛИ: ОБЯЗАТЕЛЬНЫЙ FALLBACK когда replaceLoadingWithPreview вернул false
+                            if (window.updateHistoryItemWithImage) {
+                                window.updateHistoryItemWithImage(generation.id, responseImageUrl);
+                                visualUpdateDone = true;
+                            }
+                        }
+                    } else {
+                        console.warn('❌ replaceLoadingWithPreview not available');
+                        // Если история открыта, используем fallback
+                        if (window.updateHistoryItemWithImage && isHistoryClosed) {
+                            console.log('🔄 Using fallback visual update while history is open');
+                            window.updateHistoryItemWithImage(generation.id, responseImageUrl);
+                            visualUpdateDone = true;
+                        }
+                    }
+
+                    console.log(`🎯 Background removal completion events sent (visualUpdateDone: ${visualUpdateDone})`);
+
+                    // ❌ DISABLED: Не обновляем баланс для прямых запросов к Runware
+                    // window.updateUserBalance() disabled for background_removal mode
+
+                    // Show success notification
+                    if (window.showResultToast) {
+                        window.showResultToast({ image_url: responseImageUrl });
+                    } else if (window.showToast) {
+                        window.showToast('success', 'Фон удалён успешно! Посмотрите в истории.');
+                    }
+
+                    console.log(`✅ Background removal ${generation.id} completed successfully`);
+                    this.completeGeneration(generation.id, responseImageUrl);
+                    return;
+
+                } else {
+                    // Error - complete with error
+                    const errorMessage = result.error || 'Background removal failed';
+                    console.error('❌ Background removal error:', errorMessage);
+                    this.completeGeneration(generation.id, null, new Error(errorMessage));
+                    return;
+                }
+            }
+
             // Принудительная загрузка изображений для быстрой обратной связи
             if (window.globalHistoryLoader) {
                 setTimeout(() => {

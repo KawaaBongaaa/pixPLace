@@ -11,6 +11,9 @@ export const ru = {
     auth_notice: "💜 Ваши данные в безопасности. Мы ценим доверие.",
     prompt_label: "Prompt",
     prompt_placeholder: "Опишите своё видение и наблюдайте, как AI воплощает его в жизнь...",
+    strength_label: "Сила влияния",
+    use_negative_prompt: "Использовать негативный промпт",
+    negative_prompt_label: "Негативный промпт",
     style_label: "Выберите Стиль",
     style_realistic: "Реализм",
     style_artistic: "Арт",
@@ -50,6 +53,7 @@ export const ru = {
     mode_print_maker_desc: "Кастомный режим для Print-on-Demand боссов — печатает принты прямо на футболках, багах и всякой другой мерче. Используй свои фотки для вдохновения 🔥",
     mode_background_removal_desc: "Вырезает фон как хирург — оставляет только основной объект. Кидаешь фото, получаешь крутой PNG с прозрачным фоном ✨",
     mode_upscale_image_desc: "Увеличивает пиксели и качество — твои фотки становятся чёткими как на мониторах Apple Vision Pro 🔍",
+    mode_dreamshaper_xl_desc: "Быстрая генерация. Предназначена как «всё-в-одном» модель: фотографии, стилизованный арт, аниме/манга.",
     size_label: "Размер",
     generate_btn: "Создать изображение",
     create_new: "Создать новое",
@@ -152,6 +156,10 @@ export const ru = {
     // Additional Messages
     image_added_success: "Изображение добавлено для генерации!",
     ui_error_message: "Ошибка интерфейса:",
+
+    // Badges
+    badge_premium: "Премиум",
+    badge_free: "Бесплатно",
 
     load_more_history: "Показать больше"
 }

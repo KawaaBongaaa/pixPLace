@@ -528,7 +528,7 @@
 .generation-form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-1);
 }
 
 .form-group {
@@ -561,7 +561,7 @@
 
 .input-wrapper {
     position: relative;
-    padding: var(--space-1) var(--space-2);
+    padding: var(--space-0) var(--space-10);
 }
 
 .form-textarea {
@@ -2443,7 +2443,7 @@ img.lazy-loaded[data-src] {
     }
 
     .generation-form {
-        gap: var(--space-6);
+        gap: var(--space-2); /* Уменьшили gap на планшетах с 24px до 8px */
     }
 
     .style-grid {
@@ -3123,6 +3123,12 @@ img.lazy-loaded[data-src] {
         padding: 0.25rem 0.5rem;
         bottom: 1rem;
         left: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .generation-form {
+        gap: var(--space-1); /* Минимальный gap на мобильных для приближения negative prompt к positive */
     }
 }
 

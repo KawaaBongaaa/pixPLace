@@ -12,6 +12,35 @@ import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUID
 import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem } from './history-manager.js';
 import { generationManager } from './parallel-generation.js';
+// Import mode management functions with lazy loading support
+let modeCardsExports = null;
+let costBadgeModule = null;
+
+async function getSelectedModeFromComponent() {
+    if (modeCardsExports) {
+        return modeCardsExports.getSelectedMode();
+    }
+
+    try {
+        modeCardsExports = await import('./mode-cards.js');
+        return modeCardsExports.getSelectedMode();
+    } catch (error) {
+        console.error('❌ Failed to load mode-cards to get selected mode:', error);
+        // Fallback only to default mode since old select is gone
+        return 'photo_session';
+    }
+}
+
+// ===== Функция для получения текущего выбранного режима =====
+async function getCurrentSelectedMode() {
+    try {
+        return await getSelectedModeFromComponent();
+    } catch (error) {
+        console.error('❌ Failed to get current selected mode:', error);
+        // Fallback - check DOM element as backup
+        return document.getElementById('modeSelect')?.value || 'photo_session';
+    }
+}
 
 
 // 🚀 Modern AI Image Generator WebApp
@@ -773,9 +802,9 @@ function showGeneration() {
 }
 
 
-// 🎨 UI Initialization
-function initializeUI() {
-    // Character counter
+// 🎨 UI Initialization with Lazy Loading
+async function initializeUI() {
+    // Character counter for prompt
     const promptInput = document.getElementById('promptInput');
     const charCounter = document.getElementById('charCounter');
 
@@ -789,138 +818,77 @@ function initializeUI() {
         });
     }
 
+    // Character counter for negative prompt
+    const negativePromptInput = document.getElementById('negativePromptInput');
+    const negativeCharCounter = document.getElementById('negativeCharCounter');
+
+    if (negativePromptInput && negativeCharCounter) {
+        negativePromptInput.addEventListener('input', function () {
+            negativeCharCounter.textContent = this.value.length;
+
+            // Auto-resize (smaller maximum for negative prompt)
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px'; // Max 120px height
+        });
+    }
+
     // Form submission
     const form = document.querySelector('.generation-form');
     if (form) {
         form.addEventListener('submit', generateImage);
     }
 
-    // 🔧 ИНИЦИАЛИЗАЦИЯ НОВОЙ КАРУСЕЛИ РЕЖИМОВ
-    initModeCarousel();
+    // 🎯 LAZY LOAD: Initialize Mode Cards Component and Cost Badge
+    try {
+        console.log('🎯 Lazy loading Mode Cards component...');
+        const modeCardsModule = await import('./mode-cards.js');
+        modeCardsExports = modeCardsModule; // Сохраняем ссылку на модуль
+        const { initOnDemand } = modeCardsModule;
+        initOnDemand();
+        console.log('✅ Mode Cards component loaded and initialized');
 
-    console.log('✅ UI initialized');
-}
+        // 🎯 LAZY LOAD: Initialize Cost Badge Module
+        console.log('💰 Lazy loading Cost Badge module...');
+        const costBadgeModule = await import('./cost-badge.js');
+        await costBadgeModule.initCostBadge({
+            modeCardsModule: { getSelectedMode: modeCardsExports.getSelectedMode },
+            userImageState: userImageState
+        });
+        console.log('✅ Cost Badge module loaded and initialized');
 
-// 🔧 НОВАЯ ФУНКЦИЯ ДЛЯ ИНИЦИАЛИЗАЦИИ КАРУСЕЛИ РЕЖИМОВ С EXPANDABLE CARDS
-function initModeCarousel() {
-    const modeCards = document.querySelectorAll('.mode-card');
-    const modeSelect = document.getElementById('modeSelect');
-    const modeIndicators = document.querySelectorAll('.mode-indicators .indicator');
-
-    if (!modeCards.length || !modeSelect) {
-        console.warn('Mode carousel initialization skipped - elements not found');
-        return;
+    } catch (error) {
+        console.error('❌ Failed to load Mode Cards or Cost Badge components:', error);
+        // Fallback to legacy initialization
+        console.log('🔄 Fallback: trying legacy mode carousel initialization');
+        try {
+            initModeCarousel();
+        } catch (legacyError) {
+            console.error('❌ Legacy mode carousel also failed:', legacyError);
+        }
     }
 
-    let currentExpandedCard = null;
-
-    // Функция для выбора режима с expand/collapse
-    const selectMode = (modeValue, cardElement) => {
-        // Синхронизируем скрытый select
-        modeSelect.value = modeValue;
-
-        if (currentExpandedCard && currentExpandedCard !== cardElement) {
-            // Сворачиваем предыдущую расширенную карточку
-            currentExpandedCard.classList.remove('expanded', 'selected');
-        }
-
-        if (cardElement) {
-            if (currentExpandedCard === cardElement) {
-                // Если та же карточка - сворачиваем её
-                cardElement.classList.remove('expanded', 'selected');
-                currentExpandedCard = null;
-                console.log('🔽 Collapsed card');
-            } else {
-                // Расширяем новую карточку
-                cardElement.classList.add('expanded', 'selected');
-                currentExpandedCard = cardElement;
-                console.log('🔼 Expanded card:', modeValue);
-
-                // Добавляем задержку перед прокруткой для плавной анимации
-                setTimeout(() => {
-                    cardElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                        inline: 'center'
-                    });
-                }, 300);
-            }
-        }
-
-        // 🔧 ИСПРАВЛЕНИЕ: Гарантируем что никакие другие карточки не имеют expanded
-        modeCards.forEach(card => {
-            if (card !== cardElement) {
-                card.classList.remove('expanded', 'selected');
-            }
-        });
-
-        // Обновляем индикаторы
-        const modeIndex = Array.from(modeCards).findIndex(card => card.dataset.mode === modeValue);
-        modeIndicators.forEach((indicator, index) => {
-            indicator.classList.toggle('selected', index === modeIndex);
-        });
-
-        // Обновляем видимость элементов загрузки изображений
-        updateImageUploadVisibility();
-
-        console.log(`🎛️ Selected mode: ${modeValue}, Expanded: ${!!currentExpandedCard}`);
-    };
-
-    // Обработчики для карточек режима
-    modeCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const mode = card.dataset.mode;
-            selectMode(mode, card);
-        });
-    });
-
-    // Обработчики для индикаторов
-    modeIndicators.forEach((indicator, index) => {
-        indicator.addEventListener('click', () => {
-            const card = modeCards[index];
-            if (card) {
-                const mode = card.dataset.mode;
-                selectMode(mode, card);
-            }
-        });
-    });
-
-    // Синхронизация с изменениями скрытого select (на случай программных изменений)
-    modeSelect.addEventListener('change', () => {
-        const modeValue = modeSelect.value;
-        const card = document.querySelector(`.mode-card[data-mode="${modeValue}"]`);
-        if (card) {
-            selectMode(modeValue, card);
-        }
-    });
-
-    // Устанавливаем начальный выбор БЕЗ ДУБЛИРОВАНИЯ updateImageUploadVisibility
-    const defaultMode = modeSelect.value || 'photo_session';
-    const defaultCard = document.querySelector(`.mode-card[data-mode="${defaultMode}"]`);
-    if (defaultCard) {
-        // Устанавливаем только визуальное состояние без вызова функций логики
-        modeSelect.value = defaultMode;
-        currentExpandedCard = defaultCard;
-        defaultCard.classList.add('expanded', 'selected');
-
-        // Гарантируем что никакие другие карточки не имеют expanded
-        modeCards.forEach(card => {
-            if (card !== defaultCard) {
-                card.classList.remove('expanded', 'selected');
-            }
-        });
-
-        // Обновляем индикаторы
-        const modeIndex = Array.from(modeCards).findIndex(card => card.dataset.mode === defaultMode);
-        modeIndicators.forEach((indicator, index) => {
-            indicator.classList.toggle('selected', index === modeIndex);
-        });
-
-        console.log(`🎛️ Initial mode selected: ${defaultMode}, Expanded: ${!!currentExpandedCard}`);
+    // 🚀 Initialize user account and update mode selection
+    if (window.initUserAccount) {
+        window.initUserAccount();
     }
 
-    console.log('🔧 Expandable Mode carousel initialized with', modeCards.length, 'modes');
+    // 🔧 Обновление функции updateModeSelection из navigation-manager после инициализации UI
+    if (modeCardsExports && modeCardsExports.getSelectedMode) {
+        try {
+            const currentMode = modeCardsExports.getSelectedMode();
+            if (currentMode && window.updateModeSelection) {
+                window.updateModeSelection(currentMode);
+                console.log('✅ updateModeSelection called with current mode:', currentMode);
+            }
+        } catch (error) {
+            console.error('❌ Failed to get current mode for updateModeSelection:', error);
+        }
+    }
+
+    console.log('✅ UI initialized with lazy loading');
 }
+
+
 
 // ===== Пользовательское изображение: состояние =====
 const userImageState = {
@@ -1042,6 +1010,161 @@ function updateImageUploadVisibility() {
     updateInnerUploadButtonVisibility();
 }
 
+window.updateImageUploadVisibility = updateImageUploadVisibility;
+window.updatePromptVisibility = updatePromptVisibility;
+window.updateSizeSelectVisibility = updateSizeSelectVisibility;
+
+// ===== Функция для обновления видимости поля промпта =====
+async function updatePromptVisibility() {
+    const promptFormGroup = document.getElementById('promptFormGroup');
+
+    if (!promptFormGroup) {
+        console.warn('❌ Элемент promptFormGroup не найден');
+        return;
+    }
+
+    const currentMode = await getCurrentSelectedMode();
+
+    // 🔧 ЛОГИКА: Скрываем поле промпта в режимах background_removal и upscale_image для более чистого UX
+    const shouldHidePrompt = ['background_removal', 'upscale_image'].includes(currentMode);
+    const shouldShowPrompt = !shouldHidePrompt;
+
+    if (shouldShowPrompt) {
+        promptFormGroup.style.display = 'block';
+        promptFormGroup.classList.remove('hidden');
+        console.log(`📝 Prompt field VISIBLE for mode: ${currentMode}`);
+    } else {
+        promptFormGroup.style.setProperty('display', 'none', 'important');
+        promptFormGroup.classList.add('hidden');
+        console.log(`🚫 Prompt field HIDDEN for mode: ${currentMode} (no prompt needed)`);
+    }
+
+    // Также обновляем видимость negative prompt поля
+    await updateNegativePromptVisibility();
+}
+
+// ===== Функция для обновления видимости поля negative prompt =====
+async function updateNegativePromptVisibility() {
+    const negativePromptSection = document.getElementById('negativePromptSection');
+    const negativePromptFormGroup = document.getElementById('negativePromptFormGroup');
+    const negativePromptCheckbox = document.getElementById('negativePromptCheckbox');
+
+    if (!negativePromptSection) {
+        console.warn('❌ Элемент negativePromptSection не найден');
+        return;
+    }
+
+    const currentMode = await getCurrentSelectedMode();
+
+    // 🔧 НОВАЯ ЛОГИКА: Показываем секцию с чекбоксом ТОЛЬКО в режиме dreamshaper_xl
+    const shouldShowNegativePromptSection = currentMode === 'dreamshaper_xl';
+
+    if (shouldShowNegativePromptSection) {
+        negativePromptSection.style.display = 'block';
+        negativePromptSection.classList.remove('hidden');
+        console.log(`📝 Negative prompt section VISIBLE for mode: ${currentMode}`);
+
+        // Сбрасываем чекбокс в дефолтное состояние при изменении режима
+        if (negativePromptCheckbox) {
+            negativePromptCheckbox.checked = false;
+            // Запускаем обработчик изменения для скрытия поля
+            negativePromptCheckbox.dispatchEvent(new Event('change'));
+        }
+    } else {
+        negativePromptSection.style.setProperty('display', 'none', 'important');
+        negativePromptSection.classList.add('hidden');
+        // Скрываем поле ввода тоже
+        if (negativePromptFormGroup) {
+            negativePromptFormGroup.style.setProperty('display', 'none', 'important');
+            negativePromptFormGroup.classList.add('hidden');
+        }
+        console.log(`🚫 Negative prompt section HIDDEN for mode: ${currentMode}`);
+    }
+}
+
+// ===== Функция для обновления видимости селектора размеров =====
+async function updateSizeSelectVisibility() {
+    const sizeSelect = document.getElementById('sizeSelect');
+    const sizeGroup = sizeSelect ? sizeSelect.closest('.form-group') : null;
+
+    if (!sizeGroup) {
+        console.warn('❌ Элемент sizeGroup не найден');
+        return;
+    }
+
+    const currentMode = await getCurrentSelectedMode();
+
+    // 🔧 ЛОГИКА: Скрываем селектор размеров в режимах background_removal и upscale_image
+    // В dreamshaper_xl показываем только специфические размеры
+    // Для остальных режимов селектор показывается всегда (независимо от наличия изображений)
+    const shouldHideSizeSelect = ['background_removal', 'upscale_image'].includes(currentMode) && currentMode !== 'dreamshaper_xl';
+
+    if (!shouldHideSizeSelect) {
+        sizeGroup.style.display = 'block';
+        sizeGroup.classList.remove('hidden');
+
+        // ДИНАМИЧЕСКОЕ ОБНОВЛЕНИЕ РАЗМЕРОВ для DreamShaper XL
+        updateSizeOptionsForMode(currentMode);
+
+        console.log(`📏 Size selector VISIBLE for mode: ${currentMode}`);
+    } else {
+        sizeGroup.style.setProperty('display', 'none', 'important');
+        sizeGroup.classList.add('hidden');
+        console.log(`🚫 Size selector HIDDEN for mode: ${currentMode} (no size selection needed)`);
+    }
+}
+
+// ===== Функция для обновления опций размеров в зависимости от режима =====
+function updateSizeOptionsForMode(mode) {
+    const sizeSelect = document.getElementById('sizeSelect');
+    if (!sizeSelect) return;
+
+    // Очищаем текущие опции
+    sizeSelect.innerHTML = '';
+
+    if (mode === 'dreamshaper_xl') {
+        // Специфические размеры для DreamShaper XL
+        const dreamshaperSizes = [
+            { value: 'square', label: 'Square 1:1 (1024×1024)' },
+            { value: 'ultra_wide_landscape', label: 'Ultra-Wide Landscape 21:9 (1536×640)' },
+            { value: 'wide_landscape', label: 'Wide Landscape 16:9 (1344×768)' },
+            { value: 'standard_landscape', label: 'Standard Landscape 4:3 (1152×896)' },
+            { value: 'classic_landscape', label: 'Classic Landscape 3:2 (1280×832)' },
+            { value: 'classic_portrait', label: 'Classic Portrait 2:3 (832×1280)' },
+            { value: 'standard_portrait', label: 'Standard Portrait 3:4 (896×1152)' },
+            { value: 'tall_portrait', label: 'Tall Portrait 9:16 (768×1344)' },
+            { value: 'ultra_tall_portrait', label: 'Ultra-Tall Portrait 9:21 (640×1536)' }
+        ];
+
+        dreamshaperSizes.forEach(size => {
+            const option = document.createElement('option');
+            option.value = size.value;
+            option.className = 'size-text';
+            option.textContent = size.label;
+            sizeSelect.appendChild(option);
+        });
+
+        console.log('🎨 DreamShaper XL size options loaded');
+    } else {
+        // Стандартные размеры для остальных режимов
+        const defaultSizes = [
+            { value: 'square', label: '1 : 1' },
+            { value: 'portrait', label: '3 : 4' },
+            { value: 'landscape', label: '4 : 3' }
+        ];
+
+        defaultSizes.forEach(size => {
+            const option = document.createElement('option');
+            option.value = size.value;
+            option.className = 'size-text';
+            option.textContent = size.label;
+            sizeSelect.appendChild(option);
+        });
+
+        console.log('🎨 Standard size options loaded');
+    }
+}
+
 // ===== Инициализация UI загрузки =====
 function initUserImageUpload() {
     const input = document.getElementById('userImage');
@@ -1055,14 +1178,29 @@ function initUserImageUpload() {
     // Проверить режим при изменении
     const modeSelect = document.getElementById('modeSelect');
     if (modeSelect) {
-        // Инициализация видимости при загрузке
-        updateImageUploadVisibility();
+    // Инициализация видимости при загрузке
+    updateImageUploadVisibility();
+    updatePromptVisibility();
+    updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: инициализация видимости negative prompt
+    updateSizeSelectVisibility();
 
-        // Слушать изменения режима
+        // Слушать изменения режима через DOM select (для совместимости)
         modeSelect.addEventListener('change', () => {
             updateImageUploadVisibility();
+            updatePromptVisibility();
+            updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: обновление видимости negative prompt
             // Также обновляем видимость блока размеров при смене режима
-            toggleSizeSelectVisibility();
+            updateSizeSelectVisibility();
+        });
+
+        // 🔥 ДОБАВЛЕНО: Слушатель кастомного события изменения режима от mode-cards компонента
+        document.addEventListener('mode:changed', (event) => {
+            const { mode } = event.detail;
+            console.log('📡 Mode changed event received:', mode);
+            updateImageUploadVisibility();
+            updatePromptVisibility();
+            updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: обновление видимости negative prompt
+            updateSizeSelectVisibility();
         });
     }
 }
@@ -1218,7 +1356,7 @@ async function onUserImageChange(e) {
             }
 
             // Обновяем видимость элементов
-            toggleSizeSelectVisibility();
+            updateSizeSelectVisibility();
             updateImageUploadVisibility();
 
             // Принудительное показывание превью
@@ -1239,6 +1377,11 @@ async function onUserImageChange(e) {
                     globalHistoryLoader.forceLoadVisibleHistoryPreviews();
                 }
             }, 100);
+
+            // Диспатчим событие изменения изображений для обновления UI (strength slider и др.)
+            document.dispatchEvent(new CustomEvent('images:updated', {
+                detail: { imageCount: userImageState.images.length }
+            }));
 
         } else {
             console.warn('⚠️ No files were processed successfully');
@@ -1377,10 +1520,15 @@ function removeImage(imageId) {
     }
 
     // Обновление видимости выбора размеров
-    toggleSizeSelectVisibility();
+    updateSizeSelectVisibility();
 
     // Обновление видимости кнопки и превью согласно логике режима
     updateImageUploadVisibility();
+
+    // 🔥 ДОБАВЛЕНИЕ: Диспатчим событие изменения изображений для обновления UI (strength slider и др.)
+    document.dispatchEvent(new CustomEvent('images:updated', {
+        detail: { imageCount: userImageState.images.length }
+    }));
 }
 
 // ===== Удаление ВСЕХ изображений (для режима fast_generation) =====
@@ -1513,41 +1661,7 @@ function updateUploadButtonPosition() {
     }
 }
 
-// ===== Показ размеров =====
-function toggleSizeSelectVisibility() {
-    const sizeSelect = document.getElementById('sizeSelect');
-    const sizeGroup = sizeSelect ? sizeSelect.closest('.form-group') : null;
 
-    if (sizeGroup) {
-        const modeSelect = document.getElementById('modeSelect');
-        const currentMode = modeSelect ? modeSelect.value : '';
-
-        // Специальная логика для разных режимов
-        if (currentMode === 'fast_generation') {
-            // Для Flux Shnel всегда показываем выбор размеров
-            sizeGroup.style.display = '';
-            console.log('📏 Size selector visible for Flux Shnel mode');
-        } else if (currentMode === 'photo_session') {
-            // Для Nano Banana (photo_session) прячем размер при наличии изображений
-            if (userImageState.images.length > 0) {
-                sizeGroup.style.display = 'none';
-                console.log('📏 Size selector hidden for Photo Session mode - has images');
-            } else {
-                sizeGroup.style.display = '';
-                console.log('📏 Size selector visible for Photo Session mode - no images');
-            }
-        } else {
-            // Для других режимов прячем при наличии изображений
-            if (userImageState.images.length > 0) {
-                sizeGroup.style.display = 'none';
-                console.log('📏 Size selector hidden - has images in other mode');
-            } else {
-                sizeGroup.style.display = '';
-                console.log('📏 Size selector visible - no images in other mode');
-            }
-        }
-    }
-}
 
 // ===== Загрузка изображений на Runware.ai и получение UUID =====
 async function uploadToRunware(dataUrl, apiKey) {
@@ -1905,6 +2019,45 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
         console.log('✅ appState.language synchronized with dictionaryManager.currentLanguage:', dictionaryManager.currentLanguage);
     }
 
+    // 🔥 ДОБАВЛЕНИЕ: ИНИЦИАЛИЗАЦИЯ NEGATIVE PROMPT ЧЕКБОКСА
+    const negativePromptCheckbox = document.getElementById('negativePromptCheckbox');
+    const negativePromptInput = document.getElementById('negativePromptInput');
+
+    // Устанавливаем умолчательный текст для negative prompt
+    const defaultNegativePrompt = 'blurry, low quality, deformed, ugly, mutated, extra limbs, poorly drawn face, poorly drawn hands';
+
+    // Обработчик чекбокса для показывания/скрывания поля ввода
+    if (negativePromptCheckbox && negativePromptInput) {
+        negativePromptCheckbox.addEventListener('change', function() {
+            const negativePromptFormGroup = document.getElementById('negativePromptFormGroup');
+
+            if (this.checked) {
+                // Показываем поле ввода и устанавливаем дефолтный текст
+                negativePromptFormGroup.style.display = 'block';
+                negativePromptFormGroup.classList.remove('hidden');
+
+                if (!negativePromptInput.value.trim()) {
+                    negativePromptInput.value = defaultNegativePrompt;
+                    const negativeCharCounter = document.getElementById('negativeCharCounter');
+                    if (negativeCharCounter) {
+                        negativeCharCounter.textContent = defaultNegativePrompt.length;
+                    }
+                }
+
+                console.log('📝 Negative prompt field shown and filled');
+            } else {
+                // Скрываем поле ввода
+                negativePromptFormGroup.style.display = 'none';
+                negativePromptFormGroup.classList.add('hidden');
+                console.log('🚫 Negative prompt field hidden');
+            }
+        });
+
+        // Инициализируем поле с плейсхолдером
+        negativePromptInput.placeholder = defaultNegativePrompt;
+        console.log('✅ Negative prompt checkbox handler initialized');
+    }
+
     let telegramInitialized = false;
 
     try {
@@ -2038,31 +2191,34 @@ async function generateImage(event) {
     const taskUUID = generateUUIDv4();
 
     const prompt = document.getElementById('promptInput').value.trim();
-    const mode = document.getElementById('modeSelect').value;
+    const negativePrompt = document.getElementById('negativePromptInput').value.trim();
+    const mode = await getSelectedModeFromComponent();
     const size = document.getElementById('sizeSelect').value;
 
-    // 🚨 ЭКСТРЕННЫЙ ЛОГИНГ: проверка точно перед отправкой
-    const checkedMode = document.getElementById('modeSelect').value;
-    console.log('🚨 ULTIMATE MODE CHECK - document.getElementById("modeSelect").value:', checkedMode);
-    if (checkedMode !== mode) {
-        console.error('🚨 MODE MISMATCH! Function param:', mode, 'vs DOM value:', checkedMode);
-        mode = checkedMode; // исправляем если есть рассинхрон
+    // 🚨 УЛЬТРА ЛОГИНГ РЕЖИМА ПЕРЕД ОТПРАВКОЙ
+    console.log('🚨 [GENERATION START]');
+    console.log('🚨 getSelectedModeFromComponent():', mode);
+    console.log('🚨 document.getElementById("modeSelect").value:', document.getElementById('modeSelect')?.value || 'NULL');
+
+    // 🔥 ДОСТИЧНЫЙ ДИВОЛТИНГ РЕЖИМА изображениям
+    console.log('🚨 mode-cards.js selectedMode:', await import('./mode-cards.js').then(m => m.getSelectedMode()));
+
+    let finalMode = mode;
+    const domMode = document.getElementById('modeSelect')?.value;
+    console.log('🚨 RAW COMPARISON - mode:', mode, 'domMode:', domMode);
+
+    if (domMode && domMode !== mode) {
+        console.error('🚨 MODE MISMATCH DETECTED! Function:', mode, 'vs DOM:', domMode);
+        finalMode = domMode; // приоритет для DOM элемента
+        console.log('🚨 USING DOM MODE:', finalMode);
+    } else {
+        console.log('🚨 USING COMPONENT MODE:', finalMode);
     }
 
     console.log('🚀 Starting generation:', { prompt, style: appState.selectedStyle, mode, size });
 
-    // 🔧 ДОБАВЛЕНИЕ: Логируем выбранные значения для диагностики
-    const modeSelect = document.getElementById('modeSelect');
-    console.log('🔍 Mode select debug:', {
-        selectedValue: modeSelect?.value,
-        selectedText: modeSelect?.selectedOptions[0]?.textContent?.trim(),
-        selectedIndex: modeSelect?.selectedIndex,
-        allOptions: Array.from(modeSelect?.options || []).map(opt => ({
-            value: opt.value,
-            text: opt.textContent?.trim(),
-            selected: opt.selected
-        }))
-    });
+    // 🔥 ДЕБАГ: Проверяем что передаем в generation.mode
+    console.log('🔍 FINAL MODE BEFORE GENERATION OBJECT:', mode, typeof mode);
 
     // 🔧 ДОБАВЛЕНИЕ: Проверим userImageState
     console.log('🔍 User image state:', {
@@ -2084,6 +2240,16 @@ async function generateImage(event) {
             showToast('error', appState.translate('error_prompt_too_short'));
             triggerHaptic('error');
             return;
+        }
+
+        // Валидация negative prompt (только для DreamShaper XL и если введён)
+        if (mode === 'dreamshaper_xl' && negativePrompt.trim()) {
+            const trimmedNegativePrompt = negativePrompt.trim();
+            if (trimmedNegativePrompt.length < 2 || trimmedNegativePrompt.length > 3000) {
+                showToast('error', 'Negative prompt must be between 2 and 3000 characters');
+                triggerHaptic('error');
+                return;
+            }
         }
     }
 
@@ -2120,17 +2286,31 @@ async function generateImage(event) {
     const currentStyle = (activeCard?.dataset.style || '').toLowerCase();
     appState.selectedStyle = currentStyle || appState.selectedStyle;
 
+    // Get current strength value from slider if available
+    const strengthValue = window.strengthSlider?.isVisible() ? window.strengthSlider.getValue() : null;
+
     const generation = {
         id: Date.now(),
         taskUUID: taskUUID,
         imageUUIDs: userImageState.images.map(img => img.uploadedUUID).filter(uuid => uuid),
         prompt: prompt,
+        negativePrompt: '',
         style: appState.selectedStyle,
-        mode: mode,
+        mode: finalMode,
         size: size,
+        strength: strengthValue, // Add strength if slider is visible
         timestamp: new Date().toISOString(),
         status: 'pending'
     };
+
+    // 🔥 ДОБАВЛЕНИЕ: Negative prompt только если чекбокс активен И режим dreamshaper_xl
+    const negativePromptCheckbox = document.getElementById('negativePromptCheckbox');
+    if (finalMode === 'dreamshaper_xl' && negativePromptCheckbox && negativePromptCheckbox.checked) {
+        generation.negativePrompt = negativePrompt.trim();
+        console.log('📝 Negative prompt included in generation');
+    } else {
+        console.log('🚫 Negative prompt NOT included (checkbox not checked or wrong mode)');
+    }
 
     // 🔥 КРИТИЧЕСКОЕ: БОЛЬШЕ НЕ ДОБАВЛЯЕМ GENERATION В ИСТОРИЮ ЗДЕСЬ - ТОЛЬКО ПРЕВЬЮ CARDS
     // Теперь генерация добавляется в историю ТОЛЬКО после получения реального результата в parallel-generation.js

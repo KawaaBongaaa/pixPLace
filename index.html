@@ -9,9 +9,12 @@
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 
     <link rel="stylesheet" href="css/styles_modern.css">
+    <link rel="stylesheet" href="css/mode-cards.css">
+    <link rel="stylesheet" href="css/cost-badge.css">
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/modals.css">
     <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/strength-slider.css">
 
     <!-- Telegram Web App SDK - для правильной авторизации в Telegram WebView -->
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
@@ -341,78 +344,26 @@
             <div id="generationScreen" class="screen active">
                 <div class="screen-content">
                     <form class="generation-form">
-                        <!-- выбор режима (модели) - НОВЫЙ СОВРЕМЕННЫЙ ИНТЕРФЕЙС -->
+                        <!-- Окно выбора режима (карточки в ряд) -->
                         <div class="form-group">
-                            <div class="form-label-row">
-                                <label class="form-label" data-i18n="mode_label">Generation Mode</label>
-                                <button type="button" id="modeDetailsBtn" class="mode-details-btn" onclick="toggleModeDetails()">
-                                    ❓ <span data-i18n="mode_details">Подробнее о режимах</span>
-                                </button>
+                            <label class="form-label" data-i18n="mode_label">Generation Mode</label>
+                            <!-- Контейнер для карточек режимов -->
+                            <div id="modeCardsWrapper" class="mode-cards-wrapper">
+                                <!-- Карточки режимов будут вставлены сюда через mode-cards.js -->
                             </div>
-
-                            <!-- Карусель режимов -->
-                            <div class="mode-carousel-container" id="modeCarouselContainer" style="display: none;">
-                                <div class="mode-carousel" id="modeCarousel">
-                                    <div class="mode-card selected" data-mode="photo_session">
-                                        <div class="mode-icon">🔧</div>
-                                        <h4 class="mode-title" data-i18n="mode_photo_session">Nano Banana Editor</h4>
-                                        <p class="mode-description" data-i18n="mode_photo_session_desc">Perfect for photo editing. Upload an image and describe what to change</p>
-                                    </div>
-
-                                    <div class="mode-card" data-mode="fast_generation">
-                                        <div class="mode-icon">⚡</div>
-                                        <h4 class="mode-title" data-i18n="mode_fast_generation">Flux Fast Generation</h4>
-                                        <p class="mode-description" data-i18n="mode_fast_generation_desc">Fastest mode for simple pictures generation without image upload</p>
-                                    </div>
-
-                                    <div class="mode-card" data-mode="pixplace_pro">
-                                        <div class="mode-icon">✨</div>
-                                        <h4 class="mode-title" data-i18n="mode_pixplace_pro">Flux Pro Advanced</h4>
-                                        <p class="mode-description" data-i18n="mode_pixplace_pro_desc">Advanced mode with text support, logos and complex compositions</p>
-                                    </div>
-
-                                    <div class="mode-card" data-mode="print_maker">
-                                        <div class="mode-icon">👕</div>
-                                        <h4 class="mode-title" data-i18n="mode_print_maker">Print on Demand</h4>
-                                        <p class="mode-description" data-i18n="mode_print_maker_desc">Specialized for Print on Demand. Creates ready-made prints for clothes and accessories</p>
-                                    </div>
-
-                                    <div class="mode-card" data-mode="background_removal">
-                                        <div class="mode-icon">✂️</div>
-                                        <h4 class="mode-title" data-i18n="mode_background_removal">Remove Background</h4>
-                                        <p class="mode-description" data-i18n="mode_background_removal_desc">Removes background from image while preserving the object</p>
-                                    </div>
-
-                                    <div class="mode-card" data-mode="upscale_image">
-                                        <div class="mode-icon">🔍</div>
-                                        <h4 class="mode-title" data-i18n="mode_upscale_image">Upscale Image</h4>
-                                        <p class="mode-description" data-i18n="mode_upscale_image_desc">Improves quality and resolution of existing image up to 4K</p>
-                                    </div>
-                                </div>
-
-                                <!-- Индикаторы выбора режима -->
-                                <div class="mode-indicators">
-                                    <span class="indicator selected" data-mode="photo_session"></span>
-                                    <span class="indicator" data-mode="fast_generation"></span>
-                                    <span class="indicator" data-mode="pixplace_pro"></span>
-                                    <span class="indicator" data-mode="print_maker"></span>
-                                    <span class="indicator" data-mode="background_removal"></span>
-                                    <span class="indicator" data-mode="upscale_image"></span>
-                                </div>
-                            </div>
-
-                            <!-- Старый select (скрытый, для совместимости) -->
-                            <select id="modeSelect" class="form-select">
-                                <option value="photo_session" selected data-i18n="mode_photo_session">🔧 Nano Banana Editor</option>
-                                <option value="fast_generation" data-i18n="mode_fast_generation">⚡ Flux Fast Generation</option>
-                                <option value="pixplace_pro" data-i18n="mode_pixplace_pro">✨ Flux Pro Advanced</option>
-                                <option value="print_maker" data-i18n="mode_print_maker">👕 Print on Demand</option>
-                                <option value="background_removal" data-i18n="mode_background_removal">✂️ Remove Background</option>
-                                <option value="upscale_image" data-i18n="mode_upscale_image">🔍 Upscale Image</option>
-                            </select>
                         </div>
+
+                        <!-- Скрытый селект для совместимости с существующей логикой -->
+                        <select id="modeSelect" style="display: none;">
+                            <option value="photo_session">Nano Banana Editor</option>
+                            <option value="fast_generation">Flux Fast Generation</option>
+                            <option value="pixplace_pro">Flux Pro Advanced</option>
+                            <option value="print_maker">Print on Demand</option>
+                            <option value="background_removal">Remove Background</option>
+                            <option value="upscale_image">Upscale Image</option>
+                        </select>
                         <!-- Prompt Input -->
-                        <div class="form-group">
+                        <div id="promptFormGroup" class="form-group">
                             <label class="form-label" data-i18n="prompt_label">Describe your image</label>
                             <div class="input-wrapper">
                                 <textarea id="promptInput" class="form-textarea"
@@ -421,6 +372,25 @@
                                     maxlength="2000"></textarea>
                                 <div class="input-counter">
                                     <span id="charCounter">0</span>/2000
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Negative Prompt Checkbox and Input (DreamShaper XL only) -->
+                        <div id="negativePromptSection" class="form-group" style="display: none;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="negativePromptCheckbox">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-text" data-i18n="use_negative_prompt">Use Negative Prompt</span>
+                            </label>
+                        </div>
+
+                        <div id="negativePromptFormGroup" class="form-group" style="display: none;">
+                            <div class="input-wrapper">
+                                <textarea id="negativePromptInput" class="form-textarea"
+                                    placeholder="Describe what you want to avoid in the image" rows="2"
+                                    maxlength="3000"></textarea>
+                                <div class="input-counter">
+                                    <span id="negativeCharCounter">0</span>/3000
                                 </div>
                             </div>
                         </div>
@@ -435,7 +405,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <div class="user-image-upload" id="userImageWrapper">
+                                    <div class="user-image-upload" id="userImageWrapper">
                                     <input type="file" id="userImage" class="user-image-label" multiple
                                         accept="image/png,image/jpeg,image/webp,image/gif" style="display: none;" />
                                     <button type="button" id="chooseUserImage" class="btn-link outside-upload modern-upload-btn">
@@ -452,10 +422,26 @@
                                             <!-- Изображения будут добавляться динамически -->
                                         </div>
                                     </div>
+                                    <!-- Strength Slider ABOVE IMAGE PREVIEW - shows only for supported modes with images -->
+                                    <div id="strengthSliderGroup" class="form-group strength-above-preview" style="display: none;">
+                                        <label class="form-label">
+                                            <span data-i18n="strength_label">Image Strength</span>
+                                            <span id="strengthValue" class="strength-value">0.80</span>
+                                        </label>
+                                        <div class="input-wrapper">
+                                            <input type="range" id="strengthSlider" class="form-slider"
+                                                   min="0.01" max="1.0" step="0.01" value="0.8">
+                                            <div class="slider-track">
+                                                <div class="slider-fill"></div>
+                                            </div>
+                                        </div>
+                                        <small class="form-hint" data-i18n="strength_hint">Controls how much the uploaded image influences the generation</small>
+                                    </div>
                                 </div>
                                 <small id="userImageError" class="error-msg"></small>
                             </div>
                         </div>
+
                         <!-- Generate Button -->
                         <button type="submit" class="generate-btn" id="generateBtn">
                             <span class="btn-icon">
@@ -764,8 +750,11 @@
             </nav>
         </div>
     </footer>
+    <script type="module" src="mode-cards.js"></script>
+    <script type="module" src="cost-badge.js"></script>
     <script type="module" src="ai-coach.js"></script>
     <script type="module" src="user-account.js"></script>
+    <script type="module" src="strength-slider.js"></script>
     <script type="module" src="app_modern.js"></script>
     <script type="module" src="parallel-generation.js"></script>
 
