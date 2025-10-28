@@ -559,3 +559,164 @@ body {
         height: 14px;
     }
 }
+
+/*==== TABLET & DESKTOP RESPONSIVE ENHANCEMENTS ====
+   Added for full-screen display on tablets and desktops */
+
+/* Tablet Portrait (768px+) - Slightly larger interactions */
+@media (min-width: 768px) {
+    .header-content {
+        padding: var(--space-5) var(--space-6);
+    }
+
+    .main-content {
+        padding: var(--space-10) var(--space-8);
+    }
+
+    .control-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .control-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .logo-text {
+        font-size: clamp(2.2rem, 4vw, 3.8rem);
+    }
+
+    .logo-img {
+        width: clamp(120px, 12vw, 900px);
+        height: clamp(120px, 12vw, 900px);
+    }
+
+    .user-balance {
+        right: 15px;
+    }
+
+    .user-name {
+        font-size: 0.95rem;
+        max-width: 150px;
+    }
+
+    .balance-text {
+        font-size: 0.8rem;
+    }
+
+    .credits-amount {
+        font-size: 1rem;
+    }
+}
+
+/* Desktop (1024px+) - Full-screen optimized layout */
+@media (min-width: 1024px) {
+    .header-content {
+        padding: var(--space-5) var(--space-8);
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .main-content {
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        padding: var(--space-12) var(--space-8);
+    }
+
+    .header {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .control-btn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .control-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .logo-text {
+        font-size: clamp(2.5rem, 3vw, 4.2rem);
+    }
+
+    .logo-img {
+        width: clamp(140px, 10vw, 1000px);
+        height: clamp(140px, 10vw, 1000px);
+    }
+
+    .user-balance {
+        right: 20px;
+        opacity: 0.8;
+    }
+
+    .user-name {
+        font-size: 1rem;
+        max-width: 200px;
+    }
+
+    .balance-text {
+        font-size: 0.85rem;
+    }
+
+    .credits-amount {
+        font-size: 1.1rem;
+    }
+
+    /* App Layout optimizations */
+    .app {
+        background: var(--bg-gradient-light, linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%));
+        background-attachment: fixed;
+    }
+}
+
+/* Large Desktop (1440px+) - Enhanced spacing and readability */
+@media (min-width: 1440px) {
+    .header-content {
+        max-width: 1600px;
+        padding: var(--space-6) var(--space-10);
+    }
+
+    .main-content {
+        max-width: 1400px;
+        padding: var(--space-14) var(--space-10);
+    }
+
+    .logo-text {
+        font-size: clamp(3rem, 2.5vw, 4.5rem);
+    }
+
+    .logo-img {
+        width: clamp(160px, 8vw, 1100px);
+        height: clamp(160px, 8vw, 1100px);
+    }
+
+    .user-balance {
+        right: 25px;
+    }
+}
+
+/* Extra Large Desktop (1920px+) - Maximum optimized experience */
+@media (min-width: 1920px) {
+    .header-content {
+        max-width: 1800px;
+        padding: var(--space-7) var(--space-12);
+    }
+
+    .main-content {
+        max-width: 1600px;
+        padding: var(--space-16) var(--space-12);
+    }
+
+    .logo-text {
+        font-size: clamp(3.5rem, 2vw, 5rem);
+    }
+
+    .logo-img {
+        width: clamp(180px, 7vw, 1200px);
+        height: clamp(180px, 7vw, 1200px);
+    }
+}

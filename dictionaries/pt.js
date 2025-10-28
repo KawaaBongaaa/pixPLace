@@ -100,6 +100,7 @@ export const pt = {
     view_history: "Ver Histórico",
     history_title: "Histórico",
     ai_chat_title: "Assistente IA",
+    ai_chat_input_placeholder: "Pergunte ao assistente IA...",
     plan_lite_title: "LITE",
     plan_lite_price: "€12",
     plan_lite_desc: "Perfeito para usuários casuais",

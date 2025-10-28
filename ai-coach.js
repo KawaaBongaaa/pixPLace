@@ -857,15 +857,14 @@ export function createChatButton() {
         // Clear existing messages
         messagesContainer.innerHTML = '';
 
-        // Load chat history
-        loadChatHistory();
+        // Always show welcome message as the first message (with latest translation)
+        const welcomeText = typeof appState !== 'undefined' ? appState.translate('ai_welcome_chat') : 'AI Prompt Helper: Welcome to the chat!';
+        const welcomeMessage = createMessageElement(welcomeText, 'bot');
+        welcomeMessage.setAttribute('data-welcome-message', 'true'); // Mark as welcome message
+        messagesContainer.appendChild(welcomeMessage);
 
-        // Show welcome message if no history
-        if (state.history.length === 0) {
-            const chatKey = typeof appState !== 'undefined' ? appState.translate('ai_welcome_chat') : 'AI Prompt Helper: Welcome to the chat! I am your AI assistant for help with creating images. Tell me what you want to generate and I will help you create a quality prompt. Or just ask me any question, I\'ll help with generation!';
-            const welcomeMessage = createMessageElement(chatKey, 'bot');
-            messagesContainer.appendChild(welcomeMessage);
-        }
+        // Load chat history (only actual conversation messages, not welcome)
+        loadChatHistory();
 
         // Setup input handlers with delay to ensure elements are ready
         setTimeout(() => {
@@ -1061,6 +1060,32 @@ export function createChatButton() {
             console.log('🧠 AI Prompt Helper initialized');
             // Setup event listeners
             window.addEventListener('ai-coach-show', () => window.AICoach.show());
+
+            // Listen to language change to update chat messages
+            document.addEventListener('dictionary:language-changed', (event) => {
+                console.log('🌍 Language changed, reinitializing chats with new translations');
+
+                // Simple solution: reinitialize chats if they are open
+                // This ensures clean state just like when they open fresh
+
+                // Check screen chat (ai-chat-messages)
+                const screenChat = document.getElementById('ai-chat-messages');
+                if (screenChat) {
+                    console.log('🔄 Reinitializing screen chat');
+                    initializeChat(); // This will clear and recreate welcome message
+                }
+
+                // Check modal chat if visible (ai-coach-chat)
+                const modalChat = document.getElementById('ai-coach-chat');
+                if (modalChat && modalChat.children.length > 0) {
+                    console.log('🔄 Reinitializing modal chat');
+                    // Clear modal chat content
+                    modalChat.innerHTML = '<div style="text-align: center; color: #64748b; font-size: 0.875rem; margin-top: 2rem;">' +
+                        (typeof appState !== 'undefined' ? appState.translate('ai_coach_ready') : '✨ AI Prompt Helper is ready to help with AI generation!') +
+                        '</div>';
+                }
+            });
+
             // Dispatch ready event
             setTimeout(() => {
                 window.dispatchEvent(new CustomEvent('ai-coach-ready'));

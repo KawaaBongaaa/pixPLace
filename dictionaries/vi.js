@@ -130,6 +130,8 @@ export const vi = {
     // Additional Messages
     image_added_success: "Ảnh đã được thêm để tạo!",
     ui_error_message: "Lỗi giao diện:",
+    ai_chat_title: "Trợ lý AI",
+    ai_chat_input_placeholder: "Hỏi trợ lý AI...",
 
     // Limit Modal
     limit_title: "Đã đạt giới hạn tạo ảnh",

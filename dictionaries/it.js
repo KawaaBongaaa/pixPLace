@@ -104,6 +104,7 @@ export const it = {
     history_toggle: "Risultato Generazione",
     history_title: "Cronologia",
     ai_chat_title: "Assistente IA",
+    ai_chat_input_placeholder: "Chiedi all'assistente IA...",
     plan_lite_title: "LITE",
     plan_lite_price: "€12",
     plan_lite_desc: "Perfetto per utenti casual",

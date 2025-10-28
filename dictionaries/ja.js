@@ -104,6 +104,7 @@ export const ja = {
     history_toggle: "生成履歴",
     history_title: "履歴",
     ai_chat_title: "AIアシスタント",
+    ai_chat_input_placeholder: "AIアシスタントに聞いてください...",
     plan_lite_title: "LITE",
     plan_lite_price: "€12",
     plan_lite_desc: "カジュアルユーザー向けに完璧",

@@ -90,6 +90,7 @@ export const ar = {
     history_toggle: "سجل التوليد",
     history_title: "التاريخ",
     ai_chat_title: "مساعد الذكاء الاصطناعي",
+    ai_chat_input_placeholder: "اسأل مساعد الذكاء الاصطناعي...",
     plan_lite_title: "LITE",
     plan_lite_price: "€12",
     plan_lite_desc: "مثالي للمستخدمين العرضيين",

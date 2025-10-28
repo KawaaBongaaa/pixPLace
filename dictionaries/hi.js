@@ -106,6 +106,7 @@ export const hi = {
     history_toggle: "जनरेशन इतिहास",
     history_title: "हिस्ट्री",
     ai_chat_title: "AI असिस्टेंट",
+    ai_chat_input_placeholder: "AI सहायक से पूछें...",
     plan_lite_title: "LITE",
     plan_lite_price: "€12",
     plan_lite_desc: "कैजुअल यूज़र्स के लिए परफेक्ट",

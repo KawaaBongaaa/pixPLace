@@ -106,6 +106,7 @@ export const zh = {
     history_toggle: "生成历史",
     history_title: "历史",
     ai_chat_title: "AI 助手",
+    ai_chat_input_placeholder: "询问 AI 助手...",
     plan_lite_title: "LITE",
     plan_lite_price: "€12",
     plan_lite_desc: "完美适合偶发用户",

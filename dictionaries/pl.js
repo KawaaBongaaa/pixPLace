@@ -126,6 +126,8 @@ export const pl = {
     // Additional Messages
     image_added_success: "Obraz dodany do generacji!",
     ui_error_message: "Błąd interfejsu:",
+    ai_chat_title: "Asystent AI",
+    ai_chat_input_placeholder: "Zapytaj asystenta AI...",
 
     // Limit Modal
     limit_title: "Osiągnięto Limit Generacji",

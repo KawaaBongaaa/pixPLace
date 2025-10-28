@@ -103,6 +103,7 @@ export const en = {
     history_toggle: "Generation History",
     history_title: "History",
     ai_chat_title: "AI Assistant",
+    ai_chat_input_placeholder: "Ask AI assistant...",
     plan_lite_title: "LITE",
     plan_lite_price: "€12",
     plan_lite_desc: "Perfect for personal use",

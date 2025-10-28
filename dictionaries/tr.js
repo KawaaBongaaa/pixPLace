@@ -117,6 +117,8 @@ export const tr = {
     // Additional Messages
     image_added_success: "Üretim için görüntü eklendi!",
     ui_error_message: "Arayüz hatası:",
+    ai_chat_title: "AI Asistanı",
+    ai_chat_input_placeholder: "AI asistanına sor...",
 
     // Limit Modal
     limit_title: "Üretim limiti aşıldı",

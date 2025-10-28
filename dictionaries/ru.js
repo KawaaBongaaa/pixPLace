@@ -92,6 +92,7 @@ export const ru = {
     ai_thinking_indicator: "🤖 pixPLace Assistant думает...",
     ai_error_message: "Извините, произошла ошибка. Повторите пожалуйста.",
     ai_chat_title: "AI Assistant",
+    ai_chat_input_placeholder: "Спросите AI ассистента...",
     most_popular: "Выбор Большинства",
     elapsed_time: "Прошло времени:",
     view_history: "Посмотреть историю",
