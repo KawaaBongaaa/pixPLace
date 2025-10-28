@@ -166,4 +166,7 @@ export const ko = {
     plan_studio_feature3: "• 새로운 기능 조기 액세스",
     plan_studio_feature4: "• pixPlace 크레딧 30%+ 할인",
     plan_studio_select: "결제하기",
+
+    // AI Chat
+    ai_welcome_chat: "AI 프롬프트 도우미: 채팅에 오신 것을 환영합니다!",
 }

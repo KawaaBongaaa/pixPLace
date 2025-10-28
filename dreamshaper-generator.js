@@ -125,18 +125,19 @@ class DreamShaperGeneratorModule {
             console.log('🚫 No negative prompt for DreamShaper XL - not sending');
         }
 
-        // 🔥 ДОБАВЛЯЕМ imageUUID ЕСЛИ ДОСТУПЕН (ДЛЯ ИЗМЕНЕНИЯ СИЛЫ ПРИМЕНЕНИЯ)
+        // 🔥 ДОБАВЛЯЕМ imageUUID И STRENGTH ЕСЛИ ДОСТУПЕН (ДЛЯ img2img режима)
         if (generation.imageUUIDs && generation.imageUUIDs.length > 0) {
             requestData.imageUUID = generation.imageUUIDs[0];
             console.log('🖼️ imageUUID added to DreamShaper XL request:', generation.imageUUIDs[0]);
+
+            // Добавляем strength для img2img
+            const strength = generation.strength || 0.8;
+            requestData.strength = strength;
+            console.log('🎚️ Strength parameter added to DreamShaper XL request:', strength);
         } else {
             console.log('🚫 No imageUUID for DreamShaper XL - pure text-to-image mode');
+            // Для text-to-image strength не нужен
         }
-
-        // 🔥 ДОБАВЛЯЕМ STRENGTH ПАРАМЕТР С ЗНАЧЕНИЕМ ПО УМОЛЧАНИЮ 0.8
-        const strength = generation.strength || 0.8;
-        requestData.strength = strength;
-        console.log('🎚️ Strength parameter added to DreamShaper XL request:', strength);
 
         const finalRequestBody = requestBody; // Для ясности
 
@@ -179,7 +180,7 @@ class DreamShaperGeneratorModule {
             }
         } catch (error) {
             console.error('❌ Direct Runware request failed for DreamShaper XL:', error);
-            throw error;
+            throw error; // Обычный error handling в parallel-generation.js покажет тост о перегрузке
         }
     }
 }

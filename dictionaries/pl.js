@@ -166,6 +166,9 @@ export const pl = {
     plan_studio_feature4: "• Ponad 30% Zniżki na kredyty pixPlace",
     plan_studio_select: "Zapłać",
 
+    // AI Chat
+    ai_welcome_chat: "AI Prompt Helper: Witamy na czacie!",
+
     // Auth section (if needed)
     auth_title: "Witaj w pixPlace!",
     auth_subtitle1: "Przestrzeń, w której Twoje pomysły ożywają i kreatywność płynie.",

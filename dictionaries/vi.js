@@ -169,4 +169,7 @@ export const vi = {
     plan_studio_feature3: "• Truy cập sớm tính năng mới",
     plan_studio_feature4: "• Giảm hơn 30% credits pixPlace",
     plan_studio_select: "Thanh toán",
+
+    // AI Chat
+    ai_welcome_chat: "Trợ lý AI Prompt: Chào mừng đến với cuộc trò chuyện!",
 }

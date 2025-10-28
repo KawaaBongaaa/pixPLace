@@ -48,6 +48,7 @@ async function initializeModeCardsLazy() {
                 <div class="mode-icon">🍌</div>
                 <h4 class="mode-title">Nano Banana Editor</h4>
                 <p class="mode-description" data-i18n="mode_photo_session_desc">Perfect for photo editing. Upload an image and describe what to change</p>
+                <span class="mode-info-indicator">i</span>
             </div>
 
             <div class="mode-card" data-mode="dreamshaper_xl">
@@ -55,12 +56,14 @@ async function initializeModeCardsLazy() {
                 <div class="mode-icon">⋆.˚🦋༘⋆</div>
                 <h4 class="mode-title">DreamShaper XL</h4>
                 <p class="mode-description" data-i18n="mode_dreamshaper_xl_desc">Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.</p>
+                <span class="mode-info-indicator">i</span>
             </div>
             <div class="mode-card" data-mode="fast_generation">
                 <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
                 <div class="mode-icon">⚡</div>
                 <h4 class="mode-title">Flux Fast Generation</h4>
                 <p class="mode-description" data-i18n="mode_fast_generation_desc">Fastest mode for simple pictures generation without image upload</p>
+                <span class="mode-info-indicator">i</span>
             </div>
 
             <div class="mode-card" data-mode="pixplace_pro">
@@ -68,6 +71,7 @@ async function initializeModeCardsLazy() {
                 <div class="mode-icon">𝓟𝓻𝓸</div>
                 <h4 class="mode-title">Flux Pro Advanced</h4>
                 <p class="mode-description" data-i18n="mode_pixplace_pro_desc">Advanced mode with text support, logos and complex compositions</p>
+                <span class="mode-info-indicator">i</span>
             </div>
 
             <div class="mode-card" data-mode="print_maker">
@@ -75,6 +79,7 @@ async function initializeModeCardsLazy() {
                 <div class="mode-icon">👕</div>
                 <h4 class="mode-title">Print on Demand</h4>
                 <p class="mode-description" data-i18n="mode_print_maker_desc">Specialized for Print on Demand. Creates ready-made prints for clothes and accessories</p>
+                <span class="mode-info-indicator">i</span>
             </div>
 
             <div class="mode-card" data-mode="background_removal">
@@ -82,6 +87,7 @@ async function initializeModeCardsLazy() {
                 <div class="mode-icon">✂</div>
                 <h4 class="mode-title">Remove Background</h4>
                 <p class="mode-description" data-i18n="mode_background_removal_desc">Removes background from image while preserving the object</p>
+                <span class="mode-info-indicator">i</span>
             </div>
 
             <div class="mode-card" data-mode="upscale_image">
@@ -89,6 +95,7 @@ async function initializeModeCardsLazy() {
                 <div class="mode-icon">*ੈ✩‧₊˚</div>
                 <h4 class="mode-title">Upscale Image</h4>
                 <p class="mode-description" data-i18n="mode_upscale_image_desc">Improves quality and resolution of existing image up to 4K</p>
+                <span class="mode-info-indicator">i</span>
             </div>
         </div>
     `;
@@ -293,95 +300,98 @@ function hideModeTooltip() {
 function initTooltipListeners() {
     const modeCards = document.querySelectorAll('.mode-card');
     let currentHoveredCard = null;
-    let touchData = { timer: null, startX: 0, startY: 0, isLongPress: false };
 
     function clearAllTimers() {
         clearTimeout(globalTooltipShowTimer);
         clearTimeout(globalTooltipHideTimer);
-        clearTimeout(touchData.timer);
         globalTooltipShowTimer = null;
         globalTooltipHideTimer = null;
-        touchData.timer = null;
     }
 
     function hideTooltipWithDelay(delay = 250) {
         clearTimeout(globalTooltipHideTimer);
         globalTooltipHideTimer = setTimeout(() => {
             const isAnyCardHovered = currentHoveredCard !== null;
-            if (!isAnyCardHovered && !touchData.isLongPress) {
+            if (!isAnyCardHovered) {
                 hideModeTooltip();
-                touchData.isLongPress = false;
             }
         }, delay);
     }
 
+    // Показ индикатора на touch
+    function showIndicatorOnTouch(card) {
+        if (!card.classList.contains('active-touch')) {
+            card.classList.add('active-touch');
+            setTimeout(() => {
+                card.classList.remove('active-touch');
+            }, 3000); // Индикатор исчезнет через 3 сек
+        }
+    }
+
     modeCards.forEach(card => {
-        // Hover события для desktop
+        const indicator = card.querySelector('.mode-info-indicator');
+
+        // Обработчики для индикатора
+        if (indicator) {
+            // Для desktop - hover на индикатор
+            indicator.addEventListener('mouseenter', () => {
+                clearAllTimers();
+                currentHoveredCard = card;
+                showModeTooltip(card);
+            });
+
+            indicator.addEventListener('mouseleave', () => {
+                currentHoveredCard = null;
+                hideTooltipWithDelay();
+            });
+
+            // Для мобильных - tap на индикатор
+            indicator.addEventListener('click', (e) => {
+                e.stopPropagation(); // Предотвращаем выбор карточки
+                clearAllTimers();
+                currentHoveredCard = card;
+                showModeTooltip(card);
+                // Скрываем tooltip через 3 сек
+                setTimeout(() => {
+                    hideModeTooltip();
+                    currentHoveredCard = null;
+                }, 3000);
+            });
+        }
+
+        // Показ индикатора при touchstart на карточке
+        card.addEventListener('touchstart', (e) => {
+            // Не показываем индикатор если touch на индикаторе
+            if (e.target.classList.contains('mode-info-indicator')) return;
+
+            showIndicatorOnTouch(card);
+        }, { passive: true });
+
+        // Hover события для desktop (старый способ для совместимости)
         card.addEventListener('mouseenter', () => {
-            if (!('ontouchstart' in window) || !touchData.isLongPress) {
+            if (!('ontouchstart' in window)) {
                 clearAllTimers();
                 currentHoveredCard = card;
 
                 globalTooltipShowTimer = setTimeout(() => {
-                    if (currentHoveredCard === card && !touchData.isLongPress) {
+                    if (currentHoveredCard === card) {
                         showModeTooltip(card);
                     }
-                }, 300); // Увеличенная задержка для предотвращения моргания
+                }, 1000); // Показываем tooltip через 1 сек hover без индикатора
             }
         });
 
         card.addEventListener('mouseleave', () => {
-            if (!touchData.isLongPress) {
+            if (!('ontouchstart' in window)) {
                 currentHoveredCard = null;
                 hideTooltipWithDelay();
             }
         });
 
-        // Touch события для мобильных устройств
-        card.addEventListener('touchstart', (e) => {
-            clearAllTimers();
-            touchData.startX = e.touches[0].clientX;
-            touchData.startY = e.touches[0].clientY;
-            touchData.isLongPress = false;
-            currentHoveredCard = card;
-
-            touchData.timer = setTimeout(() => {
-                touchData.isLongPress = true;
-                if (navigator.vibrate) {
-                    navigator.vibrate(50);
-                }
-                showModeTooltip(card);
-            }, 800);
-        });
-
-        card.addEventListener('touchend', () => {
-            clearTimeout(touchData.timer);
-            if (touchData.isLongPress) {
-                setTimeout(() => {
-                    hideModeTooltip();
-                    touchData.isLongPress = false;
-                }, 300);
-            }
-        });
-
-        card.addEventListener('touchmove', (e) => {
-            if (!touchData.timer) return;
-
-            const touch = e.touches[0];
-            const deltaX = Math.abs(touch.clientX - touchData.startX);
-            const deltaY = Math.abs(touch.clientY - touchData.startY);
-
-            if (deltaX > 10 || deltaY > 10) {
-                clearAllTimers();
-                hideModeTooltip();
-                touchData.isLongPress = false;
-            }
-        });
-
+        // Click на карточке скрывает tooltip
         card.addEventListener('click', () => {
             clearAllTimers();
             hideModeTooltip();
-            touchData.isLongPress = false;
         });
     });
 
@@ -389,30 +399,24 @@ function initTooltipListeners() {
     document.addEventListener('scroll', () => {
         clearAllTimers();
         hideModeTooltip();
-        touchData.isLongPress = false;
     }, { passive: true });
 
     document.addEventListener('resize', () => {
         clearAllTimers();
         hideModeTooltip();
-        touchData.isLongPress = false;
     });
 
     document.addEventListener('orientationchange', () => {
         clearAllTimers();
         hideModeTooltip();
-        touchData.isLongPress = false;
     });
 
     if ('ontouchstart' in window) {
         document.addEventListener('touchstart', (e) => {
             const target = e.target;
             if (!target.closest('.mode-card') && !target.closest('.mode-tooltip')) {
-                clearTimeout(globalTooltipShowTimer);
-                clearTimeout(globalTooltipHideTimer);
-                clearTimeout(touchData.timer);
+                clearAllTimers();
                 hideModeTooltip();
-                touchData.isLongPress = false;
             }
         }, { passive: true });
     }

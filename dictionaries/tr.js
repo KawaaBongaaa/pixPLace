@@ -156,4 +156,7 @@ export const tr = {
     plan_studio_feature3: "• Yeni özelliklere erken erişim",
     plan_studio_feature4: "• pixPlace kredilerinde %30+ indirim",
     plan_studio_select: "Öde",
+
+    // AI Chat
+    ai_welcome_chat: "AI Prompt Yardımcısı: Sohbete hoş geldiniz!",
 }
