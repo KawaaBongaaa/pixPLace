@@ -253,10 +253,6 @@ export class AuthManager {
                         data-radius="15"
                         data-request-access="write"
                         data-onauth="onTelegramAuth(user)"></script>
-
-                    <div style="margin-top: 20px; font-size: 14px; color: #666; padding: 10px; background: #f5f5f5; border-radius: 8px;">
-                        ⚠️ Для работы виджета нужен настроенный Telegram бот с соответствующим доменом.
-                    </div>
                 </div>
 
                 <div style="margin-top: 30px;">
