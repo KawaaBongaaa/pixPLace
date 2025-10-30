@@ -248,7 +248,7 @@ export class AuthManager {
                 <div class="telegram-login-widget" style="margin: 20px 0;">
                     <!-- Official Telegram Login Widget -->
                     <script async src="https://telegram.org/js/telegram-widget.js?22"
-                        data-telegram-login="pixPLaceBot"
+                        data-telegram-login="pixPLacebot"
                         data-size="large"
                         data-radius="15"
                         data-request-access="write"
