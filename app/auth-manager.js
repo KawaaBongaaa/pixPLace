@@ -233,24 +233,17 @@ export class AuthManager {
     }
 
     /**
-     * Показ модала авторизации
+     * Показ модала авторизации (только по клику!)
      */
     async showAuthModal() {
-        console.log('🔐 Showing auth modal...');
-
-        // В WebApp режиме сначала попробовать авто-аутентификацию
-        const webAppAuthSuccess = await this.manualWebAppAuth();
-        if (webAppAuthSuccess) {
-            console.log('✅ Auto WebApp auth successful - auth modal not shown');
-            return;
-        }
+        console.log('🔐 Showing auth modal by user request...');
 
         if (this.authModal && this.authOverlay) {
             this.authModal.style.display = 'block';
             this.authOverlay.style.display = 'block';
             document.body.classList.add('auth-modal-open');
 
-            console.log('✅ Auth modal shown (WebApp auth not available or failed)');
+            console.log('✅ Auth modal shown');
         } else {
             console.error('❌ Auth modal not found');
         }

@@ -179,11 +179,12 @@ export class App {
             // Инициализация основ системы
             await this.initializationManager.initializeCore();
 
-            // Ждем завершения инициализации авторизации (уже сделано в initialize())
-            console.log('⏳ Waiting for auth initialization to complete...');
-            // WebApp авторизация уже инициализирована в AuthManager.initialize()
+            // 🔐 ДОЖИДАЕМСЯ ПОЛНОГО ЗАВЕРШЕНИЯ ИНИЦИАЛИЗАЦИИ АВТОРИЗАЦИИ
+            console.log('⏳ Waiting for COMPLETE auth initialization...');
+            // AuthManager.initialize() уже выполнил waitForWebAppData() - теперь UI в безопасность
 
-            // Запуск UI
+            // ✅ ЗАПУСК UI ТОЛЬКО ПОСЛЕ АВТОРИЗАЦИИ
+            console.log('🎨 Starting UI initialization after auth completion...');
             await this.uiManager.initialize();
 
             // Финализация авторизации (создание модала после готовности DOM)
