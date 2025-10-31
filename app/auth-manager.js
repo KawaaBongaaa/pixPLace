@@ -1,29 +1,29 @@
 /**
- * 🔐 Auth Manager - Менеджер авторизации
- * Реализует Telegram Login Widget вместо старой системы с ботом
+ * 🔐 Auth Manager - Менеджер авторизации для Telegram WebApp
+ * Реализует аутентификацию через Telegram WebApp initData
  */
 
 export class AuthManager {
     constructor() {
         this.isAuthenticated = false;
         this.currentUser = null;
-        this.widgetInitialized = false;
+        this.webappInitialized = false;
 
         // DOM элементы
         this.authModal = null;
         this.authOverlay = null;
 
-        console.log('🔐 Auth Manager created');
+        console.log('🔐 Auth Manager (WebApp mode) created');
     }
 
     /**
      * Инициализация авторизации
      */
     async initialize() {
-        console.log('🔐 Initializing authentication...');
+        console.log('🔐 Initializing WebApp authentication...');
 
-        // Инициализация Telegram Login Widget
-        this.initializeTelegramWidget();
+        // Инициализация Telegram WebApp
+        this.initializeTelegramWebApp();
 
         // Проверка существующей авторизации
         await this.checkStoredAuth();
@@ -48,6 +48,13 @@ export class AuthManager {
      */
     async checkInitialAuth() {
         try {
+            // Сначала проверим WebApp данные
+            if (this.checkWebAppAuth()) {
+                console.log('✅ WebApp auth found, skipping stored check');
+                return;
+            }
+
+            // Fallback на localStorage
             const authCompleted = localStorage.getItem('telegram_auth_completed');
             const userData = localStorage.getItem('telegram_user');
 
@@ -63,66 +70,124 @@ export class AuthManager {
     }
 
     /**
-     * Инициализация Telegram Login Widget
+     * Инициализация Telegram WebApp
      */
-    initializeTelegramWidget() {
-        console.log('🎯 Initializing Telegram Login Widget...');
+    initializeTelegramWebApp() {
+        console.log('📱 Initializing Telegram WebApp...');
 
-        // Глобальная функция обратного вызова для настоящего Telegram widget
-        window.onTelegramAuth = (user) => {
-            console.log('🎉 Real Telegram widget auth callback:', user);
-            this.handleWidgetAuth(user);
-        };
+        // Расширение окна для лучшего UX
+        if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+            try {
+                Telegram.WebApp.expand();
+                console.log('✅ WebApp expanded');
+            } catch (error) {
+                console.warn('⚠️ Failed to expand WebApp:', error);
+            }
+        } else {
+            console.warn('⚠️ Telegram WebApp not available - assuming standalone mode');
+        }
 
-        this.widgetInitialized = true;
-        console.log('✅ Telegram Login Widget initialized');
+        this.webappInitialized = true;
+        console.log('✅ Telegram WebApp initialized');
     }
 
     /**
-     * Обработка авторизации через Login Widget
+     * Проверка WebApp аутентификации
      */
-    handleWidgetAuth(user) {
-        console.log('🎉 Widget auth callback received:', user);
+    checkWebAppAuth() {
+        if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
+            console.log('📱 No Telegram WebApp available');
+            return false;
+        }
+
+        const tg = Telegram.WebApp;
+        const user = tg.initDataUnsafe?.user;
+
+        if (!user) {
+            console.log('📱 No user in WebApp initData');
+            return false;
+        }
+
+        // Асинхронная аутентификация через API
+        this.authenticateViaAPI(user, tg.initData);
+        return true;
+    }
+
+    /**
+     * Аутентификация через API
+     */
+    async authenticateViaAPI(user, initData) {
+        console.log('🔑 Starting API authentication for user:', user.first_name);
 
         try {
-            // Валидация данных пользователя
-            if (!this.validateUserData(user)) {
-                console.error('❌ Invalid user data from widget');
-                return;
+            const response = await fetch("https://pixplace.vercel.app/api/auth", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_id: user.id,
+                    username: user.username,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    initData: initData,
+                    traffic_source: "webapp/start ads-teleram-eng-01",
+                }),
+            });
+
+            const data = await response.json();
+            console.log('📥 API auth response:', data);
+
+            if (data.ok) {
+                // Сохранение данных
+                this.saveAuthData({
+                    ...user,
+                    auth_type: 'webapp_api'
+                });
+
+                // Установка авторизованного пользователя
+                this.setAuthenticatedUser(user);
+
+                console.log('✅ WebApp API authentication successful');
+            } else {
+                throw new Error(data.error || 'API auth failed');
             }
 
-            // Сохранение данных
-            this.saveAuthData(user);
-
-            // Установка авторизованного пользователя
-            this.setAuthenticatedUser(user);
-
-            // Скрытие модала авторизации
-            this.hideAuthModal();
-
-            console.log('✅ Widget authentication successful');
-
         } catch (error) {
-            console.error('❌ Widget auth processing failed:', error);
+            console.error('❌ WebApp API auth failed:', error);
+            // Fallback: попробовать localStorage или показать ошибку
         }
     }
 
     /**
-     * Валидация данных пользователя от widget
+     * Ручная аутентификация через WebApp
+     */
+    async manualWebAppAuth() {
+        if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
+            console.warn('⚠️ Manual WebApp auth not available');
+            return false;
+        }
+
+        const tg = Telegram.WebApp;
+        tg.expand(); // Убедиться что окно развернуто
+
+        const user = tg.initDataUnsafe?.user;
+        const initData = tg.initData;
+
+        if (!user || !initData) {
+            console.warn('⚠️ No WebApp user data available for manual auth');
+            return false;
+        }
+
+        await this.authenticateViaAPI(user, initData);
+        return true;
+    }
+
+    /**
+     * Валидация данных пользователя
      */
     validateUserData(user) {
         if (!user) return false;
         if (!user.id || typeof user.id !== 'number') return false;
         if (!user.first_name && !user.username) return false;
-
-        // Проверка что данные не устаревшие (не старше 24 часов)
-        const now = Math.floor(Date.now() / 1000);
-        const authDate = user.auth_date || 0;
-        if (now - authDate > 24 * 60 * 60) {
-            console.warn('⚠️ Auth data is too old');
-            return false;
-        }
-
         return true;
     }
 
@@ -132,7 +197,7 @@ export class AuthManager {
     saveAuthData(user) {
         try {
             localStorage.setItem('telegram_auth_completed', 'true');
-            localStorage.setItem('telegram_auth_token', user.hash || 'widget_' + Date.now());
+            localStorage.setItem('telegram_auth_token', 'webapp_' + Date.now());
             localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
             localStorage.setItem('telegram_user', JSON.stringify(user));
 
@@ -155,6 +220,9 @@ export class AuthManager {
             window.appState.userName = user.first_name || user.username;
         }
 
+        // Скрыть модал если показан
+        this.hideAuthModal();
+
         console.log('👤 User authenticated:', user.first_name || user.username);
     }
 
@@ -164,12 +232,18 @@ export class AuthManager {
     showAuthModal() {
         console.log('🔐 Showing auth modal...');
 
+        // В WebApp режиме сначала попробовать авто-аутентификацию
+        if (this.manualWebAppAuth()) {
+            console.log('✅ Auto WebApp auth attempted');
+            return;
+        }
+
         if (this.authModal && this.authOverlay) {
             this.authModal.style.display = 'block';
             this.authOverlay.style.display = 'block';
             document.body.classList.add('auth-modal-open');
 
-            console.log('✅ Auth modal shown with Telegram widget');
+            console.log('✅ Auth modal shown with WebApp integration');
         } else {
             console.error('❌ Auth modal not found');
         }
@@ -231,7 +305,7 @@ export class AuthManager {
                 border: 1px solid var(--border-primary, #e1e1e1);
             `;
 
-            // Контент модала
+            // Контент модала для WebApp
             this.authModal.innerHTML = `
                 <div style="margin-bottom: 30px;">
                     <svg class="logo-img" style="width:80px; height:80px; margin: 0 auto 20px;">
@@ -241,23 +315,30 @@ export class AuthManager {
                         Welcome to pixPLace
                     </h2>
                     <p style="color: var(--text-secondary, #666); margin: 0 0 30px 0;">
-                        Sign in with Telegram to start creating amazing images
+                        Your account will be automatically verified through Telegram
                     </p>
                 </div>
 
-                <div class="telegram-login-widget" style="margin: 20px 0;">
-                    <!-- Official Telegram Login Widget -->
-                    <script async src="https://telegram.org/js/telegram-widget.js?22"
-                        data-telegram-login="pixPLacebot"
-                        data-size="large"
-                        data-radius="15"
-                        data-request-access="write"
-                        data-onauth="onTelegramAuth(user)"></script>
-                </div>
+                <button id="webappAuthBtn" class="webapp-auth-btn" style="
+                    background: #0084ff;
+                    color: white;
+                    border: none;
+                    border-radius: 15px;
+                    padding: 15px 30px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    width: 100%;
+                    max-width: 280px;
+                    box-shadow: 0 4px 15px rgba(0,132,255,0.3);
+                    margin: 20px auto;
+                ">
+                    🚀 Continue with Telegram
+                </button>
 
                 <div style="margin-top: 30px;">
                     <p style="color: var(--text-secondary, #888); font-size: 14px; margin: 0;">
-                        🔒 Your data is secure and private
+                        🔒 Your data is secure and automatically verified
                     </p>
                 </div>
             `;
@@ -266,13 +347,27 @@ export class AuthManager {
             document.body.appendChild(this.authOverlay);
             document.body.appendChild(this.authModal);
 
-            // Добавление обработчиков закрытия
+            // Добавление обработчиков
             this.setupModalCloseHandlers();
+            this.setupWebAppAuthButton();
 
-            console.log('✅ Auth modal created and added to DOM');
+            console.log('✅ Auth modal created for WebApp');
 
         } catch (error) {
             console.error('❌ Failed to create auth modal:', error);
+        }
+    }
+
+    /**
+     * Настройка кнопки WebApp аутентификации
+     */
+    setupWebAppAuthButton() {
+        const button = document.getElementById('webappAuthBtn');
+        if (button) {
+            button.addEventListener('click', () => {
+                console.log('🔑 Manual WebApp auth triggered');
+                this.manualWebAppAuth();
+            });
         }
     }
 
