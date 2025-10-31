@@ -25,6 +25,9 @@ export class AuthManager {
         // Инициализация Telegram WebApp
         this.initializeTelegramWebApp();
 
+        // Robust WebApp инициализация - ждем данные с таймаутом
+        await this.waitForWebAppData();
+
         // Проверка существующей авторизации
         await this.checkStoredAuth();
 
@@ -424,6 +427,45 @@ export class AuthManager {
     }
 
     /**
+     * Robust WebApp инициализация - ждем данные с таймаутом
+     */
+    async waitForWebAppData() {
+        console.log('⏳ Starting robust WebApp data wait...');
+
+        // Проверяем доступность WebApp
+        if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
+            console.log('📱 No WebApp available - skipping robust wait');
+            return false;
+        }
+
+        const tg = Telegram.WebApp;
+
+        // Ждем данные пользователя до таймаута (5 секунд максимум)
+        for (let attempt = 0; attempt < 50; attempt++) {
+            try {
+                const user = tg.initDataUnsafe?.user;
+                const initData = tg.initData;
+
+                if (user && initData) {
+                    console.log('✅ WebApp data available - authenticating automatically');
+                    await this.authenticateViaAPI(user, initData);
+                    return true; // Успешная авторизация
+                }
+
+                // Ждем 100ms перед следующей попыткой
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+            } catch (error) {
+                console.warn('⚠️ WebApp data check failed on attempt', attempt, error);
+                return false; // Ошибка - прекращаем ждать
+            }
+        }
+
+        console.log('⏰ WebApp data timeout reached - user will use manual auth');
+        return false;
+    }
+
+    /**
      * Проверка статуса авторизации
      */
     isUserAuthenticated() {
@@ -442,6 +484,39 @@ export class AuthManager {
         console.log('✅ Auth Manager shutdown complete');
     }
 }
+
+// Глобальная функция для совместимости с legacy кодом
+window.handleTelegramLogin = async function() {
+    console.log('🔄 handleTelegramLogin called - redirecting to AuthManager');
+
+    try {
+        // Если AuthManager инициализирован, используем его
+        if (window.authManagerInstance) {
+            await window.authManagerInstance.showAuthModal();
+        } else {
+            console.warn('⚠️ AuthManager not initialized, fallback to manual flow');
+
+            // Fallback: показать alert с инструкциями
+            alert(`Для авторизации выполните следующие шаги:
+
+1. 🔔 Откройте Telegram бота: @pixPLaceBot
+2. 📱 Отправьте команду: /start
+3. 🔑 Получите персональную ссылку для авторизации
+4. 🔗 Перейдите по ссылке в браузере
+5. ✅ Авторизация будет завершена автоматически
+
+После авторизации вы сможете использовать все функции приложения!`);
+
+            // Открыть бота в новой вкладке
+            window.open('https://t.me/pixPLaceBot?start=manual_auth', '_blank', 'noopener,noreferrer');
+        }
+    } catch (error) {
+        console.error('❌ handleTelegramLogin failed:', error);
+
+        // Экстренный fallback
+        alert('Ошибка авторизации. Пожалуйста, попробуйте снова.');
+    }
+};
 
 // Экспорт для глобального доступа
 window.AuthManagerInstance = null;

@@ -99,7 +99,7 @@ async function getCurrentSelectedMode() {
  * Set to true to skip authentication for development/testing.
  * Set back to false before production deployment.
  */
-const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
+const BYPASS_AUTH = false; // Авторизация включена для нормальной работы
 
 // Configuration
 const CONFIG = {
