@@ -26,10 +26,13 @@ export class AuthManager {
         this.initializeTelegramWebApp();
 
         // Robust WebApp инициализация - ждем данные с таймаутом
-        await this.waitForWebAppData();
+        const webAppAuthSuccess = await this.waitForWebAppData();
 
-        // Проверка существующей авторизации
-        await this.checkStoredAuth();
+        // Если WebApp авторизация не удалась - проверим localStorage
+        if (!webAppAuthSuccess) {
+            console.log('🔄 WebApp auth failed, checking stored auth...');
+            await this.checkStoredAuth();
+        }
 
         console.log('✅ Auth Manager initialized');
     }
@@ -232,12 +235,13 @@ export class AuthManager {
     /**
      * Показ модала авторизации
      */
-    showAuthModal() {
+    async showAuthModal() {
         console.log('🔐 Showing auth modal...');
 
         // В WebApp режиме сначала попробовать авто-аутентификацию
-        if (this.manualWebAppAuth()) {
-            console.log('✅ Auto WebApp auth attempted');
+        const webAppAuthSuccess = await this.manualWebAppAuth();
+        if (webAppAuthSuccess) {
+            console.log('✅ Auto WebApp auth successful - auth modal not shown');
             return;
         }
 
@@ -246,7 +250,7 @@ export class AuthManager {
             this.authOverlay.style.display = 'block';
             document.body.classList.add('auth-modal-open');
 
-            console.log('✅ Auth modal shown with WebApp integration');
+            console.log('✅ Auth modal shown (WebApp auth not available or failed)');
         } else {
             console.error('❌ Auth modal not found');
         }

@@ -179,8 +179,9 @@ export class App {
             // Инициализация основ системы
             await this.initializationManager.initializeCore();
 
-            // Проверка авторизации при запуске
-            await this.authManager.checkInitialAuth();
+            // Ждем завершения инициализации авторизации (уже сделано в initialize())
+            console.log('⏳ Waiting for auth initialization to complete...');
+            // WebApp авторизация уже инициализирована в AuthManager.initialize()
 
             // Запуск UI
             await this.uiManager.initialize();

@@ -387,12 +387,24 @@ export class UIManager {
     initializeAuthDisplay() {
         console.log('🔐 Initializing header auth display...');
 
-        // Проверяем текущее состояние аутентификации
-        const currentUser = window.appState?.userId ? {
-            id: window.appState.userId,
-            first_name: window.appState.userName,
-            username: window.appState.userName
-        } : null;
+        // Используем состояние AuthManager вместо appState (более надежно)
+        const authManager = window.pixPlaceApp?.authManager;
+        let currentUser = null;
+
+        if (authManager?.isAuthenticated && authManager?.currentUser) {
+            currentUser = authManager.currentUser;
+            console.log('👤 Using authenticated user from AuthManager:', currentUser.first_name);
+        } else if (window.appState?.userId && window.appState?.userName) {
+            // Fallback на appState в крайнем случае
+            currentUser = {
+                id: window.appState.userId,
+                first_name: window.appState.userName,
+                username: window.appState.userName
+            };
+            console.log('🔄 Using fallback user from appState');
+        } else {
+            console.log('🔓 No authentication found, showing login button');
+        }
 
         // Отображаем соответствующее состояние (логин кнопка или имя пользователя)
         this.updateHeaderAuthDisplay(currentUser);
