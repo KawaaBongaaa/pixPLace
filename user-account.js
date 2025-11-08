@@ -1016,12 +1016,12 @@ async function useImageForGeneration(imageUrl, itemId) {
             // Получаем текущий выбранный режим несколькими способами для надежности
             let currentMode = null;
 
-            // Способ 1: Через функцию getCurrentSelectedMode
-            if (window.getCurrentSelectedMode) {
+            // Способ 1: Через функцию getSelectedMode
+            if (window.getSelectedMode) {
                 try {
-                    currentMode = await window.getCurrentSelectedMode();
+                    currentMode = window.getSelectedMode();
                 } catch (error) {
-                    console.warn('❌ getCurrentSelectedMode failed:', error);
+                    console.warn('❌ getSelectedMode failed:', error);
                 }
             }
 
@@ -1043,7 +1043,7 @@ async function useImageForGeneration(imageUrl, itemId) {
             }
 
             console.log('🎯 Current selected mode when using image:', currentMode, {
-                from_getCurrentSelectedMode: window.getCurrentSelectedMode ? await window.getCurrentSelectedMode().catch(e => 'error') : 'not_available',
+                from_getSelectedMode: window.getSelectedMode ? window.getSelectedMode() : 'not_available',
                 from_modeCards: window.modeCardsExports?.getSelectedMode?.(),
                 from_DOM: document.getElementById('modeSelect')?.value,
                 from_activeCard: document.querySelector('.mode-card.active, .carousel-2d-item.active')?.getAttribute('data-mode')

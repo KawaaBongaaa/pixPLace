@@ -25,7 +25,8 @@ export async function initOnDemand() {
     window.modeCardsExports = {
         getSelectedMode,
         initOnDemand,
-        setSelectedMode
+        setSelectedMode,
+        selectModeByName: setSelectedMode // Алиас для совместимости с user-account.js
     };
 
     console.log('✅ Mode cards initialized successfully with selected mode:', selectedMode);
