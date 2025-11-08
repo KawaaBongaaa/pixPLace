@@ -1,21 +1,18 @@
 // ===== STYLE MANAGEMENT MODULE =====
-// Lazy loads style-manager.js when user interacts with style checkbox
+// Manages style dropdown - style-manager.js loaded statically
 // pixPLace Project
 
 /**
- * LAZY LOAD FOR STYLE MANAGER
- * Инициализирует style-manager только при первой активации чекбокса
+ * DIRECT ACCESS TO STYLE MANAGER
+ * style-manager.js now loaded statically, no lazy loading needed
  */
-async function lazyLoadStyleManager() {
-    try {
-        console.log('🎨 [LAZY LOAD] Loading style-manager module...');
-        const { initStyleDropdown } = await import('./style-manager.js');
-        await initStyleDropdown();
-        console.log('✅ [LAZY LOAD] Style manager loaded and initialized');
-        return true;
-    } catch (error) {
-        console.error('❌ [LAZY LOAD] Failed to load style manager:', error);
-        return false;
+function getStyleManager() {
+    if (window.styleManager) {
+        console.log('✅ Style manager available directly');
+        return window.styleManager;
+    } else {
+        console.warn('❌ Style manager not loaded yet');
+        return null;
     }
 }
 
@@ -46,32 +43,22 @@ export function updateStyleVisibilityForMode(mode) {
 }
 
 /**
- * Обрабатывает клик на кнопке стиля (с lazy loading)
+ * Обрабатывает клик на кнопке стиля (теперь без lazy loading)
  */
 export function handleStyleCheckboxChange() {
-    const chooseStyleSection = document.getElementById('chooseStyleSection');
-    if (chooseStyleSection) {
-        chooseStyleSection.classList.add('style-loading'); // Добавляем loading состояние
+    const styleManager = getStyleManager();
+
+    if (styleManager && styleManager.toggleStyleDropdown) {
+        // Используем функции из style-manager
+        styleManager.toggleStyleDropdown();
+        console.log('🎨 Style dropdown toggled successfully');
+    } else {
+        console.warn('🚫 Style manager not available');
+        // Fallback - try legacy method
+        if (typeof toggleStyleDropdown === 'function') {
+            toggleStyleDropdown();
+        }
     }
-
-    lazyLoadStyleManager().then(success => {
-        if (chooseStyleSection) {
-            chooseStyleSection.classList.remove('style-loading'); // Убираем loading состояние
-        }
-
-        if (success) {
-            // Теперь можем использовать функции из style-manager
-            if (window.styleManager && window.styleManager.toggleStyleDropdown) {
-                window.styleManager.toggleStyleDropdown();
-            }
-        } else {
-            console.warn('🚫 Could not load style dropdown');
-        }
-    }).catch(() => {
-        if (chooseStyleSection) {
-            chooseStyleSection.classList.remove('style-loading'); // Убираем loading состояние при ошибке
-        }
-    });
 
     // Обновляем стоимость если есть функция
     if (window.updateCostBadge) {
@@ -137,30 +124,24 @@ export function initStyleCheckboxHandler() {
 function toggleStyleDropdown() {
     console.log('🎨 [LEGACY] toggleStyleDropdown called - redirecting to modern implementation');
 
-    // If style-manager is loaded, delegate to it
-    if (window.styleManager && window.styleManager.toggleStyleDropdown) {
-        window.styleManager.toggleStyleDropdown();
+    // Direct access to style manager (loaded statically)
+    const styleManager = getStyleManager();
+    if (styleManager && styleManager.toggleStyleDropdown) {
+        styleManager.toggleStyleDropdown();
     } else {
-        // Otherwise, trigger lazy load and show dropdown
-        lazyLoadStyleManager().then(success => {
-            if (success && window.styleManager) {
-                window.styleManager.toggleStyleDropdown();
-            }
-        }).catch(() => {
-            console.error('❌ Cannot load style dropdown for legacy call');
-        });
+        console.error('❌ Style manager not available for legacy call');
     }
 }
 
 function selectStyleCard(styleName) {
     console.log('🎨 [LEGACY] selectStyleCard called - redirecting to modern implementation:', styleName);
 
-    // If style-manager is loaded, delegate to it
-    if (window.styleManager && window.styleManager.selectStyleCard) {
-        window.styleManager.selectStyleCard(styleName);
+    // Direct access to style manager (loaded statically)
+    const styleManager = getStyleManager();
+    if (styleManager && styleManager.selectStyleCard) {
+        styleManager.selectStyleCard(styleName);
     } else {
-        // Otherwise, simulate the loading
-        console.error('❌ Style manager not loaded yet, cannot select style');
+        console.error('❌ Style manager not available for legacy call');
     }
 }
 
