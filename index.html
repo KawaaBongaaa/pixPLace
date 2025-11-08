@@ -52,8 +52,13 @@
     <script defer src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- PRELOAD critical fonts for FCP priority -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyeMZhrib2Bg-4.woff2" as="font"	type="font/woff2" crossorigin>
+    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuDyfMZhrib2Bg-4.woff2" as="font"	type="font/woff2" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=swap" rel="stylesheet">
     <script>
         // Глобальные переменные для совместимости - переводы через DictionaryManager
         window.showToast = (type, message) => console.log(`Toast (${type}): ${message}`);
