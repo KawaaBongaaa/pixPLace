@@ -6,8 +6,7 @@
 /* Base styles and reset */
 @import url('base.css');
 
-/* Component specific styles */
-@import url('components.css');
+
 
 /* Mode Cards Component */
 @import url('mode-cards.css');

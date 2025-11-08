@@ -15,6 +15,10 @@
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/mode-cards.css">
 
+    <!-- COMPONENTS CSS - ASYNC LOADED AFTER CRITICAL RENDER -->
+    <link rel="preload" href="css/components.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="css/components.css"></noscript>
+
     <script>
         // ⚡ PERFORMANCE: Load remaining CSS after DOM ready, before full page load
         function loadNonCriticalCSS() {
