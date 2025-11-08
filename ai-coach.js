@@ -302,9 +302,11 @@ export function createChatButton() {
         isOpen: false,
         isProcessing: false,
         chatUI: null,
-        // PERFORMANCE: Message virtualization constants - increased for better UX
-        MAX_VISIBLE_MESSAGES: 50,
+        // PERFORMANCE: Message virtualization constants - reduced for mobile performance
+        MAX_VISIBLE_MESSAGES: 20,
         TYPING_INDICATOR: null, // Reusable typing indicator element
+        // MESSAGE POOL: Cache DOM elements for better performance
+        messagePool: [],
         messagesLoadedThroughDOM: false // PREVENT DUPLICATION: track if messages already loaded to DOM
     };
 
@@ -1044,8 +1046,20 @@ export function createChatButton() {
             messageElement = getOrCreateTypingIndicator();
             console.log('✨ Using typing indicator');
         } else {
-            // Normal message - create new element
-            messageElement = createMessageElement(text, sender);
+            // PERFORMANCE: Try to reuse pooled element first, then create new
+            messageElement = state.messagePool.pop() || createMessageElement(text, sender);
+
+            // Update content if reusing element
+            if (!messageElement.classList.contains(`ai-chat-message`)) {
+                // We have a pooled element, update its content
+                const bubble = messageElement.querySelector('.message-bubble-container > div:first-child');
+                if (bubble) {
+                    bubble.textContent = text;
+                    // Update class for sender
+                    messageElement.className = `ai-chat-message ${sender}`;
+                }
+            }
+            console.log('🏊 Using pooled element or created new:', !!state.messagePool.length);
         }
 
         // FIX SCROLLING: Add message with animation timing
@@ -1056,11 +1070,16 @@ export function createChatButton() {
         if (allMessages.length > state.MAX_VISIBLE_MESSAGES) {
             const messagesToRemove = allMessages.length - state.MAX_VISIBLE_MESSAGES;
             for (let i = 0; i < messagesToRemove; i++) {
-                if (allMessages[i] && allMessages[i].parentNode) {
+                if (allMessages[i] && allMessages[i].parentNode && allMessages[i] !== state.TYPING_INDICATOR) {
+                    // Return element to pool instead of destroying
+                    if (state.messagePool.length < 50) {
+                        state.messagePool.push(allMessages[i]);
+                        console.log('🏊 Returned old message to pool');
+                    }
                     chat.removeChild(allMessages[i]);
                 }
             }
-            console.log(`🧹 Virtualized: removed ${messagesToRemove} old messages`);
+            console.log(`🧹 Virtualized: removed ${messagesToRemove} old messages to pool`);
         }
 
         // FIX SCROLLING: Enhanced auto-scroll with multiple attempts
@@ -1262,6 +1281,21 @@ export function createChatButton() {
         }
     }
 
+    function returnPooledMessageElements() {
+        // PERFORMANCE: Return message elements to pool for reuse
+        const chat = document.getElementById('ai-chat-messages');
+        if (chat) {
+            const messages = Array.from(chat.children);
+            messages.forEach(msg => {
+                if (state.messagePool.length < 50) { // Limit pool size
+                    state.messagePool.push(msg);
+                    msg.remove(); // Remove from DOM
+                }
+            });
+            console.log(`🏊 Returned ${Math.min(messages.length, 50)} messages to pool`);
+        }
+    }
+
     function formatResponse(response) {
         let formatted = `**Уровень:** ${response.level}\n`;
         formatted += `**Триггер:** ${response.trigger}\n\n`;
@@ -1284,6 +1318,22 @@ export function createChatButton() {
             document.body.style.overflow = '';
             document.body.style.position = '';
             document.body.style.width = '';
+
+            // CLEANUP: Reset processing state and typing indicator
+            state.isProcessing = false;
+            if (state.TYPING_INDICATOR && state.TYPING_INDICATOR.parentNode) {
+                state.TYPING_INDICATOR.parentNode.removeChild(state.TYPING_INDICATOR);
+            }
+
+            // Reset input field opacity
+            const input = document.getElementById('ai-coach-input');
+            if (input) {
+                input.style.opacity = '';
+            }
+
+            // Return pooled elements to pool
+            returnPooledMessageElements();
+            console.log('🧹 AI Chat modal closed - cleanup complete');
         }
     }
 

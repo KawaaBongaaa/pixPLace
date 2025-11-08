@@ -55,6 +55,9 @@ async function getCurrentSelectedMode() {
  */
 const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 
+// 🔥 PERFORMANCE: Debug mode for development only
+window.DEBUG_MODE = (window.location.hostname === 'localhost') ? 'full' : 'minimal';
+
 // Configuration
 const CONFIG = {
     WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
@@ -80,7 +83,7 @@ window.CONFIG = CONFIG;
 // 🔥 АВТОМАТИЧЕСКОЕ СОХРАНЕНИЕ MAINTENANCE_MODE В LOCALSTORAGE ДЛЯ ДОСТУПА ИЗ ДРУГИХ СТРАНИЦ
 try {
     localStorage.setItem('pixplace_maintenance_mode', CONFIG.MAINTENANCE_MODE ? 'true' : 'false');
-    console.log('💾 Maintenance mode saved to localStorage:', CONFIG.MAINTENANCE_MODE);
+    if (window.DEBUG_MODE === 'full') console.log('💾 Maintenance mode saved to localStorage:', CONFIG.MAINTENANCE_MODE);
 } catch (error) {
     console.warn('❌ Could not save maintenance mode to localStorage:', error);
 }
@@ -102,15 +105,15 @@ appState.initializeDefaults();
 // 🔥 ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ ЯЗЫКА И ПЕРЕВОДОВ (будет вызвана синхронно до показа UI)
 async function initBaseLanguageAndTranslations() {
     try {
-        console.log('🚀 Starting app initialization with centralized language detection...');
+        if (window.DEBUG_MODE === 'full') console.log('🚀 Starting app initialization with centralized language detection...');
 
         // 🔥 ЦЕНТРАЛИЗОВАННЫЙ МЕТОД: ОПРЕДЕЛЯЕМ И УСТАНАВЛИВАЕМ БАЗОВЫЙ ЯЗЫК ОДИН РАЗ
         const baseLanguage = await dictionaryManager.determineAndSetBaseLanguage();
 
-        console.log('✅ Base translations initialized centrally for language:', baseLanguage);
+        if (window.DEBUG_MODE === 'full') console.log('✅ Base translations initialized centrally for language:', baseLanguage);
 
         // 🔥 ПРОВЕРКА: Проверим что заполнилось в window.TRANSLATIONS
-        console.log('🔍 window.TRANSLATIONS check:', {
+        if (window.DEBUG_MODE === 'full') console.log('🔍 window.TRANSLATIONS check:', {
             hasTRANSLATIONS: !!window.TRANSLATIONS,
             languages: window.TRANSLATIONS ? Object.keys(window.TRANSLATIONS) : [],
             currentLang: dictionaryManager.currentLanguage,
@@ -121,7 +124,7 @@ async function initBaseLanguageAndTranslations() {
 
         // 🔥 ОБНОВИТЬ ПЕРЕВОДЫ НЕМЕДЛЕННО после установки языка
         dictionaryManager.updateTranslations();
-        console.log('✅ Translations updated after base language set');
+        if (window.DEBUG_MODE === 'full') console.log('✅ Translations updated after base language set');
 
     } catch (error) {
         console.error('❌ Failed to initialize base translations centrally:', error);
@@ -914,10 +917,9 @@ async function initializeUI() {
         styleManagementModule.initStyleCheckboxHandler();
         console.log('✅ Style Management module loaded and initialized');
 
-        // 🎯 LAZY LOAD: Initialize Style Carousel
-        console.log('🎨 Lazy loading Style Carousel...');
-        await initStyleCarousel();
-        console.log('✅ Style Carousel initialized with lazy loading');
+        // 🎯 LAZY LOAD: Initialize Style Manager (NEW MODULAR APPROACH)
+        console.log('🎨 Style Manager will initialize lazily on style checkbox interaction');
+        // initStyleCarousel(); // REMOVED - handled by style-manager.js now
 
     } catch (error) {
         console.error('❌ Failed to load Mode Cards or Cost Badge components:', error);
@@ -953,6 +955,12 @@ async function initializeUI() {
     document.addEventListener('images:updated', async () => {
         console.log('🎛️ Images updated - checking if strength slider needed');
         await loadStrengthSliderIfNeeded();
+
+        // 🎨 Update style visibility when images change
+        const currentMode = await getCurrentSelectedMode();
+        if (window.updateStyleVisibilityForMode) {
+            window.updateStyleVisibilityForMode(currentMode);
+        }
     });
 
     document.addEventListener('mode:changed', async (event) => {
@@ -2016,7 +2024,7 @@ function initLanguageDropdown() {
 
 // 🚀 App Initialization
 document.addEventListener('DOMContentLoaded', async function () {
-    console.log('🚀 pixPLace Creator starting...');
+    if (window.DEBUG_MODE === 'full') console.log('🚀 pixPLace Creator starting...');
 
     // 🔥 AUTO-UPDATE MAINTENANCE.JS CONFIG FILE (ДЕМО СИНХРОНИЗАЦИЯ)
     try {
@@ -2024,7 +2032,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const newConfig = `// Config for maintenance mode
 const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date().toISOString()}`;
 
-        console.log('🔧 Maintenance mode config updated:', CONFIG.MAINTENANCE_MODE, '- remember to sync maintenance.js');
+        if (window.DEBUG_MODE === 'full') console.log('🔧 Maintenance mode config updated:', CONFIG.MAINTENANCE_MODE, '- remember to sync maintenance.js');
         // NOTE: В проде эта строка должна быть закомментирована и обновление делаться через API
         // Для тестирования вручную вставьтеcontent выше в maintenance.js
 
@@ -2037,7 +2045,7 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
 
     // 🚧 ПРОВЕРКА РЕЖИМА ОБСЛУЖИВАНИЯ - Если включен, перенаправляем на maintenance.html
     if (CONFIG.MAINTENANCE_MODE) {
-        console.log('🚧 Maintenance Mode enabled - redirecting to maintenance page');
+        if (window.DEBUG_MODE === 'full') console.log('🚧 Maintenance Mode enabled - redirecting to maintenance page');
         window.location.href = 'maintenance.html';
         return; // Останавливаем дальнейшую инициализацию
     }
@@ -2272,37 +2280,41 @@ async function generateImage(event) {
     const mode = await getSelectedModeFromComponent();
     const size = document.getElementById('sizeSelect').value;
 
-    // 🚨 УЛЬТРА ЛОГИНГ РЕЖИМА ПЕРЕД ОТПРАВКОЙ
-    console.log('🚨 [GENERATION START]');
-    console.log('🚨 getSelectedModeFromComponent():', mode);
-    console.log('🚨 document.getElementById("modeSelect").value:', document.getElementById('modeSelect')?.value || 'NULL');
+    if (window.DEBUG_MODE === 'full') {
+        console.log('🚨 [GENERATION START]');
+        console.log('🚨 getSelectedModeFromComponent():', mode);
+        console.log('🚨 document.getElementById("modeSelect").value:', document.getElementById('modeSelect')?.value || 'NULL');
 
-    // 🔥 ДОСТИЧНЫЙ ДИВОЛТИНГ РЕЖИМА изображениям
-    console.log('🚨 mode-cards.js selectedMode:', await import('./mode-cards.js').then(m => m.getSelectedMode()));
+        // 🔥 ДОСТИЧНЫЙ ДИВОЛТИНГ РЕЖИМА изображениям
+        console.log('🚨 mode-cards.js selectedMode:', await import('./mode-cards.js').then(m => m.getSelectedMode()));
+    }
 
     let finalMode = mode;
     const domMode = document.getElementById('modeSelect')?.value;
-    console.log('🚨 RAW COMPARISON - mode:', mode, 'domMode:', domMode);
+
+    if (window.DEBUG_MODE === 'full') {
+        console.log('🚨 RAW COMPARISON - mode:', mode, 'domMode:', domMode);
+    }
 
     if (domMode && domMode !== mode) {
         console.error('🚨 MODE MISMATCH DETECTED! Function:', mode, 'vs DOM:', domMode);
         finalMode = domMode; // приоритет для DOM элемента
-        console.log('🚨 USING DOM MODE:', finalMode);
+        if (window.DEBUG_MODE === 'full') console.log('🚨 USING DOM MODE:', finalMode);
     } else {
-        console.log('🚨 USING COMPONENT MODE:', finalMode);
+        if (window.DEBUG_MODE === 'full') console.log('🚨 USING COMPONENT MODE:', finalMode);
     }
 
-    console.log('🚀 Starting generation:', { prompt, style: appState.selectedStyle, mode, size });
+    if (window.DEBUG_MODE === 'full') {
+        console.log('🚀 Starting generation:', { prompt, style: appState.selectedStyle, mode, size });
+        console.log('🔍 FINAL MODE BEFORE GENERATION OBJECT:', mode, typeof mode);
 
-    // 🔥 ДЕБАГ: Проверяем что передаем в generation.mode
-    console.log('🔍 FINAL MODE BEFORE GENERATION OBJECT:', mode, typeof mode);
-
-    // 🔧 ДОБАВЛЕНИЕ: Проверим userImageState
-    console.log('🔍 User image state:', {
-        hasImages: userImageState?.images?.length || 0,
-        hasDataUrl: !!(userImageState?.images?.[0]?.dataUrl),
-        hasUploadedUrl: !!(userImageState?.images?.[0]?.uploadedUrl)
-    });
+        // 🔧 ДОБАВЛЕНИЕ: Проверим userImageState
+        console.log('🔍 User image state:', {
+            hasImages: userImageState?.images?.length || 0,
+            hasDataUrl: !!(userImageState?.images?.[0]?.dataUrl),
+            hasUploadedUrl: !!(userImageState?.images?.[0]?.uploadedUrl)
+        });
+    }
 
     // Validation
     // НЕ проверяем промпт для режимов background_removal (удаление фона) и upscale_image (улучшение качества)

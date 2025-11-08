@@ -11,16 +11,19 @@
     <!-- MINIMAL CRITICAL CSS: только один файл -->
     <link rel="stylesheet" href="css/styles_modern.css">
 
+    <!-- ⚡ CRITICAL CSS FIRST (render-blocking for proper initial layout) -->
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/mode-cards.css">
+
     <script>
-        // ⚡ PERFORMANCE: Lazy load non-critical CSS after critical render phase
+        // ⚡ PERFORMANCE: Load remaining CSS after DOM ready, before full page load
         function loadNonCriticalCSS() {
             const cssFiles = [
-                'css/responsive.css',
-                'css/mode-cards.css',
                 'css/cost-badge.css',
                 'css/auth.css',
                 'css/modals.css',
-                'css/animations.css'
+                'css/animations.css',
+                'css/ai-coach.css'
                 // strength-slider.css moved to conditional loading - only when slider is actually used
             ];
 
@@ -37,8 +40,8 @@
             });
         }
 
-        // Load non-critical CSS after page load to avoid render blocking
-        window.addEventListener('load', loadNonCriticalCSS);
+        // Load non-critical CSS after DOMContentLoaded instead of full window load
+        document.addEventListener('DOMContentLoaded', loadNonCriticalCSS);
     </script>
 
     <!-- Telegram Web App SDK - для правильной авторизации в Telegram WebView -->
@@ -380,14 +383,70 @@
             <div id="generationScreen" class="screen active">
                 <div class="screen-content">
                     <form class="generation-form">
-                        <!-- Окно выбора режима (карточки в ряд) -->
-                        <div class="form-group">
-                            <label class="form-label" data-i18n="mode_label">Generation Mode</label>
-                            <!-- Контейнер для карточек режимов -->
-                            <div id="modeCardsWrapper" class="mode-cards-wrapper">
-                                <!-- Карточки режимов будут вставлены сюда через mode-cards.js -->
+                            <!-- Окно выбора режима (карточки в ряд) -->
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="mode_label">Generation Mode</label>
+                                <!-- Контейнер для карточек режимов -->
+                                <div id="modeCardsWrapper" class="mode-cards-wrapper">
+                                    <div class="mode-cards-grid">
+                                        <div class="mode-card" data-mode="photo_session">
+                                            <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
+                                            <div class="mode-icon">🍌</div>
+                                            <h4 class="mode-title">Nano Banana Editor</h4>
+                                            <p class="mode-description" data-i18n="mode_photo_session_desc">Perfect for photo editing. Upload an image and describe what to change</p>
+                                            <span class="mode-info-indicator">i</span>
+                                        </div>
+
+                                        <div class="mode-card" data-mode="pixplace_pro">
+                                            <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
+                                            <div class="mode-icon">𝓟𝓻𝓸</div>
+                                            <h4 class="mode-title">Flux Pro Advanced</h4>
+                                            <p class="mode-description" data-i18n="mode_pixplace_pro_desc">Advanced mode with text support, logos and complex compositions</p>
+                                            <span class="mode-info-indicator">i</span>
+                                        </div>
+
+                                        <div class="mode-card" data-mode="dreamshaper_xl">
+                                            <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
+                                            <div class="mode-icon">⋆.˚🦋༘⋆</div>
+                                            <h4 class="mode-title">DreamShaper XL</h4>
+                                            <p class="mode-description" data-i18n="mode_dreamshaper_xl_desc">Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.</p>
+                                            <span class="mode-info-indicator">i</span>
+                                        </div>
+
+                                        <div class="mode-card" data-mode="fast_generation">
+                                            <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
+                                            <div class="mode-icon">⚡</div>
+                                            <h4 class="mode-title">Flux Fast Generation</h4>
+                                            <p class="mode-description" data-i18n="mode_fast_generation_desc">Fastest mode for simple pictures generation without image upload</p>
+                                            <span class="mode-info-indicator">i</span>
+                                        </div>
+
+                                        <div class="mode-card" data-mode="print_maker">
+                                            <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
+                                            <div class="mode-icon">👕</div>
+                                            <h4 class="mode-title">Print on Demand</h4>
+                                            <p class="mode-description" data-i18n="mode_print_maker_desc">Specialized for Print on Demand. Creates ready-made prints for clothes and accessories</p>
+                                            <span class="mode-info-indicator">i</span>
+                                        </div>
+
+                                        <div class="mode-card" data-mode="background_removal">
+                                            <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
+                                            <div class="mode-icon">✂</div>
+                                            <h4 class="mode-title">Remove Background</h4>
+                                            <p class="mode-description" data-i18n="mode_background_removal_desc">Removes background from image while preserving the object</p>
+                                            <span class="mode-info-indicator">i</span>
+                                        </div>
+
+                                        <div class="mode-card" data-mode="upscale_image">
+                                            <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
+                                            <div class="mode-icon">*ੈ✩‧₊˚</div>
+                                            <h4 class="mode-title">Upscale Image</h4>
+                                            <p class="mode-description" data-i18n="mode_upscale_image_desc">Improves quality and resolution of existing image up to 4K</p>
+                                            <span class="mode-info-indicator">i</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
                         <!-- Скрытый селект для совместимости с существующей логикой -->
                         <select id="modeSelect" style="display: none;">
@@ -529,123 +588,99 @@
                             </span>
                             <div class="btn-ripple"></div>
                         </button>
-                        <!-- Choose a Style Section -->
+                        <!-- Choose a Style Section - CLEAN REPLACEMENT -->
                         <div class="form-group" id="chooseStyleSection">
-                            <div class="form-label-row style-checkbox-row">
-                                <div class="checkbox-label small-checkbox style-left-align" onclick="document.getElementById('styleCheckbox').click()">
-                                    <input type="checkbox" id="styleCheckbox">
-                                    <span class="checkbox-custom"></span>
-                                </div>
-                                <label class="form-label style-left-label" data-i18n="use_style_selection" onclick="document.getElementById('styleCheckbox').click(); document.querySelector('#chooseStyleSection label').style.cursor='pointer'">Choose a Style</label>
+                            <div class="style-dropdown-button" onclick="handleStyleCheckboxChange()">
+                                <input type="checkbox" id="styleCheckbox" style="display: none;">
+                                <span class="dropdown-arrow">▼</span>
+                                <span class="dropdown-label" data-i18n="use_style_selection">Choose a Style</span>
+                                <span class="selected-style-indicator" id="selectedStyleIndicator"></span>
                             </div>
-                            <div class="style-grid" id="styleGrid">
-                                <div class="carousel-2d-wrapper">
-                                    <div class="carousel-2d" id="carousel2d">
-                                        <div class="carousel-2d-item" data-style="realistic">
-                                            <img src="https://i.pinimg.com/236x/bd/63/9e/bd639e0617cac14d309c4d73bc40fc70.jpg"
-                                                alt="Realistic Style" loading="lazy" />
-                                            <p data-i18n="style_realistic">Realistic</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="popart">
-                                            <img src="https://i.pinimg.com/236x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg"
-                                                alt="Pop Art Style" loading="lazy" />
-                                            <p data-i18n="style_popart">Pop Art</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="cyberpunk">
-                                            <img src="https://i.pinimg.com/236x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
-                                                alt="Cyberpunk Style" loading="lazy" />
-                                            <p data-i18n="style_cyberpunk">Cyberpunk</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="cartoon">
-                                            <img src="https://i.pinimg.com/236x/47/dd/14/47dd14400e61dde173fc1c7302b2810d.jpg"
-                                                alt="Cartoon Style" loading="lazy" />
-                                            <p data-i18n="style_cartoon">Cartoon</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="sketch">
-                                            <img src="https://i.pinimg.com/236x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg"
-                                                alt="Sketch Art" loading="lazy" />
-                                            <p data-i18n="style_sketch">Sketch</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="anime">
-                                            <img src="https://i.pinimg.com/236x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg"
-                                                alt="Anime Style" loading="lazy" />
-                                            <p data-i18n="style_anime">Anime</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="fantasy">
-                                            <img src="https://i.pinimg.com/236x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg"
-                                                alt="Fantasy Style" loading="lazy" />
-                                            <p data-i18n="style_fantasy">Fantasy</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="surrealism">
-                                            <img src="https://i.pinimg.com/236x/37/3a/1c/373a1c221bdcf4b501498263674aed7e.jpg"
-                                                alt="Surrealism Design" loading="lazy" />
-                                            <p data-i18n="style_surrealism">Surrealism</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="artistic">
-                                            <img src="https://i.pinimg.com/236x/69/30/f4/6930f42752c14b5ad3dce15f215344d1.jpg"
-                                                alt="Artistic Style" loading="lazy" />
-                                            <p data-i18n="style_artistic">Artistic</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="abstract">
-                                            <img src="https://i.pinimg.com/236x/a4/56/0a/a4560a03b54ba349b42ced80bf402bb1.jpg"
-                                                alt="Abstract Style" loading="lazy" />
-                                            <p data-i18n="style_abstract">Abstract</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="minimalism">
-                                            <img src="https://i.pinimg.com/236x/33/b3/a3/33b3a3d227992ce02ca6da59baab0cf4.jpg"
-                                                alt="Minimalism Design" loading="lazy" />
-                                            <p data-i18n="style_minimalism">Minimalism</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="fashion">
-                                            <img src="https://i.pinimg.com/236x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
-                                                alt="Fashion Design" loading="lazy" />
-                                            <p data-i18n="style_fashion">Fashion</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="3d">
-                                            <img src="https://i.pinimg.com/236x/67/15/77/671577e00166b3e1fed8bab82520b970.jpg"
-                                                alt="3D Design" loading="lazy" />
-                                            <p data-i18n="style_3d">3D</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="interior">
-                                            <img src="https://i.pinimg.com/236x/ff/d3/05/ffd305ca4f27d4d55fe5ce7f0a78f9ba.jpg"
-                                                alt="Interior Design" loading="lazy" />
-                                            <p data-i18n="style_interior">Interior</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="architecture">
-                                            <img src="https://i.pinimg.com/236x/8a/0d/e8/8a0de899bdb0a2f764b67792940bd0e0.jpg"
-                                                alt="Architecture Design" loading="lazy" />
-                                            <p data-i18n="style_architecture">Architecture</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="print">
-                                            <img src="https://i.pinimg.com/236x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg"
-                                                alt="Print Design, Print on Demand" loading="lazy" />
-                                            <p data-i18n="style_print">Print</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="sticker">
-                                            <img src="https://i.pinimg.com/236x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
-                                                alt="Sticker Design" loading="lazy" />
-                                            <p data-i18n="style_sticker">Sticker</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="banner">
-                                            <img src="https://i.pinimg.com/236x/43/a1/57/43a157f45bd1e916776598941396b6f4.jpg"
-                                                alt="Banner Design" loading="lazy" />
-                                            <p data-i18n="style_banner">Banner</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="infographic">
-                                            <img src="https://i.pinimg.com/236x/6f/8a/e9/6f8ae9b723f25d77d5d7d5275b4f8c06.jpg"
-                                                alt="Ai infographic Design" loading="lazy" />
-                                            <p data-i18n="style_infographic">Infografic</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="logo">
-                                            <img src="https://i.pinimg.com/236x/dc/d8/6a/dcd86a15d7736f8a3759ff78d1a5b07c.jpg"
-                                                alt="Ai Logo Design" loading="lazy" />
-                                            <p data-i18n="style_logo">Logo</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="vector">
-                                            <img src="https://i.pinimg.com/236x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
-                                                alt="Vector Design" loading="lazy" />
-                                            <p data-i18n="style_vector">Vector</p>
-                                        </div>
+                            <div class="style-dropdown" id="styleDropdown">
+                                <div class="style-grid-container">
+                                    <div class="carousel-2d-item" data-style="realistic" onclick="selectStyleCard('realistic')">
+                                        <img src="https://i.pinimg.com/236x/bd/63/9e/bd639e0617cac14d309c4d73bc40fc70.jpg" alt="Realistic Style" loading="lazy" />
+                                        <p data-i18n="style_realistic">Realistic</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="popart" onclick="selectStyleCard('popart')">
+                                        <img src="https://i.pinimg.com/236x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg" alt="Pop Art Style" loading="lazy" />
+                                        <p data-i18n="style_popart">Pop Art</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="cyberpunk" onclick="selectStyleCard('cyberpunk')">
+                                        <img src="https://i.pinimg.com/236x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg" alt="Cyberpunk Style" loading="lazy" />
+                                        <p data-i18n="style_cyberpunk">Cyberpunk</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="cartoon" onclick="selectStyleCard('cartoon')">
+                                        <img src="https://i.pinimg.com/236x/47/dd/14/47dd14400e61dde173fc1c7302b2810d.jpg" alt="Cartoon Style" loading="lazy" />
+                                        <p data-i18n="style_cartoon">Cartoon</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="sketch" onclick="selectStyleCard('sketch')">
+                                        <img src="https://i.pinimg.com/236x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg" alt="Sketch Art" loading="lazy" />
+                                        <p data-i18n="style_sketch">Sketch</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="anime" onclick="selectStyleCard('anime')">
+                                        <img src="https://i.pinimg.com/236x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg" alt="Anime Style" loading="lazy" />
+                                        <p data-i18n="style_anime">Anime</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="fantasy" onclick="selectStyleCard('fantasy')">
+                                        <img src="https://i.pinimg.com/236x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg" alt="Fantasy Style" loading="lazy" />
+                                        <p data-i18n="style_fantasy">Fantasy</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="surrealism" onclick="selectStyleCard('surrealism')">
+                                        <img src="https://i.pinimg.com/236x/37/3a/1c/373a1c221bdcf4b501498263674aed7e.jpg" alt="Surrealism Design" loading="lazy" />
+                                        <p data-i18n="style_surrealism">Surrealism</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="artistic" onclick="selectStyleCard('artistic')">
+                                        <img src="https://i.pinimg.com/236x/69/30/f4/6930f42752c14b5ad3dce15f215344d1.jpg" alt="Artistic Style" loading="lazy" />
+                                        <p data-i18n="style_artistic">Artistic</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="abstract" onclick="selectStyleCard('abstract')">
+                                        <img src="https://i.pinimg.com/236x/a4/56/0a/a4560a03b54ba349b42ced80bf402bb1.jpg" alt="Abstract Style" loading="lazy" />
+                                        <p data-i18n="style_abstract">Abstract</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="minimalism" onclick="selectStyleCard('minimalism')">
+                                        <img src="https://i.pinimg.com/236x/33/b3/a3/33b3a3d227992ce02ca6da59baab0cf4.jpg" alt="Minimalism Design" loading="lazy" />
+                                        <p data-i18n="style_minimalism">Minimalism</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="fashion" onclick="selectStyleCard('fashion')">
+                                        <img src="https://i.pinimg.com/236x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg" alt="Fashion Design" loading="lazy" />
+                                        <p data-i18n="style_fashion">Fashion</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="3d" onclick="selectStyleCard('3d')">
+                                        <img src="https://i.pinimg.com/236x/67/15/77/671577e00166b3e1fed8bab82520b970.jpg" alt="3D Design" loading="lazy" />
+                                        <p data-i18n="style_3d">3D</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="interior" onclick="selectStyleCard('interior')">
+                                        <img src="https://i.pinimg.com/236x/ff/d3/05/ffd305ca4f27d4d55fe5ce7f0a78f9ba.jpg" alt="Interior Design" loading="lazy" />
+                                        <p data-i18n="style_interior">Interior</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="architecture" onclick="selectStyleCard('architecture')">
+                                        <img src="https://i.pinimg.com/236x/8a/0d/e8/8a0de899bdb0a2f764b67792940bd0e0.jpg" alt="Architecture Design" loading="lazy" />
+                                        <p data-i18n="style_architecture">Architecture</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="print" onclick="selectStyleCard('print')">
+                                        <img src="https://i.pinimg.com/236x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg" alt="Print Design, Print on Demand" loading="lazy" />
+                                        <p data-i18n="style_print">Print</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="sticker" onclick="selectStyleCard('sticker')">
+                                        <img src="https://i.pinimg.com/236x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg" alt="Sticker Design" loading="lazy" />
+                                        <p data-i18n="style_sticker">Sticker</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="banner" onclick="selectStyleCard('banner')">
+                                        <img src="https://i.pinimg.com/236x/43/a1/57/43a157f45bd1e916776598941396b6f4.jpg" alt="Banner Design" loading="lazy" />
+                                        <p data-i18n="style_banner">Banner</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="infographic" onclick="selectStyleCard('infographic')">
+                                        <img src="https://i.pinimg.com/236x/6f/8a/e9/6f8ae9b723f25d77d5d7d5275b4f8c06.jpg" alt="Ai infographic Design" loading="lazy" />
+                                        <p data-i18n="style_infographic">Infografic</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="logo" onclick="selectStyleCard('logo')">
+                                        <img src="https://i.pinimg.com/236x/dc/d8/6a/dcd86a15d7736f8a3759ff78d1a5b07c.jpg" alt="Ai Logo Design" loading="lazy" />
+                                        <p data-i18n="style_logo">Logo</p>
+                                    </div>
+                                    <div class="carousel-2d-item" data-style="vector" onclick="selectStyleCard('vector')">
+                                        <img src="https://i.pinimg.com/236x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg" alt="Vector Design" loading="lazy" />
+                                        <p data-i18n="style_vector">Vector</p>
                                     </div>
                                 </div>
                             </div>

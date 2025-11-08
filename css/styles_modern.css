@@ -17,3 +17,6 @@
 
 /* Animations and keyframes */
 @import url('animations.css');
+
+/* Style dropdown CSS - loaded lazily by style-manager.js */
+/* @import url('style-dropdown.css'); - REMOVED: Now lazy loaded */

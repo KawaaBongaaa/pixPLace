@@ -130,27 +130,6 @@
     }
 }
 
-@keyframes particle-float {
-    0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-        opacity: 0.4;
-    }
-    50% {
-        transform: translateY(-20px) rotate(180deg);
-        opacity: 0.8;
-    }
-}
-
-@keyframes particle-glow {
-    0%, 100% {
-        opacity: 0.3;
-        transform: scale(0.8);
-    }
-    50% {
-        opacity: 0.8;
-        transform: scale(1.2);
-    }
-}
 
 @keyframes logo-spiral-in {
     0% {
@@ -203,28 +182,7 @@
     }
 }
 
-@keyframes particle-orbit {
-    0% {
-        transform: rotate(0deg) translateX(60px) rotate(0deg);
-        opacity: 0.2;
-    }
-    25% {
-        transform: rotate(90deg) translateX(60px) rotate(-90deg);
-        opacity: 0.6;
-    }
-    50% {
-        transform: rotate(180deg) translateX(60px) rotate(-180deg);
-        opacity: 0.9;
-    }
-    75% {
-        transform: rotate(270deg) translateX(60px) rotate(-270deg);
-        opacity: 0.6;
-    }
-    100% {
-        transform: rotate(360deg) translateX(60px) rotate(-360deg);
-        opacity: 0.2;
-    }
-}
+
 
 @keyframes text-particles-in {
     0% {
@@ -459,7 +417,7 @@
 /* Additional loading placeholder animation */
 .loading-image-placeholder {
     position: relative;
-    animation: loading-pulse 2.2s infinite ease-in-out;
+    animation: loading-pulse 2.2s ease-in-out;
     background: linear-gradient(90deg,
         transparent 25%,
         rgba(255, 255, 255, 0.1) 50%,
@@ -487,7 +445,7 @@
         transparent,
         rgba(255, 255, 255, 0.8),
         transparent);
-    animation: shimmer 1.8s infinite;
+    animation: shimmer 1.8s;
     z-index: 3;
 }
 
@@ -509,24 +467,11 @@ img.lazy-loaded[data-src] {
     opacity: 1;
 }
 
-/* Need image pulse for upload buttons */
-@keyframes need-image-pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(58, 192, 237, 0.9);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
-    }
-}
-
+/* Need image styling (animation removed for performance) */
 .need-image {
     border: 2px dashed var(--error-400);
     background-color: rgba(255, 0, 0, 0.05);
     border-radius: 8px;
-    animation: need-image-pulse 5s infinite;
 }
 
 /* Pulse animation for logo in loading */

@@ -566,4 +566,6 @@ export function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 
 // The snowfall is now handle entirely via CSS with .snowfall-layer containers
 // Performance improved from 900 DOM elements to 0 JS-managed elements
 
-console.log('🎯 Utils module loaded successfully');
+if (window.location.hostname === 'localhost') {
+    console.log('🎯 Utils module loaded successfully');
+}

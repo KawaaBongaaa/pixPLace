@@ -1,7 +1,7 @@
 // ОТДЕЛЬНЫЙ МОДУЛЬ ДЛЯ УПРАВЛЕНИЕ КАРТОЧКАМИ РЕЖИМОВ
 // (LAZY LOADING разделен по модулям для лучшей производительности)
 
-let selectedMode = 'fast_generation';
+let selectedMode = 'pixplace_pro';
 let currentExpandedCard = null;
 let tooltipElement = null;
 let globalTooltipShowTimer = null;
@@ -40,69 +40,9 @@ async function initializeModeCardsLazy() {
         return;
     }
 
-    // Создаем карточки режимов с полными описаниями для tooltip
-    const cardsHTML = `
-        <div class="mode-cards-grid">
-            <div class="mode-card" data-mode="photo_session">
-                <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
-                <div class="mode-icon">🍌</div>
-                <h4 class="mode-title">Nano Banana Editor</h4>
-                <p class="mode-description" data-i18n="mode_photo_session_desc">Perfect for photo editing. Upload an image and describe what to change</p>
-                <span class="mode-info-indicator">i</span>
-            </div>
 
-            <div class="mode-card" data-mode="dreamshaper_xl">
-                <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
-                <div class="mode-icon">⋆.˚🦋༘⋆</div>
-                <h4 class="mode-title">DreamShaper XL</h4>
-                <p class="mode-description" data-i18n="mode_dreamshaper_xl_desc">Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.</p>
-                <span class="mode-info-indicator">i</span>
-            </div>
-            <div class="mode-card" data-mode="fast_generation">
-                <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
-                <div class="mode-icon">⚡</div>
-                <h4 class="mode-title">Flux Fast Generation</h4>
-                <p class="mode-description" data-i18n="mode_fast_generation_desc">Fastest mode for simple pictures generation without image upload</p>
-                <span class="mode-info-indicator">i</span>
-            </div>
 
-            <div class="mode-card" data-mode="pixplace_pro">
-                <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
-                <div class="mode-icon">𝓟𝓻𝓸</div>
-                <h4 class="mode-title">Flux Pro Advanced</h4>
-                <p class="mode-description" data-i18n="mode_pixplace_pro_desc">Advanced mode with text support, logos and complex compositions</p>
-                <span class="mode-info-indicator">i</span>
-            </div>
-
-            <div class="mode-card" data-mode="print_maker">
-                <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
-                <div class="mode-icon">👕</div>
-                <h4 class="mode-title">Print on Demand</h4>
-                <p class="mode-description" data-i18n="mode_print_maker_desc">Specialized for Print on Demand. Creates ready-made prints for clothes and accessories</p>
-                <span class="mode-info-indicator">i</span>
-            </div>
-
-            <div class="mode-card" data-mode="background_removal">
-                <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
-                <div class="mode-icon">✂</div>
-                <h4 class="mode-title">Remove Background</h4>
-                <p class="mode-description" data-i18n="mode_background_removal_desc">Removes background from image while preserving the object</p>
-                <span class="mode-info-indicator">i</span>
-            </div>
-
-            <div class="mode-card" data-mode="upscale_image">
-                <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
-                <div class="mode-icon">*ੈ✩‧₊˚</div>
-                <h4 class="mode-title">Upscale Image</h4>
-                <p class="mode-description" data-i18n="mode_upscale_image_desc">Improves quality and resolution of existing image up to 4K</p>
-                <span class="mode-info-indicator">i</span>
-            </div>
-        </div>
-    `;
-
-    modeCardsWrapper.innerHTML = cardsHTML;
-
-    // 🔥 СОЗДАЕМ ЕДИНЫЙ TOOLTIP ELEMENT (ДО СЛУШАТЕЛЕЙ!)
+    //  СОЗДАЕМ ЕДИНЫЙ TOOLTIP ELEMENT (ДО СЛУШАТЕЛЕЙ!)
     initTooltipElement();
 
     // Инициализируем обработчики карточек
@@ -124,12 +64,28 @@ async function initializeModeCardsLazy() {
     console.log('✅ Mode cards tooltips initialized');
 }
 
-// ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ ОБРАБОТЧИКОВ
+// ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ ОБРАБОТЧИКОВ - FIXED FOR iPAD TOUCH ISSUES
 function initModeCardListeners() {
     const modeCards = document.querySelectorAll('.mode-card');
+    let touchTimeout;
 
     modeCards.forEach(card => {
-        card.addEventListener('click', () => {
+        // 👆 Используем touchend вместо click для предотвращения двойных тапов на iPad
+        card.addEventListener('touchend', (e) => {
+            e.preventDefault(); // Предотвращаем ghost click после touch
+            clearTimeout(touchTimeout);
+
+            touchTimeout = setTimeout(() => {
+                const mode = card.dataset.mode;
+                selectModeCard(mode);
+            }, 10); // Небольшая задержка для предотвращения двойных тапов
+        }, { passive: false });
+
+        // 💻 Fallback для desktop (без touch)
+        card.addEventListener('click', (e) => {
+            if ('ontouchstart' in window) return; // Skip click если есть touch support
+
+            e.preventDefault();
             const mode = card.dataset.mode;
             selectModeCard(mode);
         });
@@ -170,6 +126,11 @@ async function selectModeCard(modeValue) {
     }
     if (window.updatePromptVisibility) {
         await window.updatePromptVisibility();
+    }
+
+    // 🔥 ДОБАВЛЕНО: Обновление видимости кнопки стиля для текущего режима
+    if (window.updateStyleVisibilityForMode) {
+        window.updateStyleVisibilityForMode(modeValue);
     }
 
     // Диспатчим событие изменения режима

@@ -34,7 +34,7 @@ export class AppStateManager {
             },
 
             // Стиль (для генерации изображений)
-            selectedStyle: 'realistic',
+            selectedStyle: '',
 
             // Таймеры
             startTime: null,

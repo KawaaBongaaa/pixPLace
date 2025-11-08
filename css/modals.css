@@ -579,12 +579,14 @@
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 0;
+    gap: 10px;
+    padding: 8px 0;
     cursor: pointer;
     user-select: none;
     transition: all 0.2s ease;
     opacity: 0.7;
+    min-height: 20px;
+    min-width: 120px;
 }
 
 .checkbox-label:hover {
@@ -615,7 +617,6 @@
 /* CUSTOM CHECKBOX STYLING - MICRO SIZE */
 .checkbox-custom {
     position: relative;
-    left: 10px;
     height: 12px;
     width: 12px;
     background: rgba(255, 255, 255, 0.05);

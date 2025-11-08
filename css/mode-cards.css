@@ -105,17 +105,17 @@
 }
 
 .mode-badge--premium {
-    background: rgba(158, 158, 158, 0.08);
-    color: #9e9e9e;
-    border-color: rgba(158, 158, 158, 0.2);
-    box-shadow: 0 2px 4px rgba(158, 158, 158, 0.1);
+    background: transparent;
+    color: #FFD700;
+    border-color: #FFD700;
+    box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
 }
 
 .mode-badge--free {
-    background: linear-gradient(135deg, #4caf50, #66bb6a);
-    color: #fff;
-    border-color: rgba(76, 175, 80, 0.4);
-    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.25);
+    background: transparent;
+    color: #00FF00;
+    border-color: #00FF00;
+    box-shadow: 0 2px 4px rgba(0, 255, 0, 0.4);
 }
 
 .mode-badge--standard {
@@ -328,7 +328,7 @@
     .mode-cards-grid {
         gap: 6px;
         padding: 12px;
-        margin-right: -9px; /* 5% of card width (180px) for peek effect */
+        margin-right: -27px; /* ~15% of card width (180px) for enhanced peek effect */
         scroll-snap-type: x mandatory;
         scroll-behavior: smooth;
     }
