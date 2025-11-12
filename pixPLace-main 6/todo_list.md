@@ -1,2 +1,0 @@
-- [x] Убрать бейдж "Free" с карточки Flux Fast Generation в mode-cards.js
-- [x] Изменить стоимость генерации fast_generation на "~2 credits" в cost-badge.js
