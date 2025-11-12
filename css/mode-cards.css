@@ -60,27 +60,91 @@
 }
 
 /* =============================================================================
-   ОСНОВНЫЕ КАРТОЧКИ РЕЖИМОВ
+   ОСНОВНЫЕ КАРТОЧКИ РЕЖИМОВ - ПРОПОРЦИОНАЛЬНЫЙ ДИЗАЙН
    ============================================================================= */
+/* Базовая карточка с едиными пропорциями */
 .mode-card {
-    flex: 0 0 220px;
-    height: 140px;
-    background: var(--bg-primary);
-    border-radius: var(--mode-card-border-radius);
-    padding: 14px;
-    box-shadow: var(--mode-card-shadow);
-    border: 2px solid var(--border-primary);
-    cursor: pointer;
-    transition: var(--mode-card-transition);
-    position: relative;
-    overflow: hidden;
+    flex: 0 0 200px !important;
+    height: 140px !important;
+    background: var(--bg-primary) !important;
+    border-radius: var(--mode-card-border-radius) !important;
+    padding: 12px !important;
+    box-shadow: var(--mode-card-shadow) !important;
+    border: 2px solid var(--border-primary) !important;
+    cursor: pointer !important;
+    transition: var(--mode-card-transition) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    text-align: center !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    flex-shrink: 0 !important;
+    transform: translateZ(0);
+}
+
+.mode-card > .mode-title {
+    flex: 0 0 auto;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin: 32px 0 8px 0;
+    padding-top: 4px;
+    line-height: 1.3;
+    text-align: center !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    white-space: normal;
+}
+
+/* =============================================================================
+   КАПАБИЛИТИ БЕЙДЖИ - Нижние значки возможностей режимов
+   ============================================================================= */
+.mode-capabilities {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
     align-items: center;
-    text-align: center;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 4px;
+}
+
+.capability-badge {
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: lowercase;
+    letter-spacing: 0.3px;
+    background: rgba(var(--accent-primary-rgb, 33, 150, 243), 0.1);
+    color: var(--accent-primary, #2196f3);
+    border: 1px solid rgba(var(--accent-primary-rgb, 33, 150, 243), 0.2);
+    white-space: nowrap;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.capability-badge:hover {
+    background: var(--accent-primary, #2196f3);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Темная тема для capability badges */
+[data-theme="dark"] .capability-badge {
+    background: rgba(var(--accent-primary-rgb, 33, 150, 243), 0.15);
+    border-color: rgba(var(--accent-primary-rgb, 33, 150, 243), 0.3);
+}
+
+/* Светлая тема для capability badges */
+[data-theme="light"] .capability-badge {
+    background: rgba(33, 150, 243, 0.08);
+    border-color: rgba(33, 150, 243, 0.15);
 }
 
 /* =============================================================================
@@ -89,7 +153,7 @@
 .mode-badge {
     position: absolute;
     top: 6px;
-    right: 6px;
+    left: 6px;
     padding: 2px 6px;
     border-radius: 6px;
     font-size: 9px;
@@ -183,35 +247,34 @@
     border-color: rgba(var(--accent-primary-rgb, 33, 150, 243), 0.5);
 }
 
-/* Активное состояние (текущий режим) - только визуальное выделение без дёргания */
+/* Активное состояние (текущий режим) - выделение цветом бейджа */
 .mode-card.selected {
-    border-color: var(--accent-primary);
     background: var(--bg-secondary);
-    box-shadow: var(--mode-card-shadow-expanded);
     transform: translateY(-4px);
+    animation: mode-card-pulse 0.6s ease-out;
 }
 
-/* Убираем развернутое состояние для избежания дёргания интерфейса */
-/*
-.mode-card.expanded {
-    min-height: 320px;
-    transform: translateY(-8px);
-    box-shadow: var(--mode-card-shadow-expanded);
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+/* Цвета обводки выбранных карточек по типу режима - яркие цвета бейджей */
+.mode-card.selected[data-mode="pixplace_pro"],
+.mode-card.selected[data-mode="fast_generation"],
+.mode-card.selected[data-mode="print_maker"] {
+    border: 3px solid #42a5f5 !important; /* Standard - синий */
+    box-shadow: var(--mode-card-shadow-expanded), 0 0 20px rgba(66, 165, 245, 0.6) !important; /* Свечение */
 }
 
-.mode-card.expanded .mode-card-content {
-    opacity: 1;
-    max-height: 200px;
-    margin-top: var(--mode-card-spacing);
+.mode-card.selected[data-mode="dreamshaper_xl"],
+.mode-card.selected[data-mode="background_removal"],
+.mode-card.selected[data-mode="upscale_image"] {
+    border: 3px solid #00FF00 !important; /* Free - зеленый */
+    box-shadow: var(--mode-card-shadow-expanded), 0 0 20px rgba(0, 255, 0, 0.6) !important; /* Свечение */
 }
 
-.mode-card.expanded .mode-card-description,
-.mode-card.expanded .mode-icon {
-    opacity: 1;
-    transform: translateY(0);
+.mode-card.selected[data-mode="photo_session"] {
+    border: 3px solid #FFD700 !important; /* Premium - золотой */
+    box-shadow: var(--mode-card-shadow-expanded), 0 0 20px rgba(255, 215, 0, 0.6) !important; /* Свечение */
 }
-*/
+
+
 
 /* =============================================================================
    СОДЕРЖИМОЕ КАРТОЧЕК
@@ -233,37 +296,18 @@
 }
 
 .mode-card-description {
+    display: none; /* Описание скрыто, информация только в tooltips */
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.4;
     margin: 0;
     opacity: 0.8;
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.mode-card.expanded .mode-card-description {
-    max-height: 100px;
-    opacity: 1;
 }
 
 .mode-icon {
     font-size: 32px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: opacity 0.3s ease;
     opacity: 0.9;
-}
-
-.mode-card.expanded .mode-icon {
-    transform: scale(1.1);
-}
-
-.mode-card-content {
-    width: 100%;
-    opacity: 0;
-    max-height: 0;
-    transition: all 0.3s ease;
-    overflow: hidden;
 }
 
 /* =============================================================================
@@ -315,118 +359,207 @@
 }
 
 /* =============================================================================
-   АДАПТИВНОСТЬ ДЛЯ РАЗЛИЧНЫХ ЭКРАНОВ
+   АДАПТИВНОСТЬ ДЛЯ РАЗЛИЧНЫХ ЭКРАНОВ - ПРОПОРЦИОНАЛЬНЫЙ ПОДХОД
    ============================================================================= */
-/* Маленькие экраны (мобильные) */
-@media (max-width: 480px) {
+/* Очень маленькие экраны (iPhone SE) - адаптивные отступы */
+@media (max-width: 360px) {
     :root {
-        --mode-card-padding: 16px;
-        --mode-card-border-radius: 12px;
-        --mode-card-spacing: 12px;
+        --mode-card-border-radius: 16px;
     }
 
     .mode-cards-grid {
         gap: 6px;
+        padding: 10px;
+        margin-right: -80px; /* Увеличенный отступ для показа 3-й карточки на 25% */
+    }
+
+    .mode-card {
+        flex: 0 0 180px;
+        height: 130px;
+        padding: 10px;
+        scroll-snap-align: start;
+    }
+
+    .mode-card > .mode-title {
+        margin: 24px 0 6px 0;
+        padding-top: 2px;
+        line-height: 1.3;
+        word-break: break-word;
+        hyphens: auto;
+        overflow-wrap: break-word;
+        white-space: normal;
+    }
+
+    .capability-badge {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+
+    .mode-badge {
+        font-size: 8px;
+        padding: 2px 5px;
+        max-width: 50px;
+    }
+}
+
+/* Маленькие экраны (мобильные) - адаптивные размеры */
+@media (max-width: 480px) {
+    :root {
+        --mode-card-border-radius: 14px;
+        --mode-card-spacing: 12px;
+    }
+
+    .mode-cards-grid {
+        gap: 8px;
         padding: 12px;
-        margin-right: -27px; /* ~15% of card width (180px) for enhanced peek effect */
+        margin-right: -60px; /* Адаптивный отступ */
         scroll-snap-type: x mandatory;
         scroll-behavior: smooth;
     }
 
     .mode-card {
-        flex: 0 0 180px;
-        height: 120px;
-        padding: 10px;
+        flex: 0 0 190px;
+        height: 135px;
+        padding: 11px;
         scroll-snap-align: start;
     }
 
-    .mode-icon {
-        font-size: 20px;
+    .mode-card > .mode-title {
+        margin: 28px 0 7px 0;
+        padding-top: 3px;
+        line-height: 1.3;
+        word-break: break-word;
+        hyphens: auto;
+        overflow-wrap: break-word;
+        white-space: normal;
     }
 
-    .mode-card-title {
-        font-size: 13px;
-    }
-
-    .mode-card-description {
-        font-size: 11px;
+    .capability-badge {
+        font-size: 9px;
+        padding: 2px 5px;
+        gap: 3px;
     }
 
     .mode-badge {
         font-size: 8px;
-        padding: 1px 6px;
+        padding: 2px 6px;
         max-width: 60px;
     }
 }
 
-/* Средние экраны (планшеты) */
+/* Средние экраны (планшеты) - базовый масштаб 1.0 */
 @media (min-width: 481px) and (max-width: 768px) {
+    :root {
+        --mode-card-scale: 1.0;
+        --mode-card-border-radius: 15px;
+    }
+
     .mode-cards-grid {
         gap: 12px;
         padding: 16px;
     }
 
     .mode-card {
-        flex: 0 0 200px;
-        height: 130px;
-        padding: 14px;
+        flex: 0 0 calc(200px * 1.0);
+        height: calc(140px * 1.0);
+        padding: 10px;
     }
 
-    .mode-icon {
-        font-size: 24px;
+    .mode-card > .mode-title {
+        margin: 32px 0 8px 0;
+        padding-top: 4px;
     }
 
-    .mode-card-title {
-        font-size: 15px;
+    .capability-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+        gap: 4px;
+    }
+
+    .mode-badge {
+        font-size: 9px;
+        padding: 2px 6px;
+        max-width: 100px;
     }
 }
 
-/* Большие экраны (десктоп) */
-@media (min-width: 769px) {
+/* Большие экраны (десктоп) - масштаб 1.2 */
+@media (min-width: 769px) and (max-width: 1199px) {
+    :root {
+        --mode-card-scale: 1.2;
+        --mode-card-border-radius: 16px;
+    }
+
     .mode-cards-grid {
         gap: 16px;
         padding: 20px;
     }
 
     .mode-card {
-        flex: 0 0 240px;
-        height: 150px;
-        padding: 18px;
-        transform: translateY(0);
+        flex: 0 0 calc(200px * 1.2);
+        height: calc(140px * 1.2);
+        padding: 12px;
     }
 
     .mode-card:hover {
         transform: translateY(-6px);
     }
 
-    .mode-icon {
-        font-size: 30px;
+    .mode-card > .mode-title {
+        margin: 36px 0 10px 0;
+        padding-top: 5px;
     }
 
-    .mode-card-title {
-        font-size: 17px;
+    .capability-badge {
+        font-size: 11px;
+        padding: 3px 7px;
+        gap: 5px;
+    }
+
+    .mode-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+        max-width: 120px;
     }
 }
 
-/* Очень большие экраны */
+/* Очень большие экраны (4K) - масштаб 1.4 */
 @media (min-width: 1200px) {
+    :root {
+        --mode-card-scale: 1.4;
+        --mode-card-border-radius: 18px;
+    }
+
     .mode-cards-grid {
         gap: 20px;
         padding: 24px;
     }
 
     .mode-card {
-        flex: 0 0 260px;
-        height: 170px;
-        padding: 20px;
+        flex: 0 0 calc(200px * 1.4);
+        height: calc(140px * 1.4);
+        padding: 14px;
     }
 
-    .mode-icon {
-        font-size: 36px;
+    .mode-card:hover {
+        transform: translateY(-8px);
     }
 
-    .mode-card-title {
-        font-size: 19px;
+    .mode-card > .mode-title {
+        margin: 40px 0 12px 0;
+        padding-top: 6px;
+    }
+
+    .capability-badge {
+        font-size: 12px;
+        padding: 3px 8px;
+        gap: 6px;
+    }
+
+    .mode-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+        max-width: 140px;
     }
 }
 
@@ -614,4 +747,171 @@
     padding-left: 0 !important;
     padding-top: 0 !important;
     letter-spacing: 0.5px;
+}
+
+/* =============================================================================
+   MODE DESCRIPTION BLOCK - ПОЛНОЭКРАННЫЙ СОВРЕМЕННЫЙ ДИЗАЙН ОПИСАНИЯ РЕЖИМА
+   ============================================================================= */
+.mode-description-block {
+    position: relative;
+    width: calc(100% - 80px); /* Match input-wrapper content width */
+    margin: 8px 40px 32px 40px; /* Match input-wrapper padding */
+    padding: 20px 24px; /* Internal padding */
+    display: none;
+    opacity: 0;
+    transform: translateY(-5px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--bg-primary);
+    border-radius: 16px;
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Стрелка вверх к выбранной карте */
+.mode-description-block::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid var(--border-primary);
+}
+
+.mode-description-block::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid var(--bg-secondary);
+}
+
+.mode-description-block.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.mode-description-content {
+    text-align: center;
+    width: 100%;
+}
+
+.mode-description-icon {
+    font-size: 20px;
+    opacity: 0.7;
+    color: var(--accent-primary);
+    margin-bottom: 4px;
+}
+
+.mode-description-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: 400;
+    text-align: center;
+}
+
+.mode-description-text p {
+    margin: 0;
+    padding: 0;
+}
+
+/* Темная тема для блока описания */
+[data-theme="dark"] .mode-description-block {
+    background: rgba(var(--bg-secondary-rgb, 255, 255, 255), 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .mode-description-text {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .mode-description-icon {
+    opacity: 0.8;
+}
+
+/* Светлая тема для блока описания */
+[data-theme="light"] .mode-description-block {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* =============================================================================
+   АДАПТИВНОСТЬ ДЛЯ БЛОКА ОПИСАНИЯ
+   ============================================================================= */
+/* Маленькие экраны (мобильные) */
+@media (max-width: 480px) {
+    .mode-description-block {
+        width: calc(100% - 80px); /* Match input-wrapper content width */
+        margin: 12px 40px; /* Match input-wrapper padding */
+        padding: 14px 16px; /* Internal padding */
+    }
+
+    .mode-description-content {
+        gap: 10px;
+    }
+
+    .mode-description-icon {
+        font-size: 18px;
+    }
+
+    .mode-description-text {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+}
+
+/* Средние экраны (планшеты) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .mode-description-block {
+        width: calc(100% - 80px); /* Match input-wrapper content width */
+        margin: 16px 40px; /* Match input-wrapper padding */
+        padding: 16px; /* Internal padding */
+    }
+
+    .mode-description-icon {
+        font-size: 19px;
+    }
+}
+
+/* Большие экраны (десктоп) */
+@media (min-width: 769px) {
+    .mode-description-block {
+        width: calc(100% - 80px); /* Match input-wrapper content width */
+        margin: 16px 40px; /* Match input-wrapper padding */
+        padding: 18px 24px; /* Internal padding */
+    }
+
+    .mode-description-text {
+        font-size: 16px;
+    }
+}
+
+/* =============================================================================
+   ОГРАНИЧЕНИЕ АНИМАЦИЙ ДЛЯ МЕДЛЕННЫХ УСТРОЙСТВ
+   ============================================================================= */
+@media (prefers-reduced-motion: reduce) {
+    .mode-description-block {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    .mode-description-block.visible {
+        opacity: 1 !important;
+        transform: none !important;
+    }
 }

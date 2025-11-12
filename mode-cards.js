@@ -134,6 +134,9 @@ async function selectModeCard(modeValue) {
         window.updateStyleVisibilityForMode(modeValue);
     }
 
+    // 🔥 ДОБАВЛЕНО: Обновление описания режима
+    updateModeDescription(modeValue);
+
     // Диспатчим событие изменения режима
     document.dispatchEvent(new CustomEvent('mode:changed', {
         detail: { mode: modeValue }
@@ -258,7 +261,7 @@ function hideModeTooltip() {
     tooltipElement.style.visibility = 'hidden';
 }
 
-// ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ TOOLTIP ОБРАБОТЧИКОВ
+// ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ TOOLTIP ОБРАБОТЧИКОВ - УЛУЧШЕННАЯ ВЕРСИЯ
 function initTooltipListeners() {
     const modeCards = document.querySelectorAll('.mode-card');
     let currentHoveredCard = null;
@@ -270,13 +273,16 @@ function initTooltipListeners() {
         globalTooltipHideTimer = null;
     }
 
-    function hideTooltipWithDelay(delay = 250) {
+    function hideTooltipInstantly() {
+        hideModeTooltip();
+        currentHoveredCard = null;
+    }
+
+    function hideTooltipWithDelay(delay = 150) {  // Уменьшили задержку до 150ms
         clearTimeout(globalTooltipHideTimer);
         globalTooltipHideTimer = setTimeout(() => {
-            const isAnyCardHovered = currentHoveredCard !== null;
-            if (!isAnyCardHovered) {
-                hideModeTooltip();
-            }
+            hideModeTooltip();
+            currentHoveredCard = null;
         }, delay);
     }
 
@@ -286,7 +292,7 @@ function initTooltipListeners() {
             card.classList.add('active-touch');
             setTimeout(() => {
                 card.classList.remove('active-touch');
-            }, 3000); // Индикатор исчезнет через 3 сек
+            }, 3000);
         }
     }
 
@@ -299,6 +305,7 @@ function initTooltipListeners() {
             indicator.addEventListener('mouseenter', () => {
                 clearAllTimers();
                 currentHoveredCard = card;
+                // Моментальное показывание на hover индикатора
                 showModeTooltip(card);
             });
 
@@ -308,78 +315,149 @@ function initTooltipListeners() {
             });
 
             // Для мобильных - tap на индикатор
-            indicator.addEventListener('click', (e) => {
-                e.stopPropagation(); // Предотвращаем выбор карточки
+            indicator.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 clearAllTimers();
                 currentHoveredCard = card;
                 showModeTooltip(card);
-                // Скрываем tooltip через 3 сек
+                // Скрываем tooltip через 3 сек на мобильном
                 setTimeout(() => {
-                    hideModeTooltip();
-                    currentHoveredCard = null;
+                    hideTooltipInstantly();
+                }, 3000);
+            }, { passive: false });
+
+            // Фallback для старых мобильных без touchstart
+            indicator.addEventListener('click', (e) => {
+                if ('ontouchstart' in window) return; // Skipесли есть touch support
+                e.preventDefault();
+                e.stopPropagation();
+                clearAllTimers();
+                currentHoveredCard = card;
+                showModeTooltip(card);
+                setTimeout(() => {
+                    hideTooltipInstantly();
                 }, 3000);
             });
         }
 
         // Показ индикатора при touchstart на карточке
         card.addEventListener('touchstart', (e) => {
-            // Не показываем индикатор если touch на индикаторе
             if (e.target.classList.contains('mode-info-indicator')) return;
-
             showIndicatorOnTouch(card);
         }, { passive: true });
 
-        // Hover события для desktop (старый способ для совместимости)
+        // Hover события для desktop (быстрее по сравнению с старой версией)
         card.addEventListener('mouseenter', () => {
             if (!('ontouchstart' in window)) {
                 clearAllTimers();
                 currentHoveredCard = card;
 
+                // Быстрее показываем tooltip - 300ms вместо 1s
                 globalTooltipShowTimer = setTimeout(() => {
                     if (currentHoveredCard === card) {
                         showModeTooltip(card);
                     }
-                }, 1000); // Показываем tooltip через 1 сек hover без индикатора
+                }, 300);
             }
         });
 
         card.addEventListener('mouseleave', () => {
             if (!('ontouchstart' in window)) {
+                clearAllTimers();
                 currentHoveredCard = null;
-                hideTooltipWithDelay();
+                hideTooltipInstantly();
             }
         });
 
         // Click на карточке скрывает tooltip
         card.addEventListener('click', () => {
             clearAllTimers();
-            hideModeTooltip();
+            hideTooltipInstantly();
         });
-    });
 
-    // Глобальные обработчики для скрытия tooltip
-    document.addEventListener('scroll', () => {
-        clearAllTimers();
-        hideModeTooltip();
-    }, { passive: true });
-
-    document.addEventListener('resize', () => {
-        clearAllTimers();
-        hideModeTooltip();
-    });
-
-    document.addEventListener('orientationchange', () => {
-        clearAllTimers();
-        hideModeTooltip();
-    });
-
-    if ('ontouchstart' in window) {
-        document.addEventListener('touchstart', (e) => {
-            const target = e.target;
-            if (!target.closest('.mode-card') && !target.closest('.mode-tooltip')) {
+        // Touchend на карточке для скрытия
+        card.addEventListener('touchend', (e) => {
+            if (!e.target.classList.contains('mode-info-indicator')) {
                 clearAllTimers();
-                hideModeTooltip();
+                hideTooltipInstantly();
             }
         }, { passive: true });
+    });
+
+    // Глобальные обработчики для мгновенного скрытия tooltip
+    function setupGlobalHideHandlers() {
+        // Scroll - мгновенное скрытие
+        window.addEventListener('scroll', hideTooltipInstantly, { passive: true });
+        document.addEventListener('scroll', hideTooltipInstantly, { passive: true });
+
+        // Resize - мгновенное скрытие
+        window.addEventListener('resize', hideTooltipInstantly);
+        document.addEventListener('resize', hideTooltipInstantly);
+
+        // Orientation change - мгновенное скрытие
+        window.addEventListener('orientationchange', () => {
+            setTimeout(hideTooltipInstantly, 100);
+        });
+        document.addEventListener('orientationchange', () => {
+            setTimeout(hideTooltipInstantly, 100);
+        });
+
+        // Touch/click вне карточек - мгновенное скрытие
+        document.addEventListener('touchstart', (e) => {
+            if (!e.target.closest('.mode-card') && !e.target.closest('.mode-tooltip')) {
+                clearAllTimers();
+                hideTooltipInstantly();
+            }
+        }, { passive: true });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.mode-card') && !e.target.closest('.mode-tooltip')) {
+                clearAllTimers();
+                hideTooltipInstantly();
+            }
+        });
+    }
+
+    setupGlobalHideHandlers();
+}
+
+// ФУНКЦИЯ ОБНОВЛЕНИЯ ОПИСАНИЯ РЕЖИМА - НОВЫЙ БЛОК ОПИСАНИЯ МЕЖДУ РЕЖИМАМИ И ПРОМПТОМ
+function updateModeDescription(mode) {
+    const descriptionBlock = document.getElementById('modeDescriptionBlock');
+    const descriptionText = document.getElementById('modeDescriptionText');
+
+    if (!descriptionBlock || !descriptionText) {
+        console.warn('Mode description elements not found');
+        return;
+    }
+
+    // Получаем описание режима из системы переводов
+    const description = window.dictionaryManager ?
+        window.dictionaryManager.translate(`mode_${mode}_desc`) : '';
+
+    if (description) {
+        // Обновляем текст описания
+        descriptionText.textContent = description;
+
+        // Показываем блок с анимацией
+        descriptionBlock.style.display = 'block';
+        descriptionBlock.classList.add('visible');
+
+        console.log(`📋 Mode description updated for: ${mode}`);
+    } else {
+        // Скрываем блок если нет описания
+        descriptionBlock.style.display = 'none';
+        descriptionBlock.classList.remove('visible');
+
+        console.warn(`📋 No description found for mode: ${mode}`);
     }
 }
+
+// 🔥 ДОБАВЛЕНО: Инициализация начального описания при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+    // Инициализируем описание для начального режима
+    setTimeout(() => {
+        updateModeDescription(selectedMode);
+    }, 100); // Небольшая задержка для гарантии загрузки DOM
+});

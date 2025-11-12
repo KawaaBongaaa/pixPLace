@@ -2064,7 +2064,7 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
         console.error('❌ Failed to apply initial translations:', error);
     }
 
-    // 3. ТОЛЬКО ТЕПЕРЬ показываем loading screen (уже с переведенными текстами)
+    // 3. ПОКАЗАТЬ LOADING SCREEN СРАЗУ (уже с переведенными текстами)
     // 🚀 ПОКАЗАТЬ LOADING SCREEN СРАЗУ (только logo, частицы - ничего не нужно переводить)
     showLoadingScreen();
 

@@ -298,14 +298,23 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    opacity: 0;
-    transform: translateY(20px);
+    opacity: 1;
+    transform: translateY(0);
     transition: opacity var(--transition-slow), transform var(--transition-slow);
 }
 
 .app.loaded {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Hide all screens by default - only loading screen should be visible initially */
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
 }
 
 /* Header */

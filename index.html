@@ -13,7 +13,6 @@
 
     <!-- ⚡ CRITICAL CSS FIRST (render-blocking for proper initial layout) -->
     <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/mode-cards.css">
 
     <!-- COMPONENTS CSS - ASYNC LOADED AFTER CRITICAL RENDER -->
     <link rel="preload" href="css/components.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -54,11 +53,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- PRELOAD critical fonts for FCP priority -->
-    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyeMZhrib2Bg-4.woff2" as="font"	type="font/woff2" crossorigin>
-    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuDyfMZhrib2Bg-4.woff2" as="font"	type="font/woff2" crossorigin>
+    <!-- REMOVED: Preload links causing 404 errors - Google Fonts CSS handles font loading -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" onerror="this.onerror=null; console.warn('Google Fonts failed to load, using system fonts'); document.documentElement.style.setProperty('--font-family', 'system-ui, -apple-system, sans-serif');">
+    <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=swap" rel="stylesheet" onerror="this.onerror=null; console.warn('WDXL Font failed to load, using fallback');">
     <script>
         // Глобальные переменные для совместимости - переводы через DictionaryManager
         window.showToast = (type, message) => console.log(`Toast (${type}): ${message}`);
@@ -163,7 +161,7 @@
 
 
     <!-- Main App -->
-    <div id="app" class="app" style="display: block !important;">
+    <div id="app" class="app">
         <!-- Header -->
         <header class="header">
             <div class="header-content">
@@ -400,62 +398,83 @@
                                     <div class="mode-cards-grid">
                                         <div class="mode-card" data-mode="photo_session">
                                             <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
-                                            <div class="mode-icon">🍌</div>
                                             <h4 class="mode-title">Nano Banana Editor</h4>
-                                            <p class="mode-description" data-i18n="mode_photo_session_desc">Perfect for photo editing. Upload an image and describe what to change</p>
+                                            <div class="mode-capabilities">
+                                                <span class="capability-badge">edit-image</span>
+                                                <span class="capability-badge">txt2img</span>
+                                                <span class="capability-badge">img2img</span>
+                                            </div>
                                             <span class="mode-info-indicator">i</span>
                                         </div>
 
                                         <div class="mode-card" data-mode="pixplace_pro">
                                             <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
-                                            <div class="mode-icon">𝓟𝓻𝓸</div>
                                             <h4 class="mode-title">Flux Pro Advanced</h4>
-                                            <p class="mode-description" data-i18n="mode_pixplace_pro_desc">Advanced mode with text support, logos and complex compositions</p>
+                                            <div class="mode-capabilities">
+                                                <span class="capability-badge">txt2img</span>
+                                                <span class="capability-badge">img2img</span>
+                                            </div>
                                             <span class="mode-info-indicator">i</span>
                                         </div>
 
                                         <div class="mode-card" data-mode="dreamshaper_xl">
                                             <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
-                                            <div class="mode-icon">⋆.˚🦋༘⋆</div>
                                             <h4 class="mode-title">DreamShaper XL</h4>
-                                            <p class="mode-description" data-i18n="mode_dreamshaper_xl_desc">Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.</p>
+                                            <div class="mode-capabilities">
+                                                <span class="capability-badge">txt2img</span>
+                                                <span class="capability-badge">img2img</span>
+                                            </div>
                                             <span class="mode-info-indicator">i</span>
                                         </div>
 
                                         <div class="mode-card" data-mode="fast_generation">
                                             <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
-                                            <div class="mode-icon">⚡</div>
                                             <h4 class="mode-title">Flux Fast Generation</h4>
-                                            <p class="mode-description" data-i18n="mode_fast_generation_desc">Fastest mode for simple pictures generation without image upload</p>
+                                            <div class="mode-capabilities">
+                                                <span class="capability-badge">txt2img</span>
+                                            </div>
                                             <span class="mode-info-indicator">i</span>
                                         </div>
 
                                         <div class="mode-card" data-mode="print_maker">
                                             <span class="mode-badge mode-badge--standard" data-i18n="badge_standard">Standard</span>
-                                            <div class="mode-icon">👕</div>
                                             <h4 class="mode-title">Print on Demand</h4>
-                                            <p class="mode-description" data-i18n="mode_print_maker_desc">Specialized for Print on Demand. Creates ready-made prints for clothes and accessories</p>
+                                            <div class="mode-capabilities">
+                                                <span class="capability-badge">txt2img</span>
+                                                <span class="capability-badge">img2img</span>
+                                            </div>
                                             <span class="mode-info-indicator">i</span>
                                         </div>
 
                                         <div class="mode-card" data-mode="background_removal">
                                             <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
-                                            <div class="mode-icon">✂</div>
                                             <h4 class="mode-title">Remove Background</h4>
-                                            <p class="mode-description" data-i18n="mode_background_removal_desc">Removes background from image while preserving the object</p>
+                                            <div class="mode-capabilities">
+                                                <span class="capability-badge">img2img</span>
+                                            </div>
                                             <span class="mode-info-indicator">i</span>
                                         </div>
 
                                         <div class="mode-card" data-mode="upscale_image">
                                             <span class="mode-badge mode-badge--premium" data-i18n="badge_premium">Premium</span>
-                                            <div class="mode-icon">*ੈ✩‧₊˚</div>
                                             <h4 class="mode-title">Upscale Image</h4>
-                                            <p class="mode-description" data-i18n="mode_upscale_image_desc">Improves quality and resolution of existing image up to 4K</p>
+                                            <div class="mode-capabilities">
+                                                <span class="capability-badge">img2img</span>
+                                            </div>
                                             <span class="mode-info-indicator">i</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                        <!-- Mode Description Block - NEW: Additional information about selected generation mode -->
+                        <div id="modeDescriptionBlock" class="mode-description-block" style="display: none;">
+                            <div class="mode-description-content">
+                                <div class="mode-description-text">
+                                    <p id="modeDescriptionText"></p>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Скрытый селект для совместимости с существующей логикой -->
                         <select id="modeSelect" style="display: none;">
