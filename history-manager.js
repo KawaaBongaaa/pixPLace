@@ -118,9 +118,12 @@ class HistoryManagement {
             const mode = generation ? generation.mode : 'unknown';
             const style = generation ? generation.style : 'realistic';
 
+            const styleText = item.style ? `${translate('style_' + item.style, window.appState) || item.style}` : '';
+            const separator1 = item.style ? ' | ' : '';
+            const separator2 = ' | ';
             loadingCaption.innerHTML = `
         <span class="complete-status">✅ Complete</span><br>
-        <small class="history-date">${new Date().toLocaleDateString()} | ${translate('style_' + style, window.appState) || style || 'unknown'} | ${translate('mode_' + mode, window.appState) || mode || 'unknown'}</small>
+        <small class="history-date">${new Date().toLocaleDateString()}${separator1}${styleText}${separator2}${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</small>
     `;
 
             // Добавляем мягкую анимацию изменения текста
@@ -215,9 +218,12 @@ function replaceLoadingWithPreview(taskUUID, generationData) {
     if (caption) {
         const safeMode = (generationData.mode && generationData.mode !== 'undefined') ?
             generationData.mode : 'photo_session';
-            caption.innerHTML = `
+        const styleText = generationData.style ? `${translate('style_' + generationData.style, window.appState) || generationData.style}` : '';
+        const separator1 = generationData.style ? ' | ' : '';
+        const separator2 = ' | ';
+        caption.innerHTML = `
             <span class="complete-status">✅ Complete</span><br>
-            <small class="history-date">${new Date().toLocaleDateString()} | ${translate('style_' + generationData.style, window.appState) || generationData.style || 'unknown'} | ${translate('mode_' + safeMode, window.appState) || safeMode || 'unknown'}</small>
+            <small class="history-date">${new Date().toLocaleDateString()}${separator1}${styleText}${separator2}${translate('mode_' + safeMode, window.appState) || safeMode || 'unknown'}</small>
         `;
 
         // Добавляем анимацию изменения текста
@@ -619,7 +625,7 @@ function updateHistoryDisplay(page = 0) {
     validItems.sort((a, b) => b.id - a.id); // Сортировка по ID в обратном порядке (новые сверху)
 
     // 🔥 НОВОЕ: Изменен лимит для показа только 6 изображений при первом заходе
-    const start = page === 0 ? 0 : page * 15 - 9;  // page=0: 0, page=1:6, page=2:21, etc.
+    const start = page === 0 ? 0 : page * 15;  // page=0: 0, page=1:15, page=2:30, etc.
     const end = start + (page === 0 ? 6 : 15);
     const pageItems = validItems.slice(start, Math.min(end, validItems.length));
 
@@ -692,12 +698,13 @@ function updateHistoryDisplay(page = 0) {
                 })}
             </script>
             ` : `
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L3JlY3Q+PC9zdmc+"
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L3JlY3Q+PC9zdmc+"
                      data-src="${imageUrl}"
                      alt="Generated"
                      class="lazy-loading"
                      loading="lazy"
                      decoding="async"
+                     ${item.result ? '' : 'style="opacity: 0.7;"'}
                      />
                         <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
             `;
@@ -705,7 +712,7 @@ function updateHistoryDisplay(page = 0) {
             historyList.appendChild(element);
             console.log(`➕ Added element for item ${item.id} to DOM`);
 
-    // 🚀 OPTIMIZED LAZY LOADING WITHOUT DEVICE STRESS (ТОЛЬКО для рабочих изображений)
+    // 🚀 OPTIMIZED LAZY LOADING WITHOUT DEVICE STRESS (ТОЛЬКО for рабочих изображений)
     const img = element.querySelector('img[data-src]');
     if (!img) {
         console.warn(`❌ No img element found for item ${item.id}`);
@@ -742,7 +749,7 @@ function updateHistoryDisplay(page = 0) {
     console.log(`Total valid items: ${validItems.length}`);
     console.log(`Current page: ${page}`);
     console.log(`Page items shown: ${pageItems.length}`);
-    const totalShownSoFar = page === 0 ? 6 : page * 15 - 9 + 15;
+    const totalShownSoFar = page === 0 ? pageItems.length : page * 15 + pageItems.length;
     console.log(`Total shown so far: ${totalShownSoFar}`);
     console.log(`Should show load more? ${validItems.length > totalShownSoFar}`);
 
@@ -756,10 +763,12 @@ function updateHistoryDisplay(page = 0) {
 
     // 🔥 ИСПРАВЛЕНИЕ: Правильная логика для показывания кнопки пагинации
     // Показываем кнопку только если есть еще элементы для загрузки
-    const itemsShownSoFar = page === 0 ? 6 : page * 15 + 6;
+    const itemsShownSoFar = page === 0 ? 6 : (page * 15) + 6;
     const shouldShowMoreButton = validItems.length > itemsShownSoFar;
 
-    console.log(`📄 Pagination debug: total=${validItems.length}, shownSoFar=${itemsShownSoFar}, showButton=${shouldShowMoreButton}`);
+    console.log(`� LOAD MORE DEBUG: page=${page}, validItems=${validItems.length}, itemsShownSoFar=${itemsShownSoFar}, shouldShow=${shouldShowMoreButton}`);
+
+    console.log(`�📄 Pagination debug: total=${validItems.length}, shownSoFar=${itemsShownSoFar}, showButton=${shouldShowMoreButton}`);
 
     if (shouldShowMoreButton) {
         // Удаляем старую кнопку, если есть
@@ -772,8 +781,8 @@ function updateHistoryDisplay(page = 0) {
         // Создаем новую кнопку
         const loadMoreBtn = document.createElement('button');
         loadMoreBtn.id = 'loadMoreHistoryBtn';
-        loadMoreBtn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;"><span style="color: var(--text-primary);"></span> ${translate('load_more_history', window.appState)}...</div>
-                                <div style="font-size: 12px; opacity: 0.7;">Показаны ${pageItems.length} из ${validItems.length}</div>`;
+        loadMoreBtn.innerHTML = `<div style="padding: 16px; font-size: 16px; font-weight: bold;"><span style="color: var(--text-primary);"></span> ${translate('load_more_history', window.appState) || 'Load More'}...</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Shown ${pageItems.length} of ${validItems.length}</div>`;
 
         loadMoreBtn.style.cssText = `
             width: 100%;
@@ -803,7 +812,7 @@ function updateHistoryDisplay(page = 0) {
             e.stopPropagation();
             console.log('🎯 Load more button clicked - calling updateHistoryDisplay with next page');
 
-            loadMoreBtn.textContent = 'Загружаем...';
+            loadMoreBtn.textContent = 'Loading...';
             loadMoreBtn.disabled = true;
 
             // 🔥 ПРЯМАЯ ВЫЗОВ можно loadNextHistoryPage() или updateHistoryDisplay(currentHistoryPage + 1)

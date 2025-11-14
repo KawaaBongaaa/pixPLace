@@ -134,7 +134,7 @@ function updateSelectedStyleIndicator() {
 
     const currentStyle = window.appState?.selectedStyle || '';
 
-    if (currentStyle) { // убран кат дефолтный 'realistic' - все стили сейчас равны
+    if (currentStyle && currentStyle !== '') {
         const translatedName = window.appState?.translate(`style_${currentStyle}`) || currentStyle;
         indicator.textContent = `: ${translatedName}`;
         indicator.classList.add('show');

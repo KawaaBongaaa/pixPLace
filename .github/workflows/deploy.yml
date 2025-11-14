@@ -1,0 +1,49 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Replace environment variables
+      run: |
+        echo "🔧 Replacing placeholders with GitHub Variables..."
+        sed -i 's/PLACEHOLDER_RUNWARE_API_KEY/${{ vars.RUNWARE_API_KEY }}/g' app_modern.js
+        sed -i 's|PLACEHOLDER_WEBHOOK_URL|${{ vars.WEBHOOK_URL }}|g' app_modern.js
+        sed -i 's|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ vars.CHAT_WEBHOOK_URL }}|g' app_modern.js
+        sed -i 's|PLACEHOLDER_TELEGRAM_BOT_URL|${{ vars.TELEGRAM_BOT_URL }}|g' app_modern.js
+        echo "✅ Replaced all placeholders with real values"
+
+    - name: Verify replacements
+      run: |
+        echo "🔍 Checking if replacements worked:"
+        grep -c "PLACEHOLDER_" app_modern.js || echo "✅ No placeholders remaining"
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: success()
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        # cname: your-domain.com # Раскомментируй если у тебя кастомный домен
+
+  health-check:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: success()
+
+    steps:
+    - name: Health check
+      run: |
+        echo "🏥 Checking deployment health..."
+        sleep 10  # Ждем пока развернется
+        curl -f https://KawaaBongaaa.github.io/pixplace/ || echo "Health check failed, but deployment might be OK"

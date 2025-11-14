@@ -13,6 +13,114 @@ const STRENGTH_SLIDER_CONFIG = {
     SUPPORTED_MODES: ['dreamshaper_xl', 'pixplace_pro', 'print_maker']
 };
 
+// Global loading state
+let isStrengthSliderLoaded = false;
+
+// Helper function to get current mode from multiple sources (no circular dependency)
+function getCurrentModeFromSources() {
+    // Priority 1: Try to get from new mode cards export (most reliable)
+    if (window.modeCardsExports?.getSelectedMode) {
+        const mode = window.modeCardsExports.getSelectedMode();
+        if (mode) {
+            console.log(`🎯 Mode from modeCardsExports: ${mode}`);
+            return mode;
+        }
+    }
+
+    // Priority 2: Try DOM element (legacy support)
+    const domMode = document.getElementById('modeSelect')?.value;
+    if (domMode && domMode.trim() !== '') {
+        console.log(`🎯 Mode from DOM element: ${domMode}`);
+        return domMode;
+    }
+
+    // Priority 3: Try active mode card data attribute
+    const activeCard = document.querySelector('.mode-card.active, .carousel-2d-item.active');
+    if (activeCard) {
+        const cardMode = activeCard.dataset?.mode || activeCard.dataset?.style;
+        if (cardMode) {
+            console.log(`🎯 Mode from active card: ${cardMode}`);
+            return cardMode;
+        }
+    }
+
+    // Priority 4: Try any selected style from carousel
+    const selectedStyle = window.getSelectedStyle?.();
+    if (selectedStyle) {
+        // Map style to mode if possible (dreamshaper maps to dreamshaper_xl)
+        const modeMap = {
+            'dreamshaper': 'dreamshaper_xl',
+            'flux_pro': 'pixplace_pro',
+            'print_maker': 'print_maker'
+        };
+        const mappedMode = modeMap[selectedStyle];
+        if (mappedMode) {
+            console.log(`🎯 Mode mapped from style: ${selectedStyle} -> ${mappedMode}`);
+            return mappedMode;
+        }
+        console.log(`🎯 Style fallback: ${selectedStyle}`);
+        return selectedStyle;
+    }
+
+    console.warn('🔍 No mode found from any source, returning empty string');
+    return '';
+}
+
+// Lazy loading function - only loads when conditions are met
+async function loadStrengthSliderIfNeeded() {
+    if (isStrengthSliderLoaded) return; // Already loaded
+
+    const currentMode = getCurrentModeFromSources();
+    const supportedModes = STRENGTH_SLIDER_CONFIG.SUPPORTED_MODES;
+    const hasImages = window.userImageState?.images?.length > 0;
+
+    console.log(`🎛️ Checking strength slider conditions: mode=${currentMode}, supported=${supportedModes.includes(currentMode)}, hasImages=${hasImages}`);
+
+    if (supportedModes.includes(currentMode) && hasImages) {
+        console.log('🎛️ Loading strength slider for mode:', currentMode, 'with images:', hasImages);
+        try {
+            // Initialize the slider (this function will be called)
+            if (!window.strengthSlider) {
+                window.strengthSlider = new StrengthSliderController();
+                window.strengthSlider.init();
+            }
+            isStrengthSliderLoaded = true;
+
+            // Load CSS if not already loaded
+            if (!document.querySelector('link[href*="strength-slider.css"]')) {
+                const cssLink = document.createElement('link');
+                cssLink.rel = 'stylesheet';
+                cssLink.href = 'css/strength-slider.css';
+                document.head.appendChild(cssLink);
+                cssLink.onload = () => {
+                    console.log('✅ Strength slider CSS loaded');
+                };
+            }
+
+            // Force update visibility after loading
+            setTimeout(async () => {
+                if (window.strengthSlider?.updateVisibility) {
+                    console.log('🎛️ Force updating visibility after load...');
+                    await window.strengthSlider.updateVisibility();
+                } else {
+                    console.log('⚠️ Strength slider object not ready for visibility update');
+                    // Fallback: dispatch events to trigger update
+                    document.dispatchEvent(new CustomEvent('images:updated', {
+                        detail: { imageCount: hasImages }
+                    }));
+                }
+            }, 200);
+
+            console.log('✅ Strength slider loaded successfully');
+
+        } catch (error) {
+            console.error('❌ Failed to load strength slider:', error);
+        }
+    } else {
+        console.log('⚠️ Strength slider not needed - mode:', currentMode, 'hasImages:', hasImages);
+    }
+}
+
 // Strength Slider Controller
 class StrengthSliderController {
     constructor() {
@@ -99,16 +207,12 @@ class StrengthSliderController {
     }
 
     /**
-     * Format display value - show 0 and 1 for extreme values
+     * Format display value - show percentages for the new design
      */
     formatDisplayValue(value) {
-        if (value <= STRENGTH_SLIDER_CONFIG.MIN_VALUE) {
-            return '0';
-        } else if (value >= STRENGTH_SLIDER_CONFIG.MAX_VALUE) {
-            return '1';
-        } else {
-            return value.toFixed(2);
-        }
+        // Convert to percentage (0.01-1.0 range to 1-100)
+        const percentage = Math.round(value * 100);
+        return `${percentage}%`;
     }
 
     /**
@@ -139,14 +243,25 @@ class StrengthSliderController {
             const hasImages = window.userImageState?.images?.length > 0;
             const shouldShow = isSupportedMode && hasImages;
 
+            // Find the parent form-group to control its visibility
+            const parentFormGroup = this.sliderGroup.closest('.form-group');
+
             if (shouldShow) {
                 this.sliderGroup.classList.add('visible');
                 this.sliderGroup.style.display = 'block';
+                // Show the parent form-group
+                if (parentFormGroup) {
+                    parentFormGroup.style.display = 'flex';
+                }
                 console.log(`🎛️ Strength slider VISIBLE for mode: ${currentMode} (hasImages: ${hasImages})`);
                 return true;
             } else {
                 this.sliderGroup.classList.remove('visible');
                 this.sliderGroup.style.display = 'none';
+                // Hide the parent form-group completely
+                if (parentFormGroup) {
+                    parentFormGroup.style.display = 'none';
+                }
                 console.log(`🎛️ Strength slider HIDDEN for mode: ${currentMode} (hasImages: ${hasImages}, supported: ${isSupportedMode})`);
                 return false;
             }
@@ -155,6 +270,11 @@ class StrengthSliderController {
             console.error('❌ Error updating strength slider visibility:', error);
             this.sliderGroup.classList.remove('visible');
             this.sliderGroup.style.display = 'none';
+            // Hide parent on error too
+            const parentFormGroup = this.sliderGroup.closest('.form-group');
+            if (parentFormGroup) {
+                parentFormGroup.style.display = 'none';
+            }
             return false;
         }
     }
@@ -323,3 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('🎛️ Strength Slider module loaded');
+
+// Export the lazy loading function for use in app_modern.js
+export { loadStrengthSliderIfNeeded };

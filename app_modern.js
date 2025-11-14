@@ -58,23 +58,33 @@ const BYPASS_AUTH = true; // CHANGE TO FALSE BEFORE DEPLOYMENT!
 // 🔥 PERFORMANCE: Debug mode for development only
 window.DEBUG_MODE = (window.location.hostname === 'localhost') ? 'full' : 'minimal';
 
-// Configuration
+// Configuration - GitHub Pages compatible: variables replaced during deploy
 const CONFIG = {
-    WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk', // ⚠️ ЗАМЕНИТЕ НА ВАШ WEBHOOK!
-    CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6', // ⚠️ ЗАМЕНИТЕ НА WEBHOOK ДЛЯ ЧАТА!
-    TIMEOUT: 120000, // 120 секунд
+    // API Keys (replaced by GitHub Action)
+    RUNWARE_API_KEY: 'PLACEHOLDER_RUNWARE_API_KEY',
+
+    // Webhook URLs (replaced by GitHub Action)
+    WEBHOOK_URL: 'PLACEHOLDER_WEBHOOK_URL',
+    CHAT_WEBHOOK_URL: 'PLACEHOLDER_CHAT_WEBHOOK_URL',
+
+    // App Settings
+    TIMEOUT: 120000,
     LANGUAGES: ['en', 'ru', 'es', 'fr', 'de', 'zh', 'pt', 'ar', 'hi', 'ja', 'it', 'ko', 'tr', 'pl', 'vi', 'th'],
     DEFAULT_LANGUAGE: 'en',
-    DEFAULT_THEME: 'dark', // 'light', 'dark', 'auto'
-    RUNWARE_API_KEY: 'jOXX5kq8n10wWpcRFnnScQ0hsNJKWsg2', // ⚠️ ЗАМЕНИТЕ НА ВАШ RUNWARE API KEY!
+    DEFAULT_THEME: 'dark',
     MAX_IMAGE_MB: 10,
+    DEV_MODE: false,
+
+    // Technical Settings
     ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     PREVIEW_MAX_W: 1024,
     PREVIEW_MAX_H: 1024,
     PREVIEW_JPEG_QUALITY: 0.9,
-    TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared', // Замените на ссылку вашего бота
-    SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #Ai',
-    MAINTENANCE_MODE: false // Режим технического обслуживания
+
+    // UI/UX Settings
+    TELEGRAM_BOT_URL: 'PLACEHOLDER_TELEGRAM_BOT_URL',
+    SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #miniApp #Ai',
+    MAINTENANCE_MODE: false // Keep hardcoded for safety
 };
 
 // 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
@@ -718,14 +728,6 @@ function stopTimer() {
 // 🎬 Screen Management with cleanup
 let carouselCleanup = null;
 
-const showLoadingScreen = () => {
-    document.getElementById('loadingScreen').classList.add('active');
-};
-
-const hideLoadingScreen = () => {
-    document.getElementById('loadingScreen').classList.remove('active');
-};
-
 // Cleanup function for memory leaks
 function cleanupMemoryLeaks() {
     // Disconnect Global History Loader
@@ -765,58 +767,8 @@ window.onUserImageChange = onUserImageChange;
 
 console.log('✅ onUserImageChange exported to global window scope');
 
-let isStrengthSliderLoaded = false; // Флаг что strength slider уже загружен
-
-// Функция для conditional загрузки strength slider
-// Загружается ТОЛЬКО для определенных режимов: dreamshaper_xl, pixplace_pro, print_maker И только если есть изображения
-async function loadStrengthSliderIfNeeded() {
-    if (isStrengthSliderLoaded) return; // Уже загружен
-
-    const currentMode = await getCurrentSelectedMode();
-    const supportedModes = ['dreamshaper_xl', 'pixplace_pro', 'print_maker'];
-    const hasImages = window.userImageState?.images?.length > 0;
-
-    if (supportedModes.includes(currentMode) && hasImages) {
-        console.log('🎛️ Loading strength slider for mode:', currentMode, 'with images:', hasImages);
-        try {
-            const module = await import('./strength-slider.js');
-            isStrengthSliderLoaded = true;
-            console.log('✅ Strength slider loaded successfully');
-
-            // Подгружаем CSS если не был загружен ранее
-            if (!document.querySelector('link[href*="strength-slider.css"]')) {
-                const cssLink = document.createElement('link');
-                cssLink.rel = 'stylesheet';
-                cssLink.href = 'css/strength-slider.css';
-                document.head.appendChild(cssLink);
-                cssLink.onload = () => {
-                    if (console?.log && window.location.hostname === 'localhost') {
-                        console.log('✅ Strength slider CSS loaded');
-                    }
-                };
-            }
-
-            // 🆕 FORCE update visibility after loading to ensure proper display
-            setTimeout(async () => {
-                if (window.strengthSlider && typeof window.strengthSlider.updateVisibility === 'function') {
-                    console.log('🎛️ Force updating visibility after load...');
-                    await window.strengthSlider.updateVisibility();
-                } else {
-                    console.log('⚠️ Strength slider object not ready for visibility update');
-                    // Fallback: dispatch our custom events to trigger update
-                    document.dispatchEvent(new CustomEvent('images:updated', {
-                        detail: { imageCount: hasImages }
-                    }));
-                }
-            }, 200);
-
-        } catch (error) {
-            console.error('❌ Failed to load strength slider:', error);
-        }
-    } else {
-        console.log('⚠️ Strength slider not needed - mode:', currentMode, 'hasImages:', hasImages);
-    }
-}
+// Импорт функции загрузки strength slider из модуля
+import { loadStrengthSliderIfNeeded } from './strength-slider.js';
 
 // 🔥 ЭКСПОРТ createPreviewItem ДЛЯ ДОСТУПА ИЗ user-account.js
 window.createPreviewItem = createPreviewItem;
@@ -1590,6 +1542,10 @@ function removeImage(imageId) {
     // Удаляем из состояния
     userImageState.images = userImageState.images.filter(img => img.id !== imageId);
 
+    // Clear the file input to allow re-selecting the same file
+    const input = document.getElementById('userImage');
+    if (input) input.value = '';
+
     // Удаляем превью элемент
     const previewContainer = document.getElementById('previewContainer');
     const item = previewContainer?.querySelector(`[data-id="${imageId}"]`);
@@ -1709,7 +1665,7 @@ function trimImagesToLimit(limit) {
 // ===== Обновление видимости кнопки загрузки =====
 
 
-// ===== Обновление положения кнопки загрузки =====
+// ===== Обновление положения кнопки загрузки (СТАБИЛЬНАЯ ПОЗИЦИЯ) =====
 function updateUploadButtonPosition() {
     const chooseBtn = document.getElementById('chooseUserImage');
     const preview = document.getElementById('userImagePreview');
@@ -1719,35 +1675,22 @@ function updateUploadButtonPosition() {
 
     if (!chooseBtn || !container) return;
 
-    // Удаляем кнопку из текущего положения
-    chooseBtn.remove();
+    // 🔥 НОВОЕ: Кнопка всегда остается в контейнере, меняем только визуальное состояние
+    // Убираем перемещение кнопки между контейнерами - это вызывает дерганье
 
-    if (hasImages && !hasLimitReached) {
-        // Есть изображения И еще можно загружать - вставляем внутрь превью
-        if (preview) {
-            preview.appendChild(chooseBtn);
+    // Всегда используем стиль "outside-upload" для стабильности
+    chooseBtn.classList.add('outside-upload');
+    chooseBtn.classList.remove('inside-preview');
 
-            // Переключаем на стиль "внутри превью"
-            chooseBtn.classList.add('inside-preview');
-            chooseBtn.classList.remove('outside-upload');
-            console.log('🔘 Кнопка перемещена ВНУТРЬprev превью');
-        }
-    } else if (!hasImages && !hasLimitReached) {
-        // Нет изображений И можно загружать - вставляем снаружи
-        container.appendChild(chooseBtn);
-
-        // Переключаем на стиль "снаружи"
-        chooseBtn.classList.add('outside-upload');
-        chooseBtn.classList.remove('inside-preview');
-        console.log('🔘 Кнопка перемещена СНАРУЖИ');
-    }
-
-    // Лимит достигнут - никак не показываем (кнопка скрыта в любом положении)
+    // Управляем видимостью через opacity вместо display для плавности
     if (hasLimitReached) {
-        chooseBtn.style.display = 'none';
-        console.log('🚫 Кнопка СКРЫТА - достигнут лимит');
+        chooseBtn.style.opacity = '0';
+        chooseBtn.style.pointerEvents = 'none';
+        console.log('🚫 Кнопка СКРЫТА - достигнут лимит (opacity)');
     } else {
-        chooseBtn.style.display = '';
+        chooseBtn.style.opacity = hasImages ? '0.7' : '1'; // Полупрозрачная когда есть изображения
+        chooseBtn.style.pointerEvents = 'auto';
+        console.log('✅ Кнопка ВИДИМА - стабильная позиция');
     }
 }
 
@@ -2066,7 +2009,7 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
 
     // 3. ПОКАЗАТЬ LOADING SCREEN СРАЗУ (уже с переведенными текстами)
     // 🚀 ПОКАЗАТЬ LOADING SCREEN СРАЗУ (только logo, частицы - ничего не нужно переводить)
-    showLoadingScreen();
+    // showLoadingScreen(); // REMOVED - loading screen removed for instant loading
 
     // ❄️ СНЕГОПАД: Теперь CSS-only снегопад автоматически включается через CSS :has() селекторы
 
@@ -2186,8 +2129,7 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
         // // Используем правильную функцию из ScreenManager
         // // ScreenManager.showAuth();
 
-        // Скрываем loading screen
-        hideLoadingScreen();
+
 
         // Обновляем глобальные ссылки для совместимости (legacy support)
         window.appState = services.appState;
@@ -2240,9 +2182,8 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
             img.decoding = 'async';
         });
 
-        // 🔥 PERFORMANCE: Instant UI loading (снижено с 300мс до 0мс)
+        // 🔥 PERFORMANCE: Instant UI loading - no loading screen needed
         const finishLoading = () => {
-            hideLoadingScreen();
             // 🔥 ДОБАВЛЕНИЕ: Загрузка баланса ПОСЛЕ создания DOM элементов
             appState.loadBalanceHistory();
             // Balance loaded from localStorage after DOM ready - ready for display

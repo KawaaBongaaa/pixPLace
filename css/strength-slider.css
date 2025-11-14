@@ -1,75 +1,113 @@
 /* STRENGTH SLIDER STYLES */
-/* ===== STRENGTH SLIDER FOR DREAMSHAPER, FLUX PRO, PRINT ON DEMAND ===== */
+/* ===== COMPACT INLINE STRENGTH SLIDER ===== */
 #strengthSliderGroup {
     display: none;
-    transition: all var(--transition-fast);
-}
-
-/* SPECIAL STYLES FOR SLIDER ABOVE PREVIEW - MINIMAL FLOATING BADGE */
-.strength-above-preview {
-    position: absolute !important;
-    right: 14px !important;
-    top: -14px;
-    z-index: 10 !important;
-    border: none !important;
-    border-radius: 2px !important;
-    background: rgba(0, 0, 0, 0.7) !important;
-    backdrop-filter: none !important;
-    padding: 1px 1px !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-    width: auto !important;
-    max-width: 65px !important;
-    font-size: 10px !important;
-    line-height: 1 !important;
-}
-
-[data-theme="dark"] .strength-above-preview {
-    background: rgba(31, 41, 55, 0.9) !important;
-    border: 1px solid rgba(75, 85, 99, 0.5) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    /* Prevent taking up space when hidden */
+    visibility: hidden;
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
 }
 
 #strengthSliderGroup.visible {
     display: block;
+    /* Restore normal positioning when visible */
+    visibility: visible;
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
 }
 
-#strengthSliderGroup .form-label {
+/* Compact slider container */
+.compact-strength-slider {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-2);
     gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    margin-top: 0; /* Remove top margin when in form-row */
 }
 
-/* SIMPLIFY OVERLAY MODE - HIDE LABELS, SHOW COMPACT INPUT */
-.strength-above-preview .form-label,
-.strength-above-preview small.form-hint {
-    display: none !important;
+[data-theme="dark"] .compact-strength-slider {
+    background: var(--bg-tertiary);
+    border-color: var(--border-secondary);
 }
 
-.strength-above-preview .input-wrapper {
-    margin: 0 !important;
+
+
+.slider-text {
+    color: var(--text-primary);
 }
 
-.strength-above-preview #strengthSlider {
-    display: block !important;
-    width: 60px !important;
-    height: 4px !important;
-    margin: 0 !important;
-    background: rgba(255, 255, 255, 0.3) !important;
+/* Slider wrapper */
+.compact-slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 1;
+    min-width: 120px;
 }
 
-.strength-above-preview #strengthSlider::-webkit-slider-thumb {
-    width: 12px !important;
-    height: 12px !important;
-    background: white !important;
-    border: 1px solid rgba(0, 0, 0, 0.5) !important;
-    box-shadow: none !important;
+/* Compact slider input */
+.compact-slider-input {
+    flex: 1;
+    height: 6px;
+    background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
-.strength-above-preview .slider-track,
-.strength-above-preview .slider-fill {
-    display: none !important;
+.compact-slider-input::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+    background: white;
+    border: 2px solid var(--primary-500);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    appearance: none;
+    -webkit-appearance: none;
+    transition: all var(--transition-fast);
+}
+
+.compact-slider-input::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.compact-slider-input::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: white;
+    border: 2px solid var(--primary-500);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    border: none;
+    outline: none;
+}
+
+/* Value display */
+.compact-slider-value {
+    font-family: "Winky Rough", monospace;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--primary-500);
+    min-width: 35px;
+    text-align: center;
+}
+
+/* ===== LEGACY OVERLAY MODE - DEPRECATED ===== */
+.strength-above-preview {
+    /* Keep for backward compatibility but mark as deprecated */
+    display: none !important; /* Force hide the old overlay */
 }
 
 .strength-value {
@@ -178,55 +216,96 @@
 
 /* STRENGTH SLIDER RESPONSIVE */
 @media (max-width: 768px) {
-    #strengthSliderGroup {
-        padding: var(--space-2);
+    .compact-strength-slider {
+        padding: var(--space-1) var(--space-2);
+        gap: var(--space-1);
     }
 
-    .strength-above-preview {
-        /* Компактнее на планшетах */
-        top: -10px !important;
-        right: 11px !important;
-        padding: 1px 3px !important;
-        max-width: 70px !important;
-        font-size: 10px !important;
-    }
-
-    .strength-value {
+    .compact-slider-label {
         font-size: var(--font-size-xs);
-        min-width: 45px;
-        padding: 2px 6px;
     }
 
-    .form-hint {
-        font-size: 11px;
-        margin-top: var(--space-1);
+    .slider-icon {
+        font-size: var(--font-size-sm);
+    }
+
+    .compact-slider-wrapper {
+        min-width: 100px;
+        gap: var(--space-1);
+    }
+
+    .compact-slider-input {
+        height: 5px;
+    }
+
+    .compact-slider-input::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+    }
+
+    .compact-slider-value {
+        font-size: var(--font-size-xs);
+        min-width: 30px;
     }
 }
 
 @media (max-width: 480px) {
-    #strengthSliderGroup {
-        padding: var(--space-1) var(--space-2);
+    .compact-strength-slider {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-1);
+        padding: var(--space-1);
+        /* Ensure it doesn't overflow on narrow screens */
+        box-sizing: border-box;
+        max-width: 100%;
     }
 
-    .strength-above-preview {
-        /* Минимальный размер на телефонах */
-        top: 2px !important;
-        right: 22px !important;
-        padding: 1px 3px !important;
-        max-width: 60px !important;
-        font-size: 9px !important;
-        border-radius: 2px !important;
-        background: rgba(0, 0, 0, 0.4) !important;
+    .compact-slider-label {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: var(--space-1);
     }
 
-    .strength-value {
+    .compact-slider-wrapper {
+        width: 100%;
+        justify-content: center;
+        min-width: unset;
+        /* Prevent overflow */
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .compact-slider-input {
+        height: 4px;
+        /* Limit width to prevent overflow */
+        max-width: 200px;
+        width: 100%;
+    }
+
+    .compact-slider-input::-webkit-slider-thumb {
+        width: 14px;
+        height: 14px;
+    }
+
+    .compact-slider-value {
+        font-size: 11px;
+        min-width: 28px;
+    }
+}
+
+/* Additional responsive fixes for very narrow screens */
+@media (max-width: 360px) {
+    .compact-strength-slider {
+        padding: var(--space-0) var(--space-1);
+    }
+
+    .compact-slider-input {
+        max-width: 150px;
+    }
+
+    .compact-slider-value {
         font-size: 10px;
-        min-width: 40px;
-        padding: 1px 4px;
-    }
-
-    .form-hint {
-        font-size: 10px;
-        margin-top: 4px;
+        min-width: 25px;
     }
 }
