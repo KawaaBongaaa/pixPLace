@@ -17,11 +17,31 @@ jobs:
     - name: Replace environment variables
       run: |
         echo "🔧 Replacing placeholders with GitHub Variables..."
-        sed -i 's/PLACEHOLDER_RUNWARE_API_KEY/${{ vars.RUNWARE_API_KEY }}/g' app_modern.js
-        sed -i 's|PLACEHOLDER_WEBHOOK_URL|${{ vars.WEBHOOK_URL }}|g' app_modern.js
-        sed -i 's|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ vars.CHAT_WEBHOOK_URL }}|g' app_modern.js
-        sed -i 's|PLACEHOLDER_TELEGRAM_BOT_URL|${{ vars.TELEGRAM_BOT_URL }}|g' app_modern.js
-        echo "✅ Replaced all placeholders with real values"
+        if [ -n "${{ vars.RUNWARE_API_KEY }}" ]; then
+          sed -i "s/PLACEHOLDER_RUNWARE_API_KEY/${{ vars.RUNWARE_API_KEY }}/g" app_modern.js
+          echo "✅ Replaced RUNWARE_API_KEY placeholder"
+        else
+          echo "⚠️ RUNWARE_API_KEY not found in variables"
+        fi
+        if [ -n "${{ vars.WEBHOOK_URL }}" ]; then
+          sed -i "s|PLACEHOLDER_WEBHOOK_URL|${{ vars.WEBHOOK_URL }}|g" app_modern.js
+          echo "✅ Replaced WEBHOOK_URL placeholder"
+        else
+          echo "⚠️ WEBHOOK_URL not found in variables"
+        fi
+        if [ -n "${{ vars.CHAT_WEBHOOK_URL }}" ]; then
+          sed -i "s|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ vars.CHAT_WEBHOOK_URL }}|g" app_modern.js
+          echo "✅ Replaced CHAT_WEBHOOK_URL placeholder"
+        else
+          echo "⚠️ CHAT_WEBHOOK_URL not found in variables"
+        fi
+        if [ -n "${{ vars.TELEGRAM_BOT_URL }}" ]; then
+          sed -i "s|PLACEHOLDER_TELEGRAM_BOT_URL|${{ vars.TELEGRAM_BOT_URL }}|g" app_modern.js
+          echo "✅ Replaced TELEGRAM_BOT_URL placeholder"
+        else
+          echo "⚠️ TELEGRAM_BOT_URL not found in variables"
+        fi
+        echo "🎯 Replacement process completed"
 
     - name: Verify replacements
       run: |
