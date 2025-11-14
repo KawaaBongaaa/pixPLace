@@ -1,0 +1,153 @@
+// ===== STYLE MANAGEMENT MODULE =====
+// Manages style dropdown - style-manager.js loaded statically
+// pixPLace Project
+
+/**
+ * DIRECT ACCESS TO STYLE MANAGER
+ * style-manager.js now loaded statically, no lazy loading needed
+ */
+function getStyleManager() {
+    if (window.styleManager) {
+        console.log('✅ Style manager available directly');
+        return window.styleManager;
+    } else {
+        console.warn('❌ Style manager not loaded yet');
+        return null;
+    }
+}
+
+/**
+ * Функция обновления видимости стиля для текущего режима
+ */
+export function updateStyleVisibilityForMode(mode) {
+    const chooseStyleSection = document.getElementById('chooseStyleSection');
+    if (!chooseStyleSection) return;
+
+    // Логика: Скрываем кнопку стиля в режимах background_removal и upscale_image
+    const stylesNotNeeded = ['background_removal', 'upscale_image'];
+    const shouldShowStyle = !stylesNotNeeded.includes(mode);
+
+    if (shouldShowStyle) {
+        chooseStyleSection.style.display = 'block';
+        chooseStyleSection.classList.remove('hidden');
+        console.log(`🎨 Style section VISIBLE for mode: ${mode}`);
+    } else {
+        chooseStyleSection.style.setProperty('display', 'none', 'important');
+        chooseStyleSection.classList.add('hidden');
+        console.log(`🚫 Style section HIDDEN for mode: ${mode} (styles not applicable)`);
+
+        // 🔥 Автоматический сброс выбранного стиля для режимов без поддержки стилей
+        unselectAllStyles();
+        console.log(`🎨 Selected style cleared for mode: ${mode}`);
+    }
+}
+
+/**
+ * Обрабатывает клик на кнопке стиля (теперь без lazy loading)
+ */
+export function handleStyleCheckboxChange() {
+    const styleManager = getStyleManager();
+
+    if (styleManager && styleManager.toggleStyleDropdown) {
+        // Используем функции из style-manager
+        styleManager.toggleStyleDropdown();
+        console.log('🎨 Style dropdown toggled successfully');
+    } else {
+        console.warn('🚫 Style manager not available');
+        // Fallback - try legacy method
+        if (typeof toggleStyleDropdown === 'function') {
+            toggleStyleDropdown();
+        }
+    }
+
+    // Обновляем стоимость если есть функция
+    if (window.updateCostBadge) {
+        window.updateCostBadge();
+    }
+}
+
+/**
+ * Снимает выделение со всех стилей и очищает состояние
+ */
+export function unselectAllStyles() {
+    const activeCards = document.querySelectorAll('.carousel-2d-item.active');
+    activeCards.forEach(card => card.classList.remove('active'));
+    console.log('✅ All style selections cleared');
+
+    // Очищаем переменную selectedStyle если она существует глобально
+    if (typeof window.selectedStyle !== 'undefined') {
+        window.selectedStyle = '';
+    }
+
+    // Очищаем в appState если доступно
+    if (window.appState && window.appState.selectedStyle) {
+        window.appState.selectedStyle = '';
+    }
+}
+
+/**
+ * Инициализирует обработчик чекбокса стилей
+ */
+export function initStyleCheckboxHandler() {
+    const styleCheckbox = document.getElementById('styleCheckbox');
+    console.log('🔍 Looking for styleCheckbox:', styleCheckbox);
+
+    // Временная отладка - найдём все чекбоксы на странице
+    const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    console.log('🔍 Found all checkboxes on page:', allCheckboxes.length, Array.from(allCheckboxes).map(cb => ({ id: cb.id, name: cb.name, checked: cb.checked })));
+
+    // Найдем контейнер чекбокса стиля
+    const checkboxContainer = document.querySelector('.style-checkbox-container');
+    console.log('🔍 Style checkbox container found:', checkboxContainer);
+    if (checkboxContainer) {
+        console.log('🔍 Container HTML:', checkboxContainer.innerHTML.slice(0, 200) + '...');
+    }
+
+    if (styleCheckbox) {
+        styleCheckbox.addEventListener('change', handleStyleCheckboxChange);
+        console.log('✅ Style checkbox handler initialized');
+
+        // ❌ УБРАЛИ скрытие styleGrid - теперь видимость контролируется через #styleDropdown.show
+        console.log('📝 Style dropdown controlled by .show class only');
+    } else {
+        console.warn('❌ styleCheckbox не найден при инициализации. Элементы DOM:', document.querySelectorAll('[id]').length);
+        // Добавим небольшую задержку для поиска
+        setTimeout(() => {
+            console.log('⏰ Повторный поиск styleCheckbox...');
+            initStyleCheckboxHandler();
+        }, 500);
+    }
+}
+
+// FALLBACK: Legacy function support for HTML onclick attributes
+// This allows old HTML code to work without breaking
+function toggleStyleDropdown() {
+    console.log('🎨 [LEGACY] toggleStyleDropdown called - redirecting to modern implementation');
+
+    // Direct access to style manager (loaded statically)
+    const styleManager = getStyleManager();
+    if (styleManager && styleManager.toggleStyleDropdown) {
+        styleManager.toggleStyleDropdown();
+    } else {
+        console.error('❌ Style manager not available for legacy call');
+    }
+}
+
+function selectStyleCard(styleName) {
+    console.log('🎨 [LEGACY] selectStyleCard called - redirecting to modern implementation:', styleName);
+
+    // Direct access to style manager (loaded statically)
+    const styleManager = getStyleManager();
+    if (styleManager && styleManager.selectStyleCard) {
+        styleManager.selectStyleCard(styleName);
+    } else {
+        console.error('❌ Style manager not available for legacy call');
+    }
+}
+
+// Экспортируем функции для глобального доступа (modular + legacy support)
+window.handleStyleCheckboxChange = handleStyleCheckboxChange;
+window.unselectAllStyles = unselectAllStyles;
+window.updateStyleVisibilityForMode = updateStyleVisibilityForMode; // ДОБАВЛЕНО: Для интеграции с mode-cards.js
+window.toggleStyleDropdown = toggleStyleDropdown; // LEGACY SUPPORT
+window.selectStyleCard = selectStyleCard; // LEGACY SUPPORT

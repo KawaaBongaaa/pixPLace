@@ -1,0 +1,34 @@
+{
+  "name": "pixplace",
+  "version": "1.0.0",
+  "description": "AI Image Generator WebApp for Telegram",
+  "main": "app_modern.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dev-server.js",
+    "dev": "node dev-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "telegram-webapp",
+    "ai-generation",
+    "image-generator",
+    "pixplace"
+  ],
+  "author": "pixPlace Team",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "googleapis": "^128.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "express": "^5.1.0",
+    "prettier": "^3.6.2"
+  }
+}

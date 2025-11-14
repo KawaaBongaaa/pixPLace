@@ -1,0 +1,351 @@
+/* ================================================
+   🎨 STYLE DROPDOWN CSS MODULE
+   Lazy loaded styles for style selection dropdown
+   ================================================ */
+
+/* STYLE DROPDOWN - NEW GRID LAYOUT */
+.style-dropdown {
+    display: none;
+    margin-top: 1rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.style-dropdown.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.style-grid-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 1.5rem;
+}
+
+/* RESPONSIVE GRID - OPTIMIZED */
+@media (max-width: 768px) {
+    .style-grid-container {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .style-grid-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+}
+
+/* UPDATED CAROUSEL ITEM FOR DROPDOWN - SPADE IMPROVED */
+.style-dropdown .carousel-2d-item {
+    width: 100% !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    border: 2px solid var(--border-primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    position: relative !important;
+    /* КОНТЕЙНЕР АДАПТИРУЕТСЯ ПОД ПРОПОРЦИИ ИЗОБРАЖЕНИЯ */
+    max-height: 120px !important; /* Максимальная высота */
+    min-height: 80px !important; /* Минимальная высота */
+}
+
+.style-dropdown .carousel-2d-item:hover {
+    transform: scale(1.05) !important;
+    border-color: var(--primary-500) !important;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.3) !important;
+}
+
+.style-dropdown .carousel-2d-item.active {
+    border-color: var(--primary-500) !important;
+    box-shadow: 0 0 0 2px var(--primary-500) !important;
+    transform: scale(1.05) !important;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%) !important;
+    filter: brightness(1.1) !important;
+}
+
+[data-theme="dark"] .style-dropdown .carousel-2d-item.active {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%) !important;
+}
+
+.style-dropdown .carousel-2d-item img {
+    border-radius: 4px !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important; /* Изменено с cover на contain для предотвращения обрезки */
+    transition: all 0.2s ease !important;
+}
+
+.style-dropdown .carousel-2d-item:hover img {
+    transform: scale(1.05) !important;
+}
+
+.style-dropdown .carousel-2d-item p {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    font-size: 11px; /* Slightly larger text */
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    pointer-events: none;
+    text-shadow: -1px 1px 2px rgba(0, 0, 0, 0.9),  /* Enhanced shadow */
+                 -1px -1px 2px rgba(0, 0, 0, 0.9),
+                 1px 1px 2px rgba(0, 0, 0, 0.9),
+                 1px -1px 2px rgba(0, 0, 0, 0.9);
+    margin: 0 !important;
+    line-height: 1.2;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.3); /* Semi-transparent background for better readability */
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* STYLE DROPDOWN BUTTON - NEW UI */
+.style-dropdown-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-primary, #ffffff);
+    border: 2px solid var(--border-primary, #e5e7eb);
+    border-radius: 8px;
+    cursor: pointer !important; /* КЛИКАБЕЛЬНО !!! */
+    transition: all 0.2s ease;
+    position: relative;
+    min-height: 44px;
+    user-select: none;
+}
+
+.style-dropdown-button, .style-dropdown-button *, .dropdown-label, .dropdown-arrow {
+    cursor: pointer !important; /* ВСЕ ДОЧЕРНИЕ ЭЛЕМЕНТЫ ТОЖЕ !!! */
+}
+
+.style-dropdown-button:hover {
+    border-color: var(--primary-500, #3b82f6);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.style-dropdown-button:active {
+    transform: scale(0.98);
+    background: var(--bg-secondary, #f9fafb);
+}
+
+/* ARROW INDICATOR */
+.dropdown-arrow {
+    font-size: 18px;
+    color: var(--text-secondary, #6b7280);
+    transition: all 0.2s ease;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--bg-secondary, #f3f4f6);
+}
+
+.style-dropdown-button:hover .dropdown-arrow {
+    color: var(--primary-500, #3b82f6);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* OPEN STATE */
+.style-dropdown.show .dropdown-arrow {
+    transform: rotate(180deg);
+    color: var(--primary-500, #3b82f6);
+    background: rgba(59, 130, 246, 0.15);
+}
+
+/* DROPDOWN LABEL */
+.dropdown-label {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text-primary, #111827);
+    margin-right: 8px;
+}
+
+/* STYLE CHECKBOX INDICATOR */
+.selected-style-indicator {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-right: 1rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    font-style: italic;
+}
+
+.selected-style-indicator.show {
+    opacity: 1;
+}
+
+/* LOADING STATE FOR STYLE BUTTON */
+#chooseStyleSection.style-loading .style-checkbox-container {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+#chooseStyleSection.style-loading .style-dropdown-button {
+    background: var(--bg-secondary, #f9fafb);
+    border-color: var(--border-primary, #e5e7eb);
+}
+
+#chooseStyleSection.style-loading .dropdown-label::after {
+    content: 'Loading...';
+    font-size: 11px;
+    margin-left: 8px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* THEME ADAPTATION FOR DROPDOWN BUTTON */
+[data-theme="dark"] .style-dropdown-button {
+    background: var(--bg-primary, rgba(31, 41, 55, 0.9));
+    border-color: var(--border-primary, rgba(75, 85, 99, 0.8));
+}
+
+[data-theme="dark"] .dropdown-arrow {
+    background: var(--bg-secondary, rgba(55, 65, 81, 0.8));
+    color: var(--text-secondary, rgba(156, 163, 175, 0.8));
+}
+
+[data-theme="dark"] .dropdown-label {
+    color: var(--text-primary, rgba(243, 244, 246, 0.95));
+}
+
+/* THEME ADAPTATION FOR STYLE CHECKBOX */
+[data-theme="dark"] .selected-style-indicator {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+[data-theme="light"] .selected-style-indicator {
+    color: var(--text-primary, rgba(0, 0, 0, 0.7));
+}
+
+[data-theme="light"] .style-dropdown-button {
+    background: var(--bg-primary, #ffffff);
+    border-color: var(--border-primary, #e5e7eb);
+}
+
+[data-theme="light"] .dropdown-arrow {
+    background: var(--bg-secondary, #f3f4f6);
+    color: var(--text-secondary, #6b7280);
+}
+
+[data-theme="light"] .dropdown-label {
+    color: var(--text-primary, #111827);
+}
+
+/* STYLE FORM GROUP ADAPTATION */
+#chooseStyleSection {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+#chooseStyleSection .form-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+#chooseStyleSection .form-label {
+    margin-bottom: 0 !important;
+    cursor: pointer;
+}
+
+/* RESPONSIVE ADJUSTMENTS */
+@media (max-width: 768px) {
+    .style-dropdown {
+        margin-top: 0.75rem;
+    }
+
+    .style-grid-container {
+        gap: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .style-dropdown .carousel-2d-item p {
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 480px) {
+    .style-dropdown {
+        margin-top: 0.5rem;
+    }
+
+    .style-grid-container {
+        gap: 4px;
+        margin-bottom: 0.75rem;
+    }
+
+    /* КАРТОЧКИ ТЕПЕРЬ ГИБКИЕ - УБРАЛИ ФИКСИРОВАННУЮ ВЫСОТУ */
+    .style-dropdown .carousel-2d-item {
+        min-height: 60px !important; /* Минимальная высота для мобильных */
+        max-height: 100px !important; /* Максимальная высота для мобильных */
+    }
+
+    .style-dropdown .carousel-2d-item p {
+        font-size: 8px;
+        left: 2px;
+        right: 2px;
+        bottom: 1px;
+    }
+
+    .selected-style-indicator {
+        font-size: 11px;
+        margin-right: 0.5rem;
+    }
+}
+
+/* ACCESSIBILITY IMPROVEMENTS */
+.style-dropdown .carousel-2d-item:focus {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
+.style-dropdown .carousel-2d-item[tabindex="0"] {
+    outline: none;
+}
+
+/* LOADING STATES */
+.style-dropdown.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.style-dropdown .carousel-2d-item.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.style-dropdown .carousel-2d-item.loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: shimmer 1.5s infinite;
+    z-index: 1;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}

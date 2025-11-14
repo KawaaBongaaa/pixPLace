@@ -1,0 +1,48 @@
+# macOS files
+.DS_Store
+
+# IDE folders
+.vscode/
+.idea/
+
+# Temporary backup files
+*.bak
+
+# Archives
+*.zip
+*.tar.gz
+
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Build directories
+dist/
+build/
+
+# Cache
+.cache/
+
+# OS generated files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# pixPLace specific
+*/_old/
+*/backup/
+pixPLace-main*/
