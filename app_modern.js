@@ -61,11 +61,11 @@ window.DEBUG_MODE = (window.location.hostname === 'localhost') ? 'full' : 'minim
 // Configuration - GitHub Pages compatible: variables replaced during deploy
 const CONFIG = {
     // API Keys (replaced by GitHub Action)
-    RUNWARE_API_KEY: 'PLACEHOLDER_RUNWARE_API_KEY',
+    RUNWARE_API_KEY: 'jOXX5kq8n10wWpcRFnnScQ0hsNJKWsg2',
 
     // Webhook URLs (replaced by GitHub Action)
-    WEBHOOK_URL: 'PLACEHOLDER_WEBHOOK_URL',
-    CHAT_WEBHOOK_URL: 'PLACEHOLDER_CHAT_WEBHOOK_URL',
+    WEBHOOK_URL: 'https://hook.us2.make.com/x2hgl6ocask8hearbpwo3ch7pdwpdlrk',
+    CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6',
 
     // App Settings
     TIMEOUT: 120000,
@@ -82,7 +82,7 @@ const CONFIG = {
     PREVIEW_JPEG_QUALITY: 0.9,
 
     // UI/UX Settings
-    TELEGRAM_BOT_URL: 'PLACEHOLDER_TELEGRAM_BOT_URL',
+    TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared',
     SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #miniApp #Ai',
     MAINTENANCE_MODE: false // Keep hardcoded for safety
 };
