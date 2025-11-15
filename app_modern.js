@@ -84,7 +84,7 @@ const CONFIG = {
     // UI/UX Settings
     TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared',
     SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #miniApp #Ai',
-    MAINTENANCE_MODE: false // Keep hardcoded for safety
+    MAINTENANCE_MODE: true // Keep hardcoded for safety
 };
 
 // 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
