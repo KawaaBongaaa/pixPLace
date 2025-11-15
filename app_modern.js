@@ -86,7 +86,10 @@ const CONFIG = {
     SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #miniApp #Ai',
     MAINTENANCE_MODE: false // Keep hardcoded for safety
 };
-
+console.log("Runware API Key:", CONFIG.RUNWARE_API_KEY);
+console.log("Webhook URL:", CONFIG.WEBHOOK_URL);
+console.log("Chat Webhook URL:", CONFIG.CHAT_WEBHOOK_URL);
+console.log("Telegram Bot URL:", CONFIG.TELEGRAM_BOT_URL);
 // 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
 window.CONFIG = CONFIG;
 
