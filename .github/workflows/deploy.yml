@@ -1,76 +1,56 @@
-name: Deploy + Webhooks + Runware
+name: Inject API Keys
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      prompt:
-        description: 'Prompt to send to Runware and webhooks'
-        required: true
-        default: 'Hello'
 
 jobs:
-  deploy-and-backend:
+  inject-keys:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # -----------------------------
-      # 1️⃣ Деплой фронта
-      # -----------------------------
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-
-      # -----------------------------
-      # 2️⃣ Вызов вебхуков
-      # -----------------------------
-      - name: Call main webhook
-        env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      - name: Inject all secrets into app_modern.js
         run: |
-          curl -X POST "$WEBHOOK_URL" \
-            -H "Content-Type: application/json" \
-            -d '{"message":"Frontend triggered main webhook with prompt: ${{ github.event.inputs.prompt }}"}'
+          echo "🔧 Injecting all API keys and URLs..."
 
-      - name: Call chat webhook
-        env:
-          CHAT_WEBHOOK_URL: ${{ secrets.CHAT_WEBHOOK_URL }}
-        run: |
-          curl -X POST "$CHAT_WEBHOOK_URL" \
-            -H "Content-Type: application/json" \
-            -d '{"message":"Frontend triggered chat webhook with prompt: ${{ github.event.inputs.prompt }}"}'
+          if [ -n "${{ secrets.RUNWARE_API_KEY }}" ]; then
+            sed -i "s/PLACEHOLDER_RUNWARE_API_KEY/${{ secrets.RUNWARE_API_KEY }}/g" app_modern.js
+            echo "✅ RUNWARE_API_KEY inserted"
+          else
+            echo "❌ RUNWARE_API_KEY secret not found!"
+          fi
 
-      - name: Call Telegram bot
-        env:
-          TELEGRAM_BOT_URL: ${{ secrets.TELEGRAM_BOT_URL }}
-        run: |
-          curl -X POST "$TELEGRAM_BOT_URL" \
-            -H "Content-Type: application/json" \
-            -d '{"text":"Frontend triggered Telegram webhook with prompt: ${{ github.event.inputs.prompt }}"}'
+          if [ -n "${{ secrets.WEBHOOK_URL }}" ]; then
+            sed -i "s|PLACEHOLDER_WEBHOOK_URL|${{ secrets.WEBHOOK_URL }}|g" app_modern.js
+            echo "✅ WEBHOOK_URL inserted"
+          else
+            echo "❌ WEBHOOK_URL secret not found!"
+          fi
 
-      # -----------------------------
-      # 3️⃣ Вызов Runware API
-      # -----------------------------
-      - name: Call Runware API
-        env:
-          RUNWARE_API_KEY: ${{ secrets.RUNWARE_API_KEY }}
-        run: |
-          curl -X POST "https://api.runware.com/endpoint" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $RUNWARE_API_KEY" \
-            -d '{"prompt":"${{ github.event.inputs.prompt }}"}'
+          if [ -n "${{ secrets.CHAT_WEBHOOK_URL }}" ]; then
+            sed -i "s|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ secrets.CHAT_WEBHOOK_URL }}|g" app_modern.js
+            echo "✅ CHAT_WEBHOOK_URL inserted"
+          else
+            echo "❌ CHAT_WEBHOOK_URL secret not found!"
+          fi
 
-      # -----------------------------
-      # 4️⃣ Health check фронта
-      # -----------------------------
-      - name: Health check
+          if [ -n "${{ secrets.TELEGRAM_BOT_URL }}" ]; then
+            sed -i "s|PLACEHOLDER_TELEGRAM_BOT_URL|${{ secrets.TELEGRAM_BOT_URL }}|g" app_modern.js
+            echo "✅ TELEGRAM_BOT_URL inserted"
+          else
+            echo "❌ TELEGRAM_BOT_URL secret not found!"
+          fi
+
+      - name: Verify all replacements
         run: |
-          sleep 10
-          curl -f https://KawaaBongaaa.github.io/pixplace/ || echo "⚠️ Health check failed (may still be ok)"
+          if grep -q "PLACEHOLDER_" app_modern.js; then
+            echo "❌ Some placeholders were NOT replaced!"
+            exit 1
+          else
+            echo "✅ All placeholders replaced successfully"
+          fi
