@@ -14,39 +14,53 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Replace environment variables
+    - name: Replace placeholders with SECRETS
       run: |
-        echo "🔧 Replacing placeholders with GitHub Variables..."
-        if [ -n "${{ vars.RUNWARE_API_KEY }}" ]; then
-          sed -i "s/PLACEHOLDER_RUNWARE_API_KEY/${{ vars.RUNWARE_API_KEY }}/g" app_modern.js
-          echo "✅ Replaced RUNWARE_API_KEY placeholder"
+        echo "🔧 Replacing placeholders with GitHub Secrets..."
+
+        # RUNWARE_API_KEY
+        if [ -n "${{ secrets.RUNWARE_API_KEY }}" ]; then
+          sed -i "s/PLACEHOLDER_RUNWARE_API_KEY/${{ secrets.RUNWARE_API_KEY }}/g" app_modern.js
+          echo "✅ RUNWARE_API_KEY replaced"
         else
-          echo "⚠️ RUNWARE_API_KEY not found in variables"
+          echo "⚠️ RUNWARE_API_KEY secret NOT FOUND"
         fi
-        if [ -n "${{ vars.WEBHOOK_URL }}" ]; then
-          sed -i "s|PLACEHOLDER_WEBHOOK_URL|${{ vars.WEBHOOK_URL }}|g" app_modern.js
-          echo "✅ Replaced WEBHOOK_URL placeholder"
+
+        # WEBHOOK_URL
+        if [ -n "${{ secrets.WEBHOOK_URL }}" ]; then
+          sed -i "s|PLACEHOLDER_WEBHOOK_URL|${{ secrets.WEBHOOK_URL }}|g" app_modern.js
+          echo "✅ WEBHOOK_URL replaced"
         else
-          echo "⚠️ WEBHOOK_URL not found in variables"
+          echo "⚠️ WEBHOOK_URL secret NOT FOUND"
         fi
-        if [ -n "${{ vars.CHAT_WEBHOOK_URL }}" ]; then
-          sed -i "s|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ vars.CHAT_WEBHOOK_URL }}|g" app_modern.js
-          echo "✅ Replaced CHAT_WEBHOOK_URL placeholder"
+
+        # CHAT_WEBHOOK_URL
+        if [ -n "${{ secrets.CHAT_WEBHOOK_URL }}" ]; then
+          sed -i "s|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ secrets.CHAT_WEBHOOK_URL }}|g" app_modern.js
+          echo "✅ CHAT_WEBHOOK_URL replaced"
         else
-          echo "⚠️ CHAT_WEBHOOK_URL not found in variables"
+          echo "⚠️ CHAT_WEBHOOK_URL secret NOT FOUND"
         fi
-        if [ -n "${{ vars.TELEGRAM_BOT_URL }}" ]; then
-          sed -i "s|PLACEHOLDER_TELEGRAM_BOT_URL|${{ vars.TELEGRAM_BOT_URL }}|g" app_modern.js
-          echo "✅ Replaced TELEGRAM_BOT_URL placeholder"
+
+        # TELEGRAM_BOT_URL
+        if [ -n "${{ secrets.TELEGRAM_BOT_URL }}" ]; then
+          sed -i "s|PLACEHOLDER_TELEGRAM_BOT_URL|${{ secrets.TELEGRAM_BOT_URL }}|g" app_modern.js
+          echo "✅ TELEGRAM_BOT_URL replaced"
         else
-          echo "⚠️ TELEGRAM_BOT_URL not found in variables"
+          echo "⚠️ TELEGRAM_BOT_URL secret NOT FOUND"
         fi
+
         echo "🎯 Replacement process completed"
 
     - name: Verify replacements
       run: |
-        echo "🔍 Checking if replacements worked:"
-        grep -c "PLACEHOLDER_" app_modern.js || echo "✅ No placeholders remaining"
+        echo "🔍 Searching for leftover placeholders..."
+        if grep -q "PLACEHOLDER_" app_modern.js; then
+          echo "❌ Some placeholders were NOT replaced!"
+          exit 1
+        else
+          echo "✅ All placeholders replaced"
+        fi
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
@@ -54,7 +68,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .
-        # cname: your-domain.com # Раскомментируй если у тебя кастомный домен
+        # cname: your-domain.com
 
   health-check:
     runs-on: ubuntu-latest
@@ -64,6 +78,6 @@ jobs:
     steps:
     - name: Health check
       run: |
-        echo "🏥 Checking deployment health..."
-        sleep 10  # Ждем пока развернется
-        curl -f https://KawaaBongaaa.github.io/pixplace/ || echo "Health check failed, but deployment might be OK"
+        echo "🏥 Checking deployment..."
+        sleep 10
+        curl -f https://KawaaBongaaa.github.io/pixplace/ || echo "⚠️ Health check failed (may still be ok)"
