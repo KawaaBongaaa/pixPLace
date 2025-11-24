@@ -1,7 +1,7 @@
 // ОТДЕЛЬНЫЙ МОДУЛЬ ДЛЯ УПРАВЛЕНИЕ КАРТОЧКАМИ РЕЖИМОВ
 // (LAZY LOADING разделен по модулям для лучшей производительности)
 
-let selectedMode = 'nano_banana_pro';
+let selectedMode = 'nano_banana';
 let currentExpandedCard = null;
 let tooltipElement = null;
 let globalTooltipShowTimer = null;
