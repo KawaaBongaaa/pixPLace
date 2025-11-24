@@ -16,7 +16,8 @@ let cssLoaded = false; // Флаг загрузки CSS
 function calculateGenerationCost(mode, hasImages) {
     // Логика стоимости по режимам
     const costMap = {
-        'photo_session': hasImages ? '~10 credits' : '~5 credits',  // Nano Banana
+        'photo_session': hasImages ? '~10 credits' : '~5 credits',      // Nano Banana
+        'nano_banana_pro': '~15 credits',                              // Nano Banana Pro
         'pixplace_pro': '~4 credits',                                // Flux Advanced Pro
         'print_maker': '~3 credits',                                 // Print on Demand
         'upscale_image': '~10 credits',                              // Upscale

@@ -27,7 +27,7 @@ async function getSelectedModeFromComponent() {
     } catch (error) {
         console.error('❌ Failed to load mode-cards to get selected mode:', error);
         // Fallback only to default mode since old select is gone
-        return 'photo_session';
+        return 'nano_banana_pro';
     }
 }
 
@@ -949,6 +949,8 @@ function getImageLimitForMode(mode) {
     switch (mode) {
         case 'photo_session':
             return 4; // до 4 изображений для nano banana
+        case 'nano_banana_pro':
+            return 4; // до 4 изображений для nano banana pro
         case 'fast_generation':
             return 0; // вообще не допускаются изображения для flux shnel
         default:
@@ -994,6 +996,10 @@ function updateImageUploadVisibility() {
             // Nano Banana: превью видно с изображениями
             shouldShowPreview = hasImages;
             console.log(`${!hasImages ? '📸' : '❌'} Photo Session режим: кнопка ${shouldShowUploadButton ? 'видна' : 'скрыта'} (пока нет превью)`);
+        } else if (currentMode === 'nano_banana_pro') {
+            // Nano Banana Pro: превью видно с изображениями
+            shouldShowPreview = hasImages;
+            console.log(`${!hasImages ? '🌟' : '❌'} Nano Banana Pro режим: кнопка ${shouldShowUploadButton ? 'видна' : 'скрыта'} (пока нет превью)`);
         } else {
             // Другие режимы: превью видно с изображениями
             shouldShowPreview = hasImages;
@@ -1623,8 +1629,8 @@ function updateInnerUploadButtonVisibility() {
 
         let shouldShowInnerBtn = false;
 
-        if (currentMode === 'photo_session') {
-            // Для Photo Session: показываем кнопку пока не достигнут лимит в 4 изображения
+        if (currentMode === 'photo_session' || currentMode === 'nano_banana_pro') {
+            // Для Photo Session и Nano Banana Pro: показываем кнопку пока не достигнут лимит в 4 изображения
             shouldShowInnerBtn = imageCount < 4;
         } else if (['upscale_image', 'background_removal'].includes(currentMode)) {
             // Для других режимов, требующих изображения: показываем кнопку пока не достигнут лимит в 1 изображение
