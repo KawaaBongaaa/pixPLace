@@ -2430,27 +2430,44 @@ async function generateImage(event) {
         console.log('📋 Generation preview flow completed for:', gen.id);
     };
 
-    // Создаем превью СРАЗУ для всех режимов КРОМЕ photo_session без изображений
-    if (!(mode === 'photo_session' && userImageState.images.length === 0)) {
+    // Создаем превью СРАЗУ для ВСЕХ режимов КРОМЕ photo_session и nano_banana_pro без изображений
+    if (!(mode === 'photo_session' && userImageState.images.length === 0) &&
+        !(mode === 'nano_banana_pro' && userImageState.images.length === 0)) {
         console.log('🎯 Creating preview immediately for mode:', mode);
         window.createPreviewForGeneration(generation);
     } else {
-        console.log('⚠️ Skipping preview creation for photo_session without images - will create after modal choice');
+        console.log('⚠️ Skipping preview creation for ', mode, ' without images - will create after modal choice');
     }
 
-    // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session без изображения ===
-    if (mode === 'photo_session' && userImageState.images.length === 0) {
-        // 🔥 ДОБАВЛЕНО: Сохраняем generation в глобальную переменную для доступа из модального окна
-        window.currentGeneration = generation;
+    // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session и nano_banana_pro без изображения ===
+    if ((mode === 'photo_session' || mode === 'nano_banana_pro') && userImageState.images.length === 0) {
+        // 🔥 ДОБАВЛЕНО: Проверяем sessionStorage, показываем ли модалку уже в этой сессии
+        const modalShownKey = `modal_shown_${mode}`;
+        const modalAlreadyShown = sessionStorage.getItem(modalShownKey) === 'true';
 
-        // Останавливаем немедленную генерацию и показываем предупреждение
-        const shouldContinue = await showWarningAboutNoImage();
-        if (!shouldContinue) {
-            // Пользователь решил добавить изображение - прокрутка к кнопке загрузки теперь в модальном окне
-            showGeneration();
-            return; // НЕ отправляем webhook
+        if (!modalAlreadyShown) {
+            // Показываем модалку только если еще не показывали в этой сессии
+            console.log(`🎯 Showing modal for ${mode} mode (first time in session)`);
+
+            // 🔥 Сохраняем generation в глобальную переменную для доступа из модального окна
+            window.currentGeneration = generation;
+
+            // Отмечаем, что модалка была показана для этого режима в этой сессии
+            sessionStorage.setItem(modalShownKey, 'true');
+
+            // Останавливаем немедленную генерацию и показываем предупреждение
+            const shouldContinue = await showWarningAboutNoImage();
+            if (!shouldContinue) {
+                // Пользователь решил добавить изображение - прокрутка к кнопке загрузки теперь в модальном окне
+                showGeneration();
+                return; // НЕ отправляем webhook
+            }
+            // Продолжаем генерацию без изображения (text-to-image режим)
+        } else {
+            console.log(`🎯 Skipping modal for ${mode} mode (already shown in this session)`);
+            // Если модалка уже была показана, создаем превью сразу без модалки
+            window.createPreviewForGeneration(generation);
         }
-        // Продолжаем генерацию без изображения (text-to-image режим)
     }
 
     startTimer();
