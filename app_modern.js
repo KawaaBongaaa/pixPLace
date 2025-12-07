@@ -27,7 +27,7 @@ async function getSelectedModeFromComponent() {
     } catch (error) {
         console.error('❌ Failed to load mode-cards to get selected mode:', error);
         // Fallback only to default mode since old select is gone
-        return 'nano_banana_pro';
+        return 'photo_session';
     }
 }
 
@@ -84,7 +84,7 @@ const CONFIG = {
     // UI/UX Settings
     TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared',
     SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #miniApp #Ai',
-    MAINTENANCE_MODE: false // Keep hardcoded for safety
+    MAINTENANCE_MODE: true // Keep hardcoded for safety
 };
 console.log("Runware API Key:", CONFIG.RUNWARE_API_KEY);
 console.log("Webhook URL:", CONFIG.WEBHOOK_URL);
