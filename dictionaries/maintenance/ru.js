@@ -6,10 +6,10 @@ export default {
     maintenance_progress_template: "Прогресс: {0}% завершено",
     maintenance_progress: "Прогресс: % завершено",
 
-    maintenance_feature_ai_models: "🚀 Новые AI модели",
-    maintenance_feature_speed: "⚡ Улучшенная скорость генерации",
-    maintenance_feature_styles: "🎨 Расширенная библиотека стилей",
-    maintenance_feature_security: "🔒 Дополнительная безопасность",
+    maintenance_feature_ai_models: "Новые AI модели",
+    maintenance_feature_speed: "Улучшенная скорость генерации",
+    maintenance_feature_styles: "Расширенная библиотека стилей",
+    maintenance_feature_security: "Дополнительная безопасность",
 
     maintenance_timeline_title: "Ожидаемое время восстановления",
     maintenance_time_estimate: "Примерно через 2-4 часа",
