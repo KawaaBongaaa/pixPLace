@@ -6,10 +6,10 @@ export default {
     maintenance_progress_template: "Progress: {0}% completed",
     maintenance_progress: "Progress: % completed",
 
-    maintenance_feature_ai_models: "🚀 New AI models",
-    maintenance_feature_speed: "⚡ Improved generation speed",
-    maintenance_feature_styles: "🎨 Extended style library",
-    maintenance_feature_security: "🔒 Enhanced security",
+    maintenance_feature_ai_models: "New AI models",
+    maintenance_feature_speed: "Improved generation speed",
+    maintenance_feature_styles: "Extended style library",
+    maintenance_feature_security: "Enhanced security",
 
     maintenance_timeline_title: "Expected Recovery Time",
     maintenance_time_estimate: "Approximately 2-4 hours",
