@@ -19,7 +19,6 @@ const PORT = process.env.PORT || 3000;
 
 // Environment variables to expose to the client (whitelist for security)
 const CLIENT_ENV_VARS = [
-    'RUNWARE_API_KEY',
     'IMGBB_API_KEY',
     'WEBHOOK_URL',
     'CHAT_WEBHOOK_URL',

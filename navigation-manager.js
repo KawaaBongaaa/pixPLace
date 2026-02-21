@@ -1,5 +1,38 @@
 import { showResult, displayFullResult, showResultToast, removeResultToast, showApp } from './screen-manager.js';
 
+// Функция динамической загрузки limitModal по требованию (lazy loading)
+const getLoadLimitModal = async () => {
+    // Если уже загружено - используем
+    if (window.loadLimitModal) {
+        return window.loadLimitModal;
+    }
+
+    try {
+        console.log('🔄 Lazy loading plans-modal.js on demand...');
+
+        // Ленивая загрузка модуля
+        const module = await import('./plans-modal.js');
+        console.log('✅ Plans modal loaded via import()');
+
+        // Ждем инициализации модуля
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Получаем функцию из экспорта или глобальной области
+        const loadLimitModalFunc = module.loadLimitModal || window.loadLimitModal;
+
+        if (loadLimitModalFunc) {
+            console.log('✅ loadLimitModal function found');
+            return loadLimitModalFunc;
+        } else {
+            console.error('❌ loadLimitModal not found in module exports or window');
+            throw new Error('loadLimitModal not found');
+        }
+    } catch (error) {
+        console.error('❌ Failed to lazy load plans modal:', error);
+        return null;
+    }
+};
+
 // ================================================
 // 🌍 NAVIGATION FUNCTIONS
 // ================================================
@@ -148,45 +181,8 @@ export function showBackButton(show) {
 window.showBackButton = showBackButton;
 
 // Функция из app_modern.js - toggleHistoryList
-export function toggleHistoryList() {
-    const list = document.getElementById('historyList');
-    const btn = document.getElementById('historyToggleBtn');
-
-    if (list.classList.contains('hidden')) {
-        // Открываем историю
-        list.classList.remove('hidden');
-        btn.classList.add('active');
-
-        console.log('📂 History opened');
-
-        // 🔥 ИСПРАВЛЕНИЕ: НЕ ОБНОВЛЯЕМ ДИСПЛЕЙ ПРИ ОТКРЫТИИ - ТОЛЬКО ЕСЛИ ИСТОРИЯ БЫЛА СКРЫТА!
-        // Вместо постоянного обновления - показываем текущее состояние
-        // updateHistoryDisplay не нужен здесь, так как превью уже создается при генерации
-
-        // После открытия - прокручиваем к последней генерации
-        setTimeout(() => {
-            if (window.appState?.generationHistory?.length > 0) {
-                console.log('📋 Scrolling to latest generation after open');
-                scrollToLatestGeneration();
-            }
-        }, 100);
-
-    } else {
-        // Закрываем историю
-        list.classList.add('hidden');
-        btn.classList.remove('active');
-
-        console.log('📂 History closed');
-    }
-
-    // Обновляем переключатель тем (учитывая новую высоту)
-    updateThemeTogglePosition();
-
-    console.log('📋 History toggle completed');
-}
-
-// Добавляем экспорт в window
-window.toggleHistoryList = toggleHistoryList;
+// toggleHistoryList удален отсюда, используется продвинутая версия из history-manager.js 
+// которая поддерживает серверную синхронизацию при раскрытии.
 
 // Функция из app_modern.js - showHistory
 export function showHistory() {
@@ -194,14 +190,31 @@ export function showHistory() {
 }
 
 // Функция из app_modern.js - showSubscriptionNotice
-export function showSubscriptionNotice(result, limitType = 'trial') {
+export async function showSubscriptionNotice(result, limitType = 'trial') {
+    // 🔥 Ensure services are ready before showing subscription notice
+    if (!window.appServices && !window.appState) {
+        console.warn('⚠️ Waiting for appState before showing subscription notice...');
+        let attempts = 0;
+        while ((!window.appServices && !window.appState) && attempts < 30) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+    }
+
     console.log('🔗 Full result object:', result);
-    console.log('🔗 Payment URLs from result:', result.payment_urls);
+    console.log('🔗 Payment URLs from result:', result?.payment_urls);
     console.log('🔗 Limit type:', limitType);
 
-    const modal = document.getElementById('limitModal');
+    // Динамическая загрузка limitModal по требованию (lazy loading)
+    const loadLimitModal = await getLoadLimitModal();
+    if (!loadLimitModal) {
+        console.error('❌ Failed to load limit modal!');
+        return;
+    }
+
+    const modal = await loadLimitModal();
     if (!modal) {
-        console.error('❌ Modal not found!');
+        console.error('❌ Failed to create limit modal!');
         return;
     }
 
@@ -209,8 +222,8 @@ export function showSubscriptionNotice(result, limitType = 'trial') {
     const titleKey = limitType === 'premium' ? 'premium_limit_title' : 'limit_title';
     const messageKey = limitType === 'premium' ? 'premium_limit_message' : 'limit_message';
 
-    const title = appState?.translate(titleKey);
-    const message = appState?.translate(messageKey);
+    const title = window.appState?.translate?.(titleKey);
+    const message = window.appState?.translate?.(messageKey);
 
     console.log('🌍 TRANSLATION DEBUG:', {
         limitType,
@@ -276,7 +289,9 @@ export function showSubscriptionNotice(result, limitType = 'trial') {
     });
 
     // ✋ РАСШИРЕННАЯ ДИАГНОСТИКА: ПОДРОБНАЯ ИНФОРМАЦИЯ О ВЫСОКИХ ЭЛЕМЕНТАХ
-    console.error('🚨 ПРОБЛЕМА ВЫЯВЛЕНА: 7 элементов с высоким Z-INDEX мешают модальному окну!');
+    if (highZIndexElements.length > 0) {
+        console.warn(`🔍 Found ${highZIndexElements.length} elements with high Z-INDEX:`);
+    }
     console.table(highZIndexElements.map((el, index) => ({
         '№': index + 1,
         'Элемент': el.element.tagName,
@@ -317,8 +332,16 @@ export function showSubscriptionNotice(result, limitType = 'trial') {
     console.warn('4. Mobile System UI (панель навигации)');
     console.warn('5. Input Method Editor (экранная клавиатура)');
 
-    // Показать модальное окно
-    modal.classList.add('show');
+    // Показать модальное окно с небольшой задержкой для корректного reflow
+    setTimeout(() => {
+        if (!document.body.contains(modal)) {
+            console.warn('⚠️ Modal was not in body, re-appending...');
+            document.body.appendChild(modal);
+        }
+
+        modal.classList.add('show');
+        console.log('✨ Modal visibility toggled: SHOW');
+    }, 50);
 
     // Helper function for safe redirections with error handling
     const safeRedirect = (url, planName) => {
@@ -328,8 +351,8 @@ export function showSubscriptionNotice(result, limitType = 'trial') {
             try {
                 console.log(`🔗 Redirecting to ${planName} payment URL: ${url}`);
                 // Try modern way first
-                if (appState.tg && appState.tg.openLink) {
-                    appState.tg.openLink(url);
+                if (window.appState?.tg?.openLink) {
+                    window.appState.tg.openLink(url);
                 } else {
                     // Fallback to regular navigation
                     window.open(url, '_blank');
@@ -344,41 +367,43 @@ export function showSubscriptionNotice(result, limitType = 'trial') {
     };
 
     // Настроить обработчики для трех кнопок тарифов
-    const upgradeBtn = document.getElementById('upgradeBtn'); // ЛИТЕ планируется как существующий
-    const upgradeBtnPro = document.getElementById('upgradebtn_pro'); // ПРО новый
-    const upgradeBtnStudio = document.getElementById('upgradebtn_studio'); // СТУДИО новый
+    // 🔥 FIX: Search within the modal element for reliability
+    const upgradeBtnLimit = modal.querySelector('#upgradeBtn') || document.getElementById('upgradeBtn');
+    const upgradeBtnPro = modal.querySelector('#upgradebtn_pro') || document.getElementById('upgradebtn_pro');
+    const upgradeBtnStudio = modal.querySelector('#upgradebtn_studio') || document.getElementById('upgradebtn_studio');
 
-    console.log('🔘 Upgrade buttons found:', !!upgradeBtn, !!upgradeBtnPro, !!upgradeBtnStudio);
+    console.log('🔘 Upgrade buttons found:', !!upgradeBtnLimit, !!upgradeBtnPro, !!upgradeBtnStudio);
 
-    // Обработчик для ЛИТЕ тарифа (использует существующую кнопку upgradeBtn)
-    if (upgradeBtn) {
-        upgradeBtn.onclick = () => {
-            console.log('🔘 LITE Upgrade button clicked');
-            const paymentUrl = result.payment_urls?.lite || 'https://t.me/tribute/app?startapp=syDv';
-            safeRedirect(paymentUrl, 'LITE');
+    // Helper to setup button with clean listener
+    const setupButton = (btn, planName, defaultUrl) => {
+        if (!btn) return;
+
+        // Clone to remove old listeners
+        const newBtn = btn.cloneNode(true);
+        if (btn.parentNode) {
+            btn.parentNode.replaceChild(newBtn, btn);
+        }
+
+        newBtn.onclick = () => {
+            console.log(`🔘 ${planName} Upgrade button clicked`);
+            // Use custom URL or default fallback
+            let paymentUrl = defaultUrl;
+            if (result.payment_urls) {
+                if (planName === 'LITE' && result.payment_urls.lite) paymentUrl = result.payment_urls.lite;
+                if (planName === 'PRO' && result.payment_urls.pro) paymentUrl = result.payment_urls.pro;
+                if (planName === 'STUDIO' && result.payment_urls.studio) paymentUrl = result.payment_urls.studio;
+            }
+
+            safeRedirect(paymentUrl, planName);
         };
-    }
+    };
 
-    // Обработчик для ПРО тарифа (новая кнопка)
-    if (upgradeBtnPro) {
-        upgradeBtnPro.onclick = () => {
-            console.log('🔘 PRO Upgrade button clicked');
-            const paymentUrl = result.payment_urls?.pro || 'https://t.me/tribute/app?startapp=syDv';
-            safeRedirect(paymentUrl, 'PRO');
-        };
-    }
-
-    // Обработчик для СТУДИО тарифа (новая кнопка)
-    if (upgradeBtnStudio) {
-        upgradeBtnStudio.onclick = () => {
-            console.log('🔘 STUDIO Upgrade button clicked');
-            const paymentUrl = result.payment_urls?.studio || 'https://t.me/tribute/app?startapp=syDv';
-            safeRedirect(paymentUrl, 'STUDIO');
-        };
-    }
+    setupButton(upgradeBtnLimit, 'LITE', 'https://t.me/tribute/app?startapp=syDv');
+    setupButton(upgradeBtnPro, 'PRO', 'https://t.me/tribute/app?startapp=d71w'); // Updated Pro Link
+    setupButton(upgradeBtnStudio, 'STUDIO', 'https://t.me/tribute/app?startapp=s8E3'); // Updated Studio Link
 
     // Настроить кнопку закрытия
-    const closeBtn = document.getElementById('closeLimitModal');
+    const closeBtn = modal.querySelector('#closeLimitModal') || document.getElementById('closeLimitModal');
     if (closeBtn) {
         closeBtn.onclick = () => {
             modal.classList.remove('show');
@@ -388,216 +413,127 @@ export function showSubscriptionNotice(result, limitType = 'trial') {
 }
 
 // Функция из app_modern.js - showWarningAboutNoImage (исправленная версия с улучшенным удалением overlay)
+// Функция из app_modern.js - showWarningAboutNoImage (Refactored to Tailwind CSS)
 export async function showWarningAboutNoImage() {
     return new Promise((resolve) => {
         // Флаг для предотвращения двойного удаления
         let isResolved = false;
 
-        // Создаем оверлей и модал
         const overlay = document.createElement('div');
         overlay.id = 'photo-warning-overlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
+        // Tailwind classes: fixed fullscreen overlay with backdrop blur
+        overlay.className = 'fixed inset-0 bg-black/70 backdrop-blur-xl z-[10000] flex items-center justify-center opacity-0 transition-opacity duration-300 ease-out';
 
         const modal = document.createElement('div');
-        modal.style.cssText = `
-            background: var(--bg-primary, #ffffff);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        `;
+        // Tailwind classes: white/dark modal card with shadow and transform transition
+        modal.className = 'bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-[90%] shadow-2xl shadow-black/30 translate-y-5 transition-transform duration-300 ease-out text-center';
+
+        // Prepare texts using translation or fallback
+        const titleText = typeof appState !== 'undefined' ? appState.translate('photo_warning_title') : 'For better results, upload an image';
+        const bodyText = typeof appState !== 'undefined' ? appState.translate('photo_warning_text') : 'The "Nano Banana" mode works better with an image for img2img generation. Would you like to upload an image or continue without it?';
+        const uploadBtnText = typeof appState !== 'undefined' ? appState.translate('photo_warning_upload_btn') : 'Upload Image';
+        const continueBtnText = typeof appState !== 'undefined' ? appState.translate('photo_warning_continue_btn') : 'Continue without';
+
+        // Helper for button classes to keep HTML clean
+        const btnBaseClass = "flex-1 py-3 px-6 text-white border-none rounded-full text-base font-semibold cursor-pointer transition-all duration-200 ease-out active:scale-95 hover:-translate-y-0.5";
+        const uploadBtnClass = `${btnBaseClass} bg-gradient-to-br from-[#7e94f7] to-[#1d5df3] shadow-lg shadow-blue-500/40 hover:shadow-xl hover:shadow-blue-500/50`;
+        const continueBtnClass = `${btnBaseClass} bg-gradient-to-br from-[#ee4c62] to-[#f72e48] shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/50`;
 
         modal.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 1rem;">
-                <div style="font-size: 4rem; margin-bottom: 0.25rem; display: flex; align-items: center; justify-content: center;" class="photo-warning-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="flex flex-col items-center mb-6">
+                <div class="text-6xl mb-2 flex items-center justify-center text-blue-500 animate-bounce">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                     </svg>
                 </div>
             </div>
-            <div style="text-align: center; margin-bottom: 1rem;">
-                <h3 style="margin: 0 0 1rem 0; color: var(--text-primary, #333); font-size: 1.25rem; font-weight: 600;">${typeof appState !== 'undefined' ? appState.translate('photo_warning_title') : 'For better results, upload an image'}</h3>
-                <p style="margin: 0; color: var(--text-secondary, #666); font-size: 1rem; line-height: 1.5;">
-                    ${typeof appState !== 'undefined' ? appState.translate('photo_warning_text') : 'The "Nano Banana" mode works better with an image for img2img generation. Would you like to upload an image or continue without it?'}
-                </p>
+            <div class="mb-8">
+                <h3 class="mb-3 text-[var(--text-primary)] text-xl font-bold tracking-tight">${titleText}</h3>
+                <p class="text-[var(--text-secondary)] text-base leading-relaxed opacity-90">${bodyText}</p>
             </div>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button id="upload-image-btn" style="
-                    flex: 1;
-                    padding: 6px 6px;
-                    background: linear-gradient(135deg, #7e94f7ff 0%, #1d5df3ff 100%);
-                    color: white;
-                    border: none;
-                    border-radius: 34px;
-                    font-size: 1rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-                ">
-                    ${typeof appState !== 'undefined' ? appState.translate('photo_warning_upload_btn') : 'Upload Image'}
+            <div class="flex flex-col sm:flex-row gap-4 justify-center w-full">
+                <button id="upload-image-btn" class="${uploadBtnClass}">
+                    ${uploadBtnText}
                 </button>
-                <button id="continue-without-btn" style="
-                    flex: 1;
-                    padding: 6px 6px;
-                    background: linear-gradient(135deg, #ee4c62ff 0%, #f72e48ff 100%);
-                    color: white;
-                    border: none;
-                    border-radius: 34px;
-                    font-size: 1rem;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
-                ">
-                    ${typeof appState !== 'undefined' ? appState.translate('photo_warning_continue_btn') : 'Continue without'}
+                <button id="continue-without-btn" class="${continueBtnClass}">
+                    ${continueBtnText}
                 </button>
             </div>
         `;
-
-        // Добавляем эффекты hover для кнопок
-        const style = document.createElement('style');
-        style.textContent = `
-            #upload-image-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-            }
-            #continue-without-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
-            }
-        `;
-        document.head.appendChild(style);
 
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
 
-        // Анимация появления
+        // Animation in
         requestAnimationFrame(() => {
-            overlay.style.opacity = '1';
-            modal.style.transform = 'translateY(0)';
+            overlay.classList.remove('opacity-0');
+            modal.classList.remove('translate-y-5');
         });
 
-        // Функция безопасного удаления overlay
+        // Safe cleanup function
         const safeRemoveOverlay = () => {
-            console.log('🔧 Attempting to remove photo-warning-overlay...');
-
             try {
-                // Проверяем существует ли overlay еще
                 if (overlay && overlay.parentNode) {
                     overlay.parentNode.removeChild(overlay);
-                    console.log('✅ Overlay successfully removed from DOM');
-                } else {
-                    console.log('⚠️ Overlay already removed or not in DOM');
                 }
             } catch (error) {
                 console.error('❌ Error removing overlay:', error);
             }
-
-            try {
-                // Безопасное удаление стиля
-                if (style && style.parentNode) {
-                    style.parentNode.removeChild(style);
-                    console.log('✅ Hover styles successfully removed');
-                } else {
-                    console.log('⚠️ Hover styles already removed');
-                }
-            } catch (error) {
-                console.error('❌ Error removing hover styles:', error);
-            }
         };
 
-        // Функция резолва с проверкой двойного вызова
+        // Safe resolve function
         const safeResolve = (value) => {
-            if (isResolved) {
-                console.log('⚠️ Attempted to resolve already resolved promise');
-                return;
-            }
+            if (isResolved) return;
             isResolved = true;
-            console.log(`🔧 Resolving promise with: ${value}`);
             resolve(value);
         };
 
-        // Обработчики кнопок
         const uploadBtn = modal.querySelector('#upload-image-btn');
         const continueBtn = modal.querySelector('#continue-without-btn');
 
         uploadBtn.addEventListener('click', () => {
-            console.log('🖱️ Upload Image button clicked');
-
-            // 🔥 КРИТИЧНОЕ ИСПРАВЛЕНИЕ: ГАРАНТИРОВАННОЕ НЕМЕДЛЕННОЕ УДАЛЕНИЕ OVERLAY
-            // Мгновенное скрытие без анимации для предотвращения "залипания"
+            // Immediate hiding to prevent drag/click issues
             overlay.style.display = 'none';
+            safeRemoveOverlay();
 
-            // Синхронное forceful удаление из DOM
-            try {
-                if (overlay && overlay.parentNode) {
-                    overlay.parentNode.removeChild(overlay);
-                    console.log('🚨 FORCE REMOVED overlay immediately after upload click');
-                }
-            } catch (error) {
-                console.error('❌ Failed force removal:', error);
-            }
-
-            // 🔥 ЕДИНСТВЕННОЕ УДАЛЕНИЕ - больше не дублируется!
-            // CSS переходы можно игнорировать с display: none
-            // Но реальный DOM элемент нужно убрать немедленно
-
-            // Прокручиваем к кнопке загрузки изображения
+            // Scroll to upload button
             setTimeout(() => {
                 const chooseBtn = document.getElementById('chooseUserImage');
                 if (chooseBtn) {
                     chooseBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    console.log('📋 Scrolled to upload button after modal close');
+                    // Use blink effect utility if available
+                    if (window.startUploadButtonBlink) {
+                        try { window.startUploadButtonBlink(); } catch (e) { }
+                    }
                 }
             }, 100);
 
-            safeResolve(false); // false значит не продолжаем генерацию, пользователь пойдет загружать изображение
+            safeResolve(false); // Do not continue generation
         });
 
         continueBtn.addEventListener('click', () => {
-            console.log('🖱️ Continue without button clicked');
-            // Закрываем модал
-            overlay.style.opacity = '0';
-            modal.style.transform = 'translateY(20px)';
+            // Animate out
+            overlay.classList.add('opacity-0');
+            modal.classList.add('translate-y-5');
+
             setTimeout(() => {
                 safeRemoveOverlay();
-                // 🔥 ДОБАВЛЕНО: Создаем превью карточку после выбора "Continue without"
+                // Create preview if continuing
                 if (window.createPreviewForGeneration && window.currentGeneration) {
-                    console.log('🎯 Creating preview after Continue without button clicked');
                     window.createPreviewForGeneration(window.currentGeneration);
                 }
-                safeResolve(true); // true значит продолжаем генерацию
+                safeResolve(true); // Continue generation
             }, 300);
         });
 
-        // Закрытие по клику на оверлей
+        // Close on backdrop click
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
-                console.log('🖱️ Overlay background clicked');
-                // Закрываем модал
-                overlay.style.opacity = '0';
-                modal.style.transform = 'translateY(20px)';
+                overlay.classList.add('opacity-0');
+                modal.classList.add('translate-y-5');
                 setTimeout(() => {
                     safeRemoveOverlay();
-                    safeResolve(false); // Закрытие = отмена генерации
+                    safeResolve(false); // Cancel/Close = false
                 }, 300);
             }
         });
@@ -757,6 +693,486 @@ import('./history-manager.js').then(module => {
     window.updateHistoryDisplay = module.updateHistoryDisplay;
 });
 
+// Импорт функций из mode-cards.js (пока что, потом перенесем)
+import { selectModeCard, getSelectedMode } from './mode-cards.js';
+
+// 🔥 НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С КАРТОЧКАМИ РЕЖИМОВ
+
+// ФУНКЦИЯ СВОРАЧИВАНИЯ КАРТОЧЕК РЕЖИМОВ
+export function setModeCardsCollapsed(collapsed) {
+    const wrapper = document.getElementById('modeCardsWrapper');
+    if (!wrapper) {
+        console.warn('❌ modeCardsWrapper not found for collapse toggle');
+        return;
+    }
+
+    const toggleBtn = document.getElementById('modeCardsToggle');
+    const toggleText = document.getElementById('modeCardsToggleText');
+
+    console.log(`🔄 setModeCardsCollapsed called with: ${collapsed}, current classes: ${wrapper.className}`);
+
+    if (collapsed) {
+        // Применяем inline стили для сворачивания
+        wrapper.style.display = 'none';
+        wrapper.style.opacity = '0';
+        wrapper.style.maxHeight = '0';
+        wrapper.style.overflow = 'hidden';
+        wrapper.style.transform = 'scaleY(0)';
+        wrapper.style.transformOrigin = 'top';
+        wrapper.style.transition = 'all 0.3s ease';
+
+        wrapper.classList.add('collapsed');
+        wrapper.classList.remove('expanded');
+
+        if (toggleBtn) {
+            toggleBtn.classList.remove('expanded');
+            toggleBtn.classList.add('collapsed');
+        }
+        if (toggleText) {
+            // 🔥 ВСЕГДА показываем название выбранной модели для свернутого состояния
+            const selectedMode = getSelectedMode();
+            const translatedName = getTranslatedModeName(selectedMode);
+            toggleText.textContent = translatedName || selectedMode || 'Nano Banana Pro';
+            console.log(`📝 Toggle text set to: ${toggleText.textContent} (selected: ${selectedMode})`);
+        }
+        console.log('📦 Mode cards collapsed');
+    } else {
+        // Применяем inline стили для разворачивания
+        wrapper.style.display = 'block';
+        wrapper.style.opacity = '1';
+        wrapper.style.maxHeight = 'none'; // Allow full height
+        wrapper.style.height = 'auto';    // Ensure it pushes content
+        wrapper.style.overflow = 'visible';
+        wrapper.style.transform = 'scaleY(1)';
+        wrapper.style.transition = 'all 0.3s ease';
+        wrapper.style.position = 'relative'; // Ensure flow
+        wrapper.style.marginBottom = '20px'; // Add spacing
+
+        wrapper.classList.remove('collapsed');
+        wrapper.classList.add('expanded');
+
+        if (toggleBtn) {
+            toggleBtn.classList.remove('collapsed');
+            toggleBtn.classList.add('expanded');
+        }
+        if (toggleText) {
+            toggleText.textContent = 'Close Modes';
+        }
+        console.log('📦 Mode cards expanded');
+    }
+}
+
+// ФУНКЦИЯ СВОРАЧИВАНИЯ ВИДЕО КАРТОЧЕК
+export function setVideoCardsCollapsed(collapsed) {
+    const wrapper = document.getElementById('videoCardsWrapper');
+    if (!wrapper) {
+        console.warn('❌ videoCardsWrapper not found for collapse toggle');
+        return;
+    }
+
+    const toggleBtn = document.getElementById('videoCardsToggle');
+    const toggleText = document.getElementById('videoCardsToggleText');
+
+    if (collapsed) {
+        // Применяем inline стили для сворачивания
+        wrapper.style.display = 'none';
+        wrapper.style.opacity = '0';
+        wrapper.style.maxHeight = '0';
+        wrapper.style.overflow = 'hidden';
+        wrapper.style.transform = 'scaleY(0)';
+        wrapper.style.transformOrigin = 'top';
+        wrapper.style.transition = 'all 0.3s ease';
+
+        wrapper.classList.add('collapsed');
+        wrapper.classList.remove('expanded');
+
+        if (toggleBtn) {
+            toggleBtn.classList.remove('expanded');
+            toggleBtn.classList.add('collapsed');
+        }
+        if (toggleText) {
+            toggleText.textContent = getSelectedMode() || 'Image to Video';
+        }
+        console.log('🎬 Video cards collapsed');
+    } else {
+        // Применяем inline стили для разворачивания
+        wrapper.style.display = 'block';
+        wrapper.style.opacity = '1';
+        wrapper.style.maxHeight = '1000px';
+        wrapper.style.overflow = 'visible';
+        wrapper.style.transform = 'scaleY(1)';
+        wrapper.style.transition = 'all 0.3s ease';
+
+        wrapper.classList.remove('collapsed');
+        wrapper.classList.add('expanded');
+
+        if (toggleBtn) {
+            toggleBtn.classList.remove('collapsed');
+            toggleBtn.classList.add('expanded');
+        }
+        if (toggleText) {
+            toggleText.textContent = 'Close Modes';
+        }
+        console.log('🎬 Video cards expanded');
+    }
+}
+
+// ФУНКЦИЯ ОБНОВЛЕНИЯ ОПИСАНИЯ РЕЖИМА
+export function updateModeDescription(mode) {
+    const descriptionBlock = document.getElementById('modeDescriptionBlock');
+    const descriptionText = document.getElementById('modeDescriptionText');
+
+    if (!descriptionBlock || !descriptionText) {
+        console.warn('❌ Mode description elements not found');
+        return;
+    }
+
+    // Получаем описание из атрибута data-description выбранной карточки
+    const selectedCard = document.querySelector(`[data-mode="${mode}"]`);
+    let description = '';
+
+    if (selectedCard) {
+        description = selectedCard.getAttribute('data-description') || '';
+    }
+
+    // Если нет описания в атрибуте, используем дефолтные описания
+    if (!description) {
+        const defaultDescriptions = {
+            'nano_banana_pro': 'Professional-grade photo editing! Advanced AI with enhanced precision for complex edits, up to 4 reference images, perfect for professional photo retouching and modifications 💎',
+            'nano_banana': 'Ultimate photo editor! Drop up to 4 reference pics and just tell the AI what to change — it handles everything for you 🚀',
+            'pixplace_pro': 'Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer',
+            'fast_generation': 'Fastest model for quick image generation — works instantly without uploads',
+            'print_maker': 'Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond',
+            'dreamshaper_xl': 'Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.',
+            'background_removal': 'Remove the background and keep the main object. Upload a photo to start',
+            'upscale_image': 'Boost image quality and resolution — make your visuals look crisp and detailed',
+            'image_to_video': 'Bring static images to life! Upload any photo and transform it into smooth, animated video sequences with AI-powered motion 🌟📹'
+        };
+        description = defaultDescriptions[mode] || 'Select a mode to see description';
+    }
+
+    descriptionText.textContent = description;
+    descriptionBlock.style.display = 'block';
+
+    console.log(`📝 Mode description updated for: ${mode}`);
+}
+
+// ФУНКЦИЯ ПОЛУЧЕНИЯ ПЕРЕВЕДЕННОГО НАЗВАНИЯ РЕЖИМА
+function getTranslatedModeName(modeKey) {
+    if (!modeKey) return '';
+
+    // Используем dictionaryManager для перевода
+    if (window.dictionaryManager && window.dictionaryManager.translate) {
+        const translated = window.dictionaryManager.translate(`mode_${modeKey}`);
+        if (translated && translated !== `mode_${modeKey}`) {
+            return translated;
+        }
+    }
+
+    // Fallback на дефолтные значения
+    const defaultNames = {
+        'nano_banana_pro': 'Nano Banana Pro',
+        'nano_banana': 'Nano Banana',
+        'pixplace_pro': 'Flux Pro Advanced',
+        'fast_generation': 'Flux Fast Generation',
+        'print_maker': 'Print on Demand SDXL',
+        'dreamshaper_xl': 'DreamShaper XL',
+        'background_removal': 'Remove Background',
+        'upscale_image': 'Enhance Image',
+        'image_to_video': 'Image to Video',
+        'video_gen': 'Video Generation',
+        'video_edit': 'Video Edit'
+    };
+
+    return defaultNames[modeKey] || modeKey;
+}
+
+// ФУНКЦИЯ ОБНОВЛЕНИЯ ТЕКСТА TOGGLE КНОПКИ
+export function updateToggleText() {
+    const activeTab = getActiveTab();
+    const selectedMode = getSelectedMode();
+    const translatedModeName = getTranslatedModeName(selectedMode);
+
+    if (activeTab === 'image') {
+        const toggleText = document.getElementById('modeCardsToggleText');
+        if (toggleText) {
+            toggleText.textContent = translatedModeName || 'Nano Banana Pro';
+        }
+    } else if (activeTab === 'video') {
+        const toggleText = document.getElementById('videoCardsToggleText');
+        if (toggleText) {
+            toggleText.textContent = translatedModeName || 'Image to Video';
+        }
+    }
+
+    console.log(`🔄 Toggle text updated for tab: ${activeTab}, mode: ${selectedMode}, translated: ${translatedModeName}`);
+}
+
+// ФУНКЦИЯ ОБНОВЛЕНИЯ ТЕКСТА TOGGLE КНОПКИ С УЧЕТОМ СОСТОЯНИЯ
+export function updateToggleTextForState() {
+    const activeTab = getActiveTab();
+    const wrapper = activeTab === 'image' ? document.getElementById('modeCardsWrapper') : document.getElementById('videoCardsWrapper');
+    const toggleText = activeTab === 'image' ? document.getElementById('modeCardsToggleText') : document.getElementById('videoCardsToggleText');
+
+    if (wrapper && toggleText) {
+        if (wrapper.classList.contains('expanded')) {
+            toggleText.textContent = 'Close Modes';
+        } else {
+            toggleText.textContent = getSelectedMode() || (activeTab === 'image' ? 'Nano Banana Pro' : 'Image to Video');
+        }
+    }
+}
+
+// ========== TAB MANAGEMENT FUNCTIONS ==========
+
+// РАЗДЕЛЬНЫЕ СОСТОЯНИЯ ДЛЯ РАЗНЫХ ТАБОВ (перенесено из mode-cards.js)
+let selectedImageMode = 'nano_banana_pro';
+let selectedVideoMode = 'image_to_video';
+let selectedMode = 'nano_banana_pro'; // 🔥 ДОБАВЛЕНО: Для совместимости с существующим кодом
+let activeTab = 'image';
+
+// ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ ВКЛАДОК (перенесено из mode-cards.js)
+function initTabs() {
+    const tabs = document.querySelectorAll('.generation-tab');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', (event) => {
+            event.preventDefault();     // ОСТАНОВИТЬ submit формы
+            event.stopPropagation();    // ОСТАНОВИТЬ всплытие события
+            const tabType = tab.dataset.tab;
+            switchTab(tabType);
+        });
+    });
+
+    // Показываем вкладку по умолчанию (Image)
+    showTab(activeTab);
+
+    // 🔥 ДОБАВЛЕНО: Автоматически сворачиваем карточки при первой загрузке
+    // Инициализируем синхронно для максимальной скорости загрузки
+    setModeCardsCollapsed(true);
+
+    // 🔥 ДОБАВЛЕНО: Инициализируем обработчики кликов для карточек режимов
+    initModeCardClickHandlers();
+
+    // 🔥 ДОБАВЛЕНО: Инициализируем обработчики кликов для toggle кнопок
+    initModeCardToggleHandlers();
+
+    // 🔥 ДОБАВЛЕНО: Обновляем UI сразу после инициализации
+    updateToggleVisibilityForActiveTab();
+    updateToggleText();
+
+    console.log('✅ Mode cards automatically collapsed on app initialization');
+    console.log('✅ Mode card click handlers initialized');
+    console.log('✅ Mode card toggle handlers initialized');
+    console.log('✅ Toggle UI updated for stable interface');
+
+    // 🔥 НОВАЯ ФУНКЦИЯ: Инициализация обработчиков кликов для карточек режимов
+    function initModeCardClickHandlers() {
+        console.log('🎯 Initializing mode card click handlers');
+
+        // Обработчики кликов для карточек режимов инициализируются в mode-cards.js
+        // Эта функция служит для совместимости и логирования
+        console.log('✅ Mode card click handlers initialized (delegated to mode-cards.js)');
+    }
+
+    // 🔥 НОВАЯ ФУНКЦИЯ: Инициализация обработчиков кликов для toggle кнопок
+    function initModeCardToggleHandlers() {
+        console.log('🎛️ Initializing mode card toggle handlers');
+
+        // Обработчик для toggle кнопки image режимов
+        const modeCardsToggle = document.getElementById('modeCardsToggle');
+        if (modeCardsToggle) {
+            modeCardsToggle.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const wrapper = document.getElementById('modeCardsWrapper');
+                if (wrapper) {
+                    const isCollapsed = wrapper.classList.contains('collapsed');
+                    setModeCardsCollapsed(!isCollapsed);
+                }
+            });
+            console.log('✅ Image mode cards toggle handler attached');
+        }
+
+        // Обработчик для toggle кнопки video режимов
+        const videoCardsToggle = document.getElementById('videoCardsToggle');
+        if (videoCardsToggle) {
+            videoCardsToggle.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const wrapper = document.getElementById('videoCardsWrapper');
+                if (wrapper) {
+                    const isCollapsed = wrapper.classList.contains('collapsed');
+                    setVideoCardsCollapsed(!isCollapsed);
+                }
+            });
+            console.log('✅ Video mode cards toggle handler attached');
+        }
+
+        console.log('✅ Mode card toggle handlers initialized');
+    }
+
+    console.log('✅ Tabs initialized with preventDefault and auto-collapse');
+}
+
+// ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ВКЛАДКИ (перенесено из mode-cards.js)
+function switchTab(tabType) {
+    // Обновляем активную вкладку
+    activeTab = tabType;
+
+    // 🔥 ДОБАВЛЕНО: Устанавливаем дефолтный режим для video таба как image_to_video
+    if (tabType === 'video') {
+        selectedVideoMode = 'image_to_video';
+        selectedMode = 'image_to_video'; // Синхронизируем для совместимости
+    }
+
+    // Обновляем UI вкладок
+    const allTabs = document.querySelectorAll('.generation-tab');
+    allTabs.forEach(tab => tab.classList.remove('active'));
+
+    const activeTabEl = document.querySelector(`.generation-tab[data-tab="${tabType}"]`);
+    if (activeTabEl) {
+        activeTabEl.classList.add('active');
+    }
+
+    // Показываем содержание вкладки
+    showTab(tabType);
+
+    // 🔥 ДОБАВЛЕНО: Обновляем видимость toggle-кнопок при переключении таба
+    updateToggleVisibilityForActiveTab();
+
+    // 🔥 ДОБАВЛЕНО: Гарантируем что карточки collapsed при переключении таба
+    if (tabType === 'video') {
+        setVideoCardsCollapsed(true);
+        // Синхронно выбираем режим для video таба, чтобы обновить состояние в mode-cards.js
+        selectModeCard('image_to_video');
+    }
+    if (tabType === 'image') {
+        setModeCardsCollapsed(true);
+        // 🔥 ФИКС: Восстанавливаем последний выбранный режим изображения при возврате на вкладку
+        // Это обновит состояние activeTab внутри mode-cards.js
+        // Если selectedImageMode не определен, используем дефолтный
+        const currentImageMode = selectedImageMode || 'nano_banana_pro';
+        console.log(`🔄 Switching back to image tab, restoring mode: ${currentImageMode}`);
+        selectModeCard(currentImageMode);
+    }
+
+    // 🔥 Removed: No longer expand cards on tab switch, keep collapsed by default
+
+    // 🔥 ДОБАВЛЕНО: Обновляем текст toggle при переключении таба
+    updateToggleText();
+
+    // 🔥 ДОБАВЛЕНО: Обновляем текст кнопки generate при переключении таба
+    updateGenerateButtonText();
+
+    // Диспатчим событие изменения режима
+    document.dispatchEvent(new CustomEvent('tab:changed', {
+        detail: { tab: tabType }
+    }));
+
+    // 🔥 ДОБАВИТЬ: Обновляем описание режима при переключении таба
+    updateModeDescription(getSelectedMode());
+
+    console.log(`🔄 Switched to tab: ${tabType}`);
+}
+
+// ФУНКЦИЯ ПОКАЗА СОДЕРЖАНИЯ ВКЛАДКИ (перенесено из mode-cards.js)
+function showTab(tabType) {
+    const allPanes = document.querySelectorAll('.tab-pane');
+    allPanes.forEach(pane => {
+        pane.classList.remove('active');
+        pane.style.display = 'none'; // 🔥 Explicitly hide all panes
+    });
+
+    const activePane = document.querySelector(`.tab-pane[data-tab="${tabType}"]`);
+    if (activePane) {
+        activePane.classList.add('active');
+        activePane.style.display = 'block'; // 🔥 Explicitly show active pane
+    }
+
+    // 🔥 ДОБАВЛЕНО: Прячем все mode-cards-wrapper кроме активного таба
+    const modeCardsWrapper = document.getElementById('modeCardsWrapper');
+    const videoCardsWrapper = document.getElementById('videoCardsWrapper');
+
+    if (tabType === 'image') {
+        // Показываем image карточки (только если expanded), прячем video
+        if (modeCardsWrapper && modeCardsWrapper.classList.contains('expanded')) {
+            modeCardsWrapper.style.display = 'block';
+        }
+        if (videoCardsWrapper) videoCardsWrapper.style.display = 'none';
+    } else if (tabType === 'video') {
+        // Показываем video карточки (только если expanded), прячем image
+        if (modeCardsWrapper) modeCardsWrapper.style.display = 'none';
+        if (videoCardsWrapper && videoCardsWrapper.classList.contains('expanded')) {
+            videoCardsWrapper.style.display = 'block';
+        }
+    }
+
+    console.log(`📋 Showing tab content: ${tabType}`);
+}
+
+// ФУНКЦИЯ ОБНОВЛЕНИЯ ТЕКСТА КНОПКИ GENERATE В ЗАВИСИМОСТИ ОТ АКТИВНОЙ ВКЛАДКИ (перенесено из mode-cards.js)
+function updateGenerateButtonText() {
+    const generateBtn = document.getElementById('generateBtn');
+    if (!generateBtn) {
+        console.warn('❌ Generate button not found for text update');
+        return;
+    }
+
+    const activeTab = getActiveTab();
+    const newKey = activeTab === 'video' ? 'generate_video_btn' : 'generate_image_btn';
+
+    // Обновляем data-i18n атрибут
+    generateBtn.setAttribute('data-i18n', newKey);
+
+    // Принудительно обновляем текст через dictionaryManager
+    if (window.dictionaryManager && window.dictionaryManager.updateTranslations) {
+        // Обновляем только этот элемент
+        const translation = window.dictionaryManager.translate(newKey);
+        if (translation && translation !== newKey) {
+            const btnText = generateBtn.querySelector('.btn-text');
+            if (btnText) {
+                btnText.textContent = translation;
+            }
+        }
+    }
+
+    console.log(`🎯 Generate button text updated for tab: ${activeTab} (key: ${newKey})`);
+}
+
+// ВНУТРЕННЯЯ ФУНКЦИЯ ПОЛУЧЕНИЯ АКТИВНОГО ТАБА (перенесено из mode-cards.js)
+function getActiveTab() {
+    const activePane = document.querySelector('.tab-pane.active');
+    return activePane ? activePane.dataset.tab : 'image';
+}
+
+// ФУНКЦИЯ ОБНОВЛЕНИЯ ВИДИМОСТИ TOGGLE ДЛЯ АКТИВНОГО ТАБА (перенесено из mode-cards.js)
+function updateToggleVisibilityForActiveTab() {
+    const activeTabType = getActiveTab();
+    const toggleBtn = document.getElementById('modeCardsToggle');
+    const videoToggleBtn = document.getElementById('videoCardsToggle');
+
+    // Hide both toggles first
+    if (toggleBtn) toggleBtn.style.display = 'none';
+    if (videoToggleBtn) videoToggleBtn.style.display = 'none';
+
+    // Show only the active tab's toggle
+    if (activeTabType === 'image' && toggleBtn) {
+        toggleBtn.style.display = 'flex';
+        console.log('✅ Image mode cards toggle shown for active tab');
+    } else if (activeTabType === 'video' && videoToggleBtn) {
+        videoToggleBtn.style.display = 'flex';
+        console.log('✅ Video mode cards toggle shown for active tab');
+    }
+}
+
+// Экспортируем функции вкладок для использования в других модулях
+export { initTabs, switchTab, showTab, getActiveTab, updateGenerateButtonText, updateToggleVisibilityForActiveTab };
+
+// ========== END TAB MANAGEMENT ==========
+
 // ================================================
 // 🎨 STYLE MANAGEMENT - LEGACY CAROUSEL REMOVED
 // ================================================
@@ -769,6 +1185,161 @@ export async function initStyleCarousel() {
 }
 
 
+
+// 🔥 Функция обновления индикаторов текущего языка в меню
+function updateLanguageMenuIndicators() {
+    const langMenu = document.getElementById('langMenu');
+    if (!langMenu) return;
+
+    // Получаем текущий язык
+    const currentLang = window.dictionaryManager?.currentLanguage || window.appState?.language || 'en';
+
+    console.log(`🌍 Updating language menu indicators for current language: ${currentLang}`);
+
+    // Убираем все индикаторы текущего языка
+    const allItems = langMenu.querySelectorAll('li[data-lang]');
+    allItems.forEach(item => {
+        const indicator = item.querySelector('.current-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+        // Убираем класс current для CSS
+        item.classList.remove('current');
+    });
+
+    // Добавляем индикатор к текущему языку
+    const currentItem = langMenu.querySelector(`[data-lang="${currentLang}"]`);
+    if (currentItem) {
+        // Добавляем класс current для CSS
+        currentItem.classList.add('current');
+
+        // Добавляем индикатор ✓ в конец текста языка
+        if (!currentItem.querySelector('.current-indicator')) {
+            const indicator = document.createElement('span');
+            indicator.className = 'current-indicator';
+            indicator.textContent = ' ✓';
+            indicator.style.fontWeight = 'bold';
+            indicator.style.color = '#10b981'; // зеленый цвет
+            currentItem.appendChild(indicator);
+        }
+
+        console.log(`✅ Updated current language indicator to: ${currentLang}`);
+    } else {
+        console.warn(`⚠️ Current language item not found in menu: ${currentLang}`);
+    }
+}
+
+// 🔥 НОВАЯ ФУНКЦИЯ: Lazy инициализация language dropdown
+export function initLazyLanguageDropdown() {
+    console.log('🚀 initLazyLanguageDropdown STARTED');
+
+    const langBtn = document.getElementById('langBtn');
+    const langMenu = document.getElementById('langMenu');
+
+    if (!langBtn || !langMenu) {
+        console.warn('❌ Language elements not found');
+        return;
+    }
+
+    // Singleton pattern: Check if we already initialized
+    if (langBtn.dataset.listenerAttached === 'true') {
+        return;
+    }
+    langBtn.dataset.listenerAttached = 'true';
+
+    // Helper: Close menu
+    const closeMenu = () => {
+        langMenu.classList.add('hidden');
+        langMenu.style.display = 'none'; // Ensure it's hidden
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('keydown', handleEscape);
+    };
+
+    // Helper: Open menu
+    const openMenu = () => {
+        langMenu.classList.remove('hidden');
+        langMenu.style.display = 'block';
+
+        // Close other menus (mutual exclusion)
+        const authMenu = document.getElementById('authMenu');
+        if (authMenu) authMenu.classList.add('hidden');
+        const userMenu = document.getElementById('userMenuDropdown');
+        if (userMenu) userMenu.classList.remove('show');
+
+        // Force layout check
+        const rect = langMenu.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+            langMenu.style.right = '0';
+            langMenu.style.left = 'auto';
+        }
+
+        // Add global listeners with a slight delay to avoid immediate close
+        setTimeout(() => {
+            document.addEventListener('click', handleClickOutside);
+            document.addEventListener('keydown', handleEscape);
+        }, 10);
+    };
+
+    // Handler: Click outside
+    const handleClickOutside = (event) => {
+        if (!langMenu.contains(event.target) && !langBtn.contains(event.target)) {
+            closeMenu();
+        }
+    };
+
+    // Handler: Escape key
+    const handleEscape = (event) => {
+        if (event.key === 'Escape') {
+            closeMenu();
+        }
+    };
+
+    // Handler: Toggle button
+    langBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const isVisible = !langMenu.classList.contains('hidden') && langMenu.style.display !== 'none';
+
+        if (isVisible) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    // Handler: Language items
+    const langItems = langMenu.querySelectorAll('li[data-lang]');
+    langItems.forEach(item => {
+        item.style.cursor = 'pointer'; // Force pointer cursor via JS as backup
+
+        item.addEventListener('click', async (event) => {
+            event.stopPropagation();
+            const lang = item.getAttribute('data-lang');
+
+            // UI Feedback
+            langItems.forEach(li => li.style.background = 'transparent');
+            item.style.background = 'rgba(59, 130, 246, 0.1)';
+
+            closeMenu(); // Close immediately
+
+            if (lang) {
+                console.log(`🌍 Language selected: ${lang}`);
+                try {
+                    if (window.dictionaryManager) {
+                        await window.dictionaryManager.setLanguage(lang);
+                    }
+                } catch (error) {
+                    console.error('❌ Error switching language:', error);
+                }
+            }
+        });
+    });
+
+    // Initialize indicators
+    if (window.dictionaryManager) {
+        updateLanguageMenuIndicators();
+    }
+}
+
 // Экспортируем функции в глобальный scope
 window.updateUserNameDisplay = updateUserNameDisplay;
 window.updateUserBalanceDisplay = updateUserBalanceDisplay;
@@ -777,3 +1348,56 @@ window.updateUserBalanceDisplay = updateUserBalanceDisplay;
 window.toggleModeDetails = toggleModeDetails;
 
 // Экспорт функций в глобальный scope для обратной совместимости
+
+
+// Экспортируем функции в глобальный scope
+
+// ================================================
+// 💎 SUBSCRIPTION & CREDITS NAVIGATION
+// ================================================
+
+export async function openSubscriptionPlans() {
+    console.log('💎 Opening subscription plans... (Debug: Function Start)');
+    try {
+        // Закрываем меню пользователя если оно открыто
+        if (typeof window.toggleUserMenu === 'function') {
+            const menu = document.getElementById('userMenuDropdown');
+            if (menu && menu.classList.contains('show')) {
+                window.toggleUserMenu();
+                console.log('💎 User menu closed');
+            }
+        }
+
+        console.log('💎 Calling showSubscriptionNotice...');
+        // Используем существующую функцию showSubscriptionNotice для открытия модального окна планов
+        await showSubscriptionNotice({ payment_urls: {} }, 'premium');
+        console.log('💎 showSubscriptionNotice completed');
+    } catch (e) {
+        console.error('❌ Error in openSubscriptionPlans:', e);
+        // Fallback alert if everything fails
+        alert('Could not open plans. Please check console for errors.');
+    }
+}
+
+export async function openCreditPacks() {
+    console.log('💳 Opening credit packs...');
+    // Закрываем меню пользователя если оно открыто
+    if (typeof window.toggleUserMenu === 'function') {
+        const menu = document.getElementById('userMenuDropdown');
+        if (menu && menu.classList.contains('show')) {
+            window.toggleUserMenu();
+        }
+    }
+
+    // Если есть специализированная функция для модалки кредитов - используем ее
+    if (typeof window.showCreditPacksModal === 'function') {
+        window.showCreditPacksModal();
+    } else {
+        await showSubscriptionNotice({ payment_urls: {} }, 'trial');
+    }
+}
+
+// Экспортируем в глобальную область для доступа из HTML onclick
+window.openSubscriptionPlans = openSubscriptionPlans;
+window.openCreditPacks = openCreditPacks;
+window.showSubscriptionNotice = showSubscriptionNotice;

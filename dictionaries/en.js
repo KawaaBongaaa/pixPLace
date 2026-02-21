@@ -1,5 +1,4 @@
 export const en = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "Connecting...",
     connected: "Connected to Telegram",
@@ -39,19 +38,22 @@ export const en = {
     style_banner: "Banner",
     style_surrealism: "Surrealism",
     size_label: "Size",
-    mode_label: "Model",
+    mode_label: "Mode",
     mode_background_removal: "Remove Background",
     mode_upscale_image: "Enhance Image",
     mode_print_maker: "Print on Demand SDXL",
-    mode_photo_session: "Nano Banana",
+    mode_nano_banana: "Nano Banana",
     mode_nano_banana_pro: "Nano Banana Pro",
     mode_fast_generation: "Flux Fast Generation",
     mode_pixplace_pro: "Flux Pro Advanced",
     mode_dreamshaper_xl: "DreamShaper XL",
+    mode_video_gen: "Video Generation",
+    mode_image_to_video: "Image to Video",
+    mode_video_edit: "Video Edit",
     mode_details: "Model Details",
 
     // Human-like dialog mode descriptions
-    mode_photo_session_desc: "Ultimate photo editor! Drop up to 4 reference pics and just tell the AI what to change — it handles everything for you 🚀",
+    mode_nano_banana_desc: "Ultimate photo editor! Drop up to 4 reference pics and just tell the AI what to change — it handles everything for you 🚀",
     mode_fast_generation_desc: "Fastest model for quick image generation — works instantly without uploads",
     mode_pixplace_pro_desc: "Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer",
     mode_print_maker_desc: "Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond",
@@ -59,7 +61,12 @@ export const en = {
     mode_upscale_image_desc: "Boost image quality and resolution — make your visuals look crisp and detailed",
     mode_nano_banana_pro_desc: "Professional-grade photo editing! Advanced AI with enhanced precision for complex edits, up to 4 reference images, perfect for professional photo retouching and modifications 💎",
     mode_dreamshaper_xl_desc: "Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.",
+    mode_video_gen_desc: "Transform your ideas into dynamic videos! Describe any scene or concept, and watch AI create engaging video content from scratch 🎬✨",
+    mode_image_to_video_desc: "Bring static images to life! Upload any photo and transform it into smooth, animated video sequences with AI-powered motion 🌟📹",
+    mode_video_edit_desc: "Professional video editing tools powered by AI. Enhance, modify, and perfect your video content with intelligent editing features 🎯🔧",
     generate_btn: "Generate Image",
+    generate_image_btn: "Generate Image",
+    generate_video_btn: "Generate Video",
     create_new: "Create New",
     empty_history_title: "No generations yet",
     empty_history_subtitle: "Create your first AI image to see it here",
@@ -86,11 +93,12 @@ export const en = {
     remove_user_image: "Remove",
     reference_image: "Reference",
     upload_image: "Upload Image",
-    please_upload_photo_session: "Please upload Your image for Photo Session mode. Or just choice another Mode",
+    please_upload_nano_banana: "Please upload Your image for Nano Banana mode. Or just choice another Mode",
     upload_failed: "Failed to upload the image. Please try again.",
     please_upload_for_upscale: "Please upload an image to Upscale.",
     please_upload_for_background_removal: "Please upload an image for Background removal.",
     ai_coach_ready: "✨ AI Prompt Helper is ready to help with AI generation!",
+    ai_coach_welcome: "Hi! I'm your GPT Chat. How can I help you today?",
     ai_welcome_intro: "AI Prompt Helper: Welcome! I am your AI assistant for improving the quality of image generation results. Ask any question about creating prompts! Or briefly describe your vision, and I will create a professional prompt for you.",
     ai_welcome_chat: "AI Prompt Helper: Welcome to the chat! I am your AI assistant for help with creating images. Tell me what you want to generate and I will help you create a quality prompt. Or just ask me any question, I'll help with generation!",
     ai_placeholder_modal: "Write to your AI assistant...",
@@ -138,7 +146,7 @@ export const en = {
     photo_warning_text: "The \"Nano Banana\" mode works better with an image for img2img generation. Would you like to upload an image or continue without it?",
     photo_warning_upload_btn: "Upload Image",
     photo_warning_continue_btn: "Continue without",
-    image_limit_error: "Maximum 4 images. You can upload {{count}} more.",
+    image_limit_error: "Maximum {{limit}} images. You can upload {{count}} more.",
     // Server overloaded error message
     error_server_overloaded: "😓 Generation failed. The servers are currently overloaded, please try again later or select a different generation mode... We sincerely apologize for the inconvenience and hope for your understanding 🙏",
 
@@ -165,6 +173,7 @@ export const en = {
     badge_premium: "Premium",
     badge_free: "Free",
     badge_standard: "Standard",
+    coming_soon: "Coming Soon",
 
     // Additional Messages
     image_added_success: "Image added for generation!",
@@ -182,5 +191,51 @@ export const en = {
     ai_tooltip_first_generation: "☘️ Nice start! Want to see how AI can expand your idea's?",
     close_button: "Close",
     ai_input_area_label: "Message input area",
-    ai_chat_ready: "AI chat ready!"
+    ai_chat_ready: "AI chat ready!",
+
+    // Footer translations
+    footer_desc: "Next-generation AI creative studio. Turn your ideas into reality with our advanced generative tools.",
+    footer_product: "Product",
+    footer_generate: "Generate",
+    footer_pricing: "Pricing",
+    footer_credits: "Credits",
+    footer_resources: "Resources",
+    footer_news: "News Channel",
+    footer_blog: "Blog",
+    footer_community: "Community",
+    footer_legal: "Legal",
+    footer_privacy: "Privacy Policy",
+    footer_terms: "Terms of Service",
+    footer_support: "Support",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "Welcome to pixPLace",
+    ob_cinema_tagline: "Turn your words into stunning visuals with AI",
+    ob_cinema_btn: "Let's explore",
+    ob_skip: "Skip",
+    ob_next: "Next →",
+    ob_finish: "Let's create! 🚀",
+    ob_step_of: "{{current}} of {{total}}",
+
+    ob_tour_tabs_title: "Images or Videos?",
+    ob_tour_tabs_desc: "Switch between Image generation and Video tools — each tab unlocks different AI models.",
+
+    ob_tour_model_title: "Choose your AI model",
+    ob_tour_model_desc: "Pick the engine that fits your task — quick edits, pro retouching, creative generation, or background removal.",
+
+    ob_tour_prompt_title: "Describe your idea",
+    ob_tour_prompt_desc: "Write in natural language. Try: \"edit my photo in Wes Anderson style with warm tones\".",
+    ob_tour_prompt_demo: "Edit my photo in Wes Anderson style — warm pastel tones, symmetrical framing...",
+
+    ob_tour_upload_title: "Add reference images",
+    ob_tour_upload_desc: "Upload your photos for Nano Banana Pro — AI uses them as editing base, not just inspiration.",
+
+    ob_tour_size_title: "Choose output resolution",
+    ob_tour_size_desc: "Square for feeds, Portrait for Stories & Reels, Landscape for banners and wallpapers.",
+
+    ob_tour_gpt_title: "Need help with prompts? ✨",
+    ob_tour_gpt_desc: "GPT Chat is your AI assistant for crafting perfect prompts — describe your idea and it rewrites it like a pro.",
+
+    ob_tour_generate_title: "Ready? Hit Generate!",
+    ob_tour_generate_desc: "Your image will be ready in seconds. Results appear in History — swipe to see them.",
 };

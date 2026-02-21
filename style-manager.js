@@ -7,6 +7,15 @@
 let isInitialized = false;
 let isCssLoaded = false;
 
+// Для обратной совместимости - global exports (создаем пустой объект сначала)
+window.styleManager = {};
+
+// Make isInitialized accessible through styleManager for external checks
+Object.defineProperty(window.styleManager, 'isInitialized', {
+    get: () => isInitialized,
+    set: (value) => isInitialized = value
+});
+
 /**
  * LAZY LOAD CSS только при первом использовании
  */
@@ -17,7 +26,7 @@ async function loadStyleCss() {
         // Dynamic CSS import
         const link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = 'css/style-dropdown.css';
+        link.href = 'css/style-card-grid.css';
 
         document.head.appendChild(link);
 
@@ -43,6 +52,7 @@ async function loadStyleCss() {
  */
 function toggleStyleDropdown() {
     const dropdown = document.getElementById('styleDropdown');
+    const button = document.querySelector('.style-dropdown-button');
 
     if (!dropdown) {
         console.warn('⚠️ Style dropdown element not found');
@@ -54,9 +64,11 @@ function toggleStyleDropdown() {
 
     if (isOpen) {
         dropdown.classList.remove('show');
+        if (button) button.classList.remove('open');
         console.log('🎨 Style dropdown closed');
     } else {
         dropdown.classList.add('show');
+        if (button) button.classList.add('open');
         console.log('🎨 Style dropdown opened');
         // Обновить индикатор выбранного стиля
         updateSelectedStyleIndicator();
@@ -108,11 +120,37 @@ function selectStyleCard(styleName) {
     if (window.triggerHapticFeedback) {
         window.triggerHapticFeedback('light');
     }
+    // Trigger haptic feedback
+    if (window.triggerHapticFeedback) {
+        window.triggerHapticFeedback('light');
+    }
 }
 
 /**
- * Обновить визуальное состояние выбранных карточек стилей
+ * Сброс выбора стиля
  */
+function resetStyleSelection() {
+    console.log('🎨 Style selection reset requested');
+
+    // Update state
+    if (window.appState) {
+        window.appState.selectedStyle = '';
+
+        // Dispatch event
+        document.dispatchEvent(new CustomEvent('style:changed', {
+            detail: { style: '' }
+        }));
+    }
+
+    // Update UI
+    updateSelectedStyleCards('');
+    updateSelectedStyleIndicator();
+
+    // Haptic
+    if (window.triggerHapticFeedback) {
+        window.triggerHapticFeedback('medium');
+    }
+}
 function updateSelectedStyleCards(selectedStyle) {
     const styleCards = document.querySelectorAll('.carousel-2d-item');
     styleCards.forEach(card => {
@@ -135,7 +173,10 @@ function updateSelectedStyleIndicator() {
     const currentStyle = window.appState?.selectedStyle || '';
 
     if (currentStyle && currentStyle !== '') {
-        const translatedName = window.appState?.translate(`style_${currentStyle}`) || currentStyle;
+        // 🔥 БЕЗОПАСНЫЙ ВЫЗОВ: проверяем что translate существует и является функцией
+        const translatedName = (typeof window.appState?.translate === 'function')
+            ? window.appState.translate(`style_${currentStyle}`)
+            : currentStyle;
         indicator.textContent = `: ${translatedName}`;
         indicator.classList.add('show');
         console.log('🎯 Selected style indicator updated:', translatedName);
@@ -211,6 +252,13 @@ async function initStyleDropdown() {
         // ✅ ГАРАНТИРУЕМ ПОЛНУЮ ЗАГРУЗКУ CSS перед return
         await loadStyleCss();
 
+        // 🔥 FIX: Force hide dropdown using only CSS classes (no inline styles)
+        const dropdown = document.getElementById('styleDropdown');
+        if (dropdown) {
+            dropdown.classList.remove('show');
+            console.log('🔒 Style dropdown forced to hidden state during init (CSS classes only)');
+        }
+
         // MARK AS INITIALIZED
         isInitialized = true;
 
@@ -222,7 +270,7 @@ async function initStyleDropdown() {
             updateStyleState();
         });
 
-        console.log('✅ Style dropdown module fully initialized');
+        console.log('✅ Style dropdown module fully initialized - hidden by default');
         return true; // ✅ Возвращаем true для success проверки
 
     } catch (error) {
@@ -238,17 +286,14 @@ async function initStyleDropdown() {
 // Export public API
 window.toggleStyleDropdown = toggleStyleDropdown;
 window.selectStyleCard = selectStyleCard;
+window.resetStyleSelection = resetStyleSelection;
 
 // Export main init function (used by lazy loader)
-export { initStyleDropdown, toggleStyleDropdown, selectStyleCard, updateStyleState, cleanup };
+export { initStyleDropdown, toggleStyleDropdown, selectStyleCard, resetStyleSelection, updateStyleState, cleanup };
 
-// Для обратной совместимости - global exports
-window.styleManager = {
-    initStyleDropdown,
-    toggleStyleDropdown,
-    selectStyleCard,
-    updateStyleState,
-    cleanup
-};
-
-console.log('🎨 Style manager module loaded and ready for lazy initialization');
+// Обновляем свойства window.styleManager (уже создан в начале файла)
+window.styleManager.initStyleDropdown = initStyleDropdown;
+window.styleManager.toggleStyleDropdown = toggleStyleDropdown;
+window.styleManager.selectStyleCard = selectStyleCard;
+window.styleManager.resetStyleSelection = resetStyleSelection;
+window.styleManager.updateStyleState = updateStyleState;

@@ -1,6 +1,5 @@
 // Chinese translations for PixPlace
 export const zh = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "连接中...",
     connected: "已连接到 Telegram",
@@ -46,21 +45,26 @@ export const zh = {
     mode_background_removal: "移除背景",
     mode_upscale_image: "提升图像",
     mode_print_maker: "Print on Demand SDXL",
-    mode_photo_session: "Nano Banana",
+    mode_nano_banana: "Nano Banana",
     mode_fast_generation: "Flux Fast Generation",
     mode_pixplace_pro: "Flux Pro Advanced",
     mode_dreamshaper_xl: "DreamShaper XL",
     mode_details: "模型详情",
 
     // 模式描述
-    mode_photo_session_desc: "终极照片编辑器！上传最多 4 张参考图片，并告诉 AI 要改变什么 — AI 会为你完成一切 🚀",
+    mode_nano_banana_desc: "终极照片编辑器！上传最多 4 张参考图片，并告诉 AI 要改变什么 — AI 会为你完成一切 🚀",
     mode_fast_generation_desc: "用于普通图像生成的最快速模型 — 无需上传即可即时工作",
     mode_pixplace_pro_desc: "切换到专业模式 — 理想用于标志设计、文本组成和复杂布局，就像真正的专业设计师一样 💪",
     mode_print_maker_desc: "专为 Print-on-Demand 创作者设计 — 创建可在衣服、包等上印刷的设计 🔥",
     mode_background_removal_desc: "移除背景并保持主要对象。上传照片开始",
     mode_upscale_image_desc: "提升图像质量和分辨率 — 使你的视觉内容清晰而详细",
     mode_dreamshaper_xl_desc: "快速生成模型，设计为一体适用于照片、风格化艺术和动漫/漫画。",
+    mode_video_gen_desc: "将你的想法转化为动态视频！描述任何场景或概念，看着 AI 从零开始创建引人入胜的视频内容 🎬✨",
+    mode_image_to_video_desc: "让静态图像栩栩如生！上传任何照片，并将其转化为带有 AI 驱动运动的流畅视频序列 🌟📹",
+    mode_video_edit_desc: "由 AI 驱动的专业视频编辑工具。使用智能编辑功能增强、修改和完善你的视频内容 🎯🔧",
     generate_btn: "生成图像",
+    generate_image_btn: "生成图像",
+    generate_video_btn: "生成视频",
     create_new: "新建",
     empty_history_title: "还没有生成",
     empty_history_subtitle: "创建你的第一个 AI 图像以在此显示",
@@ -87,13 +91,13 @@ export const zh = {
     remove_user_image: "移除",
     reference_image: "参考",
     upload_image: "上传图像",
-    please_upload_photo_session: "请上传照片会话模式的图像。\\n或选择其他模式",
+    please_upload_nano_banana: "请上传照片会话模式的图像。\\n或选择其他模式",
     upload_failed: "图像上传失败。请重试。",
     please_upload_for_upscale: "请上传要提升的图像。",
     please_upload_for_background_removal: "请上传用于移除背景的图像。",
-    ai_coach_ready: "✨ AI Prompt Helper 已准备好帮助 AI 生成！",
-    ai_welcome_intro: "AI Prompt Helper：欢迎！我是你的 AI 助手，帮助提升图像生成结果的质量。欢迎任何关于创建提示的问题！或者简要描述你的愿景，我将为你创建一个专业提示。",
-    ai_welcome_chat: "AI Prompt Helper：欢迎来到聊天！我是你的 AI 助手，帮助你创建图像。告诉我你想要生成什么，我会帮你创建一个高质量的提示。问我任何问题，我会帮助你生成！",
+    ai_coach_ready: "✨ GPT Chat 已准备好帮助 AI 生成！",
+    ai_welcome_intro: "GPT Chat：欢迎！我是你的 AI 助手，帮助提升图像生成结果的质量。欢迎任何关于创建提示的问题！或者简要描述你的愿景，我将为你创建一个专业提示。",
+    ai_welcome_chat: "GPT Chat：欢迎来到聊天！我是你的 AI 助手，帮助你创建图像。告诉我你想要生成什么，我会帮你创建一个高质量的提示。问我任何问题，我会帮助你生成！",
     ai_placeholder_modal: "写给你的 AI 助手...",
     ai_placeholder_chat: "写你的消息...",
     ai_send_button: "发送",
@@ -169,5 +173,36 @@ export const zh = {
     image_added_success: "图像已添加到生成！",
     ui_error_message: "界面错误：",
 
-    load_more_history: "显示更多"
+    load_more_history: "显示更多",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "欢迎来到 pixPLace",
+    ob_cinema_tagline: "用 AI 将你的文字变成令人惊叹的视觉作品",
+    ob_cinema_btn: "开始探索",
+    ob_skip: "跳过",
+    ob_next: "下一步 →",
+    ob_finish: "开始创作！🚀",
+    ob_step_of: "{{current}} / {{total}}",
+
+    ob_tour_tabs_title: "图片还是视频？",
+    ob_tour_tabs_desc: "在图像生成和视频工具之间切换——每个选项卡解锁不同的 AI 模型。",
+
+    ob_tour_model_title: "选择你的 AI 模型",
+    ob_tour_model_desc: "选择适合你任务的引擎——快速编辑、专业修图、创意生成或背景去除。",
+
+    ob_tour_prompt_title: "描述你的想法",
+    ob_tour_prompt_desc: "用自然语言写作。试试：\"以韦斯·安德森风格编辑我的照片，使用暖色调\"。",
+    ob_tour_prompt_demo: "以韦斯·安德森风格编辑我的照片——暖色粉彩调，对称构图...",
+
+    ob_tour_upload_title: "添加参考图片",
+    ob_tour_upload_desc: "为 Nano Banana Pro 上传你的照片——AI 将它们作为编辑基础，而不仅仅是灵感。",
+
+    ob_tour_size_title: "选择输出分辨率",
+    ob_tour_size_desc: "正方形适合动态，竖版适合故事和 Reels，横版适合横幅和壁纸。",
+
+    ob_tour_gpt_title: "需要 prompt 帮助？✨",
+    ob_tour_gpt_desc: "GPT Chat 是你的 AI 助手，帮你制作完美提示词——描述你的想法，它会像专家一样重写。",
+
+    ob_tour_generate_title: "准备好了？点击生成！",
+    ob_tour_generate_desc: "你的图片将在几秒内完成。结果出现在历史记录中。",
 };

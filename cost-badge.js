@@ -16,7 +16,7 @@ let cssLoaded = false; // Флаг загрузки CSS
 function calculateGenerationCost(mode, hasImages) {
     // Логика стоимости по режимам
     const costMap = {
-        'photo_session': hasImages ? '~10 credits' : '~5 credits',      // Nano Banana
+        'nano_banana': hasImages ? '~10 credits' : '~5 credits',      // Nano Banana
         'nano_banana_pro': '~15 credits',                              // Nano Banana Pro
         'pixplace_pro': '~4 credits',                                // Flux Advanced Pro
         'print_maker': '~3 credits',                                 // Print on Demand
@@ -86,35 +86,13 @@ function createCostBadge(costText) {
 }
 
 /**
- * Обновление бейджа стоимости
+ * Обновление бейджа стоимости - ОТКЛЮЧЕНО согласно заданию
+ * Cost badges убраны с кнопки генерации
  */
 function updateCostBadge() {
-    try {
-        // Получаем текущий режим
-        const currentMode = modeCardsModule ? modeCardsModule.getSelectedMode() : 'photo_session';
-
-        // Проверяем наличие изображений
-        const hasImages = userImageState && userImageState.images && userImageState.images.length > 0;
-
-        // Рассчитываем стоимость
-        const costText = calculateGenerationCost(currentMode, hasImages);
-        console.log(`🔹 Cost Badge: mode=${currentMode}, hasImages=${hasImages}, cost=${costText}`);
-
-        // Находим кнопку Generate
-        const generateBtn = document.getElementById('generateBtn');
-        if (!generateBtn) {
-            console.warn('⚠️ Generate button not found for cost badge');
-            return;
-        }
-
-        // Создаем и добавляем бейдж
-        const badge = createCostBadge(costText);
-        generateBtn.style.position = 'relative'; // обеспечиваем абсолютное позиционирование бейджа
-        generateBtn.appendChild(badge);
-
-    } catch (error) {
-        console.error('❌ Error updating cost badge:', error);
-    }
+    // УБРАНО: Cost badges с кнопки генерации
+    // Бейджи остаются только на карточках моделей
+    console.log('🏷️ Cost badges disabled on generate button - kept only on mode cards');
 }
 
 /**
@@ -132,36 +110,34 @@ export async function initCostBadge(options = {}) {
         modeCardsModule = options.modeCardsModule;
         userImageState = options.userImageState || window.userImageState;
 
-        // Запускаем начальное обновление после загрузки CSS
-        updateCostBadge();
+        // Бейдж стоимости отключен согласно заданию
+        // updateCostBadge();
 
-        // Слушаем изменения режима
-        document.addEventListener('mode:changed', () => {
-            setTimeout(updateCostBadge, 50); // небольшая задержка для синхронизации
-        });
+        // Слушаем изменения режима - отключено
+        // document.addEventListener('mode:changed', () => {
+        //     setTimeout(updateCostBadge, 50); // небольшая задержка для синхронизации
+        // });
 
-        // Слушаем изменения изображений через мутацию userImageState
-        if (window.userImageState) {
-            let imageCountCache = window.userImageState.images ? window.userImageState.images.length : 0;
-
-            // Периодическая проверка изменений изображений
-            setInterval(() => {
-                const currentCount = window.userImageState.images ? window.userImageState.images.length : 0;
-                if (currentCount !== imageCountCache) {
-                    imageCountCache = currentCount;
-                    updateCostBadge();
-                }
-            }, 300); // проверка каждые 300мс
-
-            // Также слушаем изменения через глобальные функции обновления UI
-            const originalUpdateImageUploadVisibility = window.updateImageUploadVisibility;
-            if (originalUpdateImageUploadVisibility) {
-                window.updateImageUploadVisibility = function() {
-                    originalUpdateImageUploadVisibility.apply(this, arguments);
-                    setTimeout(updateCostBadge, 100);
-                };
-            }
-        }
+        // Слушаем изменения изображений - отключено
+        // if (window.userImageState) {
+        //     let imageCountCache = window.userImageState.images ? window.userImageState.images.length : 0;
+        //     // Периодическая проверка изменений изображений
+        //     setInterval(() => {
+        //         const currentCount = window.userImageState.images ? window.userImageState.images.length : 0;
+        //         if (currentCount !== imageCountCache) {
+        //             imageCountCache = currentCount;
+        //             updateCostBadge();
+        //         }
+        //     }, 300); // проверка каждые 300мс
+        //     // Также слушаем изменения через глобальные функции обновления UI
+        //     const originalUpdateImageUploadVisibility = window.updateImageUploadVisibility;
+        //     if (originalUpdateImageUploadVisibility) {
+        //         window.updateImageUploadVisibility = function() {
+        //             originalUpdateImageUploadVisibility.apply(this, arguments);
+        //             setTimeout(updateCostBadge, 100);
+        //         };
+        //     }
+        // }
 
         console.log('✅ Cost Badge module initialized successfully');
 
@@ -174,6 +150,9 @@ export async function initCostBadge(options = {}) {
  * Экспорт функций для внешнего использования
  */
 export { updateCostBadge as refreshCostBadge, calculateGenerationCost };
+
+// Экспортируем функцию в глобальный scope для совместимости
+window.updateCostBadge = updateCostBadge;
 
 // Автоматическая инициализация при загрузке страницы (fallback)
 document.addEventListener('DOMContentLoaded', () => {

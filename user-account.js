@@ -119,6 +119,31 @@ function initUserAccount() {
     });
 
     console.log('✅ User Account module initialized');
+
+    // Auth menu button toggle
+    const authBtn = document.getElementById('authBtn');
+    const authMenu = document.getElementById('authMenu');
+    if (authBtn && authMenu) {
+        authBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            authMenu.classList.toggle('hidden');
+            // Close language menu if open
+            const langMenu = document.getElementById('langMenu');
+            if (langMenu) langMenu.classList.add('hidden');
+            // Close user menu if open
+            const userMenu = document.getElementById('userMenuDropdown');
+            if (userMenu) userMenu.classList.remove('show');
+        });
+        console.log('✅ Auth menu button handler attached');
+    }
+
+    // Close auth menu on outside click
+    document.addEventListener('click', (e) => {
+        if (authMenu && !authMenu.classList.contains('hidden') &&
+            !authMenu.contains(e.target) && !authBtn?.contains(e.target)) {
+            authMenu.classList.add('hidden');
+        }
+    });
 }
 
 async function downloadAndConvertImage(imageUrl, itemId) {
@@ -166,275 +191,7 @@ async function downloadAndConvertImage(imageUrl, itemId) {
     }
 }
 
-// Функция показа модального окна с результатом генерации
-function showGenerationResultModal(item) {
-    // Проверяем существует ли уже модальное окно с результатом
-    let modal = document.getElementById('generationResultModal');
-    if (modal) {
-        modal.remove();
-    }
-
-    // 🔥 ИСПРАВЛЕНИЕ: Обработка различных полей для изображения
-    // Из истории приходит объект с полем 'result', из финансовой истории - 'imageUrl'
-    // Приоритет отдаем dataUrl, затем проверяем историю генераций
-    let imageSource = item.dataUrl || item.result || item.imageUrl;
-
-    // 🔥 ДОПОЛНИТЕЛЬНЫЙ ПРОВЕРКА: Если изображение внешнее, попробуем найти его в истории генераций
-    if (!imageSource.startsWith?.('data:')) {
-        const generationHistory = window.appState?.generationHistory || [];
-        const foundGen = generationHistory.find(gen => gen.id === item.id);
-
-        if (foundGen?.dataUrl && foundGen.dataUrl.startsWith('data:')) {
-            imageSource = foundGen.dataUrl;
-            console.log('✅ Found dataUrl for modal from generation history');
-        } else {
-            console.log('❌ No dataUrl found in history, using external URL');
-        }
-    }
-
-    const safeDescription = item.prompt || item.description || 'Без описания';
-
-    // 🔥 ИСПРАВЛЕНИЕ: Правильная дата из объекта item
-    const itemDate = item.timestamp ? new Date(item.timestamp) :
-                   item.date ? new Date(item.date) :
-                   new Date();
-
-    // 🔥 ИСПРАВЛЕНИЕ: Правильное преобразование режима для кнопки повторения
-    const getStyleName = (type) => {
-        const modeMap = {
-            'photo_session': 'photo_session',
-            'fast_generation': 'fast_generation',
-            'pixplace_pro': 'pixplace_pro',
-            'background_removal': 'background_removal',
-            'upscale_image': 'upscale_image',
-            'print_maker': 'print_maker'
-        };
-
-        // Для объектов из истории используем item.mode, иначе item.type
-        const mode = item.mode || item.type || 'fast_generation';
-        return mode in modeMap ? mode : 'fast_generation';
-    };
-
-    // 🔥 ИСПРАВЛЕНИЕ: Безопасная обработка суммы списания
-    const costAmount = item.generation_cost || item.cost || item.amount || -10;
-    const currency = item.cost_currency || item.currency || 'Cr';
-
-    modal = document.createElement('div');
-    modal.id = 'generationResultModal';
-    modal.className = 'generation-result-modal';
-    modal.setAttribute('data-theme-modal', 'true');
-    modal.innerHTML = `
-        <div class="modal-backdrop" onclick="closeGenerationResultModal()"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>${window.appState?.translate?.('generation_result_title') || 'Generation Result'}</h3>
-                <button class="close-btn" onclick="closeGenerationResultModal()">✕</button>
-            </div>
-            <div class="modal-body">
-                    <div class="generation-result-container">
-                        <!-- Кнопка закрытия модала на мобильных -->
-                        <button class="mobile-modal-close" onclick="closeGenerationResultModal()" style="display: none;" id="mobileModalClose">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                        <div class="generation-result-image-container">
-                            <div class="image-wrapper-relative">
-                                <div class="img-positioning-container">
-                                    <div class="img-relative-div">
-                                        <img src="${imageSource}" alt="Generated Image" class="result-full-image" loading="lazy" />
-                                        <div class="image-overlay">
-                                            <button class="overlay-btn download-btn" onclick="downloadResultImage('${imageSource}', '${item.id}')">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                    <polyline points="7,10 12,15 17,10" />
-                                                    <line x1="12" y1="15" x2="12" y2="3" />
-                                                </svg>
-                                            </button>
-                                            <button class="overlay-btn share-btn" onclick="shareResultImage('${imageSource}', '${item.id}')">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <circle cx="18" cy="5" r="3" />
-                                                    <circle cx="6" cy="12" r="3" />
-                                                    <circle cx="18" cy="19" r="3" />
-                                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="image-overlay-bottom">
-                                        <button class="use-overlay-btn" onclick="useImageForGeneration('${imageSource}', '${item.id}')">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M14.828 14.828a4 4 0 0 1-5.656 0"/>
-                                                <path d="M9 10h1.586a1 1 0 0 1 .707.293l.707.707A1 1 0 0 0 12.414 11H15m-3-3V6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1m-4 4V9"/>
-                                                <circle cx="5" cy="19" r="2"/>
-                                                <path d="M5 15V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-2"/>
-                                            </svg>
-                                            ${window.appState?.translate?.('use_for_generation') || 'Use for Generation'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="result-prompt-container">
-                            <div class="prompt-input-row">
-                                <div class="prompt-text-area">
-                                    <div class="prompt-label">${window.appState?.translate?.('prompt_label_modal') || 'Prompt:'}</div>
-                                   <div class="prompt-text">${safeDescription}</div>
-                                </div>
-                            </div>
-                            <div class="reuse-btn-row">
-                                <button class="reuse-prompt-btn" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="${window.appState?.translate?.('reuse_prompt_title') || 'Repeat generation with this prompt'}">
-                                    <span class="reuse-btn-text">${window.appState?.translate?.('reuse_prompt') || 'Повторить'}</span>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                                        <polyline points="17,1 21,5 17,9"></polyline>
-                                        <path d="M3,11V9a4,4,0,0,1,4-4h14"></path>
-                                        <polyline points="7,23 3,19 7,15"></polyline>
-                                        <path d="M21,13v2a4,4,0,0,1-4,4H3"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                    <div class="generation-result-details">
-                        <div class="result-meta">
-                            <div class="result-meta-item">
-                                <span class="meta-label">${window.appState?.translate?.('date_label') || 'Date:'}</span>
-                                <span class="meta-value">${itemDate.toLocaleString()}</span>
-                            </div>
-                            <div class="result-meta-item">
-                                <span class="meta-label">${window.appState?.translate?.('mode_label_modal') || 'Mode:'}</span>
-                                <span class="meta-value">${window.appState?.translate?.('mode_' + getStyleName('') || getStyleName('')) || 'AI Generation'}</span>
-                            </div>
-                            <div class="result-meta-item">
-                                <span class="meta-label">${window.appState?.translate?.('charged_label') || 'Charged:'}</span>
-                                <span class="meta-value amount-negative">${Math.abs(costAmount)} ${currency}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Показываем модальное окно с анимацией
-    setTimeout(() => {
-        modal.classList.add('show');
-
-        // Показываем кнопку закрытия модала на мобильных устройствах
-        const mobileCloseBtn = document.getElementById('mobileModalClose');
-        if (mobileCloseBtn && window.innerWidth <= 768) {
-            mobileCloseBtn.style.display = 'flex';
-        }
-    }, 10);
-
-    // Добавляем обработчик клавиши ESC для закрытия
-    const handleEscapeKey = (event) => {
-        if (event.key === 'Escape') {
-            closeGenerationResultModal();
-        }
-    };
-
-    document.addEventListener('keydown', handleEscapeKey);
-
-    // Очищаем обработчик при закрытии модального окна
-    const originalClose = closeGenerationResultModal;
-    const closeWithCleanup = () => {
-        document.removeEventListener('keydown', handleEscapeKey);
-        originalClose();
-    };
-
-    // Переопределяем функцию закрытия для этого модального окна
-    window.closeGenerationResultModal = closeWithCleanup;
-
-    console.log('📸 Opened generation result modal for:', item.id, {
-        imageSource,
-        description: safeDescription,
-        mode: getStyleName('')
-    });
-}
-
-// Функция закрытия модального окна с результатом
-function closeGenerationResultModal() {
-    console.log('🔒 Attempting to close generation result modal');
-    const modal = document.getElementById('generationResultModal');
-    if (modal) {
-        console.log('✅ Found modal, removing show class');
-        modal.classList.remove('show');
-        setTimeout(() => {
-            console.log('🗑️ Removing modal from DOM');
-            modal.remove();
-        }, 300);
-    } else {
-        console.log('❌ Modal not found');
-    }
-}
-
-// Функция скачивания изображения результата
-function downloadResultImage(imageUrl, itemId) {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `pixplace-generation-${itemId}.png`;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    showToast('success', window.appState?.translate?.('image_downloading') || 'Image downloading...');
-}
-
-// Функция поделиться результатом
-function shareResultImage(imageUrl, itemId) {
-    if (navigator.share) {
-        // Используем Web Share API если доступно
-        navigator.share({
-            title: window.appState?.translate?.('share_title') || 'My AI image from pixPLace',
-            text: window.appState?.translate?.('share_text') || 'Look at this AI-generated image from pixPLace!',
-            url: imageUrl
-        }).catch(console.error);
-    } else {
-        // Fallback - копируем ссылку в буфер обмена
-        navigator.clipboard.writeText(imageUrl).then(() => {
-            showToast('info', window.appState?.translate?.('link_copied') || 'Link copied to clipboard!');
-        }).catch(() => {
-            // Дополнительный fallback - открываем в новой вкладке
-            window.open(imageUrl, '_blank');
-        });
-    }
-}
-
-// Функция повторения генерации с тем же промптом
-function reusePrompt(prompt, mode) {
-    // Закрываем оба модальных окна
-    closeGenerationResultModal();
-    closeFinancialHistoryModal();
-
-    // Переходим к форме генерации
-    showGeneration();
-
-    // Устанавливаем промпт и режим после небольшой задержки
-    setTimeout(() => {
-        const promptInput = document.getElementById('promptInput');
-        const modeSelect = document.getElementById('modeSelect');
-
-        if (promptInput) {
-            promptInput.value = prompt.replace('...', '').trim();
-            promptInput.focus();
-        }
-
-        if (modeSelect) {
-            modeSelect.value = mode;
-            // Обновляем карусель режимов если она существует
-            updateModeSelection(mode);
-        }
-
-        showToast('info', window.appState?.translate?.('prompt_applied') || 'Prompt applied! Scroll down and click Generate');
-    }, 300);
-}
+// Все функции модала перенесены в modals/generation-result-modal.js
 
 // Вспомогательная функция для обновления выбора режима в карусели
 function updateModeSelection(mode) {
@@ -450,7 +207,7 @@ function updateModeSelection(mode) {
         }
     } else {
         // Fallback для старого метода карусели
-        const modeCards = document.querySelectorAll('.mode-card');
+        const modeCards = document.querySelectorAll('[data-mode]');
         modeCards.forEach(card => {
             const cardMode = card.getAttribute('data-mode');
             if (cardMode === mode) {
@@ -493,6 +250,13 @@ function toggleUserMenu() {
         console.log('User menu toggled: hidden');
     } else {
         menu.classList.add('show');
+        // 🔥 НОВОЕ: Применяем Tailwind shadow класс для user-menu
+        menu.classList.add('shadow-xl');
+        // Закрываем другие меню
+        const authMenu = document.getElementById('authMenu');
+        if (authMenu) authMenu.classList.add('hidden');
+        const langMenu = document.getElementById('langMenu');
+        if (langMenu) langMenu.classList.add('hidden');
         // Обновление отображения данных пользователя
         updateUserMenuInfo();
         console.log('User menu toggled: visible');
@@ -501,52 +265,43 @@ function toggleUserMenu() {
 
 // Функция обновления данных в меню пользователя
 function updateUserMenuInfo() {
-    const nameElement = document.getElementById('userMenuName');
+    // Получаем элементы
+    const dropdownNameElement = document.getElementById('userMenuNameFull');
+    const balanceInfoElement = document.getElementById('userBalanceInfo');
     const creditsElement = document.getElementById('userMenuCredits');
 
-    if (nameElement) {
-        nameElement.textContent = window.appState?.userName ||
-                                 window.appState?.userUsername ||
-                                 window.appState?.userId || '--';
+    const isAuthenticated = !!window.appState?.userId;
+    const userName = window.appState?.userName ||
+        window.appState?.userUsername ||
+        window.appState?.userId || 'User';
+
+    // Заменяем содержимое dropdown в зависимости от состояния авторизации
+    if (dropdownNameElement) {
+        if (isAuthenticated) {
+            dropdownNameElement.innerHTML = userName;
+        } else {
+            dropdownNameElement.innerHTML = 'Guest';
+        }
     }
 
-    if (creditsElement) {
-        creditsElement.textContent = window.appState?.userCredits ?
-                                    parseFloat(window.appState.userCredits).toLocaleString('en-US') : '--';
+    // Управляем видимостью баланса - показываем только для авторизованных
+    if (balanceInfoElement) {
+        balanceInfoElement.style.display = isAuthenticated ? 'flex' : 'none';
     }
+
+    // Обновляем кредиты
+    if (creditsElement) {
+        const credits = window.appState?.userCredits || 0;
+        creditsElement.textContent = credits;
+    }
+
+    console.log('📋 User menu info updated:', { isAuthenticated, userName });
 }
 
 // Функция открытия истории списаний
 function openFinancialHistory() {
     console.log('🔥 Opening financial history modal');
     showFinancialHistoryModal();
-    // Скрываем меню с небольшой задержкой, чтобы модальное окно успело открыться
-    setTimeout(() => {
-        toggleUserMenu();
-    }, 100);
-}
-
-// Функция открытия выбора тарифов
-function openSubscriptionPlans() {
-    if (window.showSubscriptionNotice) {
-        // Используем существующую функцию для показа тарифов
-        window.showSubscriptionNotice({
-            payment_urls: {
-                lite: 'https://example.com/lite',
-                pro: 'https://example.com/pro',
-                studio: 'https://example.com/studio'
-            }
-        });
-    } else {
-        showToast('error', 'Tariff selection not available');
-    }
-    toggleUserMenu(); // Скрываем меню
-}
-
-// Функция открытия Credit Packs
-function openCreditPacks() {
-    console.log('🔥 Opening credit packs modal');
-    showCreditPacksModal();
     // Скрываем меню с небольшой задержкой, чтобы модальное окно успело открыться
     setTimeout(() => {
         toggleUserMenu();
@@ -765,7 +520,7 @@ function generateMockFinancialHistory() {
 // Функция получения читаемого названия режима
 function getModeDisplayName(mode) {
     const modeNames = {
-        'photo_session': 'Nano Banana Editor',
+        'nano_banana': 'Nano Banana Editor',
         'fast_generation': 'Flux Fast Generation',
         'pixplace_pro': 'Flux Pro Advanced',
         'background_removal': 'Background Removal',
@@ -778,12 +533,16 @@ function getModeDisplayName(mode) {
 
 // Функция закрытия модального окна финансовой истории
 function closeFinancialHistoryModal() {
+    console.log('🔒 Attempting to close financial history modal');
     const modal = document.getElementById('financialHistoryModal');
     if (modal) {
+        console.log('✅ Found financial history modal, removing show class');
         modal.classList.remove('show');
         setTimeout(() => {
             modal.remove();
         }, 300);
+    } else {
+        console.log('⚠️ Financial history modal not found - may not be created yet');
     }
 }
 
@@ -896,23 +655,20 @@ function buyCreditPack(amount) {
 
 // Функция закрытия модального окна Credit Packs
 function closeCreditPacksModal() {
+    console.log('🔒 Attempting to close credit packs modal');
     const modal = document.getElementById('creditPacksModal');
     if (modal) {
+        console.log('✅ Found credit packs modal, removing show class');
         modal.classList.remove('show');
         setTimeout(() => {
             modal.remove();
         }, 300);
+    } else {
+        console.log('⚠️ Credit packs modal not found - may not be created yet');
     }
 }
 
-// Вспомогательная функция для показа тостов
-function showToast(type, message) {
-    if (window.showToast) {
-        window.showToast(type, message);
-    } else {
-        console.log(`Toast (${type}): ${message}`);
-    }
-}
+// Функция showToast удалена - теперь используется window.showToast из screen-manager.js
 
 async function convertToBlob(imageUrl) {
     return new Promise((resolve, reject) => {
@@ -942,267 +698,72 @@ async function convertToBlob(imageUrl) {
                 mode: 'cors',
                 credentials: 'omit'
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('CORS blocked');
-                }
-                return response.blob();
-            })
-            .then(resolve)
-            .catch(reject);
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('CORS blocked');
+                    }
+                    return response.blob();
+                })
+                .then(resolve)
+                .catch(reject);
         };
 
         img.src = imageUrl;
     });
 }
 
-// Функция использования изображения для генерации - НАПРЯМУЮ ДОБАВЛЯЕМ В СОСТОЯНИЕ БЕЗ СИМУЛЯЦИИ ЗАГРУЗКИ
-async function useImageForGeneration(imageUrl, itemId) {
-    console.log('🎯 Starting image usage for generation, itemId:', itemId, 'URL:', imageUrl?.substring(0, 50) + '...');
+// Все функции модала перенесены в modals/generation-result-modal.js
 
-    // Закрываем модальное окно с результатом
-    closeGenerationResultModal();
+// Функция обработки клика на кнопку Sign In в dropdown (через Telegram Bot)
+function handleSignInClick() {
+    console.log('🔐 Sign In via Telegram Bot clicked');
+    // Close auth menu
+    const authMenu = document.getElementById('authMenu');
+    if (authMenu) authMenu.classList.add('hidden');
 
-    // Переходим к экрану генерации
-    showGeneration();
-
-    await new Promise(resolve => setTimeout(resolve, 300)); // Ждем завершения анимации перехода
-
-    try {
-        // 🔥 НАПРЯМУЮ ДОБАВЛЯЕМ ИЗОБРАЖЕНИЕ В СОСТОЯНИЕ БЕЗ СИМУЛЯЦИИ ФАЙЛА
-        // Это решает проблемы CORS и непредсказуемого поведения симуляции
-
-        // 1. Очищаем все существующие изображения
-        clearAllImages();
-        console.log('✅ Cleared existing images');
-
-        // 2. Конвертируем изображение в dataURL если оно еще не таковое
-        let processedImageUrl = imageUrl;
-        if (!imageUrl.startsWith?.('data:')) {
-            console.log('🔄 Converting external URL to dataURL for reliability');
-            try {
-                processedImageUrl = await downloadAndConvertImage(imageUrl);
-                console.log('✅ Image successfully converted to dataURL');
-            } catch (conversionError) {
-                console.warn('⚠️ Failed to convert image to dataURL, using original URL:', conversionError.message);
-                // Продолжаем с оригинальным URL если конверсия не удалась
-                processedImageUrl = imageUrl;
-            }
-        } else {
-            console.log('✅ Image is already a dataURL, no conversion needed');
-        }
-
-        // 3. Создаем объект изображения напрямую
-        const imageId = 'history_' + Date.now();
-        const imageObj = {
-            id: imageId,
-            file: null, // файл не нужен для существующих изображений из истории
-            dataUrl: processedImageUrl, // используем обработанный URL
-            uploadedUrl: null
-        };
-
-        // 4. Добавляем в глобальное состояние
-        window.userImageState.images.push(imageObj);
-        console.log('✅ Added image to userImageState:', window.userImageState.images.length, 'images');
-
-        // 5. Создаем превью элемент напрямую
-        if (window.createPreviewItem) {
-            window.createPreviewItem(imageId, processedImageUrl, 'History Image');
-            console.log('✅ Preview item created');
-        }
-
-        // 6. Проверяем и переключаем режим если нужно
-        setTimeout(async () => {
-            // Получаем текущий выбранный режим несколькими способами для надежности
-            let currentMode = null;
-
-            // Способ 1: Через функцию getSelectedMode
-            if (window.getSelectedMode) {
-                try {
-                    currentMode = window.getSelectedMode();
-                } catch (error) {
-                    console.warn('❌ getSelectedMode failed:', error);
-                }
-            }
-
-            // Способ 2: Через mode-cards API если доступен
-            if (!currentMode && window.modeCardsExports?.getSelectedMode) {
-                currentMode = window.modeCardsExports?.getSelectedMode();
-            }
-
-            // Способ 3: Через DOM select элемент
-            if (!currentMode) {
-                const modeSelect = document.getElementById('modeSelect');
-                currentMode = modeSelect?.value;
-            }
-
-            // Способ 4: Через активную карточку
-            if (!currentMode) {
-                const activeCard = document.querySelector('.mode-card.active, .carousel-2d-item.active');
-                currentMode = activeCard?.getAttribute('data-mode');
-            }
-
-            console.log('🎯 Current selected mode when using image:', currentMode, {
-                from_getSelectedMode: window.getSelectedMode ? window.getSelectedMode() : 'not_available',
-                from_modeCards: window.modeCardsExports?.getSelectedMode?.(),
-                from_DOM: document.getElementById('modeSelect')?.value,
-                from_activeCard: document.querySelector('.mode-card.active, .carousel-2d-item.active')?.getAttribute('data-mode')
-            });
-
-            // 🔥 переключаемся на photo_session ТОЛЬКО если текущий режим - fast_generation (Flux Fast)
-            if (currentMode === 'fast_generation') {
-                console.log(`🔄 Current mode is fast_generation, switching to photo_session for image editing`);
-
-                // Используем новый API из mode-cards если доступен
-                if (window.modeCardsExports?.selectModeByName) {
-                    console.log('🎯 Using mode-cards API to switch to photo_session');
-                    window.modeCardsExports.selectModeByName('photo_session');
-                    console.log('✅ Mode switched using mode-cards API');
-                } else {
-                    // Fallback к старому методу
-                    console.log('🔄 Using fallback mode switching');
-                    const modeSelect = document.getElementById('modeSelect');
-                    if (modeSelect) {
-                        modeSelect.value = 'photo_session';
-
-                        // Обновляем режим в глобальном состоянии
-                        if (window.appState) {
-                            window.appState.currentMode = 'photo_session';
-                        }
-
-                        // Синхронизируем с каруселью режимов - найдем и кликнем карточку photo_session
-                        const photoSessionCard = document.querySelector('.mode-card[data-mode="photo_session"]');
-                        if (photoSessionCard) {
-                            photoSessionCard.click();
-                            console.log('✅ Mode carousel synchronized with photo_session (fallback)');
-                        }
-                    } else {
-                        console.log('❌ Mode select element not found');
-                    }
-                }
-
-                // 🔧 ДОБАВИЛИ: Ждем завершения переключения режима перед обновлением UI
-                await new Promise(resolve => setTimeout(resolve, 200));
-                console.log('⏱️ Waited for mode switch to complete');
-
-            } else {
-                console.log(`✅ Current mode is ${currentMode}, keeping as is (supports images)`);
-            }
-
-            // Финальное обновление UI после всех изменений
-            setTimeout(() => {
-                if (window.updateImageUploadVisibility) {
-                    window.updateImageUploadVisibility();
-                    console.log('✅ Final UI update after mode switch');
-                }
-
-                // 🔥 ИСПРАВЛЕНИЕ: Принудительное обновление слайдера strength после добавления изображения из истории
-                if (window.strengthSlider?.updateVisibility) {
-                    window.strengthSlider.updateVisibility();
-                    console.log('✅ Strength slider visibility updated after image addition');
-                } else if (window.strengthSlider) {
-                    console.warn('⚠️ Strength slider updateVisibility method not available, using force update');
-                    // Fallback - попробуем обновить через событие
-                    document.dispatchEvent(new CustomEvent('images:updated', {
-                        detail: { imageCount: window.userImageState?.images?.length || 0 }
-                    }));
-                }
-            }, 100);
-        }, 100);
-
-        // УСПЕХ!
-        showToast('success', window.appState?.translate?.('image_added_success') || 'Image added for generation!');
-        console.log('✅ Image successfully added using direct state manipulation');
-
-        // Прокручиваем к превью с небольшой задержкой
-        setTimeout(() => {
-            const preview = document.getElementById('userImagePreview');
-            if (preview) {
-                preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                console.log('✅ Scrolled to preview');
-            }
-        }, 500);
-
-    } catch (error) {
-        console.error('❌ Direct image addition error:', error);
-        showToast('error', `${window.appState?.translate?.('ui_error_message') || 'Interface error:'} ${error.message}`);
+    // Открываем модалку авторизации через бота
+    if (typeof loadTelegramAuthModal === 'function') {
+        loadTelegramAuthModal();
+    } else if (typeof window.loadTelegramAuthModal === 'function') {
+        window.loadTelegramAuthModal();
+    } else {
+        console.warn('⚠️ loadTelegramAuthModal not available');
     }
 }
 
-// Вспомогательная функция для удаления изображения из состояния
-function removeImageFromState(imageId) {
-    if (window.userImageState?.images) {
-        window.userImageState.images = window.userImageState.images.filter(img => img.id !== imageId);
-    }
+// 🔐 Вход через Telegram OAuth (redirect на сайт)
+function handleTelegramOAuth() {
+    console.log('🔐 Telegram OAuth clicked');
+    const authMenu = document.getElementById('authMenu');
+    if (authMenu) authMenu.classList.add('hidden');
 
-    // Удаляем из DOM
-    const item = document.querySelector(`[data-id="${imageId}"]`);
-    if (item) item.remove();
+    window.open('https://prompt.pixplace.space/pixplace-ai-app/', '_blank');
 }
 
-// 🔥 ИСПРАВЛЕНИЕ: Использование глобального userImageState из app_modern.js для совместимости
-function clearAllImages() {
-    console.log('� Clearing all existing images for history integration');
+// ✉️ Вход через Email (placeholder)
+function handleEmailLogin() {
+    console.log('✉️ Email login clicked');
+    const authMenu = document.getElementById('authMenu');
+    if (authMenu) authMenu.classList.add('hidden');
 
-    // Теперь функция очищает глобальное состояние userImageState из app_modern.js
-    console.log('🔥 Clearing all existing images for history integration');
-
-    // 1. Очищаем состояние изображений
-    if (window.userImageState?.images) {
-        window.userImageState.images = [];
-        console.log('✅ Cleared userImageState.images array');
+    // TODO: реализовать email auth flow
+    if (typeof window.showToast === 'function') {
+        window.showToast('info', 'Email login coming soon!');
     }
-
-    // 2. Очищаем DOM элементы превью
-    const previewContainer = document.getElementById('previewContainer');
-    if (previewContainer) {
-        previewContainer.innerHTML = '';
-        console.log('✅ Cleared DOM preview container');
-    }
-
-    // 3. Скрываем превью контейнер
-    const preview = document.getElementById('userImagePreview');
-    if (preview) {
-        preview.classList.add('hidden', 'flux-shnel-hidden');
-        preview.style.removeProperty('display'); // Убираем принудительное display
-        console.log('✅ Hidden preview container');
-    }
-
-    // 4. Сбрасываем классы wrapper
-    const wrapper = document.getElementById('userImageWrapper');
-    if (wrapper) {
-        wrapper.classList.remove('has-image');
-        wrapper.classList.add('need-image');
-        console.log('✅ Reset wrapper classes');
-    }
-
-    // 5. Сбрасываем input file
-    const fileInput = document.getElementById('userImage');
-    if (fileInput) {
-        fileInput.value = ''; // Сбрасываем выбранный файл
-        console.log('✅ Reset file input');
-    }
-
-    console.log('🎯 All images cleared successfully');
 }
 
 // Экспортируем функции в глобальную область видимости
 window.toggleUserMenu = toggleUserMenu;
 window.updateUserMenuInfo = updateUserMenuInfo;
 window.openFinancialHistory = openFinancialHistory;
-window.openSubscriptionPlans = openSubscriptionPlans;
-window.openCreditPacks = openCreditPacks;
 window.showFinancialHistoryModal = showFinancialHistoryModal;
 window.closeFinancialHistoryModal = closeFinancialHistoryModal;
 window.showCreditPacksModal = showCreditPacksModal;
 window.closeCreditPacksModal = closeCreditPacksModal;
 window.buyCreditPack = buyCreditPack;
-window.showGenerationResultModal = showGenerationResultModal;
-window.closeGenerationResultModal = closeGenerationResultModal;
-window.downloadResultImage = downloadResultImage;
-window.shareResultImage = shareResultImage;
-window.reusePrompt = reusePrompt;
-window.useImageForGeneration = useImageForGeneration;
+window.handleSignInClick = handleSignInClick;
+window.handleTelegramOAuth = handleTelegramOAuth;
+window.handleEmailLogin = handleEmailLogin;
 
 // Экспортируем функции модуля
 export {
@@ -1210,14 +771,11 @@ export {
     toggleUserMenu,
     updateUserMenuInfo,
     openFinancialHistory,
-    openSubscriptionPlans,
-    openCreditPacks,
     showFinancialHistoryModal,
     closeFinancialHistoryModal,
     showCreditPacksModal,
     closeCreditPacksModal,
-    buyCreditPack,
-    useImageForGeneration
+    buyCreditPack
 };
 
 console.log('🎯 User Account module loaded and ready');

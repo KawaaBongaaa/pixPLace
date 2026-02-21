@@ -14,6 +14,7 @@ export class AppStateManager {
                 name: null,
                 credits: null,
                 username: null,
+                photo_url: null,
                 language: 'en',
                 isPremium: false
             },
@@ -23,6 +24,7 @@ export class AppStateManager {
 
             // История генераций
             generationHistory: [],
+            externalHistory: [], // Для данных из внешнего HistoryService
             currentGeneration: null,
 
             // Баланс и история баланса
@@ -116,17 +118,48 @@ export class AppStateManager {
 
     // Методы для обновления темы
     setTheme(theme) {
-        console.log('🎨 setTheme called with:', theme, 'current:', this.state.theme);
         const oldTheme = this.state.theme;
         this.updateState({ theme });
 
-        // 🔥 ИСПРАВЛЕНИЕ ДЛЯ 'AUTO' ТЕМЫ: Используем 'auto' напрямую для CSS media queries
-        document.body.setAttribute('data-theme', theme);
-        console.log('🎨 Theme set to:', theme, 'DOM attribute:', theme, '(was:', oldTheme, ')');
+        // 🔥 ИСПРАВЛЕНИЕ ДЛЯ TAILWIND CSS v4: Используем data-theme на html элементе
+        const html = document.documentElement;
+
+        if (theme === 'dark') {
+            // Устанавливаем data-theme атрибут на html элемент для Tailwind CSS
+            html.setAttribute('data-theme', 'dark');
+            html.classList.add('dark'); // 🔥 Ensure .dark class is present for Tailwind class strategy
+            html.classList.remove('light');
+
+            // 🔥 UPDATE INLINE STYLES DYNAMICALLY (Fix for "partial switch")
+            html.style.backgroundColor = '#09090b';
+            html.style.color = '#fafafa';
+        } else if (theme === 'light') {
+            html.setAttribute('data-theme', 'light');
+            html.classList.add('light'); // 🔥 Ensure .light class is present
+            html.classList.remove('dark');
+
+            // 🔥 UPDATE INLINE STYLES DYNAMICALLY
+            html.style.backgroundColor = '#ffffff';
+            html.style.color = '#1e293b';
+        } else if (theme === 'auto') {
+            // Для auto режима определяем системную тему
+            const systemTheme = this.detectSystemTheme();
+            html.setAttribute('data-theme', systemTheme);
+            html.classList.remove('light', 'dark');
+            html.classList.add(systemTheme);
+
+            // Update inline styles based on system theme
+            if (systemTheme === 'dark') {
+                html.style.backgroundColor = '#09090b';
+                html.style.color = '#fafafa';
+            } else {
+                html.style.backgroundColor = '#ffffff';
+                html.style.color = '#1e293b';
+            }
+        }
 
         // 🔥 ДОБАВЛЕНИЕ: Сохраняем тему сразу при изменении!
         this.saveSettings();
-        console.log('💾 Theme saved to localStorage:', theme);
 
         // 🔥 НОВОЕ: Настраиваем слушатель изменений системной темы для auto режима
         this.setupAutoThemeListener(theme === 'auto');
@@ -156,17 +189,13 @@ export class AppStateManager {
             // Обработчик изменения темы системы
             this.themeChangeHandler = (event) => {
                 const newSystemTheme = event.matches ? 'dark' : 'light';
-                console.log('🌓 System theme changed to:', newSystemTheme, '(auto mode)');
-                document.body.setAttribute('data-theme', newSystemTheme);
+                // 🔥 ИСПРАВЛЕНИЕ: Устанавливаем data-theme на html элемент вместо body
+                document.documentElement.setAttribute('data-theme', newSystemTheme);
             };
 
             // Добавляем слушатель
             mediaQuery.addEventListener('change', this.themeChangeHandler);
             this.themeChangeListener = mediaQuery;
-
-            console.log('🎯 Auto theme listener activated');
-        } else {
-            console.log('🎯 Auto theme listener deactivated');
         }
     }
 
@@ -181,7 +210,8 @@ export class AppStateManager {
     setGenerationHistory(history) {
         // 🔥 ИСПРАВЛЕНИЕ ПОРЯДКА: СОРТИРУЕМ МАССИВ ПО ID В ОБРАТНОМ ПОРЯДКЕ ДЛЯ ЗАГРУЗКИ Из localStorage
         // Новые генерации должны быть ПЕРВЫМИ (новые ID - большие числа)
-        const sortedHistory = Array.isArray(history) ? history.sort((a, b) => b.id - a.id) : history;
+        // 🔥 Учтен fallback на generation_id, чтобы не возникало NaN
+        const sortedHistory = Array.isArray(history) ? history.sort((a, b) => (b.id || b.generation_id || 0) - (a.id || a.generation_id || 0)) : history;
         this.updateState({ generationHistory: sortedHistory });
     }
 
@@ -195,6 +225,35 @@ export class AppStateManager {
             gen.id === id ? { ...gen, ...updates } : gen
         );
         this.updateState({ generationHistory: newHistory });
+    }
+
+    // Методы для работы с внешней историей из HistoryService
+    setHistoryFromExternal(data) {
+        // Преобразование данных из webhook в формат приложения
+        // Данные могут приходить в формате {json: {...}} или напрямую
+        const formattedHistory = (data.generations || []).map(item => {
+            // Извлекаем данные из поля json, если оно есть, иначе используем item напрямую
+            const genData = item.json || item;
+            return {
+                id: genData.generation_id,
+                taskUUID: genData.task_uuid,
+                prompt: genData.prompt,
+                mode: genData.mode,
+                style: genData.style,
+                result: genData.image_url,
+                status: genData.status,
+                timestamp: genData.timestamp,
+                generation_cost: genData.generation_cost,
+                cost_currency: genData.cost_currency
+            };
+        });
+
+        // Устанавливаем во временное хранилище для отображения
+        this.updateState({ externalHistory: formattedHistory });
+    }
+
+    getExternalHistory() {
+        return this.state.externalHistory || [];
     }
 
     // Метод сохранения истории
@@ -229,24 +288,19 @@ export class AppStateManager {
         console.log('🔄 STARTING loadSettings() function');
         try {
             const storedSettings = localStorage.getItem('appSettings');
-            console.log('💾 Loading settings from localStorage:', storedSettings);
-            console.log('📋 localStorage contents:', Object.keys(localStorage));
-
             const settings = storedSettings ? JSON.parse(storedSettings) : {};
-            console.log('✅ Parsed settings:', settings);
 
-            // Загружаем тему с откатом на дефолт
-            const theme = settings.theme || 'dark';
-            console.log('🎨 Loading theme:', theme);
-            this.setTheme(theme);
-
-            // 🔥 ДОБАВЛЕНИЕ: ВОССТАНАВЛИВАЕМ ФЛАГ isLanguageSetByUser ИЗ localStorage
-            // С откатом на false
+            // 1. Сначала восстанавливаем язык и флаг В СОСТОЯНИЕ (без сохранения)
+            if (settings.language) {
+                this.updateState({ language: settings.language });
+            }
             const isLanguageSetByUser = settings.isLanguageSetByUser !== undefined ? settings.isLanguageSetByUser : false;
-            console.log('🌍 Loading isLanguageSetByUser:', isLanguageSetByUser);
             this.updateState({ isLanguageSetByUser });
 
-            console.log('✅ Settings loaded successfully');
+            // 2. Теперь загружаем тему (внутри setTheme вызовется saveSettings(), 
+            // который сохранит УЖЕ ПРАВИЛЬНЫЕ language и isLanguageSetByUser)
+            const theme = settings.theme || 'dark';
+            this.setTheme(theme);
 
         } catch (error) {
             console.error('❌ Failed to load settings from localStorage:', error);
@@ -272,7 +326,6 @@ export class AppStateManager {
             // Не сохранять null - использовать 0 если баланс еще не установлен
             const balanceToSave = this.state.user?.credits ?? 0;
             localStorage.setItem('currentBalance', balanceToSave);
-            console.log('💾 Current balance saved to localStorage:', balanceToSave, '(was:', this.state.user?.credits, ')');
         } catch (error) {
             console.error('Failed to save current balance:', error);
         }
@@ -280,19 +333,15 @@ export class AppStateManager {
 
     // 🔥 ДОБАВЛЕНИЕ: Метод инициализации дефолтных значений при первом запуске
     initializeDefaults() {
-        console.log('🚀 Initializing default app state...');
-
         // Инициализируем настройки если они отсутствуют
         const existingSettings = localStorage.getItem('appSettings');
         if (!existingSettings) {
-            console.log('⚙️ No settings found, saving defaults...');
             this.saveSettings(); // Сохраняем дефолтные настройки
         }
 
         // Инициализируем пустую историю баланса если она отсутствует
         const existingBalance = localStorage.getItem('balanceHistory');
         if (!existingBalance) {
-            console.log('💰 No balance history found, initializing empty...');
             this.saveBalanceHistory(); // Сохраняем пустую историю
         }
 
@@ -302,7 +351,6 @@ export class AppStateManager {
 
         // 🔥 ИСПРАВЛЕНИЕ: Приоритет currentBalance над любыми другими инициализациями
         if (existingBalanceBackup && !isNaN(balanceValue) && balanceValue >= 0) {
-            console.log('💰 Valid balance backup found:', balanceValue, '- using as primary balance');
             this.updateState({
                 user: {
                     ...this.state.user,
@@ -312,11 +360,9 @@ export class AppStateManager {
             this.state.user.credits = balanceValue; // 🔥 ДОБАВЛЕНИЕ: Прямое присвоение
             this.saveCurrentBalance(); // Подтверждаем сохранение валидного баланса
         } else {
-            console.log('💰 No valid balance backup found, initializing with 20 credits...');
             // Очищаем поврежденные данные
             if (existingBalanceBackup !== null) {
                 localStorage.removeItem('currentBalance');
-                console.log('🧹 Cleared corrupted balance backup');
             }
 
             this.updateState({
@@ -326,11 +372,8 @@ export class AppStateManager {
                 }
             });
             this.state.user.credits = 20; // 🔥 ДОБАВЛЕНИЕ: Прямое присвоение
-            console.log('💰 State directly set to:', this.state.user.credits);
             this.saveCurrentBalance(); // Сохраняем начальный баланс
         }
-
-        console.log('✅ Defaults initialized successfully');
     }
 
     loadBalanceHistory() {
@@ -338,14 +381,11 @@ export class AppStateManager {
             // 🔥 ИСПРАВЛЕНИЕ: ПРИОРИТЕТ ПРЯМОГО БЭКАПА BALANCE НАД HISTORIAЙ
             // Сначала проверяем currentBalance, так как ЭТО основной источник баланса
             const directBalance = localStorage.getItem('currentBalance');
-            console.log('💰 Loading balance: checking direct backup first...');
 
             if (directBalance !== null) {
                 const balanceValue = parseFloat(directBalance);
-                console.log('🧮 currentBalance found:', directBalance, 'parsed as:', balanceValue, 'isNaN:', isNaN(balanceValue), 'valid:', !isNaN(balanceValue) && balanceValue >= 0);
 
                 if (!isNaN(balanceValue) && balanceValue >= 0) {
-                    console.log('🪙 ☝️ PRIMARY: Using currentBalance as main balance:', balanceValue);
                     this.updateState({
                         user: {
                             ...this.state.user,
@@ -370,27 +410,22 @@ export class AppStateManager {
 
             // 🔥 ДОБАВЛЕНИЕ: Загружаем историю, если она есть, НО НЕ ПЕРЕЗАПИСЫВАЕМ баланс!
             const storedHistory = localStorage.getItem('balanceHistory');
-            console.log('📊 Loading balance history (after direct balance check):', !!storedHistory);
 
             if (storedHistory) {
                 const history = JSON.parse(storedHistory);
-                console.log('✅ Parsed balance history:', history?.length || 0, 'entries');
 
                 if (Array.isArray(history)) {
                     this.updateState({ balanceHistory: history });
-                    console.log('📊 Balance history loaded successfully');
                 } else {
                     console.warn('⚠️ Balance history is not an array, initializing empty');
                     this.updateState({ balanceHistory: [] });
                 }
             } else {
-                console.log('📭 No balance history found, initializing empty array');
                 this.updateState({ balanceHistory: [] });
             }
 
             // Если баланс все еще не установлен, устанавливаем дефолтный
             if (this.state.user.credits === null || this.state.user.credits === undefined) {
-                console.log('⚠️ Balance still not set, using default 20 credits');
                 this.updateState({
                     user: {
                         ...this.state.user,
@@ -399,8 +434,6 @@ export class AppStateManager {
                 });
                 this.state.user.credits = 20;
             }
-
-            console.log('✅ Balance loaded successfully');
 
         } catch (error) {
             console.error('❌ Failed to load balance from localStorage:', error);
@@ -452,7 +485,7 @@ export class AppStateManager {
 
     // Переключение темы
     toggleTheme() {
-        const themes = ['light', 'dark', 'auto'];
+        const themes = ['dark', 'light']; // 🔥 ONLY DARK AND LIGHT, DEFAULT DARK
         const currentIndex = themes.indexOf(this.state.theme);
         const nextIndex = (currentIndex + 1) % themes.length;
         this.setTheme(themes[nextIndex]);

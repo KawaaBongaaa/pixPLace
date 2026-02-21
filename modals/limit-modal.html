@@ -1,0 +1,105 @@
+<!-- Модальное окно лимита -->
+<div id="limitModal" class="limit-modal">
+    <div class="limit-modal-backdrop"></div>
+    <div class="limit-modal-content">
+        <div class="limit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
+                stroke="url(#limitIconGrad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                style="display:inline-block;vertical-align:middle;">
+                <defs>
+                    <linearGradient id="limitIconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#6366f1" />
+                        <stop offset="50%" stop-color="#3b82f6" />
+                        <stop offset="100%" stop-color="#06b6d4" />
+                    </linearGradient>
+                </defs>
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+        </div>
+        <h2 class="limit-title" data-i18n="limit_title">Достигнут Лимит Генераций</h2>
+        <p class="limit-message" data-i18n="limit_message">Токены для генерации Закончились!
+            Вы можете получить Больше Токенов, оплатив подписку на канал pixPLace,
+            Чтобы продолжить создавать Восхитительные Изображения!</p>
+
+        <!-- Контейнер карусели планов -->
+        <div class="plans-carousel-container">
+            <div class="plans-carousel-wrapper">
+                <div class="plans-carousel">
+                    <!-- ЛИТЕ тариф -->
+                    <div class="plan-card lite-plan">
+                        <div class="plan-header">
+                            <div class="plan-title" data-i18n="plan_lite_title">Lite</div>
+                            <div class="credits" data-i18n="plan_lite_credits">500 credits</div>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price" data-i18n-price="plan_lite_price">€12</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature" data-i18n="plan_lite_feature1">• Fast generation</div>
+                            <div class="feature" data-i18n="plan_lite_feature2">• Premium models</div>
+                            <div class="feature" data-i18n="plan_lite_feature3">• HD quality</div>
+                        </div>
+                        <button class="btn btn-primary plan-btn" id="upgradeBtn">
+                            <span class="btn-text" data-i18n="plan_lite_select">Buy Lite</span>
+                        </button>
+                    </div>
+
+                    <!-- ПРО тариф -->
+                    <div class="plan-card pro-plan">
+                        <!-- Шильдик Most Popular -->
+                        <div class="plan-badge" data-i18n="most_popular">Most Popular</div>
+                        <div class="plan-header">
+                            <div class="plan-title" data-i18n="plan_pro_title">Pro</div>
+                            <div class="credits" data-i18n="plan_pro_credits">1000 credits</div>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price" data-i18n-price="plan_pro_price">€17</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature" data-i18n="plan_pro_feature1">• Premium models</div>
+                            <div class="feature" data-i18n="plan_pro_feature2">• GPT Chat included</div>
+                            <div class="feature" data-i18n="plan_pro_feature3">• HD quality</div>
+                        </div>
+                        <button class="btn btn-primary plan-btn" id="upgradebtn_pro">
+                            <span class="btn-text" data-i18n="plan_pro_select">Buy Pro</span>
+                        </button>
+                    </div>
+
+                    <!-- СТУДИО тариф -->
+                    <div class="plan-card studio-plan">
+                        <div class="plan-header">
+                            <div class="plan-title" data-i18n="plan_studio_title">Design Studio</div>
+                            <div class="credits" data-i18n="plan_studio_credits">2000 credits</div>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price" data-i18n-price="plan_studio_price">€22</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature" data-i18n="plan_studio_feature1">• Max performance</div>
+                            <div class="feature" data-i18n="plan_studio_feature2">• All premium models</div>
+                            <div class="feature" data-i18n="plan_studio_feature3">• Priority support</div>
+                        </div>
+                        <button class="btn btn-primary plan-btn" id="upgradebtn_studio">
+                            <span class="btn-text" data-i18n="plan_studio_select">Buy Studio</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Индикаторы карусели -->
+                <div class="carousel-indicators">
+                    <span class="indicator active" data-slide="0"></span>
+                    <span class="indicator" data-slide="1"></span>
+                    <span class="indicator" data-slide="2"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка "Может позже" -->
+        <div class="limit-actions">
+            <button id="closeLimitModal" class="btn btn-secondary close-btn">
+                <span class="btn-icon" size="48px">❆</span>
+                <span class="btn-text" data-i18n="closeLimitModal">Maybe Later</span>
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,107 @@
+/* =============================================================================
+   PIXPLACE MAIN CSS - Tailwind CSS Integration
+   Entry point for PostCSS compilation with Tailwind CSS
+   ============================================================================= */
+
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES - Design System Variables
+   MUST BE IMPORTED BEFORE TAILWIND CSS
+   ============================================================================= */
+
+@import './variables.css';
+/* =============================================================================
+   COMPONENT STYLES - Modular CSS Architecture
+   ============================================================================= */
+
+@import './shared/modals.css';
+@import './shared/toasts.css';
+@import './shared/user-menu.css';
+@import './shared/history.css';
+@import './shared/credit-packs.css';
+
+/* =============================================================================
+   LANGUAGE MENU - Hide by default for lazy loading
+   ============================================================================= */
+
+#langMenu {
+   display: none;
+}
+
+/* Current language indicator styling */
+#langMenu .current-indicator {
+   margin-left: 8px;
+   font-weight: bold;
+   color: #10b981;
+   /* Green color for current language checkmark */
+}
+
+#langMenu .lang-item.current .current-indicator {
+   color: #10b981;
+   /* Ensure current language checkmark stays green */
+}
+
+/* =============================================================================
+   PAGE-SPECIFIC STYLES
+   ============================================================================= */
+
+@import './auth.css';
+@import './style-card-grid.css';
+@import './cost-badge.css';
+@import './strength-slider.css';
+@import './modern-ui.css';
+
+/* =============================================================================
+   MODE CARDS — imported from mode-cards.css
+   ============================================================================= */
+
+@import './mode-cards.css';
+
+/* Card Selection — glass compatible */
+[data-mode].selected {
+   background: rgba(255, 255, 255, 0.6) !important;
+   border-color: rgba(120, 120, 120, 0.4) !important;
+   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+   transform: translateY(-1px);
+}
+
+.dark [data-mode].selected {
+   background: rgba(255, 255, 255, 0.1) !important;
+   border-color: rgba(255, 255, 255, 0.2) !important;
+   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* NOTE: ai-coach.css imported in JS module, mode-cards.css kept critical */
+
+/* =============================================================================
+   RESPONSIVE AND UTILITY STYLES
+   ============================================================================= */
+
+/* Additional responsive and utility styles can be added here */
+
+
+
+/* =============================================================================
+   LEGACY COMPATIBILITY - Temporary imports for migration
+   ============================================================================= */
+
+/* Legacy styles are gradually being migrated to Tailwind classes */
+
+/* =============================================================================
+   CSS SHADOWS INTEGRATION - Enhanced visual effects
+   ============================================================================= */
+
+/* CSS Shadows library styles are loaded via JavaScript for performance */
+
+/* =============================================================================
+   TAILWIND @APPLY COMPONENTS - Перенесено из variables.css
+   ============================================================================= */
+
+/* Семантические компоненты - moved to HTML with Tailwind classes */
+
+/* =============================================================================
+   CLEAN TAILWIND CSS - NO @apply, ONLY CSS VARIABLES FOR THEMES
+   All styling moved to HTML with direct Tailwind classes
+   ============================================================================= */

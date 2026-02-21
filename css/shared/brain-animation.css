@@ -1,0 +1,42 @@
+/* Neural Brain Animation Styles */
+/* Adapted from auth_landing.html for global background usage */
+
+#canvasContainer {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 0 !important;
+    /* Behind everything */
+    pointer-events: none !important;
+    /* Let clicks pass through to app */
+    overflow: hidden !important;
+
+    /* Background Gradients from Auth Page for that "Premium" feel */
+    background:
+        radial-gradient(900px 500px at 10% -10%, rgba(26, 31, 53, 0.4), transparent),
+        radial-gradient(700px 400px at 90% 10%, rgba(16, 42, 42, 0.4), transparent);
+
+    /* Fade out at bottom if desired, or keep full coverage */
+    /* mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0) 100%) !important; */
+    /* -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0) 100%) !important; */
+}
+
+canvas#brainCanvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    opacity: 0.25 !important;
+    /* Harder/Darker (was 0.4) */
+}
+
+/* Ensure app content sits above */
+#app,
+.app,
+main,
+header,
+footer {
+    position: relative;
+    z-index: 1;
+}

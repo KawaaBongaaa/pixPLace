@@ -4,6 +4,7 @@
         opacity: 0;
         transform: translateY(30px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0);
@@ -25,21 +26,25 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 10050;
+    z-index: 10001;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
-    padding: 0.25rem; /* minimal default padding */
+    padding: 0.25rem;
+    /* minimal default padding */
 }
 
 /* Adaptive padding for different screen sizes */
 @media (min-width: 1200px) {
     .generation-result-modal {
-        padding: 2rem; /* more space on large screens */
+        padding: 2rem;
+        /* more space on large screens */
     }
 }
 
@@ -51,7 +56,8 @@
 
 @media (min-width: 481px) and (max-width: 767px) {
     .generation-result-modal {
-        padding: 0.75rem; /* Balanced for medium devices */
+        padding: 0.75rem;
+        /* Balanced for medium devices */
     }
 }
 
@@ -63,7 +69,8 @@
 
 @media (max-width: 480px) {
     .generation-result-modal {
-        padding: 0.25rem; /* minimal for mobile */
+        padding: 0.25rem;
+        /* minimal for mobile */
     }
 }
 
@@ -87,67 +94,67 @@
     background: var(--bg-primary);
     border-radius: 16px;
     border: 1px solid var(--border-primary);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    max-width: min(700px, 90vw); /* Increased: 700px for medium screens */
+    /* REMOVED: box-shadow replaced with Tailwind shadow-2xl class - moved to main.css */
+    max-width: min(800px, 95vw);
+    /* Increased: 700px for medium screens */
     width: 100%;
-    max-height: 95vh; /* Increased for larger images */
+    max-height: 95vh;
+    /* Increased for larger images */
     overflow: hidden;
     transform: scale(0.95) translateY(-10px);
     transition: all 0.3s ease;
-    padding: 0.75rem; /* Base internal padding */
+    padding: 0;
+    /* Remove padding to maximize space */
 }
 
 .generation-result-modal.show .modal-content {
     transform: scale(1) translateY(0);
 }
 
-/* Large screens: much wider now */
-@media (min-width: 1200px) {
+/* Large screens: Lightbox styling */
+@media (min-width: 1024px) {
     .generation-result-modal .modal-content {
-        max-width: min(1400px, 95vw); /* Even wider: 1400px for large displays */
-    }
-}
-
-/* Medium-large screens */
-@media (min-width: 1024px) and (max-width: 1199px) {
-    .generation-result-modal .modal-content {
-        max-width: min(900px, 85vw);
-    }
-}
-
-/* Adaptive internal padding for modal content */
-@media (min-width: 1200px) {
-    .generation-result-modal .modal-content {
-        padding: 1.5rem; /* More space for large modals */
-    }
-}
-
-@media (min-width: 1024px) and (max-width: 1199px) {
-    .generation-result-modal .modal-content {
-        padding: 1.25rem;
+        max-width: none;
+        width: 98vw;
+        height: 95vh;
+        max-height: 95vh;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
     }
 }
 
 /* Medium phones to small tablets: 480-767px */
 @media (min-width: 481px) and (max-width: 767px) {
     .generation-result-modal .modal-content {
-        max-width: min(95vw, 800px); /* Increased for wider images, better fit for 480-767px screens */
-        padding: 0.75rem; /* Balanced padding */
+        max-width: min(95vw, 800px);
+        /* Increased for wider images, better fit for 480-767px screens */
+        padding: 0;
+        /* Remove padding on tablets too */
     }
 
     .generation-result-image-container {
-        display: block; /* Force block display */
-        padding: 0; /* Remove padding to maximize image space */
-        width: 100%; /* Full width */
-        margin: 0; /* Remove auto margins */
+        display: block;
+        /* Force block display */
+        padding: 0;
+        /* Remove padding to maximize image space */
+        width: 100%;
+        /* Full width */
+        margin: 0;
+        /* Remove auto margins */
     }
 
     .result-full-image {
-        width: 100% !important; /* Force full width */
-        height: auto !important; /* Maintain aspect ratio */
-        max-height: none !important; /* Remove all height restrictions */
-        object-fit: unset !important; /* Natural scaling */
-        display: block !important; /* Block display */
+        width: 100%;
+        /* Force full width */
+        height: auto;
+        /* Maintain aspect ratio */
+        max-height: none;
+        /* Remove all height restrictions */
+        object-fit: unset;
+        /* Natural scaling */
+        display: block;
+        /* Block display */
     }
 }
 
@@ -157,7 +164,8 @@
         max-width: 95vw;
         max-height: 95vh;
         border-radius: 12px;
-        padding: 0.5rem; /* Less padding on smaller screens */
+        padding: 0.5rem;
+        /* Less padding on smaller screens */
     }
 }
 
@@ -167,9 +175,12 @@
         max-width: 100vw;
         height: 100vh;
         border-radius: 0;
-        overflow-y: auto; /* Add scroll for long content on mobile */
-        padding: 0.25rem; /* Minimal padding for mobile */
-        padding-bottom: 2rem; /* Space for mobile navigation */
+        overflow-y: auto;
+        /* Add scroll for long content on mobile */
+        padding: 0.25rem;
+        /* Minimal padding for mobile */
+        padding-bottom: 0;
+        /* Space for mobile navigation */
     }
 }
 
@@ -190,370 +201,348 @@
     color: var(--text-primary);
 }
 
-.generation-result-modal .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
+.generation-result-modal .close-btn,
+.generation-result-modal .modal-close-btn {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
-    color: var(--text-secondary);
-    padding: 0.25rem;
-    border-radius: 50%;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 8px;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1001;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
-.generation-result-modal .close-btn:hover {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
+.generation-result-modal .close-btn:hover,
+.generation-result-modal .modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+}
+
+.generation-result-modal .close-btn:active,
+.generation-result-modal .modal-close-btn:active {
+    transform: scale(0.95);
+}
+
+.generation-result-modal .close-btn svg,
+.generation-result-modal .modal-close-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5;
+}
+
+/* MOBILE CLOSE BUTTON - SPECIFIC DESIGN */
+.mobile-modal-close {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    z-index: 10002;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .generation-result-container {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 0; /* REMOVE ALL PADDING */
+    padding: 0;
     margin: 0;
+    width: 100%;
     max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* DESKTOP LAYOUT (Side-by-side) */
+@media (min-width: 1024px) {
+
+    /* Fixed layout for desktop */
+    .generation-result-container {
+        flex-direction: row;
+        align-items: stretch;
+        /* Stretch to fill height */
+        gap: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        /* Prevent container scroll */
+    }
+
+    .result-main-col {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .image-col {
+        flex: 1;
+        /* Take all remaining space */
+        min-width: 0;
+        height: 100%;
+        background: black;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .info-col {
+        flex: 0 0 380px;
+        /* Fixed width sidebar */
+        width: 380px;
+        min-width: 380px;
+        max-width: 380px;
+        border-left: 1px solid var(--border-primary);
+        background: var(--bg-secondary);
+        overflow-y: auto;
+        height: 100%;
+        padding: 1.5rem;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+    }
 }
 
 .generation-result-image-container {
     display: flex;
     justify-content: center;
-    border-radius: 8px;
+    align-items: center;
+    border-radius: 0;
+    /* Remove border radius for full flush look */
     overflow: hidden;
-    background: var(--bg-secondary);
-    margin: 0 auto; /* CENTER THE CONTAINER */
-    padding: 0.5rem; /* MINIMAL PADDING FOR IMAGE FRAME */
-    max-width: 100%;
-    box-sizing: border-box;
+    background: transparent;
+    /* Transparent background */
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    /* Full height of parent */
     position: relative;
+    box-shadow: none;
+    /* Remove inner shadow */
 }
 
+/* IMAGE CONSTRAINTS - CRITICAL FIX */
+.result-full-image {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    /* MOBILE: Strict limit to leave space for content */
+    max-height: 70vh;
+    /* Increased from 45vh */
+}
+
+@media (min-width: 1024px) {
+
+    /* WRAPPER FIX - ENFORCE FULL HEIGHT */
+    .image-wrapper-relative,
+    .img-positioning-container,
+    .img-relative-div {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    .result-full-image {
+        /* DESKTOP: STRICT FIT */
+        max-width: 100%;
+        max-height: 100%;
+        width: 100%;
+        /* Force width to fill container */
+        height: 100%;
+        /* Force height to fill container */
+        object-fit: contain;
+        /* Ensure image scales down */
+        margin: auto;
+        display: block;
+    }
+}
+
+/* TABLET FIX */
+@media (min-width: 481px) and (max-width: 1023px) {
+    .result-full-image {
+        max-height: 80vh;
+        /* Constrain on tablet */
+        object-fit: contain;
+        margin: 0 auto;
+        width: auto;
+        max-width: 100%;
+    }
+
+    .generation-result-image-container {
+        background: #000;
+        /* Dark background for tablets too */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 50vh;
+    }
+}
+
+/* OVERLAY BUTTONS - VISIBILITY FIX */
 .image-wrapper-relative {
-    position: relative !important;
-    display: inline-block !important;
-}
-
-.img-relative-div {
-    position: relative !important;
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
 }
 
 .img-positioning-container {
-    position: relative !important;
-    height: auto !important;
+    position: relative;
 }
 
-.result-full-image {
-    width: 100%;
-    max-height: min(70vh, 480px); /* Increased for wider modals */
-    object-fit: contain; /* Fill width on larger screens */
+.image-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 20;
+    /* High Z-index */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.overlay-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
-    display: block;
-    margin: 0 auto;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
 }
 
-/* Desktop: allow much larger images */
-@media (min-width: 1200px) {
-    .result-full-image {
-        max-height: min(80vh, 600px); /* Much larger on wide displays */
-    }
+.overlay-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.05);
 }
 
-/* Tablet: moderate size */
-@media (min-width: 769px) and (max-width: 1023px) {
-    .result-full-image {
-        max-height: min(75vh, 520px);
-    }
+.overlay-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
 }
 
-/* Small laptops/tablets: 1024-1199px */
-@media (min-width: 1024px) and (max-width: 1199px) {
-    .result-full-image {
-        max-height: min(75vh, 540px);
-    }
+.image-overlay-bottom {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 20;
+    pointer-events: none;
+    /* Let clicks pass through empty areas */
 }
 
-/* Mobile: preserve natural size, don't force large */
-@media (max-width: 768px) {
-    .result-full-image {
-        object-fit: scale-down; /* Comfortable viewing on mobile */
-        max-height: 280px; /* Smaller for mobile */
-    }
+.use-overlay-btn {
+    pointer-events: auto;
+    /* Re-enable clicks on button */
+    background: rgba(255, 255, 255, 0.9);
+    color: black;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s;
 }
 
-.generation-result-details {
+.use-overlay-btn:hover {
+    transform: translateY(-2px);
+    background: white;
+}
+
+/* INFO SECTION STYLES */
+.result-prompt-container {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--border-primary);
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 0 1rem; /* ADD PADDING ONLY LEFT/RIGHT */
-    margin-bottom: 1rem; /* ADD BOTTOM MARGIN FOR BUTTON */
 }
 
-@media (max-width: 768px) {
-    .generation-result-container {
-        gap: 0.75rem;
-    }
-
-    .generation-result-details {
-        padding: 0 0.75rem;
-    }
-
-    .result-full-image {
-        max-height: 250px;
-    }
-
-    .reuse-prompt-btn {
-        min-height: 40px;
-        font-size: 0.9rem;
-    }
-
-    .reuse-btn-text {
-        font-size: 0.9rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .reuse-prompt-btn {
-        width: 100%;
-        justify-content: center;
-        min-height: 44px;
-        font-size: 1rem;
-    }
-
-    .reuse-btn-text {
-        font-size: 1rem;
-    }
+.prompt-text-area .prompt-text {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    max-height: 100px;
+    /* Reduced for better fit */
+    overflow-y: auto;
+    font-style: italic;
 }
 
 .result-meta {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Clean 2-column layout */
-    gap: 0.25rem;
-    padding: 0.5rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
     background: var(--bg-secondary);
-    border-radius: 8px;
-    font-size: 0.7rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-primary);
+}
+
+@media (max-width: 768px) {
+    .result-meta {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 @media (max-width: 480px) {
     .result-meta {
         grid-template-columns: 1fr;
-        gap: 0.75rem;
+        gap: 0.5rem;
+        padding: 0.75rem;
     }
-}
 
-.result-meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
+    .generation-result-modal .modal-header {
+        padding: 0.75rem 1rem;
+        min-height: 40px;
+    }
 
-.result-meta-item .meta-label {
-    font-weight: 500;
-    color: var(--text-tertiary);
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.6;
-}
-
-.result-meta-item .meta-value {
-    font-weight: 500;
-    color: var(--text-secondary);
-    font-size: 0.65rem;
-    line-height: 1.2;
-    opacity: 0.7;
-}
-
-.amount-negative {
-    color: var(--error-500) !important;
-}
-
-.result-prompt {
-    order: 1; /* SHOW PROMPT FIRST */
-}
-
-/* ACTION BUTTONS */
-.result-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-start;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem; /* Add bottom margin for spacing */
-}
-
-/* Use existing button styles */
-.use-for-generation-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    min-height: 48px;
-}
-
-/* IMAGE OVERLAY BUTTONS - FORCE POSITIONING */
-.generation-result-image-container {
-    position: relative !important; /* FORCE relative positioning */
-}
-
-.image-overlay {
-    position: absolute !important;
-    top: 0 !important; /* TOP OF IMAGE AREA */
-    right: 0 !important; /* RIGHT ALIGN */
-    left: auto !important;
-    width: auto !important; /* AUTO WIDTH FOR COLUMN */
-    display: flex !important;
-    flex-direction: column !important; /* COLUMN LAYOUT */
-    justify-content: flex-start !important; /* TOP TO BOTTOM */
-    align-items: center !important; /* CENTER BUTTONS IN COLUMN */
-    padding: 0.5rem !important; /* PADDING FROM EDGES */
-    gap: 0.25rem !important;
-    z-index: 1000 !important;
-    pointer-events: all !important;
-    transform: translateX(16px) !important; /* SHIFT SLIGHTLY MORE RIGHT */
-}
-
-.overlay-btn {
-    background: rgba(0, 0, 0, 0.8) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    border-radius: 8px !important;
-    padding: 0.65rem !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    color: white !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
-}
-
-.overlay-btn:hover {
-    background: rgba(0, 0, 0, 0.95) !important;
-    transform: scale(1.05) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
-}
-
-.overlay-btn:active {
-    transform: scale(0.95) !important;
-}
-
-.overlay-btn svg {
-    width: 18px !important;
-    height: 18px !important;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) !important;
-}
-
-/* BACK TO ORIGINAL COLORS */
-.download-btn,
-.share-btn {
-    /* Dark overlay buttons as original */
-    background: rgba(0, 0, 0, 0.8) !important;
-}
-
-.download-btn:hover,
-.share-btn:hover {
-    background: rgba(0, 0, 0, 0.95) !important;
-}
-
-/* BOTTOM OVERLAY FOR USE BUTTON */
-.image-overlay-bottom {
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    padding: 0.75rem !important;
-    display: flex !important;
-    justify-content: center !important;
-    z-index: 1000 !important;
-    pointer-events: all !important;
-}
-
-.use-overlay-btn {
-    background: rgba(255, 255, 255, 0.5) !important;
-    border: none !important;
-    border-radius: 16px !important;
-    padding: 0.375rem 0.875rem !important;
-    color: rgba(0, 0, 0, 0.85) !important;
-    font-weight: 700 !important;
-    font-size: 0.75rem !important;
-    letter-spacing: 0.02em !important;
-    cursor: pointer !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-    transition: all 0.2s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.375rem !important;
-    text-decoration: none !important;
-    min-height: 32px !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-}
-
-.use-overlay-btn:hover {
-    background: rgba(255, 255, 255, 0.8) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.use-overlay-btn:active {
-    transform: translateY(0) !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
-}
-
-.use-overlay-btn svg {
-    width: 16px !important;
-    height: 16px !important;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) !important;
-}
-
-/* PROMPT SECTION */
-.result-prompt-container {
-    background: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 0.75rem;
-}
-
-.prompt-input-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.reuse-prompt-btn {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    transition: all 0.2s ease;
-    min-height: 36px;
-}
-
-.reuse-btn-text {
-    font-size: 0.85rem;
-    font-weight: 600;
-    line-height: 1.2;
-}
-
-.reuse-prompt-btn:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--border-secondary);
-}
-
-.reuse-prompt-btn svg {
-    width: 14px;
-    height: 14px;
+    .generation-result-modal .modal-header h3 {
+        font-size: 1.1rem;
+    }
 }
 
 .prompt-text-area .prompt-label {
@@ -596,13 +585,15 @@
 
 /* LIMIT CLICKABLE AREA - ONLY CHECKBOX AND TEXT */
 .checkbox-label {
-    pointer-events: none; /* Disable clicking on entire label area */
+    pointer-events: none;
+    /* Disable clicking on entire label area */
 }
 
 .checkbox-label input[type="checkbox"],
 .checkbox-label .checkbox-custom,
 .checkbox-label .checkbox-text {
-    pointer-events: auto; /* Enable clicking only on checkbox and text */
+    pointer-events: auto;
+    /* Enable clicking only on checkbox and text */
 }
 
 /* HIDE DEFAULT CHECKBOX */
@@ -640,13 +631,13 @@
 }
 
 /* Checked state - subtle animation */
-.checkbox-label input:checked ~ .checkbox-custom {
+.checkbox-label input:checked~.checkbox-custom {
     background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
     border-color: rgba(14, 165, 233, 0.5);
     transform: scale(1.05);
 }
 
-.checkbox-label input:checked ~ .checkbox-custom::after {
+.checkbox-label input:checked~.checkbox-custom::after {
     content: '';
     position: absolute;
     left: 4px;
@@ -672,7 +663,7 @@
     color: rgba(255, 255, 255, 0.9);
 }
 
-.checkbox-label input:checked ~ .checkbox-text {
+.checkbox-label input:checked~.checkbox-text {
     color: rgba(14, 165, 233, 0.8);
     font-weight: 500;
 }
@@ -686,7 +677,7 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
-[data-theme="dark"] .checkbox-label input:checked ~ .checkbox-text {
+[data-theme="dark"] .checkbox-label input:checked~.checkbox-text {
     color: rgba(14, 165, 233, 0.9);
     font-weight: 500;
 }
@@ -700,7 +691,7 @@
     color: rgba(0, 0, 0, 0.8);
 }
 
-[data-theme="light"] .checkbox-label input:checked ~ .checkbox-text {
+[data-theme="light"] .checkbox-label input:checked~.checkbox-text {
     color: rgba(14, 165, 233, 0.9);
     font-weight: 500;
 }
@@ -708,44 +699,45 @@
 /* NEGATIVE PROMPT INPUT - COMPACT DESIGN */
 /* More compact negative prompt input compared to regular prompt */
 #negativePromptInput {
-    min-height: 80px !important;
-    max-height: 80px !important;
-    font-size: var(--font-size-sm) !important;
-    padding: var(--space-1) var(--space-2) !important;
-    margin: 0 !important;
-    border-radius: var(--radius-md) !important;
-    resize: none !important;
+    min-height: 80px;
+    max-height: 80px;
+    font-size: var(--font-size-sm);
+    padding: var(--space-1) var(--space-2);
+    margin: 0;
+    border-radius: var(--radius-md);
+    resize: none;
 }
 
 /* Even more compact on mobile */
 @media (max-width: 768px) {
     #negativePromptInput {
-        min-height: 70px !important;
-        max-height: 70px !important;
-        font-size: calc(var(--font-size-sm) - 1px) !important;
-        padding: calc(var(--space-1) - 2px) var(--space-2) !important;
+        min-height: 70px;
+        max-height: 70px;
+        font-size: calc(var(--font-size-sm) - 1px);
+        padding: calc(var(--space-1) - 2px) var(--space-2);
     }
 }
 
 @media (max-width: 480px) {
     #negativePromptInput {
-        min-height: 65px !important;
-        max-height: 65px !important;
-        font-size: calc(var(--font-size-sm) - 2px) !important;
-        padding: calc(var(--space-1) - 3px) var(--space-2) !important;
+        min-height: 65px;
+        max-height: 65px;
+        font-size: calc(var(--font-size-sm) - 2px);
+        padding: calc(var(--space-1) - 3px) var(--space-2);
     }
 }
 
 /* Make it narrower than regular prompt input */
 @media (min-width: 768px) {
     #negativePromptInput {
-        width: 92% !important; /* Slightly narrower than 100% */
+        width: 92%;
+        /* Slightly narrower than 100% */
     }
 }
 
 /* Add space between checkbox and input field to prevent overlap */
 #negativePromptFormGroup {
-    margin-top: 8px !important;
+    margin-top: 8px;
     position: relative;
     z-index: 1;
 }
@@ -772,7 +764,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.25);
+    background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(12px) saturate(180%);
     z-index: 1000;
     opacity: 0;
@@ -788,10 +780,11 @@
 }
 
 .ai-coach-overlay-modern.hidden {
-    opacity: 0 !important;
-    transform: scale(0.95) !important;
-    pointer-events: none !important;
-    display: none !important; /* COMPLETE hiding - no blur blocking screen */
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+    display: none;
+    /* COMPLETE hiding - no blur blocking screen */
 }
 
 /* ===== FORM COMPONENTS - STYLE SELECTION ===== */
@@ -810,22 +803,25 @@
 /* STYLE SECTION - SPECIFIC ROW FOR STYLE SELECTION */
 #chooseStyleSection .form-label-row {
     justify-content: flex-start;
-    gap: var(--space-1); /* Уменьшенный отступ между чекбоксом и текстом */
+    gap: var(--space-1);
+    /* Уменьшенный отступ между чекбоксом и текстом */
     align-items: center;
 }
 
 #chooseStyleSection .checkbox-label.small-checkbox {
-    margin-left: 0; /* Убрали auto отступ */
+    margin-left: 0;
+    /* Убрали auto отступ */
     margin-right: 0;
 }
 
 /* STYLE CHECKBOX - FIX POSITIONING */
 #chooseStyleSection .checkbox-label.small-checkbox {
-    display: flex !important;
+    display: flex;
     align-items: center;
     cursor: pointer;
     user-select: none;
-    margin-left: 0; /* Вплотную к тексту */
+    margin-left: 0;
+    /* Вплотную к тексту */
 }
 
 #chooseStyleSection .checkbox-custom {
@@ -840,7 +836,7 @@
     cursor: pointer;
 }
 
-#chooseStyleSection .checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+#chooseStyleSection .checkbox-label input[type="checkbox"]:checked+.checkbox-custom::after {
     content: '';
     position: absolute;
     top: 2px;
@@ -862,13 +858,14 @@
     cursor: pointer;
 }
 
-#chooseStyleSection .checkbox-label input[type="checkbox"]:checked + .checkbox-custom + .checkbox-text {
+#chooseStyleSection .checkbox-label input[type="checkbox"]:checked+.checkbox-custom+.checkbox-text {
     color: var(--primary-500);
 }
 
 /* UPLOAD IMAGE SPACING - ADD MARGIN FROM GENERATE BUTTON */
 .user-image-upload {
-    margin-bottom: 10px !important; /* Увеличен отступ от upload к generate кнопке */
+    margin-bottom: 10px;
+    /* Увеличен отступ от upload к generate кнопке */
 }
 
 .modern-upload-btn {
@@ -877,19 +874,20 @@
 
 /* GENERATE BUTTON TOP SPACING - EXTRA SPACE FROM FORM */
 .generate-btn {
-    margin-top: 10px !important; /* Дополнительный отступ сверху от чекбокса секции */
-    margin-bottom: 10px !important;
+    margin-top: 10px;
+    /* Дополнительный отступ сверху от чекбокса секции */
+    margin-bottom: 10px;
 }
 
 /* FORM ROW - USED FOR INLINE FORM CONTROLS */
 .form-row {
     display: flex;
-    flex-direction: row !important;
+    flex-direction: row;
     gap: 16px;
     align-items: flex-end;
 }
 
 .form-row .form-group {
     display: block;
-    margin-bottom: 0 !important;
+    margin-bottom: 0;
 }

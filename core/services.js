@@ -1,7 +1,6 @@
-// core/services.js - Контейнер зависимостей и фабрика сервисов
-
 import { AppStateManager } from '../store/app-state.js';
 import { eventBus } from '../events/event-bus.js';
+import { HistoryService } from './history-service.js';
 
 // Сервис Telegram
 class TelegramService {
@@ -31,133 +30,88 @@ class TelegramService {
 
             const checkWebApp = () => {
                 attempts++;
-                // УБРАТЬ СПАМ: убиваем console.log для retry попыток
                 if (attempts === 1 || attempts >= maxAttempts) {
                     console.log(`🔍 WebApp check attempt ${attempts}/${maxAttempts}`);
                 }
 
-                // Проверяем доступность Telegram SDK
                 if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
                     console.log('📱 WebApp detected, initializing...');
 
                     this.tg = window.Telegram.WebApp;
                     this.tg.ready();
-                    this.tg.expand();
-
-                    // 🔥 ДОБАВЛЕНО: Сохраняем Telegram объект в appState для использования в webhook
                     this.appState.setTg(this.tg);
 
-                    console.log('📱 WebApp available, initDataUnsafe:', {
-                        hasInitData: !!this.tg.initDataUnsafe,
-                        hasUser: !!this.tg.initDataUnsafe?.user,
-                        userId: this.tg.initDataUnsafe?.user?.id,
-                        userFirstName: this.tg.initDataUnsafe?.user?.first_name
-                    });
-
-                    // Функция для загрузки пользователя из initDataUnsafe
-                    const loadUserFromInitData = () => {
-                        if (this.tg.initDataUnsafe?.user) {
-                            const user = this.tg.initDataUnsafe.user;
-                            this.appState.setUser({
-                                id: user.id.toString(),
-                                name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-                                username: user.username || null,
-                                language: user.language_code || 'en',
-                                isPremium: user.is_premium || false
-                            });
-
-                            // 🔥 РЕМОВЕР: УБРАНА ЛОГИКА ИЗМЕНЕНИЯ ЯЗЫКА
-                            // DictionaryManager.determineAndSetBaseLanguage() сам решит какой язык использовать
-                            console.log(`📱 Telegram language detected: ${user.language_code} (DictionaryManager will decide priority)`);
-
-                            console.log('✅ Telegram user data loaded:', this.appState.user);
-
-                            // 🔥 ДОБАВИЛИ: Обновляем отображение имени и баланса
-                            setTimeout(() => {
-                                if (window.updateUserNameDisplay) {
-                                    window.updateUserNameDisplay();
-                                }
-                                if (window.updateUserBalanceDisplay && this.appState.user?.credits) {
-                                    window.updateUserBalanceDisplay(this.appState.user.credits);
-                                }
-                            }, 100);
-
-                            // Сохраняем данные для будущих сессий
-                            localStorage.setItem('telegram_auth_completed', 'true');
-                            localStorage.setItem('telegram_auth_token', 'webapp_' + Date.now());
-                            localStorage.setItem('telegram_user_data', JSON.stringify(user));
-                            localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
-
-                            return true;
-                        }
-                        return false;
-                    };
-
-                    // Пытаемся загрузить сразу
-                    if (loadUserFromInitData()) {
-                        resolve(true);
-                        return;
-                    }
-
-                    // Если initDataUnsafe.user пустой, проверяем URL параметры (fallback)
+                    // --- 1. HANDLE INCOMING DATA (From URL or WebApp) ---
                     const urlParams = new URLSearchParams(window.location.search);
                     const urlUserId = urlParams.get('user_id');
                     const urlUserData = urlParams.get('user_data');
+                    const urlPrompt = urlParams.get('prompt');
 
-                    if (urlUserId && urlUserData) {
+                    // If we have a prompt in the URL, store it immediately
+                    if (urlPrompt) {
+                        console.log('📝 Prompt received in URL:', urlPrompt);
+                        localStorage.setItem('pending_prompt', urlPrompt);
+                    }
+
+                    // Priority 1: Telegram WebApp User
+                    if (this.tg.initDataUnsafe?.user) {
+                        const user = this.tg.initDataUnsafe.user;
+                        console.log('👤 Loading user from initDataUnsafe:', user);
+                        this.appState.setUser({
+                            id: user.id.toString(),
+                            name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                            username: user.username || null,
+                            photo_url: user.photo_url || null,
+                            language: user.language_code || 'en',
+                            isPremium: user.is_premium || false
+                        });
+
+                        localStorage.setItem('tg_user_data', JSON.stringify(user));
+                        resolve(true);
+                        return;
+                    }
+                    // Priority 2: URL Parameters (Handshake from Landing)
+                    else if (urlUserId && urlUserData) {
                         try {
-                            console.log('📡 User data from URL params detected');
-                            const parsedUserData = JSON.parse(decodeURIComponent(urlUserData));
+                            const parsedUser = JSON.parse(decodeURIComponent(urlUserData));
+                            console.log('👤 User data handshaked from URL:', parsedUser);
 
                             this.appState.setUser({
-                                id: parsedUserData.id.toString(),
-                                name: parsedUserData.first_name + (parsedUserData.last_name ? ' ' + parsedUserData.last_name : ''),
-                                username: parsedUserData.username || null,
-                                language: parsedUserData.language_code || 'en',
-                                isPremium: parsedUserData.is_premium || false
+                                id: parsedUser.id.toString(),
+                                name: parsedUser.first_name + (parsedUser.last_name ? ' ' + parsedUser.last_name : ''),
+                                username: parsedUser.username || null,
+                                photo_url: parsedUser.photo_url || null,
+                                language: parsedUser.language_code || 'en',
+                                isPremium: parsedUser.is_premium || false
                             });
 
-                            console.log('✅ Telegram user data loaded from URL:', this.appState.user);
+                            localStorage.setItem('tg_user_data', JSON.stringify(parsedUser));
 
-                            // Сохраняем данные
-                            localStorage.setItem('telegram_auth_completed', 'true');
-                            localStorage.setItem('telegram_auth_token', 'url_' + Date.now());
-                            localStorage.setItem('telegram_user_data', JSON.stringify(parsedUserData));
-                            localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
-
-                            // Очищаем URL параметры
+                            // Clean URL after handshake
                             const cleanUrl = window.location.pathname + window.location.hash;
                             window.history.replaceState({}, document.title, cleanUrl);
 
                             resolve(true);
                             return;
-                        } catch (error) {
-                            console.error('❌ Error parsing URL user data:', error);
+                        } catch (e) {
+                            console.error('❌ Failed to parse user_data from URL:', e);
                         }
                     }
 
-                    // Если данных нет ни в initDataUnsafe, ни в URL - пробуем с дополнительными проверками
-                    console.log('⏳ No user data found, trying with retry delay');
-
-                    // Быстрая проверка: если нет данных → сразу показать auth, без endless retry
-                    setTimeout(() => {
-                        if (!loadUserFromInitData()) {
-                            console.warn('❌ No user data after WebApp init');
-                            resolve(false); // ПОКАЗАТЬ AUTH SCREEN БЫСТРО
-                        } else {
-                            resolve(true);
-                        }
-                    }, retryDelay);
+                    // Final Fallback: URL is cleaned but we still resolve true if WebApp exists
+                    const cleanUrl = window.location.pathname + window.location.hash;
+                    window.history.replaceState({}, document.title, cleanUrl);
+                    resolve(true);
+                    return;
 
                 } else if (attempts >= maxAttempts) {
                     console.warn('❌ Telegram WebApp not available after max attempts');
-                    resolve(false); // ПОКАЗАТЬ AUTH SCREEN
+                    resolve(false);
                 } else {
                     setTimeout(checkWebApp, retryDelay);
                 }
             };
 
-            // Начальная задержка 1500ms перед первой проверкой (больше времени на загрузку SDK)
             setTimeout(checkWebApp, 1500);
         });
     }
@@ -329,7 +283,8 @@ export function createAppServices(existingAppState) {
         telegram: new TelegramService(appState, evBus),
         storage: new StorageService(appState),
         notifications: new NotificationService(evBus),
-        ui: new UIService()
+        ui: new UIService(),
+        history: new HistoryService()
     };
 
     // Загружаем сохраненные настройки при старте

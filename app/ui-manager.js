@@ -188,11 +188,14 @@ export class UIManager {
      * Инициализация тем
      */
     initializeThemes() {
-        const themeBtn = document.querySelector('.control-btn[title="Theme"]');
+        const themeBtn = document.querySelector('button[title="Theme"]');
         if (themeBtn) {
             themeBtn.addEventListener('click', () => {
                 window.appState.toggleTheme();
             });
+            console.log('✅ Theme button initialized');
+        } else {
+            console.warn('⚠️ Theme button not found in DOM');
         }
     }
 
@@ -264,12 +267,9 @@ export class UIManager {
     }
 
     /**
-     * Показ экрана результатов
+     * Показ экрана результатов - удалена конфликтующая функция
+     * Теперь используйте ScreenManager.showResult(result) для правильной логики
      */
-    showResult(result) {
-        ScreenManager.displayFullResult(result);
-        this.currentScreen = 'result';
-    }
 
     /**
      * Обновление отображения истории

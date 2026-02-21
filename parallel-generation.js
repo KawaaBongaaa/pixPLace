@@ -9,212 +9,10 @@ class GenerationManager {
         this.generationQueue = []; // очередь ожидающих генераций
         this.maxConcurrentGenerations = 3; // максимум параллельных генераций
 
-        // Initialize persisting storage
-        this.storageKey = 'generationManager_state';
-        this.persistEnabled = true; // флаг для отключения persisting если нужно для отладки
-
-        this.initPersistentStorage();
-        this.loadPersistedState();
-        this.startCleanupInterval();
-        this.startBackgroundCompletionPolling();
+        console.log('🚀 GenerationManager initialized (no persistence)');
     }
 
-    // Initialize localStorage structure for persisting
-    initPersistentStorage() {
-        if (!this.persistEnabled) return;
 
-        try {
-            // Try to initialize storage
-            localStorage.setItem('generationManager_init', Date.now().toString());
-            localStorage.removeItem('generationManager_init');
-        } catch (error) {
-            console.warn('❌ localStorage not available for GenerationManager persisting:', error.message);
-            this.persistEnabled = false;
-        }
-    }
-
-    // Save current state to localStorage
-    persistState() {
-        if (!this.persistEnabled) return;
-
-        try {
-            const stateToSave = {
-                activeGenerations: Array.from(this.activeGenerations.entries()),
-                generationQueue: this.generationQueue,
-                timestamp: Date.now(),
-                version: '1.0'
-            };
-
-            localStorage.setItem(this.storageKey, JSON.stringify(stateToSave));
-        } catch (error) {
-            console.warn('❌ Failed to persist GenerationManager state:', error.message);
-        }
-    }
-
-    // Load and restore state from localStorage - ENHANCED VERSION with complete generationHistory backup
-    loadPersistedState() {
-        if (!this.persistEnabled) return;
-
-        try {
-            const savedState = localStorage.getItem(this.storageKey);
-            if (!savedState) {
-                console.log('📋 No persisted state found for GenerationManager');
-                return;
-            }
-
-            const state = JSON.parse(savedState);
-            if (!state || typeof state !== 'object') {
-                console.warn('❌ Invalid persisted state format');
-                this.clearPersistedState();
-                return;
-            }
-
-            // Check if state is not too old (24 hours max)
-            const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-            if (Date.now() - state.timestamp > maxAge) {
-                console.log('🧹 Persisted state is too old, discarding');
-                this.clearPersistedState();
-                return;
-            }
-
-            // 🔥 NEW: Restore complete generationHistory from persisted state
-            // This ensures generation IDs match exactly what was saved
-            if (state.generationHistory && Array.isArray(state.generationHistory)) {
-                if (window.appState) {
-                    // Sort by ID descending (newest first) to maintain proper order
-                    const sortedHistory = state.generationHistory.sort((a, b) => b.id - a.id);
-                    window.appState.setGenerationHistory(sortedHistory);
-                    console.log(`💾 Restored ${state.generationHistory.length} complete generations from persisted history`);
-                }
-            }
-
-            // Clear current state before loading
-            this.activeGenerations.clear();
-            this.generationQueue.length = 0;
-
-            // Restore activeGenerations Map
-            if (state.activeGenerations && Array.isArray(state.activeGenerations)) {
-                state.activeGenerations.forEach(([id, generation]) => {
-                    if (this.isValidGeneration(generation)) {
-                        this.activeGenerations.set(id, generation);
-                    }
-                });
-            }
-
-            // Restore generationQueue
-            if (state.generationQueue && Array.isArray(state.generationQueue)) {
-                state.generationQueue.forEach(generation => {
-                    if (this.isValidGeneration(generation)) {
-                        this.generationQueue.push(generation);
-                    }
-                });
-            }
-
-            console.log(`✅ Restored ${this.activeGenerations.size} active generations and ${this.generationQueue.length} queued from persisted state`);
-
-            // Restore visual elements for active and queued generations
-            this.restoreVisualElements(state);
-
-            // Resume processing for active generations that are not completed
-            this.activeGenerations.forEach((generation, id) => {
-                if (generation.status === 'processing' && !generation.result) {
-                    console.log(`🔄 Resuming processing for generation ${id}`);
-                    this.processGeneration(generation);
-                }
-            });
-
-        } catch (error) {
-            console.error('❌ Failed to load persisted state:', error);
-            this.clearPersistedState();
-        }
-    }
-
-    // Check if generation object is valid for restoration
-    isValidGeneration(generation) {
-        return generation &&
-               typeof generation === 'object' &&
-               typeof generation.id === 'number' &&
-               Date.now() - generation.id < 24 * 60 * 60 * 1000; // Not older than 24 hours
-    }
-
-    // Clear persisted state
-    clearPersistedState() {
-        try {
-            localStorage.removeItem(this.storageKey);
-        } catch (error) {
-            console.warn('Failed to clear persisted state:', error.message);
-        }
-    }
-
-    // Periodic cleanup of old data
-    startCleanupInterval() {
-        // Cleanup every 5 minutes for testing (can be changed to 30 minutes in production)
-        setInterval(() => {
-            this.cleanupExpiredGenerations();
-        }, 5 * 60 * 1000); // 5 minutes
-
-        console.log('🧹 Started cleanup interval (5 minutes)');
-    }
-
-    // Remove expired generations from persisted storage
-    cleanupExpiredGenerations() {
-        if (!this.persistEnabled) return;
-
-        try {
-            console.log('🧹 Running cleanup for GenerationManager persisted state');
-            const savedState = localStorage.getItem(this.storageKey);
-
-            if (!savedState) return;
-
-            const state = JSON.parse(savedState);
-            let cleanedCount = 0;
-
-            // Clean activeGenerations (remove too old or completed)
-            if (state.activeGenerations && Array.isArray(state.activeGenerations)) {
-                const filteredActive = state.activeGenerations.filter(([id, generation]) => {
-                    const isExpired = Date.now() - generation.startedAt > 5 * 60 * 1000; // 5 minutes timeout for active generations
-                    const isCompleted = generation.result || generation.error;
-
-                    if (isExpired || isCompleted) {
-                        cleanedCount++;
-                        console.log(`🧹 Cleaning expired generation ${id}: expired=${isExpired}, completed=${isCompleted}, startedAt=${generation.startedAt}`);
-                        return false;
-                    }
-                    return true;
-                });
-                state.activeGenerations = filteredActive;
-            }
-
-            // Clean generationQueue (remove very old items)
-            if (state.generationQueue && Array.isArray(state.generationQueue)) {
-                const filteredQueue = state.generationQueue.filter(generation => {
-                    const age = Date.now() - (generation.queuedAt || generation.id);
-                    if (age > 24 * 60 * 60 * 1000) { // 24 hours max queue age
-                        cleanedCount++;
-                        return false;
-                    }
-                    return true;
-                });
-                state.generationQueue = filteredQueue;
-            }
-
-            // Save back cleaned state or remove if empty
-            if (state.activeGenerations.length === 0 && state.generationQueue.length === 0) {
-                localStorage.removeItem(this.storageKey);
-                console.log('🗑️ All persisted generations cleaned up, removed storage');
-            } else {
-                state.timestamp = Date.now(); // Refresh timestamp
-                localStorage.setItem(this.storageKey, JSON.stringify(state));
-                if (cleanedCount > 0) {
-                    console.log(`🧹 Cleaned up ${cleanedCount} expired generations from persisted state`);
-                }
-            }
-
-        } catch (error) {
-            console.error('❌ Error during cleanup:', error);
-            this.clearPersistedState();
-        }
-    }
 
     canStartNewGeneration() {
         return this.activeGenerations.size < this.maxConcurrentGenerations && this.generationQueue.length === 0;
@@ -231,8 +29,6 @@ class GenerationManager {
             generation.queuedAt = Date.now();
             console.log(`📋 Generation ${generation.id} queued (${this.generationQueue.length} in queue)`);
 
-            // Persist state after queueing
-            this.persistState();
             return false;
         }
 
@@ -242,8 +38,7 @@ class GenerationManager {
         generation.startedAt = Date.now();
         console.log(`🚀 Generation ${generation.id} started (${this.activeGenerations.size}/${this.maxConcurrentGenerations} active)`);
 
-        // Persist state after adding to active
-        this.persistState();
+
 
         // НАЧИНАЕМ ПРОЦЕСС ГЕНЕРАЦИИ
         console.log(`⚡ Starting processGeneration for ${generation.id}`);
@@ -299,9 +94,6 @@ class GenerationManager {
             }
         }
 
-        // Persist state after completion
-        this.persistState();
-
         // Запускаем следующую из очереди
         this.startNextFromQueue();
     }
@@ -314,9 +106,6 @@ class GenerationManager {
             nextGeneration.status = 'processing';
             nextGeneration.startedAt = Date.now();
             this.activeGenerations.set(nextGeneration.id, nextGeneration);
-
-            // Persist state after moving from queue to active
-            this.persistState();
 
             this.processGeneration(nextGeneration);
             console.log(`🚀 Started queued generation ${nextGeneration.id}`);
@@ -349,253 +138,9 @@ class GenerationManager {
                 isEqualIgnoreCase: generation.mode?.toLowerCase() === 'background_removal'
             });
 
-            // 🔥 SPECIAL HANDLING FOR DREAMSHAPER XL MODE
-            if (generation.mode === 'dreamshaper_xl') {
-                console.log('🎨 🔥 DREAMSHAPER XL MODE DETECTED - Starting specialized processing');
-                console.log('🎨 Detected dreamshaper_xl mode, using specialized module');
 
-                // Lazy loading of the module only when needed
-                let dreamShaperGeneratorModule;
-                try {
-                    const module = await import('./dreamshaper-generator.js');
-                    dreamShaperGeneratorModule = module.dreamShaperGeneratorModule;
-                    // Initialize if not initialized
-                    if (!dreamShaperGeneratorModule.initialized) {
-                        dreamShaperGeneratorModule.init();
-                    }
-                } catch (error) {
-                    console.error('❌ Failed to load dreamshaper-generator module:', error);
-                    throw new Error('DreamShaper XL module loading failed');
-                }
 
-                // Process using the specialized module with API key from CONFIG
-                const apiKey = CONFIG?.RUNWARE_API_KEY;
-                if (!apiKey) {
-                    throw new Error('Runware API key not configured');
-                }
 
-                const result = await dreamShaperGeneratorModule.processGeneration(generation, apiKey);
-                console.log('🎨 DreamShaper XL result:', result);
-
-                if (result.status === 'success') {
-                    // Success - complete the generation with the result
-                    const responseImageUrl = result.image_url;
-                    const replacementData = {
-                        image_url: responseImageUrl,
-                        generation_id: generation.id,
-                        mode: generation.mode,
-                        style: generation.style,
-                        generation_cost: result.cost,
-                        cost_currency: result.cost_currency || 'Cr',
-                        remaining_credits: result.remaining_credits,
-                        taskUUID: generation.taskUUID
-                    };
-
-                    console.log('🎯 DreamShaper XL success data:', replacementData);
-
-                    // Send completion events
-                    const completionEvent = new CustomEvent(`generation:completed:${generation.taskUUID}`, {
-                        detail: replacementData
-                    });
-                    document.dispatchEvent(completionEvent);
-
-                    const globalCompletionEvent = new CustomEvent('generation:completed', {
-                        detail: {
-                            ...replacementData,
-                            generation_id: generation.id,
-                            taskUUID: generation.taskUUID
-                        }
-                    });
-                    document.dispatchEvent(globalCompletionEvent);
-
-                    // Update generation state
-                    generation.result = responseImageUrl;
-                    generation.status = 'completed';
-
-                    if (window.appState) {
-                        window.appState.addGeneration(generation);
-                        window.appState.currentGeneration = generation;
-                        window.appState.saveHistory();
-                        console.log('💾 DreamShaper XL generation added to history');
-                    }
-
-                    // 🔥 ЗАМЕНА АНИМАЦИИ НА ПРЕВЬЮ по taskUUID (как в обычной логике)
-                    let visualUpdateDone = false;
-
-                    // 🔥 ПРОВЕРЯЕМ: Закрыта ли история перед обновлением DOM
-                    const isHistoryClosed = !document.getElementById('historyList')?.classList.contains('hidden');
-
-                    if (window.replaceLoadingWithPreview) {
-                        const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
-                        if (replaced) {
-                            console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
-                            visualUpdateDone = true;
-                        } else {
-                            console.warn(`⚠️ Preview replacement failed - using mandatory fallback`);
-                            // ДОБАВИЛИ: ОБЯЗАТЕЛЬНЫЙ FALLBACK когда replaceLoadingWithPreview вернул false
-                            if (window.updateHistoryItemWithImage) {
-                                window.updateHistoryItemWithImage(generation.id, responseImageUrl);
-                                visualUpdateDone = true;
-                            }
-                        }
-                    } else {
-                        console.warn('❌ replaceLoadingWithPreview not available');
-                        // Если история открыта, используем fallback
-                        if (window.updateHistoryItemWithImage && isHistoryClosed) {
-                            console.log('🔄 Using fallback visual update while history is open');
-                            window.updateHistoryItemWithImage(generation.id, responseImageUrl);
-                            visualUpdateDone = true;
-                        }
-                    }
-
-                    console.log(`🎯 DreamShaper XL completion events sent (visualUpdateDone: ${visualUpdateDone})`);
-
-                    // ❌ DISABLED: Не обновляем баланс для прямых запросов к Runware
-                    // window.updateUserBalance() disabled for dreamshaper_xl mode
-
-                    // Show success notification
-                    if (window.showResultToast) {
-                        window.showResultToast({ image_url: responseImageUrl });
-                    } else if (window.showToast) {
-                        window.showToast('success', window.appState?.translate('generation_success_dreamshaper') || 'Изображение сгенерировано! Посмотрите в истории.');
-                    }
-
-                    console.log(`✅ DreamShaper XL ${generation.id} completed successfully`);
-                    this.completeGeneration(generation.id, responseImageUrl);
-                    return;
-
-                } else {
-                    // Error - complete with error
-                    const errorMessage = result.error || 'DreamShaper XL generation failed';
-                    console.error('❌ DreamShaper XL error:', errorMessage);
-                    this.completeGeneration(generation.id, null, new Error(errorMessage));
-                    return;
-                }
-            }
-
-            // 🔥 SPECIAL HANDLING FOR BACKGROUND REMOVAL MODE
-            if (generation.mode === 'background_removal') {
-                console.log('🎨 🔥 BACKGROUND REMOVAL MODE DETECTED - Starting specialized processing');
-                console.log('🎨 Detected background_removal mode, using specialized module');
-
-                // Lazy loading of the module only when needed
-                let removeBackgroundModule;
-                try {
-                    const module = await import('./remove-background.js');
-                    removeBackgroundModule = module.removeBackgroundModule;
-                    // Initialize if not initialized
-                    if (!removeBackgroundModule.initialized) {
-                        removeBackgroundModule.init();
-                    }
-                } catch (error) {
-                    console.error('❌ Failed to load remove-background module:', error);
-                    throw new Error('Remove background module loading failed');
-                }
-
-                // Process using the specialized module with API key from CONFIG
-                const apiKey = CONFIG?.RUNWARE_API_KEY;
-                if (!apiKey) {
-                    throw new Error('Runware API key not configured');
-                }
-
-                const result = await removeBackgroundModule.processRemoval(generation, apiKey);
-                console.log('🎨 Background removal result:', result);
-
-                if (result.status === 'success') {
-                    // Success - complete the generation with the result
-                    const responseImageUrl = result.image_url;
-                    const replacementData = {
-                        image_url: responseImageUrl,
-                        generation_id: generation.id,
-                        mode: generation.mode,
-                        style: generation.style,
-                        generation_cost: result.cost,
-                        cost_currency: result.cost_currency || 'Cr',
-                        remaining_credits: result.remaining_credits,
-                        taskUUID: generation.taskUUID
-                    };
-
-                    console.log('🎯 Background removal success data:', replacementData);
-
-                    // Send completion events
-                    const completionEvent = new CustomEvent(`generation:completed:${generation.taskUUID}`, {
-                        detail: replacementData
-                    });
-                    document.dispatchEvent(completionEvent);
-
-                    const globalCompletionEvent = new CustomEvent('generation:completed', {
-                        detail: {
-                            ...replacementData,
-                            generation_id: generation.id,
-                            taskUUID: generation.taskUUID
-                        }
-                    });
-                    document.dispatchEvent(globalCompletionEvent);
-
-                    // Update generation state
-                    generation.result = responseImageUrl;
-                    generation.status = 'completed';
-
-                    if (window.appState) {
-                        window.appState.addGeneration(generation);
-                        window.appState.currentGeneration = generation;
-                        window.appState.saveHistory();
-                        console.log('💾 Background removal generation added to history');
-                    }
-
-                    // 🔥 ЗАМЕНА АНИМАЦИИ НА ПРЕВЬЮ по taskUUID (как в обычной логике)
-                    let visualUpdateDone = false;
-
-                    // 🔥 ПРОВЕРЯЕМ: Закрыта ли история перед обновлением DOM
-                    const isHistoryClosed = !document.getElementById('historyList')?.classList.contains('hidden');
-
-                    if (window.replaceLoadingWithPreview) {
-                        const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
-                        if (replaced) {
-                            console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
-                            visualUpdateDone = true;
-                        } else {
-                            console.warn(`⚠️ Preview replacement failed - using mandatory fallback`);
-                            // ДОБАВИЛИ: ОБЯЗАТЕЛЬНЫЙ FALLBACK когда replaceLoadingWithPreview вернул false
-                            if (window.updateHistoryItemWithImage) {
-                                window.updateHistoryItemWithImage(generation.id, responseImageUrl);
-                                visualUpdateDone = true;
-                            }
-                        }
-                    } else {
-                        console.warn('❌ replaceLoadingWithPreview not available');
-                        // Если история открыта, используем fallback
-                        if (window.updateHistoryItemWithImage && isHistoryClosed) {
-                            console.log('🔄 Using fallback visual update while history is open');
-                            window.updateHistoryItemWithImage(generation.id, responseImageUrl);
-                            visualUpdateDone = true;
-                        }
-                    }
-
-                    console.log(`🎯 Background removal completion events sent (visualUpdateDone: ${visualUpdateDone})`);
-
-                    // ❌ DISABLED: Не обновляем баланс для прямых запросов к Runware
-                    // window.updateUserBalance() disabled for background_removal mode
-
-                    // Show success notification
-                    if (window.showResultToast) {
-                        window.showResultToast({ image_url: responseImageUrl });
-                    } else if (window.showToast) {
-                        window.showToast('success', window.appState?.translate('generation_success_background_removal') || 'Фон удалён успешно! Посмотрите в истории.');
-                    }
-
-                    console.log(`✅ Background removal ${generation.id} completed successfully`);
-                    this.completeGeneration(generation.id, responseImageUrl);
-                    return;
-
-                } else {
-                    // Error - complete with error
-                    const errorMessage = result.error || 'Background removal failed';
-                    console.error('❌ Background removal error:', errorMessage);
-                    this.completeGeneration(generation.id, null, new Error(errorMessage));
-                    return;
-                }
-            }
 
             // Принудительная загрузка изображений для быстрой обратной связи
             if (window.globalHistoryLoader) {
@@ -612,23 +157,30 @@ class GenerationManager {
                 prompt: generation.prompt,
                 style: generation.style || appState?.selectedStyle,
                 mode: generation.mode,
-                size: generation.size,
-                user_id: appState?.user?.id || null,
-                user_name: appState?.user?.name || null,
-                user_username: appState?.user?.username || null,
-                user_language: appState?.language || 'en',
-                user_is_premium: appState?.user?.isPremium || false,
+                // 🔥 НОВОЕ: Отправляем конкретные размеры вместо строкового значения
+                width: generation.width,
+                height: generation.height,
+                // size: generation.size, // Оставляем для обратной совместимости если нужно
+                user_id: (appState && appState.user && appState.user.id) ? appState.user.id : null,
+                user_name: (appState && appState.user && appState.user.name) ? appState.user.name : null,
+                user_username: (appState && appState.user && appState.user.username) ? appState.user.username : null,
+                user_language: (appState && appState.language) ? appState.language : 'en',
+                user_is_premium: (appState && appState.user && appState.user.isPremium) ? appState.user.isPremium : false,
                 telegram_platform: appState?.tg?.platform || 'unknown',
                 telegram_version: appState?.tg?.version || 'unknown',
                 timestamp: generation.timestamp || new Date().toISOString(),
                 generation_id: generation.id,
                 taskUUID: generation.taskUUID,
-                // 🔥 ДОБАВИЛИ: УМНАЯ ОБРАБОТКА UUID - одиночное или массив "uuid1","uuid2" для бэкенда
+                negative_prompt: generation.negativePrompt ?? null,
+                strength: generation.strength ?? null,
+                // 🔥 ОБРАБОТКА ИЗОБРАЖЕНИЙ: UUID и base64 данные
                 ...(generation.imageUUIDs?.length === 1
                     ? { imageUUID: generation.imageUUIDs[0] }  // единичное изображение - одиночный ключ
                     : generation.imageUUIDs?.length > 1
                         ? { imageUUIDs: generation.imageUUIDs }  // уже массив UUID - сохраняем как есть для бэка
-                        : {})  // или пустой объект если нет изображений
+                        : {}),  // или пустой объект если нет изображений
+                // 🔥 НОВЫЙ МЕХАНИЗМ: Изображения передаются как бинарные файлы через FormData
+                // generation.imageData больше не используется - данные передаются через FormData в sendToWebhook
             };
 
             // 🔥 НЕОБХОДИМОЕ ДОПОЛНЕНИЕ: Результаты обрабатываются inline в processGeneration
@@ -659,11 +211,35 @@ class GenerationManager {
 
             console.log('📤 Sending webhook request for generation:', generation.id);
 
-            // Используем существующую функцию sendToWebhook
+            // 🔥 НОВЫЙ МЕХАНИЗМ: Проверяем, есть ли бинарные изображения для отправки через FormData
+            let webhookData = requestData;
+
+            if (generation.formData) {
+                console.log('🔍 Binary FormData found in generation, using multipart request');
+                console.log('📦 FormData contains keys:', Array.from(generation.formData.keys()));
+
+                // 🔥 ИСПРАВЛЕНИЕ: Добавляем текстовые поля в существующий FormData из generation
+                Object.entries(requestData).forEach(([key, value]) => {
+                    if (value !== undefined) {
+                        generation.formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+                    }
+                });
+
+                webhookData = {
+                    ...requestData,
+                    formData: generation.formData
+                };
+
+                console.log('📦 Final FormData prepared with binary files and text fields:', Array.from(generation.formData.keys()));
+            } else {
+                console.log('📄 No binary images, using JSON request');
+            }
+
+            // Используем обновленную функцию sendToWebhook
             let response;
             console.log('🔗 Calling sendToWebhook for generation:', generation.id);
             if (window.sendToWebhook) {
-                response = await window.sendToWebhook(requestData);
+                response = await window.sendToWebhook(webhookData);
             } else {
                 // Fallback для тестирования - имитируем задержку
                 await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000));
@@ -692,17 +268,22 @@ class GenerationManager {
                 return;
             }
 
-            // 📝 ДОБАВИЛИ: Обработка "accepted" ответа как перегрузки
-            if (response.trim && response.trim().toLowerCase() === 'accepted') {
-                console.log(`🚨 SERVER ACCEPTED RESPONSE - treating as overload: "${response}"`);
-                this.removeFailedLoadingCard(generation.id);
+            // 📝 ОБНОВЛЕНИЕ: Обработка "accepted" ответа.
+            // Теперь мы НЕ считаем это ошибкой и НЕ удаляем карточку.
+            if (response.status === 'accepted' || response === 'accepted' || (response.status && response.status.toLowerCase() === 'accepted')) {
+                console.log(`📡 TASK ACCEPTED BY SERVER: "${JSON.stringify(response)}" - keeping loading card`);
 
-                if (window.showToast) {
-                    const overloadMessage = window.appState?.translate('error_server_overloaded') ||
-                        '😓 Серверы перегружены. Попробуйте позже.';
-                    window.showToast('error', overloadMessage);
+                // Обновляем текст на карточке для обратной связи
+                const loadingElement = document.getElementById(`loading-${generation.id}`);
+                if (loadingElement) {
+                    const caption = loadingElement.querySelector('.history-caption');
+                    if (caption) {
+                        caption.innerHTML = `<span style="color: #60a5fa; font-weight: 600;">Accepted...</span>`;
+                    }
                 }
-                this.completeGeneration(generation.id, null, new Error('Server accepted - overload'));
+
+                // Завершаем текущий процесс ожидания, но не удаляем карточку
+                this.completeGeneration(generation.id, null);
                 return;
             }
 
@@ -715,7 +296,7 @@ class GenerationManager {
 
             // Проверка лимитов кредитов
             const limitType = (response.limit_reached === true || response.limit_reached === 'true' || response.limit_reached === '1' || response.limit_reached === 1) ? 'trial' :
-                             (response.premium_limit_reached === true || response.premium_limit_reached === 'true' || response.premium_limit_reached === '1' || response.premium_limit_reached === 1) ? 'premium' : null;
+                (response.premium_limit_reached === true || response.premium_limit_reached === 'true' || response.premium_limit_reached === '1' || response.premium_limit_reached === 1) ? 'premium' : null;
 
             if (limitType) {
                 console.log(`🚨 ${limitType.toUpperCase()} LIMIT REACHED: ${response.message || 'Generation limit reached'}`);
@@ -731,144 +312,113 @@ class GenerationManager {
                 return;
             }
 
-            // Успешная генерация
-            if (response.status === 'success' && response.image_url) {
-                console.log('✅ WEBHOOK SUCCESS - launching preview replacement for:', generation.id);
-                console.log('📋 Full webhook response:', response);
-
-                // 🔥 НОВАЯ ЛОГИКА: Заменяем анимацию на превью по taskUUID
-                const replacementData = {
-                    image_url: response.image_url,
-                    generation_id: response.generation_id || generation.id,
-                    mode: generation.mode,
-                    style: generation.style,
-                    generation_cost: response.generation_cost,
-                    cost_currency: response.cost_currency,
-                    remaining_credits: response.remaining_credits,
-                    imageUUID: response.imageUUID,
-                    taskUUID: response.taskUUID || generation.taskUUID
-                };
-
-                console.log('🎯 Data for preview replacement:', replacementData);
-
-                        // 🔥 ЗАМЕНА АНИМАЦИИ НА ПРЕВЬЮ по taskUUID
-                        let visualUpdateDone = false;
-
-                        // 🔥 ПРОВЕРЯЕМ: Закрыта ли история перед обновлением DOM
-                        const isHistoryClosed = !document.getElementById('historyList')?.classList.contains('hidden');
-
-                        if (window.replaceLoadingWithPreview) {
-                            const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
-                            if (replaced) {
-                                console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
-                                visualUpdateDone = true;
-                            } else {
-                                console.warn(`⚠️ Preview replacement failed - using mandatory fallback`);
-                                // ДОБАВИЛИ: ОБЯЗАТЕЛЬНЫЙ FALLBACK когда replaceLoadingWithPreview вернул false
-                                if (window.updateHistoryItemWithImage) {
-                                    window.updateHistoryItemWithImage(generation.id, response.image_url);
-                                    visualUpdateDone = true;
-                                }
-                            }
-                        } else {
-                            console.warn('❌ replaceLoadingWithPreview not available');
-                            // Если история открыта, используем fallback
-                            if (window.updateHistoryItemWithImage && isHistoryClosed) {
-                                console.log('🔄 Using fallback visual update while history is open');
-                                window.updateHistoryItemWithImage(generation.id, response.image_url);
-                                visualUpdateDone = true;
-                            }
-                        }
-
-                        // 🔥 ВСЕГДА отправляем события завершения генерации для background listeners
-                        console.log('🎯 Sending completion events for generation:', generation.id, `(visualUpdateDone: ${visualUpdateDone})`);
-
-                        const completionEvent = new CustomEvent(`generation:completed:${generation.taskUUID}`, {
-                            detail: replacementData
-                        });
-                        document.dispatchEvent(completionEvent);
-
-                        // Также отправляем глобальное событие
-                        const globalCompletionEvent = new CustomEvent('generation:completed', {
-                            detail: {
-                                ...replacementData,
-                                generation_id: generation.id,
-                                taskUUID: generation.taskUUID
-                            }
-                        });
-                        document.dispatchEvent(globalCompletionEvent);
-
-                        console.log('🎯 Background completion events sent for generation:', generation.id);
-
-                // Обновляем текущую генерацию в памяти
-                generation.result = response.image_url;
-                generation.status = 'completed';
-
-                // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ДОБАВЛЯЕМ ГЕНЕРАЦИЮ В ИСТОРИЮ ПРИ ЗАВЕРШЕНИИ
-                if (window.appState) {
-                    window.appState.addGeneration(generation);
-                    window.appState.currentGeneration = generation;
-                    window.appState.saveHistory();
-                    console.log('💾 Generation successfully added to history and saved');
-                }
-
-                // Обновляем баланс если возвращается в ответе
-                // 🔥 ИСПРАВЛЕНИЕ: Преобразуем пустую строку в 0 для корректной работы с NaN
-                let remainingCredits = response.remaining_credits;
-                if (remainingCredits === "" || remainingCredits === null || remainingCredits === undefined) {
-                    remainingCredits = 0;
-                    console.log('🔧 Converted empty remaining_credits to 0');
-                } else {
-                    remainingCredits = parseFloat(remainingCredits) || 0;
-                    console.log(`🔧 Parsed remaining_credits to: ${remainingCredits}`);
-                }
-
-                if (remainingCredits !== undefined && window.updateUserBalance) {
-                    window.updateUserBalance(remainingCredits);
-                    console.log(`💰 Updated user balance to: ${remainingCredits}`);
-                }
-
-                // Сохраняем дополнительные данные от webhook
-                if (response.generation_cost !== undefined) {
-                    generation.generation_cost = response.generation_cost;
-                    generation.cost_currency = response.cost_currency || 'Cr';
-                }
-                if (response.imageUUID) {
-                    generation.imageUUID = response.imageUUID;
-                }
-
-                // Показываем уведомление
+            // Успешная генерация - проверяем наличие image_url (может быть и без status: 'success' в некоторых n8n схемах)
+            if (response.image_url || (response.status === 'success' && response.image_url)) {
                 try {
+                    console.log('✅ WEBHOOK SUCCESS - launching preview replacement for:', generation.id);
+                    console.log('📋 Full webhook response:', response);
+
+                    const replacementData = {
+                        image_url: response.image_url,
+                        generation_id: response.generation_id || generation.id,
+                        mode: generation.mode,
+                        style: generation.style,
+                        generation_cost: response.generation_cost,
+                        cost_currency: response.cost_currency || 'Cr',
+                        remaining_credits: response.remaining_credits,
+                        imageUUID: response.imageUUID,
+                        taskUUID: response.taskUUID || generation.taskUUID
+                    };
+
+                    console.log('🎯 Data for preview replacement:', replacementData);
+
+                    let visualUpdateDone = false;
+                    const isHistoryClosed = !document.getElementById('historyList')?.classList.contains('hidden');
+
+                    if (window.replaceLoadingWithPreview) {
+                        const replaced = window.replaceLoadingWithPreview(generation.taskUUID, replacementData);
+                        if (replaced) {
+                            console.log('✅ Preview successfully replaced animation for taskUUID:', generation.taskUUID);
+                            visualUpdateDone = true;
+                        } else if (window.updateHistoryItemWithImage) {
+                            console.warn(`⚠️ Preview replacement failed - using mandatory fallback`);
+                            window.updateHistoryItemWithImage(generation.id, response.image_url);
+                            visualUpdateDone = true;
+                        }
+                    } else if (window.updateHistoryItemWithImage) {
+                        console.warn('❌ replaceLoadingWithPreview not available, using fallback');
+                        window.updateHistoryItemWithImage(generation.id, response.image_url);
+                        visualUpdateDone = true;
+                    }
+
+                    // 🔥 FORCE SYNC: Очищаем кэш истории чтобы при следующем открытии были свежие данные
+                    if (window.appServices?.history) {
+                        window.appServices.history.clearCache();
+                        console.log('🔄 History cache cleared to ensure sync on next view');
+                    }
+
+                    // События завершения
+                    console.log('🎯 Sending completion events for generation:', generation.id);
+                    const globalCompletionEvent = new CustomEvent('generation:completed', {
+                        detail: { ...replacementData, generation_id: generation.id, taskUUID: generation.taskUUID }
+                    });
+                    document.dispatchEvent(globalCompletionEvent);
+
+                    // Сохранение в state
+                    generation.result = response.image_url;
+                    generation.status = 'completed';
+                    if (window.appState) {
+                        window.appState.addGeneration(generation);
+                        window.appState.saveHistory();
+                        console.log('💾 Generation successfully added to history and saved');
+                    }
+
+                    // Обновление баланса
+                    let remainingCredits = response.remaining_credits;
+                    if (remainingCredits !== undefined && remainingCredits !== null && remainingCredits !== "") {
+                        const parsedCredits = parseFloat(remainingCredits);
+                        if (!isNaN(parsedCredits) && window.updateUserBalance) {
+                            window.updateUserBalance(parsedCredits);
+                            console.log(`💰 Updated user balance to: ${parsedCredits}`);
+                        }
+                    }
+
+                    // Уведомление
                     if (window.showResultToast) {
                         window.showResultToast({ image_url: response.image_url });
-                        console.log('🎯 Success notification shown for generation:', generation.id);
                     } else if (window.showToast) {
-                        window.showToast('success', window.appState?.translate('generation_success_standard') || 'Изображение готово! Посмотрите в истории.');
+                        window.showToast('success', window.appState?.translate('generation_success_standard') || 'Изображение готово!');
                     }
-                } catch (e) {
-                    console.error('❌ Error showing success notification:', e);
+
+                    this.completeGeneration(generation.id, response.image_url);
+                    return;
+
+                } catch (logicError) {
+                    console.error('⚠️ UI/Logic error during success handling (non-critical):', logicError);
+                    // Even if UI fails, we still consider generation successful as we have the image
+                    this.completeGeneration(generation.id, response.image_url);
+                    window.showToast('success', 'Изображение готово (ошибка обновления UI)');
+                    return;
                 }
-
-                // Финальный статус: превью заменено успешно
-                console.log(`✅ Generation ${generation.id} completed successfully - preview replaced using taskUUID`);
-
-                this.completeGeneration(generation.id, response.image_url);
-                return;
             }
 
-            // Неожиданный формат ответа
-            throw new Error('Unexpected response format');
+            // Если не успех, но и не исключение (например, JSON без image_url)
+            throw new Error(response.message || response.error || 'Invalid response from server');
 
         } catch (error) {
-            // 🚨 ТОСТ ПРО ПЕРЕГРУЗКУ ПОКАЗЫВАТЬ НА ВСЕ ОШИБКИ (КРОМЕ ВАЛИДНОГО SUCCESS JSON)
-            console.log(`🚨 Showing server overload toast for all non-success responses for generation ${generation.id}`);
+            console.error(`❌ Generation error for ${generation.id}:`, error);
 
-            if (window.showToast) {
-                const overloadMessage = '😓 Генерация не удалась. Серверы сейчас перегружены, пожалуйста, попробуйте позже или выберите другой режим генерации… Мы искренне извиняемся за неудобства и надеемся на ваше понимание 🙏';
+            // 🚨 ПОКАЗЫВАЕМ ТОСТ ПРО ПЕРЕГРУЗКУ ТОЛЬКО ДЛЯ СЕТЕВЫХ ОШИБОК ИЛИ ОШИБОК СЕРВЕРА
+            // Если это TypeError в нашем коде, не пугаем пользователя перегрузкой
+            const isLogicError = error instanceof TypeError || error.message.includes('replaceLoadingWithPreview');
+
+            if (window.showToast && !isLogicError) {
+                const overloadMessage = '😓 Генерация не удалась. Серверы сейчас перегружены, пожалуйста, попробуйте позже или выберите другой режим генерации… 🙏';
                 window.showToast('error', overloadMessage);
+            } else if (window.showToast && isLogicError) {
+                window.showToast('error', '⚠️ Ошибка при отображении результата. Проверьте историю.');
             }
 
-            console.error(`❌ Generation error for ${generation.id}:`, error);
             this.completeGeneration(generation.id, null, error);
         }
     }
@@ -931,201 +481,84 @@ class GenerationManager {
         }
     }
 
-    // Restore visual elements (animations) for persisted generations
-    restoreVisualElements(persistedState) {
-        try {
-            // Filter generations that need visual restoration
-            const generationsToRestore = [];
+    // 🔥 НОВЫЕ МЕТОДЫ ДЛЯ POLLING ЗАВИСШИХ ГЕНЕРАЦИЙ
 
-            // Active generations that are processing
-            if (persistedState.activeGenerations && Array.isArray(persistedState.activeGenerations)) {
-                persistedState.activeGenerations.forEach(([id, generation]) => {
-                    if (generation.status === 'processing' && !generation.result) {
-                        generationsToRestore.push(generation);
-                    }
-                });
-            }
+    // Запуск polling для зависшей генерации (>120 сек)
+    startStatusPollingForStuckGeneration(generation) {
+        console.log(`🔄 Starting polling for stuck generation ${generation.id} (taskUUID: ${generation.taskUUID})`);
 
-            // Queued generations
-            if (persistedState.generationQueue && Array.isArray(persistedState.generationQueue)) {
-                persistedState.generationQueue.forEach(generation => {
-                    generationsToRestore.push(generation);
-                });
-            }
+        // Создаем элемент для отображения статуса polling
+        this.updateStuckCardUI(generation.id, 'Checking status...');
 
-            console.log(`🎨 Restoring visual elements for ${generationsToRestore.length} generations`);
+        // Начинаем polling каждые 15 секунд
+        const pollInterval = setInterval(async () => {
+            try {
+                // Проверяем статус через HistoryService
+                if (window.appServices?.history) {
+                    const status = await window.appServices.history.checkGenerationStatus(generation.taskUUID, window.appState?.user?.id);
 
-            // Create visual animations for restored generations
-            generationsToRestore.forEach(generation => {
-                // Add to history as processing
-                if (window.appState && window.appState.addGeneration) {
-                    // Ensure generation is in history for visual restoration
-                    if (!window.appState.generationHistory.find(g => g.id === generation.id)) {
-                        window.appState.addGeneration({
-                            ...generation,
-                            status: 'processing',
-                            timestamp: generation.timestamp || new Date().toISOString()
-                        });
-                        console.log(`📝 Added generation ${generation.id} to history for visual restoration`);
+                    if (status && status.status === 'completed' && status.image_url) {
+                        console.log(`✅ Stuck generation ${generation.id} completed via polling`);
+
+                        // Обновляем генерацию
+                        generation.result = status.image_url;
+                        generation.status = 'completed';
+
+                        // Заменяем превью
+                        if (window.replaceLoadingWithPreview) {
+                            window.replaceLoadingWithPreview(generation.taskUUID, {
+                                image_url: status.image_url,
+                                generation_id: generation.id,
+                                mode: generation.mode,
+                                style: generation.style,
+                                taskUUID: generation.taskUUID
+                            });
+                        }
+
+                        // Добавляем в историю
+                        if (window.appState) {
+                            window.appState.addGeneration(generation);
+                            window.appState.saveHistory();
+                        }
+
+                        clearInterval(pollInterval);
+                        return;
                     }
                 }
 
-                // Create loading animation in DOM
+                // Продолжаем polling...
+                console.log(`⏳ Still polling for generation ${generation.id}`);
+
+            } catch (error) {
+                console.warn(`⚠️ Polling error for generation ${generation.id}:`, error);
+            }
+
+            // Останавливаем polling через 30 минут (120 * 15сек = 1800 сек = 30 мин)
+            if (Date.now() - generation.startedAt > 30 * 60 * 1000) {
+                console.log(`⏰ Stopping polling for generation ${generation.id} (timeout)`);
+                this.updateStuckCardUI(generation.id, 'Generation timeout');
+                clearInterval(pollInterval);
+
+                // Удаляем элемент через 5 секунд
                 setTimeout(() => {
-                    if (window.createLoadingHistoryItem) {
-                        const visualElement = window.createLoadingHistoryItem(generation);
-                        if (visualElement) {
-                            console.log(`✅ Restored visual animation for generation ${generation.id}`);
-                        } else {
-                            console.warn(`⚠️ Failed to create visual element for generation ${generation.id}`);
-                        }
-                    } else {
-                        console.warn('❌ createLoadingHistoryItem not available for visual restoration');
-                    }
-                }, 500); // Small delay to ensure DOM is ready
-            });
-
-        } catch (error) {
-            console.error('❌ Error restoring visual elements:', error);
-        }
-    }
-
-    // Override persistState to include generationHistory backup
-    persistState() {
-        if (!this.persistEnabled) return;
-
-        try {
-            const stateToSave = {
-                activeGenerations: Array.from(this.activeGenerations.entries()),
-                generationQueue: this.generationQueue,
-                generationHistory: window.appState?.generationHistory || [], // 🔥 NEW: Backup complete history
-                timestamp: Date.now(),
-                version: '1.0'
-            };
-
-            localStorage.setItem(this.storageKey, JSON.stringify(stateToSave));
-
-            // Update UI indicators
-            this.updateUIIndicators();
-
-        } catch (error) {
-            console.warn('❌ Failed to persist GenerationManager state:', error.message);
-        }
-    }
-
-    // Start background completion polling for cross-tab synchronization
-    startBackgroundCompletionPolling() {
-        if (!this.persistEnabled) return;
-
-        this.lastPollTimestamp = Date.now();
-        this.backgroundPollInterval = setInterval(() => {
-            this.checkBackgroundCompletions();
-        }, 3000); // Poll every 3 seconds
-
-        console.log('🔄 Started background completion polling (3s intervals)');
-
-        // Listen for storage changes from other tabs
-        window.addEventListener('storage', (event) => {
-            if (event.key === this.storageKey && event.newValue) {
-                console.log('🔄 Storage change detected from another tab, checking completions');
-                setTimeout(() => this.checkBackgroundCompletions(), 100);
+                    this.removeFailedLoadingCard(generation.id);
+                }, 5000);
             }
-        });
+        }, 15000); // Каждые 15 секунд
     }
 
-    // Check for completions from background processes or other tabs
-    checkBackgroundCompletions() {
-        if (!this.persistEnabled) return;
-
-        try {
-            const savedState = localStorage.getItem(this.storageKey);
-            if (!savedState) return;
-
-            const state = JSON.parse(savedState);
-            if (!state || !state.activeGenerations) return;
-
-            // Check for completed generations that we haven't processed yet
-            const completedGenerations = [];
-            state.activeGenerations.forEach(([id, generation]) => {
-                if (generation.result && generation.status === 'completed') {
-                    // Check if this generation is not already completed in our local state
-                    const localGen = this.activeGenerations.get(id);
-                    if (localGen && !localGen.result) {
-                        console.log(`🎯 Found background-completed generation ${id}, processing locally`);
-                        completedGenerations.push(generation);
-                    }
-                }
-            });
-
-            // Process background completions
-            completedGenerations.forEach(generation => {
-                // Update local active generation
-                const localGen = this.activeGenerations.get(generation.id);
-                if (localGen) {
-                    localGen.result = generation.result;
-                    localGen.status = 'completed';
-                    localGen.completedAt = generation.completedAt;
-                    localGen.generation_cost = generation.generation_cost;
-                    localGen.cost_currency = generation.cost_currency;
-                    localGen.imageUUID = generation.imageUUID;
-
-                    console.log(`✅ Processed background completion for generation ${generation.id}`);
-
-                    // Trigger visual update events
-                    const completionData = {
-                        image_url: generation.result,
-                        generation_id: generation.id,
-                        mode: generation.mode,
-                        style: generation.style,
-                        generation_cost: generation.generation_cost,
-                        cost_currency: generation.cost_currency,
-                        remaining_credits: generation.remaining_credits,
-                        imageUUID: generation.imageUUID,
-                        taskUUID: generation.taskUUID
-                    };
-
-                    // Send completion events
-                    const taskUUIDEvent = new CustomEvent(`generation:completed:${generation.taskUUID}`, {
-                        detail: completionData
-                    });
-                    document.dispatchEvent(taskUUIDEvent);
-
-                    const globalEvent = new CustomEvent('generation:completed', {
-                        detail: {
-                            ...completionData,
-                            generation_id: generation.id,
-                            taskUUID: generation.taskUUID
-                        }
-                    });
-                    document.dispatchEvent(globalEvent);
-
-                    console.log(`🎯 Background completion events sent for generation ${generation.id}`);
-
-                    // Remove from active list since it's completed
-                    this.activeGenerations.delete(generation.id);
-                    this.persistState();
-                }
-            });
-
-        } catch (error) {
-            console.error('❌ Error checking background completions:', error);
-        }
-    }
-
-    // Update UI indicators when persisting state
-    updateUIIndicators() {
-        try {
-            if (window.updateHistoryCount) {
-                // Include active animations in count
-                const animationCount = this.activeGenerations.size + this.generationQueue.length;
-
-                // Wait a bit for DOM updates
-                setTimeout(() => window.updateHistoryCount(), 100);
+    // Обновление UI для зависшей генерации
+    updateStuckCardUI(generationId, status) {
+        const element = document.getElementById(`loading-${generationId}`);
+        if (element) {
+            const caption = element.querySelector('p');
+            if (caption) {
+                caption.innerHTML = `<span style="color: #ffa500; font-weight: 600;">${status}</span>`;
             }
-        } catch (error) {
-            console.warn('Failed to update UI indicators:', error.message);
         }
     }
+
+
 }
 
 // Глобальный экземпляр
@@ -1134,6 +567,3 @@ const generationManager = new GenerationManager();
 // Экспорт для использования в других файлах
 window.GenerationManager = GenerationManager;
 window.generationManager = generationManager;
-
-// 🔥 Экспорт для ES6 модулей
-export { generationManager, GenerationManager };

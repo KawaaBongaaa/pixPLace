@@ -1,0 +1,38 @@
+<!-- Auth Modal Screen - Lazy loaded on Login button click -->
+<div id="authScreen" class="screen">
+    <div class="screen-content">
+        <!-- Close/Back Button -->
+        <button onclick="ScreenManager.showApp()" class="absolute top-4 left-4 w-10 h-10 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 border-none rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 z-10">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12,19 5,12 12,5"></polyline>
+            </svg>
+        </button>
+
+        <div class="text-center">
+            <div class="mb-6">
+                <div class="w-30 h-30 mx-auto mb-4">
+                    <svg class="w-full h-full">
+                        <use xlink:href="#pixplace-logo" />
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-black theme-text-primary mb-1 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Welcome to pixPLace</h1>
+                <p class="text-lg theme-text-secondary max-w-500 mx-auto">A space where your ideas come to life and creativity flows.</p>
+            </div>
+            <div class="p-9 text-center">
+                <p class="theme-text-primary text-lg mb-8">Just sign in with Telegram and start creating with joy.</p>
+
+                <button id="telegramAuthBtn" class="w-full max-w-75 h-20 bg-blue-600 text-white text-2xl font-bold border-none rounded-2xl cursor-pointer flex items-center justify-center gap-4 mx-auto mb-5 shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-102" onclick="handleTelegramLogin()">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 5.547c.24.24.443.442.443.783v.054c0 .34-.203.542-.443.783l-.054.054-2.572 2.572-1.781 1.781a.48.48 0 0 1-.683 0l-.054-.054-.832-.832-.832-.832-.832-.832-.832-.832-.054-.054a.48.48 0 0 1 0-.683l.054-.054 1.781-1.781L14.746 5.6c1.086 1.086 2.238 2.238 2.572 2.572z" />
+                    </svg>
+                    <span>SIGN IN WITH TELEGRAM</span>
+                </button>
+
+                <div class="mt-9 text-gray-500 dark:text-gray-400">
+                    <p class="text-lg">💜 Your data's safe with us — we value your trust.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

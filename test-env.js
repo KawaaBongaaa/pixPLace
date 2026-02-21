@@ -9,7 +9,6 @@ console.log('');
 
 // List of important environment variables
 const varsToCheck = [
-    'RUNWARE_API_KEY',
     'WEBHOOK_URL',
     'CHAT_WEBHOOK_URL',
     'IMGBB_API_KEY'

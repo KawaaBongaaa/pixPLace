@@ -1,4 +1,4 @@
-name: Inject API Keys
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -7,50 +7,53 @@ on:
   workflow_dispatch:
 
 jobs:
-  inject-keys:
+  deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to push to gh-pages branch
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Inject all secrets into app_modern.js
+      # ── Inject all secret webhook URLs into app_modern.js ──────────────────
+      - name: Inject webhook secrets
         run: |
-          echo "🔧 Injecting all API keys and URLs..."
+          echo "🔧 Injecting webhook URLs from GitHub Secrets..."
 
-          if [ -n "${{ secrets.RUNWARE_API_KEY }}" ]; then
-            sed -i "s/PLACEHOLDER_RUNWARE_API_KEY/${{ secrets.RUNWARE_API_KEY }}/g" app_modern.js
-            echo "✅ RUNWARE_API_KEY inserted"
-          else
-            echo "❌ RUNWARE_API_KEY secret not found!"
-          fi
+          sed -i "s|PLACEHOLDER_WEBHOOK_URL|${{ secrets.WEBHOOK_URL }}|g" app_modern.js
+          sed -i "s|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ secrets.CHAT_WEBHOOK_URL }}|g" app_modern.js
+          sed -i "s|PLACEHOLDER_N8N_WEBHOOK_URL|${{ secrets.N8N_WEBHOOK_URL }}|g" app_modern.js
+          sed -i "s|PLACEHOLDER_N8N_ENHANCE_WEBHOOK_URL|${{ secrets.N8N_ENHANCE_WEBHOOK_URL }}|g" app_modern.js
+          sed -i "s|PLACEHOLDER_HISTORY_WEBHOOK_URL|${{ secrets.HISTORY_WEBHOOK_URL }}|g" app_modern.js
 
-          if [ -n "${{ secrets.WEBHOOK_URL }}" ]; then
-            sed -i "s|PLACEHOLDER_WEBHOOK_URL|${{ secrets.WEBHOOK_URL }}|g" app_modern.js
-            echo "✅ WEBHOOK_URL inserted"
-          else
-            echo "❌ WEBHOOK_URL secret not found!"
-          fi
+          echo "✅ All webhook URLs injected."
 
-          if [ -n "${{ secrets.CHAT_WEBHOOK_URL }}" ]; then
-            sed -i "s|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ secrets.CHAT_WEBHOOK_URL }}|g" app_modern.js
-            echo "✅ CHAT_WEBHOOK_URL inserted"
-          else
-            echo "❌ CHAT_WEBHOOK_URL secret not found!"
-          fi
-
-          if [ -n "${{ secrets.TELEGRAM_BOT_URL }}" ]; then
-            sed -i "s|PLACEHOLDER_TELEGRAM_BOT_URL|${{ secrets.TELEGRAM_BOT_URL }}|g" app_modern.js
-            echo "✅ TELEGRAM_BOT_URL inserted"
-          else
-            echo "❌ TELEGRAM_BOT_URL secret not found!"
-          fi
-
-      - name: Verify all replacements
+      # ── Verify no placeholders remain ──────────────────────────────────────
+      - name: Verify replacements
         run: |
           if grep -q "PLACEHOLDER_" app_modern.js; then
-            echo "❌ Some placeholders were NOT replaced!"
+            echo "❌ ERROR: Some PLACEHOLDER_ values were NOT replaced!"
+            grep -n "PLACEHOLDER_" app_modern.js
             exit 1
           else
-            echo "✅ All placeholders replaced successfully"
+            echo "✅ All placeholders replaced successfully."
           fi
+
+      # ── Deploy to gh-pages branch ──────────────────────────────────────────
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          exclude_assets: |
+            .github
+            dev-server.js
+            test-env.js
+            package.json
+            package-lock.json
+            node_modules
+            .env
+            .env.local
+            *.bak
+            *.log

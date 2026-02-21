@@ -206,7 +206,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
             document.body.removeChild(link);
 
             console.log('✅ Direct download link triggered');
-            if (showToast) showToastNat('success', 'Download started! Check your downloads folder.');
+            if (showToast) showToast('success', 'Download started! Check your downloads folder.');
             return { method: 'direct-download', success: true };
         } catch (error) {
             console.warn('⚠️ Direct download failed:', error.message);
@@ -237,7 +237,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
                     URL.revokeObjectURL(blobUrl);
 
                     console.log('✅ Blob download succeeded');
-                    if (showToast) showToastNat('success', 'Download completed!');
+                    if (showToast) showToast('success', 'Download completed!');
                     return { method: 'blob-download', success: true };
                 } else {
                     console.warn('⚠️ Blob fetch failed with status:', response.status);
@@ -254,9 +254,9 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
 
         // Show detailed instructions based on browser
         if (caps.platform.mac) {
-            if (showToast) showToastNat('info', 'Image opened - ⌘+S or right-click > Save Image As');
+            if (showToast) showToast('info', 'Image opened - ⌘+S or right-click > Save Image As');
         } else {
-            if (showToast) showToastNat('info', 'Image opened - Ctrl+S or right-click > Save image as');
+            if (showToast) showToast('info', 'Image opened - Ctrl+S or right-click > Save image as');
         }
 
         return { method: 'open-with-save-instructions', success: true };
@@ -285,7 +285,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
     emergencyBtn.onclick = () => {
         window.open(imageUrl, '_blank');
         document.body.removeChild(emergencyBtn);
-        if (showToast) showToastNat('info', 'Manual download initiated - use browser menu to save');
+        if (showToast) showToast('info', 'Manual download initiated - use browser menu to save');
     };
 
     document.body.appendChild(emergencyBtn);
@@ -297,7 +297,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
         }
     }, 10000);
 
-    if (showToast) showToastNat('warning', 'Download button created - click top-right blue button');
+    if (showToast) showToast('warning', 'Download button created - click top-right blue button');
     return { method: 'emergency-manual', success: true };
 
     // 📱 MOBILE DEVICES LOGIC BELOW
@@ -320,7 +320,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
 
             if (navigator.canShare(shareData)) {
                 await navigator.share(shareData);
-                if (showToast) showToastNat('success', 'File shared successfully!');
+                if (showToast) showToast('success', 'File shared successfully!');
                 return { method: 'native-share', success: true };
             } else {
                 throw new Error('Cannot share files');
@@ -334,7 +334,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
     if (caps.platform.ios) {
         console.log('🍎 iOS device - opening in new tab with instructions');
         window.open(imageUrl, '_blank');
-        if (showToast) showToastNat('info', 'Tap and hold to save or share image');
+        if (showToast) showToast('info', 'Tap and hold to save or share image');
         return { method: 'ios-open', success: true };
     }
 
@@ -359,7 +359,7 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
 
             URL.revokeObjectURL(url);
 
-            if (showToast) showToastNat('success', 'Download started!');
+            if (showToast) showToast('success', 'Download started!');
             return { method: 'mobile-blob-download', success: true };
         } catch (error) {
             console.warn('⚠️ Mobile blob download failed:', error.message);
@@ -378,17 +378,17 @@ export async function downloadOrShareImage(imageUrl, options = {}) {
             message = 'Use browser menu to save image';
         }
 
-        if (showToast) showToastNat('info', message);
+        if (showToast) showToast('info', message);
         return { method: 'mobile-open-tab', success: true };
     } catch (error) {
         console.error('❌ All mobile methods failed:', error);
-        if (showToast) showToastNat('error', 'Download failed - please check image URL');
+        if (showToast) showToast('error', 'Download failed - please check image URL');
         return { method: 'failed', success: false, error: error.message };
     }
 }
 
 // 🔔 ОСТОРОЖНАЯ ФУНКЦИЯ С ТОСТОМ - НЕ ЗАВИСИТ ОТ ВНЕШНИХ МОДУЛЕЙ
-function showToastNat(type, message) {
+function showToast(type, message) {
     // Проверяем - есть ли уже функция showToast в window
     if (window.showToast && typeof window.showToast === 'function') {
         window.showToast(type, message);
@@ -530,7 +530,7 @@ export function sanitizeJsonString(str) {
         .replace(/\t/g, '\\t');  // Заменяем табуляции
 }
 
-// Функция чтения файла как DataURL
+// Функция чтения файла как DataURL (устаревшая, для обратной совместимости)
 export function readFileAsDataURL(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -540,7 +540,38 @@ export function readFileAsDataURL(file) {
     });
 }
 
-// Функция компрессии изображений
+// 🔥 НОВАЯ ФУНКЦИЯ: Чтение файла как ArrayBuffer для бинарной обработки
+export function readFileAsArrayBuffer(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+// 🔥 НОВАЯ ФУНКЦИЯ: Конвертация ArrayBuffer в Blob
+export function arrayBufferToBlob(buffer, mimeType = 'image/jpeg') {
+    return new Blob([buffer], { type: mimeType });
+}
+
+// 🔥 НОВАЯ ФУНКЦИЯ: Конвертация Blob в DataURL (для совместимости с UI)
+export function blobToDataURL(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+// Функция для извлечения чистой base64 строки из data URL
+export function extractBase64FromDataUrl(dataUrl) {
+    if (!dataUrl || !dataUrl.includes(',')) return dataUrl;
+    return dataUrl.split(',')[1];
+}
+
+// Функция компрессии изображений (устаревшая, возвращает base64)
 export function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 0.9) {
     return new Promise(resolve => {
         const img = new Image();
@@ -559,6 +590,29 @@ export function maybeCompressImage(dataUrl, maxW = 1024, maxH = 1024, quality = 
         };
         img.onerror = () => resolve(dataUrl);
         img.src = dataUrl;
+    });
+}
+
+// 🔥 НОВАЯ ФУНКЦИЯ: Сжатие изображений с возвратом Blob (для бинарной обработки)
+export function maybeCompressImageBlob(blob, maxW = 1024, maxH = 1024, quality = 0.9) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+            let w = img.width, h = img.height;
+            const ratio = Math.min(maxW / w, maxH / h, 1);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+
+            canvas.toBlob(resolve, 'image/jpeg', quality);
+        };
+        img.onerror = () => resolve(blob); // Возвращаем оригинальный blob при ошибке
+        img.src = URL.createObjectURL(blob);
     });
 }
 

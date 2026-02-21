@@ -1,0 +1,18 @@
+/* 
+   DEPRECATED: All styles migrated to Tailwind Utility Classes in index.html 
+   This file is kept for reference but should not be active.
+*/
+
+/*
+:root {
+    --glass-border-light: rgba(255, 255, 255, 0.4);
+    --glass-bg-light: rgba(255, 255, 255, 0.45);
+    --glass-shadow-light: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --glass-border-dark: rgba(255, 255, 255, 0.1);
+    --glass-bg-dark: rgba(30, 41, 59, 0.75);
+    --glass-shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.modern-input-container { ... }
+... (rest of the file is effectively removed by not being here)
+*/
