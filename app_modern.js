@@ -82,7 +82,7 @@ const CONFIG = {
     // ⚠️ Do NOT put real URLs here — they are replaced at deploy time
     WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/8f797a7b-df4e-4fd0-881d-408666418195',
     CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6',
-    N8N_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/2f0c97d6-8aca-4b71-869c-d4aa1c69d320',
+    N8N_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/nano-banana',
     N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/enhance_img_or_removebg',
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
 
@@ -2076,10 +2076,13 @@ async function generateImage(event) {
         event.preventDefault();
     }
 
-    // 🚀 USE window.generationManager (parallel-generation.js is a regular script, not ES module)
-    const generationManager = window.generationManager;
-    if (!generationManager) {
-        console.error('❌ generationManager not found on window. parallel-generation.js may not have loaded.');
+    // 🚀 LAZY LOAD: Dynamically import generationManager
+    let generationManager;
+    try {
+        const module = await import('./parallel-generation.js');
+        generationManager = module.generationManager;
+    } catch (error) {
+        console.error('❌ Failed to load generation module:', error);
         showToast('error', 'Failed to load generation module');
         return;
     }
