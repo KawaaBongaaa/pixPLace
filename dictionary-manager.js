@@ -19,7 +19,6 @@ class DictionaryManager {
     // 🔥 ЦЕНТРАЛИЗОВАННЫЙ МЕТОД: Определение и установка базового языка
     async determineAndSetBaseLanguage() {
         try {
-            console.log('🌍 Determining base language with centralized logic...');
 
             // 🔥 ПРИОРИТЕТЫ ДЛЯ ОПРЕДЕЛЕНИЯ ЯЗЫКА (ЕДИНЫЕ ПРАВИЛА ВСЕГО ПРИЛОЖЕНИЯ):
             // 1. localStorage (если пользователь выбирал язык и установлен флаг isLanguageSetByUser)
@@ -35,11 +34,9 @@ class DictionaryManager {
                 const isUserSet = settings.isLanguageSetByUser === true;
                 if (isUserSet) {
                     baseLang = settings.language;
-                    console.log('✅ Language from localStorage (user chosen):', baseLang);
-                } else {
-                    console.log('⚠️ localStorage has language but not user-set, checking Telegram...');
                 }
             }
+
 
             // 2. ПРОВЕРЯЕМ TELEGRAM ТОЛЬКО ЕСЛИ НЕТ ПОЛЬЗОВАТЕЛЬСКОГО ВЫБОРА
             if (!settings.isLanguageSetByUser) {
@@ -68,23 +65,33 @@ class DictionaryManager {
 
                             if (mappedLang && mappedLang !== baseLang) {
                                 baseLang = mappedLang;
-                                console.log('✅ Language from Telegram:', tgLang, '->', baseLang, '(with region handling)');
                             }
-                        } else {
-                            console.log('⚠️ Telegram available but no language_code');
                         }
-                    } else {
-                        console.log('⚠️ Telegram SDK not available, using default');
                     }
                 } catch (error) {
                     console.warn('❌ Error reading Telegram language:', error);
+                }
+
+                // 3. 🌐 BROWSER DETECTION (FALLBACK)
+                // Если Telegram не дал языка (или мы не в Telegram), берем язык браузера
+                if (baseLang === 'en') { // Если все еще дефолт
+                    try {
+                        const browserLang = navigator.language || navigator.userLanguage;
+                        if (browserLang) {
+                            const langCode = browserLang.split('-')[0];
+                            if (this.supportedLanguages.includes(langCode)) {
+                                baseLang = langCode;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('❌ Error detecting browser language:', e);
+                    }
                 }
             }
 
             // 🔥 КРИТИЧЕСКОЕ: УСТАНАВЛИВАЕМ ЯЗЫК БЕЗ ОБНОВЛЕНИЯ ПЕРЕВОДОВ (UI еще не готов!)
             await this.setLanguageInternal(baseLang);
 
-            console.log('✅ Base language determined and initialized', baseLang);
             return baseLang;
 
         } catch (error) {
@@ -113,8 +120,6 @@ class DictionaryManager {
         }
 
         try {
-            console.log('📥 Loading dictionary: ' + lang);
-
             // Динамический импорт словаря
             const modulePath = './dictionaries/' + lang + '.js';
             const module = await import(modulePath);
@@ -126,7 +131,6 @@ class DictionaryManager {
 
             // Сохраняем в кэш
             this.loadedDictionaries.set(lang, dictionary);
-            console.log('✅ Dictionary loaded: ' + lang + ' (' + Object.keys(dictionary).length + ' keys)');
 
             return dictionary;
 
@@ -140,8 +144,6 @@ class DictionaryManager {
 
     // 🔥 ВНУТРЕННИЙ МЕТОД: Установка языка БЕЗ ОБНОВЛЕНИЯ UI (для инициализации)
     async setLanguageInternal(lang) {
-        console.log('🔧 setLanguageInternal called for', lang, '- current is', this.currentLanguage, '- dict loaded:', this.isDictionaryLoaded(lang));
-
         if (!lang) return;
 
         const oldLang = this.currentLanguage;
@@ -150,17 +152,7 @@ class DictionaryManager {
         // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Загружаем словарь ТОЛЬКО если он еще не загружен!
         if (!this.isDictionaryLoaded(lang)) {
             const dictResult = await this.loadDictionary(lang);
-
-            console.log('🌍 Language initialized internally: loaded dict for ' + lang, {
-                dictLoaded: dictResult ? 'YES' : 'NO',
-                dictKeys: dictResult ? Object.keys(dictResult).length : 0,
-                types: dictResult ? typeof dictResult : 'null'
-            });
-        } else {
-            console.log('🌍 Language initialized internally: using cached dict for ' + lang);
         }
-
-
 
         return this.getCurrentDictionary();
     }
@@ -180,15 +172,12 @@ class DictionaryManager {
         // Загружаем новый словарь
         await this.loadDictionary(lang);
 
-        console.log('🌍 Language switched: ' + oldLang + ' → ' + lang);
-
         // 🔥 ОБНОВЛЯЕМ ПЕРЕВОДЫ СРАЗУ ПОСЛЕ СМЕНЫ
         this.updateTranslations();
 
         // 🔥 КРИТИЧЕСКОЕ: Синхронизируем appState.language для правильной работы appState.translate()
         if (window.appState && window.appState.setLanguage) {
             window.appState.setLanguage(lang);
-            console.log('🔄 Synced appState.language with dictionaryManager change');
         }
 
         // 🔥 СОБЫТИЕ ДЛЯ ОБНОВЛЕНИЯ ВСЕХ МОДУЛЕЙ
@@ -204,8 +193,6 @@ class DictionaryManager {
         const translations = this.getCurrentDictionary();
 
         if (!translations) return;
-
-        console.log('🔄 Updating translations for ' + this.currentLanguage);
 
         // Обновляем обычные элементы с data-i18n
         document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -251,22 +238,8 @@ class DictionaryManager {
         };
     }
 
-    // Предварительная загрузка часто используемых языков
-    async preloadCommonLanguages() {
-        const common = ['en', 'ru', 'es', 'de', 'fr'];
-        console.log('🔄 Preloading common languages in background');
-
-        // Загружаем параллельно, но не ждём
-        common.forEach(async (lang) => {
-            if (!this.loadedDictionaries.has(lang)) {
-                try {
-                    await this.loadDictionary(lang);
-                } catch (e) {
-                    console.warn('Failed to preload ' + lang + ':', e.message);
-                }
-            }
-        });
-    }
+    // 🚀 Method Removed: preloadCommonLanguages
+    // We strictly load ONLY the current language to save bandwidth and startup time.
 }
 
 // 🔥 ГЛОБАЛЬНЫЙ ЭКЗЕМПЛЯР ДЛЯ ИСПОЛЬЗОВАНИЯ ВО ВСЕМ ПРИЛОЖЕНИИ

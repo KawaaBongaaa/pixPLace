@@ -71,7 +71,7 @@
     border: 2px solid var(--primary-500);
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    /* @apply shadow-sm moved to main.css */
     appearance: none;
     -webkit-appearance: none;
     transition: all var(--transition-fast);
@@ -79,7 +79,7 @@
 
 .compact-slider-input::-webkit-slider-thumb:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    /* @apply shadow-md moved to main.css */
 }
 
 .compact-slider-input::-moz-range-thumb {
@@ -152,7 +152,7 @@
     background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
     cursor: pointer;
     border: 2px solid var(--bg-primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    /* @apply shadow-sm moved to main.css */
     appearance: none;
     -webkit-appearance: none;
     transition: all var(--transition-fast);
@@ -160,7 +160,7 @@
 
 .form-slider::-webkit-slider-thumb:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    /* @apply shadow-lg moved to main.css */
 }
 
 .form-slider::-moz-range-thumb {
@@ -170,7 +170,7 @@
     background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
     cursor: pointer;
     border: 2px solid var(--bg-primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    /* @apply shadow-sm moved to main.css */
     border: none;
     outline: none;
     transition: all var(--transition-fast);
@@ -178,7 +178,7 @@
 
 .form-slider::-moz-range-thumb:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    /* @apply shadow-lg moved to main.css */
 }
 
 .form-slider-track {

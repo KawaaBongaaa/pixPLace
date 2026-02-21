@@ -55,34 +55,16 @@ function handleTelegramLogin() {
         }
     }
 
-    // ЕСЛИ WEBAPP НЕДОСТУПЕН ИЛИ НЕ СРАБОТАЛ - ПОКАЗЫВАЕМ ИНСТРУКЦИИ НА САЙТЕ
-    console.log('📱 Показываем инструкции по авторизации на сайте');
+    // ЕСЛИ WEBAPP НЕДОСТУПЕН ИЛИ НЕ СРАБОТАЛ - ПОКАЗЫВАЕМ КРАСИВЫЙ МОДАЛЬНЫЙ ДИАЛОГ
+    console.log('📱 Показываем инструкции по авторизации в модальном окне');
 
     if (typeof window.showToast === 'function') {
         window.showToast('info', 'Открываем инструкции по авторизации...');
     }
 
-    // Показываем модал с инструкциями
-    setTimeout(() => {
-        alert(`Для авторизации выполните следующие шаги:
-
-1. 🔔 Откройте Telegram бота: @pixPLaceBot
-2. 📱 Отправьте команду: /start
-3. 🔑 Получите персональную ссылку для авторизации
-4. 🔗 Перейдите по ссылке в браузере
-5. ✅ Авторизация будет завершена автоматически
-
-После авторизации вы сможете использовать все функции приложения!`);
-
-        console.log('📋 Инструкции по авторизации показаны');
-
-        // Опционально: открываем бота в новой вкладке
-        try {
-            window.open('https://t.me/pixPLaceBot?start=manual_auth', '_blank', 'noopener,noreferrer');
-            console.log('📱 Бот открыт в новой вкладке');
-        } catch (error) {
-            console.error('❌ Не удалось открыть бота:', error);
-        }
+    // Load beautiful modal dialog instead of alert()
+    setTimeout(async () => {
+        await loadTelegramAuthModal();
     }, 500);
 }
 
@@ -182,6 +164,12 @@ function completeTelegramAuth(authData) {
         }
     }
 
+    // Удаляем экран авторизации
+    if (typeof window.ScreenManager !== 'undefined' && window.ScreenManager.removeAuthScreen) {
+        window.ScreenManager.removeAuthScreen();
+        console.log('✅ Auth screen removed after successful login');
+    }
+
     // Переходим на главный экран
     if (typeof window.showGeneration === 'function') {
         window.showGeneration();
@@ -205,7 +193,104 @@ function completeTelegramAuth(authData) {
     console.log('🎉 Telegram authorization completed successfully');
 }
 
-// Экспортируем функцию глобально
-window.handleTelegramLogin = handleTelegramLogin;
+// Function to load Telegram auth modal from HTML file
+async function loadTelegramAuthModal() {
+    console.log('📋 Loading Telegram auth modal from HTML file');
 
-console.log('✅ Telegram Auth function registered globally');
+    // Check if modal already exists
+    if (document.getElementById('telegramAuthInstructionsModal')) {
+        console.log('✅ Telegram auth modal already loaded');
+        return;
+    }
+
+    try {
+        // Load HTML file
+        console.log('📡 Fetching telegram-auth-modal.html...');
+        const response = await fetch('telegram-auth-modal.html');
+        console.log('📡 Fetch response status:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const htmlContent = await response.text();
+        console.log('📄 Telegram auth modal HTML loaded successfully, length:', htmlContent.length);
+
+        // Insert HTML into body
+        document.body.insertAdjacentHTML('beforeend', htmlContent);
+        console.log('✅ Telegram auth modal HTML inserted into DOM');
+
+        // Check if modal was inserted
+        const insertedModal = document.getElementById('telegramAuthInstructionsModal');
+        if (insertedModal) {
+            console.log('✅ Modal element found in DOM');
+        } else {
+            console.error('❌ Modal element NOT found in DOM after insertion');
+        }
+
+        // Update translations if dictionary manager is available
+        if (typeof window.dictionaryManager !== 'undefined' && window.dictionaryManager.updateTranslations) {
+            setTimeout(() => {
+                window.dictionaryManager.updateTranslations();
+                console.log('✅ Translations updated for Telegram auth modal');
+            }, 100);
+        }
+
+        // Animate appearance
+        const modal = document.getElementById('telegramAuthInstructionsModal');
+        if (modal) {
+            setTimeout(() => {
+                modal.classList.add('animate-in', 'fade-in', 'zoom-in-95', 'duration-300');
+                console.log('✅ Animation classes added to modal');
+            }, 10);
+        }
+
+        console.log('📋 Telegram auth modal shown successfully');
+
+    } catch (error) {
+        console.error('❌ Failed to load Telegram auth modal:', error);
+        // Fallback to simple alert if modal loading fails
+        alert('Open Telegram bot @pixPLaceBot and send /start command to authorize');
+    }
+}
+
+// Function to open Telegram bot
+function openTelegramBot() {
+    console.log('📱 Opening Telegram bot with app_auth_button start parameter');
+
+    try {
+        window.open('https://t.me/pixPLaceBot?start=app_auth_button', '_blank', 'noopener,noreferrer');
+        console.log('✅ Telegram bot opened successfully');
+
+        // Close modal
+        closeTelegramAuthModal();
+
+    } catch (error) {
+        console.error('❌ Failed to open Telegram bot:', error);
+        if (typeof window.showToast === 'function') {
+            window.showToast('error', 'Failed to open Telegram. Please try manually.');
+        }
+    }
+}
+
+// Function to close modal
+function closeTelegramAuthModal() {
+    const modal = document.getElementById('telegramAuthInstructionsModal');
+    if (modal) {
+        modal.classList.add('animate-out', 'fade-out', 'zoom-out-95', 'duration-200');
+        setTimeout(() => {
+            if (modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+            }
+        }, 200);
+        console.log('📋 Telegram auth modal closed');
+    }
+}
+
+// Export functions globally
+window.handleTelegramLogin = handleTelegramLogin;
+window.loadTelegramAuthModal = loadTelegramAuthModal;
+window.openTelegramBot = openTelegramBot;
+window.closeTelegramAuthModal = closeTelegramAuthModal;
+
+console.log('✅ Telegram Auth functions registered globally');

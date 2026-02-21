@@ -1,5 +1,4 @@
 export const pl = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "Łączenie...",
     connected: "Połączono z Telegram",
@@ -45,13 +44,13 @@ export const pl = {
     mode_background_removal: "Usuń tło",
     mode_upscale_image: "Popraw obraz",
     mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-    mode_photo_session: "Nano Banana | Edycja Fotos",
+    mode_nano_banana: "Nano Banana | Edycja Fotos",
     mode_fast_generation: "Flux Schnel | Szybko | Proste Obrazy",
     mode_pixplace_pro: "Flux Krea | Logo | Tekst",
     mode_details: "Szczegóły Modelu",
 
     // Opisy trybów
-    mode_photo_session_desc: "Doskonały do edycji zdjęć — prowadź AI z maksymalnie 4 odniesieniami obrazu lub pozwól działać swobodnie",
+    mode_nano_banana_desc: "Doskonały do edycji zdjęć — prowadź AI z maksymalnie 4 odniesieniami obrazu lub pozwól działać swobodnie",
     mode_fast_generation_desc: "Najszybszy model do szybkiego generowania obrazów — działa natychmiast bez przesyłania",
     mode_pixplace_pro_desc: "Przełącz do Trybu Profesjonalnego — idealny do projektowania logo, kompozycji tekstowych i złożonych układów jak prawdziwy Projektant Pro",
     mode_print_maker_desc: "Specjalnie zaprojektowany dla twórców Print-on-Demand — twórz gotowe do druku projekty na odzież, torby i więcej",
@@ -175,4 +174,50 @@ export const pl = {
     auth_subtitle2: "Po prostu zaloguj się przez Telegram i zacznij tworzyć z przyjemnością.",
     auth_button_text: "ZALOGUJ SIĘ PRZEZ TELEGRAM",
     auth_notice: "💜 Twoje dane są dla nas bezpieczne — cenimy Twoje zaufanie.",
+
+    // Footer translations (Auto-added)
+    footer_desc: "Next-generation AI creative studio. Turn your ideas into reality with our advanced generative tools.",
+    footer_product: "Product",
+    footer_generate: "Generate",
+    footer_pricing: "Pricing",
+    footer_credits: "Credits",
+    footer_resources: "Resources",
+    footer_news: "News Channel",
+    footer_blog: "Blog",
+    footer_community: "Community",
+    footer_legal: "Legal",
+    footer_privacy: "Privacy Policy",
+    footer_terms: "Terms of Service",
+    footer_support: "Support",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "Witaj w pixPLace",
+    ob_cinema_tagline: "Zamień swoje słowa w oszałamiające wizualizacje dzięki AI",
+    ob_cinema_btn: "Odkryjmy razem",
+    ob_skip: "Pomiń",
+    ob_next: "Dalej →",
+    ob_finish: "Tworzymy! 🚀",
+    ob_step_of: "{{current}} z {{total}}",
+
+    ob_tour_tabs_title: "Obrazy czy Wideo?",
+    ob_tour_tabs_desc: "Przełączaj między generowaniem obrazów a narzędziami wideo — każda zakładka odblokowuje inne modele AI.",
+
+    ob_tour_model_title: "Wybierz model AI",
+    ob_tour_model_desc: "Wybierz silnik do swojego zadania — szybka edycja, profesjonalne retuszowanie, kreatywne generowanie lub usunięcie tła.",
+
+    ob_tour_prompt_title: "Opisz swój pomysł",
+    ob_tour_prompt_desc: "Pisz naturalnym językiem. Spróbuj: \"edytuj moje zdjęcie w stylu Wesa Andersona z ciepłymi tonami\".",
+    ob_tour_prompt_demo: "Edytuj moje zdjęcie w stylu Wesa Andersona — ciepłe pastelowe tony, symetryczne kadrowanie...",
+
+    ob_tour_upload_title: "Dodaj obrazy referencyjne",
+    ob_tour_upload_desc: "Prześlij swoje zdjęcia dla Nano Banana Pro — AI używa ich jako bazy do edycji.",
+
+    ob_tour_size_title: "Wybierz rozdzielczość",
+    ob_tour_size_desc: "Kwadrat do feedów, Pionowy do Stories i Reels, Poziomy do banerów i tapet.",
+
+    ob_tour_gpt_title: "Potrzebujesz pomocy z promptem? ✨",
+    ob_tour_gpt_desc: "GPT Chat to Twój asystent AI do tworzenia idealnych promptów — opisz pomysł a przepisze go jak profesjonalista.",
+
+    ob_tour_generate_title: "Gotowy? Kliknij Generuj!",
+    ob_tour_generate_desc: "Twój obraz będzie gotowy w kilka sekund. Wyniki pojawiają się w Historii.",
 }

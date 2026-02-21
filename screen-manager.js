@@ -69,6 +69,44 @@ class ScreenManager {
         return 'unknown';
     }
 
+    // 🔥 НОВАЯ ФУНКЦИЯ: Динамическая загрузка экрана авторизации
+    static async loadAuthScreen() {
+        console.log('🔄 Loading auth screen dynamically...');
+
+        // Проверяем, не загружен ли уже экран авторизации
+        if (document.getElementById('authScreen')) {
+            console.log('✅ Auth screen already loaded, showing it');
+            return this.showAuth();
+        }
+
+        try {
+            // Загружаем HTML файл с экраном авторизации
+            const response = await fetch('auth-modal.html');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const htmlContent = await response.text();
+            console.log('📄 Auth modal HTML loaded successfully');
+
+            // Вставляем HTML в main контейнер
+            const main = document.querySelector('main');
+            if (!main) {
+                throw new Error('Main container not found');
+            }
+
+            main.insertAdjacentHTML('afterbegin', htmlContent);
+            console.log('✅ Auth screen HTML inserted into DOM');
+
+            // Показываем экран авторизации
+            this.showAuth();
+
+        } catch (error) {
+            console.error('❌ Failed to load auth screen:', error);
+            showToast('error', 'Failed to load authentication screen');
+        }
+    }
+
     // Показать экран авторизации
     static showAuth() {
         this.show('authScreen');
@@ -127,6 +165,15 @@ class ScreenManager {
         });
     }
 
+    // 🔥 НОВАЯ ФУНКЦИЯ: Удаление экрана авторизации после успешной аутентификации
+    static removeAuthScreen() {
+        const authScreen = document.getElementById('authScreen');
+        if (authScreen) {
+            authScreen.remove();
+            console.log('🗑️ Auth screen removed from DOM');
+        }
+    }
+
     // Показать обработку
     static showProcessing() {
         this.show('processingScreen');
@@ -176,29 +223,22 @@ class ScreenManager {
     static displayFullResult(result) {
         console.log('🔄 displayFullResult: Redirecting to generationResultModal');
 
-        // Проверяем наличие глобальной функции showGenerationResultModal
-        if (typeof window.showGenerationResultModal === 'function') {
-            // Создаем объект item в формате, ожидаемом showGenerationResultModal
-            const item = {
-                id: window.appState.currentGeneration?.id || Date.now(),
-                result: result.image_url,
-                dataUrl: result.image_url, // Предпочитаем dataUrl для лучшей совместимости
-                prompt: window.appState.currentGeneration?.prompt || '',
-                mode: window.appState.currentGeneration?.mode || 'unknown',
-                style: window.appState.currentGeneration?.style || 'unknown',
-                generation_cost: window.appState.currentGeneration?.generation_cost,
-                cost_currency: window.appState.currentGeneration?.cost_currency || 'Cr',
-                timestamp: window.appState.currentGeneration?.timestamp || new Date().toISOString()
-            };
+        // 🔥 ИСПОЛЬЗУЕМ ГЛОБАЛЬНУЮ ФУНКЦИЮ С LAZY LOADING
+        const item = {
+            id: window.appState.currentGeneration?.id || Date.now(),
+            result: result.image_url,
+            dataUrl: result.image_url, // Предпочитаем dataUrl для лучшей совместимости
+            prompt: window.appState.currentGeneration?.prompt || '',
+            mode: window.appState.currentGeneration?.mode || 'unknown',
+            style: window.appState.currentGeneration?.style || 'unknown',
+            generation_cost: window.appState.currentGeneration?.generation_cost,
+            cost_currency: window.appState.currentGeneration?.cost_currency || 'Cr',
+            timestamp: window.appState.currentGeneration?.timestamp || new Date().toISOString()
+        };
 
-            // Показываем модальное окно результата
-            window.showGenerationResultModal(item);
-            console.log('🎯 Opened generationResultModal for generation result');
-        } else {
-            console.error('❌ showGenerationResultModal function not available');
-            // Fallback - показываем тост об ошибке
-            this.showResultToast(result);
-        }
+        // Глобальная функция сама управляет lazy loading
+        window.showGenerationResultModal(item);
+        console.log('🎯 Opened generationResultModal for generation result (lazy-loaded via global function)');
     }
 
     // Тост-уведомление с результатом
@@ -212,6 +252,17 @@ class ScreenManager {
         toast.id = toastId;
         toast.className = 'result-toast';
 
+        // 🔥 МИГРАЦИЯ: Применяем Tailwind классы вместо inline стилей
+        toast.classList.add(
+            'fixed', 'bottom-5', 'right-5', 'w-70',
+            'bg-white', 'dark:bg-gray-800',
+            'border', 'border-gray-200', 'dark:border-gray-600',
+            'rounded-xl', 'shadow-2xl', 'z-10000',
+            'opacity-0', 'translate-y-28',
+            'transition-all', 'duration-300', 'ease-out',
+            'cursor-default', 'overflow-hidden'
+        );
+
         // Получаем данные для отображения
         const style = (generation.style || 'unknown');
         const mode = (generation.mode || 'unknown');
@@ -221,38 +272,20 @@ class ScreenManager {
         const translatedMode = mode !== 'unknown' ? (window.appState?.translate(`mode_${mode}`) || mode) : mode;
 
         toast.innerHTML = `
-            <div class="toast-content">
-                <div class="toast-image">
-                    <img src="${result.image_url}?t=${Date.now()}" alt="Generated image preview" loading="lazy">
+            <div class="flex p-0">
+                <div class="w-20 h-20 flex-shrink-0">
+                    <img src="${result.image_url}?t=${Date.now()}" alt="Generated image preview" loading="lazy" class="w-full h-full object-cover rounded-l-xl">
                 </div>
-                <div class="toast-details">
-                    <div class="toast-meta">
-                        <span class="toast-style">${translatedStyle}</span>
-                        <span class="toast-mode">${translatedMode}</span>
+                <div class="flex-1 p-3 flex flex-col justify-between">
+                    <div class="flex flex-col gap-1 mb-2">
+                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${translatedStyle}</span>
+                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${translatedMode}</span>
                     </div>
-                    <button class="toast-view-btn">${window.appState?.translate('toast_view_result') || 'View Result'}</button>
-                    <button class="toast-close-btn">×</button>
+                    <button class="bg-green-500 hover:bg-green-600 text-white border-none rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer transition-all duration-200 self-start">${window.appState?.translate('toast_view_result') || 'View Result'}</button>
+                    <button class="absolute top-1.5 right-1.5 w-5 h-5 bg-black/10 hover:bg-red-100 dark:bg-white/10 dark:hover:bg-red-900/20 border-none rounded-full text-xs font-bold cursor-pointer flex items-center justify-center">×</button>
                 </div>
             </div>
         `;
-
-        // Стили для тоста (будут добавлены в CSS или инлайново)
-        Object.assign(toast.style, {
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            width: '280px',
-            background: 'var(--bg-primary)',
-            border: '1px solid var(--border-primary)',
-            borderRadius: '12px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-            zIndex: '10000',
-            opacity: '0',
-            transform: 'translateY(100px)',
-            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-            cursor: 'default',
-            overflow: 'hidden'
-        });
 
         // Обработчик клика по кнопке просмотра
         toast.querySelector('.toast-view-btn').addEventListener('click', (e) => {
@@ -276,10 +309,10 @@ class ScreenManager {
         // Добавляем тост на страницу
         document.body.appendChild(toast);
 
-        // Анимируем появление
+        // Анимируем появление через Tailwind классы
         requestAnimationFrame(() => {
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateY(0)';
+            toast.classList.remove('opacity-0', 'translate-y-28');
+            toast.classList.add('opacity-100', 'translate-y-0');
         });
 
         // Автоматически скрываем через 5 секунд
@@ -287,79 +320,7 @@ class ScreenManager {
             this.removeResultToast(toast);
         }, 5000);
 
-        // Добавляем внутренние стили для содержимого тоста
-        const styleElement = document.createElement('style');
-        styleElement.textContent = `
-            .result-toast .toast-content {
-                display: flex;
-                padding: 0;
-            }
-            .result-toast .toast-image {
-                width: 80px;
-                height: 80px;
-                flex-shrink: 0;
-            }
-            .result-toast .toast-image img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 8px 0 0 8px;
-            }
-            .result-toast .toast-details {
-                flex: 1;
-                padding: 12px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-            .result-toast .toast-meta {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-                margin-bottom: 8px;
-            }
-            .result-toast .toast-meta span {
-                font-size: 11px;
-                font-weight: 500;
-                color: var(--text-secondary);
-                background: var(--bg-secondary);
-                padding: 2px 6px;
-                border-radius: 4px;
-            }
-            .result-toast .toast-view-btn {
-                background: var(--accent-primary);
-                color: white;
-                border: none;
-                border-radius: 6px;
-                padding: 6px 12px;
-                font-size: 12px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                align-self: flex-start;
-            }
-            .result-toast .toast-view-btn:hover {
-                background: var(--accent-secondary);
-                transform: translateY(-1px);
-            }
-            .result-toast .toast-close-btn {
-                position: absolute;
-                top: 6px;
-                right: 6px;
-                background: rgba(0,0,0,0.1);
-                border: none;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                font-size: 12px;
-                font-weight: bold;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-        `;
-        document.head.appendChild(styleElement);
+        // 🔥 МИГРАЦИЯ: Удалены старые CSS стили - теперь все через Tailwind классы
 
         console.log('🔔 Показан тост с новым результатом генерации');
     }
@@ -434,6 +395,10 @@ function showToast(type, message) {
     // Создаем элемент тоста
     const toast = document.createElement('div');
     toast.className = `toast toast-${type} show`;
+
+    // 🔥 НОВОЕ: Применяем Tailwind shadow класс для toast'ов
+    toast.classList.add('shadow-lg');
+
     toast.innerHTML = `
         <div class="toast-content">
             <span class="toast-message">${message}</span>
@@ -475,12 +440,17 @@ function showProcessing() { return ScreenManager.showProcessing(); }
 function showApp() { return ScreenManager.showApp(); }
 function showResult(result) { return ScreenManager.showResult(result); }
 function showAuth() { return ScreenManager.showAuth(); }
+function loadAuthScreen() { return ScreenManager.loadAuthScreen(); }
 function displayFullResult(result) { return ScreenManager.displayFullResult(result); }
 function showResultToast(result) { return ScreenManager.showResultToast(result); }
 function removeResultToast(toast) { return ScreenManager.removeResultToast(toast); }
 
+// Экспортируем в глобальную область для доступа из HTML onclick
+window.loadAuthScreen = loadAuthScreen;
+window.ScreenManager = ScreenManager;
+
 // Экспортируем класс и функции
 export { ScreenManager };
-export { showScreen, getCurrentScreen, showProcessing, showApp, showResult, showAuth, displayFullResult, showResultToast, removeResultToast };
+export { showScreen, getCurrentScreen, showProcessing, showApp, showResult, showAuth, loadAuthScreen, displayFullResult, showResultToast, removeResultToast };
 
 console.log('✅ showToast function registered globally');

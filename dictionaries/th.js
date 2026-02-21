@@ -1,5 +1,4 @@
 export const th = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "กำลังเชื่อมต่อ...",
     connected: "เชื่อมต่อกับ Telegram แล้ว",
@@ -45,13 +44,13 @@ export const th = {
     mode_background_removal: "ลบพื้นหลัง",
     mode_upscale_image: "ปรับปรุงภาพ",
     mode_print_maker: "พิมพ์เสื้อ SDXL | ช่วยเหลือ PoD",
-    mode_photo_session: "นาโน บานาน่า | แก้ไขรูปภาพ",
+    mode_nano_banana: "นาโน บานาน่า | แก้ไขรูปภาพ",
     mode_fast_generation: "Flux Shnel | รวดเร็ว | รูปภาพง่ายๆ",
     mode_pixplace_pro: "Flux Krea | โลโก้ | ข้อความ",
     mode_details: "รายละเอียดโมเดล",
 
     // คำอธิบายโหมด
-    mode_photo_session_desc: "สมบูรณ์แบบสำหรับการแก้ไขรูปภาพ — นำทาง AI ด้วยการอ้างอิงภาพได้สูงสุด 4 รูป หรือปล่อยให้ทำงานโดยอิสระ",
+    mode_nano_banana_desc: "สมบูรณ์แบบสำหรับการแก้ไขรูปภาพ — นำทาง AI ด้วยการอ้างอิงภาพได้สูงสุด 4 รูป หรือปล่อยให้ทำงานโดยอิสระ",
     mode_fast_generation_desc: "โมเดลที่เร็วที่สุดสำหรับการสร้างภาพด่วน — ทำงานทันทีโดยไม่ต้องอัปโหลด",
     mode_pixplace_pro_desc: "เปลี่ยนเป็นโหมดมืออาชีพ — เหมาะสำหรับการออกแบบโลโก้ การจัดวางข้อความ และเลย์เอาท์ที่ซับซ้อนเหมือนดีไซเนอร์ Pro ที่แท้จริง",
     mode_print_maker_desc: "ออกแบบมาเป็นพิเศษสำหรับผู้สร้าง Print-on-Demand — สร้างดีไซน์พร้อมพิมพ์บนเสื้อผ้า กระเป๋า และอื่นๆ",
@@ -178,4 +177,35 @@ export const th = {
     plan_studio_feature3: "• เข้าถึงฟีเจอร์ใหม่ล่วงหน้า",
     plan_studio_feature4: "• ลดมากกว่า 30% เครดิต pixPlace",
     plan_studio_select: "ชำระเงิน",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "ยินดีต้อนรับสู่ pixPLace",
+    ob_cinema_tagline: "เปลี่ยนคำพูดของคุณเป็นภาพที่สวยงามด้วย AI",
+    ob_cinema_btn: "มาสำรวจกัน",
+    ob_skip: "ข้าม",
+    ob_next: "ถัดไป →",
+    ob_finish: "เริ่มสร้าง! 🚀",
+    ob_step_of: "{{current}} / {{total}}",
+
+    ob_tour_tabs_title: "ภาพหรือวิดีโอ?",
+    ob_tour_tabs_desc: "สลับระหว่างการสร้างภาพและเครื่องมือวิดีโอ — แต่ละแท็บปลดล็อคโมเดล AI ที่แตกต่างกัน",
+
+    ob_tour_model_title: "เลือกโมเดล AI",
+    ob_tour_model_desc: "เลือก engine ที่เหมาะกับงาน — แก้ไขเร็ว ตกแต่งระดับมือโปร สร้างสรรค์ หรือลบพื้นหลัง",
+
+    ob_tour_prompt_title: "อธิบายไอเดียของคุณ",
+    ob_tour_prompt_desc: "เขียนด้วยภาษาธรรมชาติ ลอง: \"แก้ไขรูปของฉันในสไตล์ Wes Anderson ด้วยโทนสีอบอุ่น\"",
+    ob_tour_prompt_demo: "แก้ไขรูปสไตล์ Wes Anderson — โทนพาสเทลอบอุ่น จัดวางแบบสมมาตร...",
+
+    ob_tour_upload_title: "เพิ่มภาพอ้างอิง",
+    ob_tour_upload_desc: "อัปโหลดรูปของคุณสำหรับ Nano Banana Pro — AI ใช้เป็นฐานในการแก้ไข",
+
+    ob_tour_size_title: "เลือกความละเอียดผลลัพธ์",
+    ob_tour_size_desc: "สี่เหลี่ยมสำหรับ feed แนวตั้งสำหรับ Stories และ Reels แนวนอนสำหรับ banner",
+
+    ob_tour_gpt_title: "ต้องการความช่วยเหลือกับ prompt ไหม? ✨",
+    ob_tour_gpt_desc: "GPT Chat คือผู้ช่วย AI สำหรับสร้าง prompt ที่สมบูรณ์แบบ — บอกไอเดียและมันจะเขียนแบบมืออาชีพ",
+
+    ob_tour_generate_title: "พร้อมแล้ว? กด Generate!",
+    ob_tour_generate_desc: "ภาพของคุณจะพร้อมภายในไม่กี่วินาที ผลลัพธ์จะปรากฏในประวัติ",
 }

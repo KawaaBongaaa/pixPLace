@@ -1,5 +1,4 @@
 export const pt = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "Conectando...",
     connected: "Conectado ao Telegram",
@@ -40,13 +39,13 @@ export const pt = {
     mode_background_removal: "Remover Fundo",
     mode_upscale_image: "Melhorar Imagem",
     mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-    mode_photo_session: "Nano Banana | Editor de Fotos - descreva o que mudar",
+    mode_nano_banana: "Nano Banana | Editor de Fotos - descreva o que mudar",
     mode_fast_generation: "Flux Shnel | Rápido | Imagens Simples",
     mode_pixplace_pro: "Flux Krea | Logo | Text",
     mode_details: "Detalhes do Modelo",
 
     // Descrições dos modos
-    mode_photo_session_desc: "Perfeito para edição de fotos — guie a IA com até 4 referências de imagem ou deixe trabalhar livremente",
+    mode_nano_banana_desc: "Perfeito para edição de fotos — guie a IA com até 4 referências de imagem ou deixe trabalhar livremente",
     mode_fast_generation_desc: "Modelo mais rápido para geração rápida de imagens — funciona instantaneamente sem upload",
     mode_pixplace_pro_desc: "Mudar para Modo Profissional — ideal para design de logos, composições de texto e layouts complexos como um verdadeiro Designer Pro",
     mode_print_maker_desc: "Especificamente projetado para criadores de Print-on-Demand — crie designs prontos para impressão em roupas, bolsas e mais",
@@ -82,13 +81,13 @@ export const pt = {
     remove_user_image: "Remover",
     reference_image: "Referência",
     upload_image: "Enviar Imagem",
-    please_upload_photo_session: "Por favor envie sua imagem para o modo Sessão de Fotos.\\nOu escolha outro modo",
+    please_upload_nano_banana: "Por favor envie sua imagem para o modo Sessão de Fotos.\\nOu escolha outro modo",
     upload_failed: "Falha ao enviar imagem. Tente novamente.",
     please_upload_for_upscale: "Por favor envie uma imagem para Melhorar.",
     please_upload_for_background_removal: "Por favor envie uma imagem para Remover Fundo.",
-    ai_coach_ready: "✨ AI Prompt Helper pronto para ajudar com geração IA!",
-    ai_welcome_intro: "AI Prompt Helper: Bem-vindo! Sou seu assistente IA para melhorar a qualidade dos resultados de geração de imagens. Faça qualquer pergunta sobre criar prompts! Ou descreva brevemente sua visão, e criarei um prompt profissional para você.",
-    ai_welcome_chat: "AI Prompt Helper: Bem-vindo ao chat! Sou seu assistente IA para ajudar com criação de imagens. Me diga o que você quer gerar e te ajudarei a criar um prompt de qualidade. Ou simplesmente me faça qualquer pergunta, vou ajudar com a geração!",
+    ai_coach_ready: "✨ GPT Chat pronto para ajudar com geração IA!",
+    ai_welcome_intro: "GPT Chat: Bem-vindo! Sou seu assistente IA para melhorar a qualidade dos resultados de geração de imagens. Faça qualquer pergunta sobre criar prompts! Ou descreva brevemente sua visão, e criarei um prompt profissional para você.",
+    ai_welcome_chat: "GPT Chat: Bem-vindo ao chat! Sou seu assistente IA para ajudar com criação de imagens. Me diga o que você quer gerar e te ajudarei a criar um prompt de qualidade. Ou simplesmente me faça qualquer pergunta, vou ajudar com a geração!",
     ai_placeholder_modal: "Escreva para seu assistente IA...",
     ai_placeholder_chat: "Escreva sua mensagem...",
     ai_send_button: "Enviar",
@@ -167,5 +166,36 @@ export const pt = {
     reuse_prompt: "Repetir",
     badge_premium: "Premium",
     badge_free: "Grátis",
-    badge_standard: "Padrão"
+    badge_standard: "Padrão",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "Bem-vindo ao pixPLace",
+    ob_cinema_tagline: "Transforme suas palavras em visuais incríveis com IA",
+    ob_cinema_btn: "Vamos explorar",
+    ob_skip: "Pular",
+    ob_next: "Próximo →",
+    ob_finish: "Vamos criar! 🚀",
+    ob_step_of: "{{current}} de {{total}}",
+
+    ob_tour_tabs_title: "Imagens ou Vídeos?",
+    ob_tour_tabs_desc: "Alterne entre geração de imagens e ferramentas de vídeo — cada aba desbloqueia modelos de IA diferentes.",
+
+    ob_tour_model_title: "Escolha seu modelo de IA",
+    ob_tour_model_desc: "Selecione o motor para sua tarefa — edição rápida, retoque profissional, geração criativa ou remoção de fundo.",
+
+    ob_tour_prompt_title: "Descreva sua ideia",
+    ob_tour_prompt_desc: "Escreva em linguagem natural. Tente: \"edite minha foto no estilo Wes Anderson com tons quentes\".",
+    ob_tour_prompt_demo: "Edite minha foto no estilo Wes Anderson — tons pastel quentes, enquadramento simétrico...",
+
+    ob_tour_upload_title: "Adicione imagens de referência",
+    ob_tour_upload_desc: "Envie suas fotos para Nano Banana Pro — a IA as usa como base de edição, não apenas como inspiração.",
+
+    ob_tour_size_title: "Escolha a resolução de saída",
+    ob_tour_size_desc: "Quadrado para feeds, Retrato para Stories e Reels, Paisagem para banners e papéis de parede.",
+
+    ob_tour_gpt_title: "Precisa de ajuda com o prompt? ✨",
+    ob_tour_gpt_desc: "GPT Chat é seu assistente de IA para criar prompts perfeitos — descreva sua ideia e ele a reescreve como um profissional.",
+
+    ob_tour_generate_title: "Pronto? Clique em Gerar!",
+    ob_tour_generate_desc: "Sua imagem estará pronta em segundos. Os resultados aparecem no Histórico.",
 }

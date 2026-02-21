@@ -1,6 +1,5 @@
 // Japanese translations for PixPlace
 export const ja = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "接続中...",
     connected: "Telegramに接続されました",
@@ -43,13 +42,13 @@ export const ja = {
     mode_background_removal: "背景削除",
     mode_upscale_image: "画像改善",
     mode_print_maker: "SDXL T-Shirt Print | PoD Helper",
-    mode_photo_session: "Nano Banana | フォトエディタ",
+    mode_nano_banana: "Nano Banana | フォトエディタ",
     mode_fast_generation: "Flux Shnel | 高速 | シンプル画像",
     mode_pixplace_pro: "Flux Krea | ロゴ | テキスト",
     mode_details: "モデル詳細",
 
     // モード説明
-    mode_photo_session_desc: "究極のフォトエディタ！最大4枚のリファレンス画像をアップロードし、AIに何を変更するかを伝えるだけ — すべてAIがやってくれます 🚀",
+    mode_nano_banana_desc: "究極のフォトエディタ！最大4枚のリファレンス画像をアップロードし、AIに何を変更するかを伝えるだけ — すべてAIがやってくれます 🚀",
     mode_fast_generation_desc: "普通の画像生成で最も速いモデル — アップロードすることなく瞬時に動作",
     mode_pixplace_pro_desc: "プロフェッショナルモードに切替 — ロゴデザイン、テキスト構成、複雑なレイアウトに理想的、本物のプロデザイナーみたい 💪",
     mode_print_maker_desc: "Print-on-Demandクリエイター専用に特別に設計 — 衣類、バッグ、その他に印刷可能なデザインを作成 🔥",
@@ -85,13 +84,13 @@ export const ja = {
     remove_user_image: "削除",
     reference_image: "参照",
     upload_image: "画像をアップロード",
-    please_upload_photo_session: "フォトセッションモードの画像をアップロードしてください。\\nまたは別のモードを選択",
+    please_upload_nano_banana: "フォトセッションモードの画像をアップロードしてください。\\nまたは別のモードを選択",
     upload_failed: "画像のアップロードに失敗しました。もう一度試してください。",
     please_upload_for_upscale: "改善する画像をアップロードしてください。",
     please_upload_for_background_removal: "背景削除用の画像をアップロードしてください。",
-    ai_coach_ready: "✨ AI Prompt HelperがAI生成のお手伝いをする準備ができました！",
-    ai_welcome_intro: "AI Prompt Helper：ようこそ！画像生成結果の品質を向上させるためのあなたのAIアシスタントです。プロンプト作成についての質問は何でもどうぞ！またはビジョンを簡単に説明していただければ、プロフェッショナルなプロンプトを作成します。",
-    ai_welcome_chat: "AI Prompt Helper：チャットへようこそ！画像作成のお手伝いをします。何を生成したいか教えてください。品質の高いプロンプトを作成するお手伝いをします。何でも聞いてください、生成をお手伝いします！",
+    ai_coach_ready: "✨ GPT ChatがAI生成のお手伝いをする準備ができました！",
+    ai_welcome_intro: "GPT Chat：ようこそ！画像生成結果の品質を向上させるためのあなたのAIアシスタントです。プロンプト作成についての質問は何でもどうぞ！またはビジョンを簡単に説明していただければ、プロフェッショナルなプロンプトを作成します。",
+    ai_welcome_chat: "GPT Chat：チャットへようこそ！画像作成のお手伝いをします。何を生成したいか教えてください。品質の高いプロンプトを作成するお手伝いをします。何でも聞いてください、生成をお手伝いします！",
     ai_placeholder_modal: "AIアシスタントに書き込む...",
     ai_placeholder_chat: "メッセージを書く...",
     ai_send_button: "送信",
@@ -172,5 +171,36 @@ export const ja = {
     image_added_success: "画像を生成に追加しました！",
     ui_error_message: "インターフェースエラー:",
 
-    load_more_history: "さらに表示"
+    load_more_history: "さらに表示",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "pixPLaceへようこそ",
+    ob_cinema_tagline: "AIであなたの言葉を stunning なビジュアルに変える",
+    ob_cinema_btn: "探索しよう",
+    ob_skip: "スキップ",
+    ob_next: "次へ →",
+    ob_finish: "さあ作ろう！🚀",
+    ob_step_of: "{{current}} / {{total}}",
+
+    ob_tour_tabs_title: "画像それともビデオ？",
+    ob_tour_tabs_desc: "画像生成とビデオツールを切り替えられます。各タブで異なるAIモデルが利用可能です。",
+
+    ob_tour_model_title: "AIモデルを選ぶ",
+    ob_tour_model_desc: "タスクに合ったエンジンを選択 — 素早い編集、プロの修正、クリエイティブ生成や背景削除など。",
+
+    ob_tour_prompt_title: "アイデアを説明して",
+    ob_tour_prompt_desc: "自然な言葉で書いてみてください。例：「ウェス・アンダーソン風に私の写真を編集して、温かみのあるトーンで」。",
+    ob_tour_prompt_demo: "ウェス・アンダーソン風に写真を編集して — 温かいパステルトーン、シンメトリーな構図...",
+
+    ob_tour_upload_title: "参考画像を追加する",
+    ob_tour_upload_desc: "Nano Banana Proのために写真をアップロード — AIはそれを編集のベースとして使用します。",
+
+    ob_tour_size_title: "出力解像度を選ぶ",
+    ob_tour_size_desc: "フィード用は正方形、ストーリー・リール用は縦向き、バナー用は横向き。",
+
+    ob_tour_gpt_title: "プロンプトのヘルプが必要？ ✨",
+    ob_tour_gpt_desc: "GPT Chatは完璧なプロンプトを作るためのAIアシスタント — アイデアを伝えると、プロのように書き直してくれます。",
+
+    ob_tour_generate_title: "準備できた？生成ボタンを押して！",
+    ob_tour_generate_desc: "画像は数秒で完成します。結果は履歴パネルに表示されます。",
 };

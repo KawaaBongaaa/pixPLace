@@ -59,7 +59,7 @@ const aiCoachIntegration = {
             console.log('🔄 Ensuring AI Coach button creation...');
 
             // Импортируем и создаем кнопку
-            const { createCoachButton } = await import('./ai-coach.js');
+            const { createCoachButton } = await import('./gpt-chat.js');
             createCoachButton();
 
             // Отмечаем как созданную
@@ -106,7 +106,7 @@ const aiCoachIntegration = {
             console.log('🚀 Showing weekly AI Coach tooltip...');
 
             // МИНИМАЛЬНЫЙ ИМПОРТ ТОЛЬКО ДЛЯ TOOLTIP
-            const { createCoachTooltip } = await import('./ai-coach.js');
+            const { createCoachTooltip } = await import('./gpt-chat.js');
 
             // Добавляем MCP запись
             if (typeof useMCPTool === 'function') {
@@ -150,7 +150,7 @@ const aiCoachIntegration = {
             }
 
             // ПОЛНЫЙ ИМПОРТ ДЛЯ КОМПЛЕКТНОЙ ФУНКЦИОНАЛЬНОСТИ
-            const { initAICoach, createCoachButton } = await import('./ai-coach.js');
+            const { initAICoach, createCoachButton } = await import('./gpt-chat.js');
 
             // Инициализация всего функционала
             await initAICoach();

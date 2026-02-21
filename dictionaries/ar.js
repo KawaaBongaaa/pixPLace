@@ -1,6 +1,5 @@
 // Arabic translations for PixPlace (RTL text for right-to-left support)
 export const ar = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "جار الاتصال...",
     connected: "متصل بالتليجرام",
@@ -32,20 +31,20 @@ export const ar = {
     mode_background_removal: "إزالة الخلفية",
     mode_upscale_image: "تحسين الصورة",
     mode_print_maker: "طباعة قميص SDXL | مساعد PoD",
-    mode_photo_session: "نانو بانانا | محرر الصور",
+    mode_nano_banana: "نانو بانانا | محرر الصور",
     mode_fast_generation: "فلكس شنيل | سريع | صور بسيطة",
     mode_pixplace_pro: "فلكس كريا | شعار | نص",
     mode_details: "تفاصيل الموديل",
 
     // وصف الأوضاع
-    mode_photo_session_desc: "محرر الصور النهائي! قم بتحميل حتى 4 صور مرجعية وأخبر الذكاء الاصطناعي ما يجب تغييره — سيتولى كل شيء 🚀",
+    mode_nano_banana_desc: "محرر الصور النهائي! قم بتحميل حتى 4 صور مرجعية وأخبر الذكاء الاصطناعي ما يجب تغييره — سيتولى كل شيء 🚀",
     mode_fast_generation_desc: "أسرع نموذج لتوليد الصور العادية — يعمل فوراً بدون تحميل",
     mode_pixplace_pro_desc: "التبديل إلى وضع المحترف — مثالي لتصميم الشعارات وتجميع النصوص والتخطيطات المعقدة، مثل مصمم محترف حقيقي 💪",
     mode_print_maker_desc: "مصمم خصيصاً لمنشئي Print-on-Demand — أنشئ تصاميم جاهزة للطباعة على الملابس والحقائب وغيرها 🔥",
     mode_background_removal_desc: "إزالة الخلفية والحفاظ على الكائن الرئيسي. قم بتحميل صورة للبدء",
     mode_upscale_image_desc: "تحسين جودة الصور ودقتها — جعل محتوى البصري مناسب للشاشات الكبيرة",
 
-    size_label: "الحجم",size_portrait: "9:16",
+    size_label: "الحجم", size_portrait: "9:16",
     generate_btn: "توليد الصورة",
     create_new: "إنشاء جديد",
     empty_history_title: "لا توليدات بعد",
@@ -71,7 +70,7 @@ export const ar = {
     remove_user_image: "إزالة",
     reference_image: "مرجع",
     upload_image: "تحميل الصورة",
-    please_upload_photo_session: "يرجى تحميل صورتك لوضع الجلسة التصويرية.\\nأو اختر وضع آخر",
+    please_upload_nano_banana: "يرجى تحميل صورتك لوضع الجلسة التصويرية.\\nأو اختر وضع آخر",
     upload_failed: "فشل تحميل الصورة. حاول مرة أخرى.",
     please_upload_for_upscale: "يرجى تحميل صورة للتحسين.",
     please_upload_for_background_removal: "يرجى تحميل صورة لإزالة الخلفية.",
@@ -171,5 +170,36 @@ export const ar = {
     image_added_success: "تم إضافة الصورة للتوليد!",
     ui_error_message: "خطأ في الواجهة:",
 
-    load_more_history: "عرض المزيد"
+    load_more_history: "عرض المزيد",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "مرحباً بك في pixPLace",
+    ob_cinema_tagline: "حوّل كلماتك إلى مرئيات رائعة بالذكاء الاصطناعي",
+    ob_cinema_btn: "لنستكشف",
+    ob_skip: "تخطي",
+    ob_next: "التالي ←",
+    ob_finish: "لنبدع! 🚀",
+    ob_step_of: "{{current}} من {{total}}",
+
+    ob_tour_tabs_title: "صور أم فيديو؟",
+    ob_tour_tabs_desc: "تبديل بين توليد الصور وأدوات الفيديو — كل تبويب يفتح نماذج ذكاء اصطناعي مختلفة.",
+
+    ob_tour_model_title: "اختر نموذج الذكاء الاصطناعي",
+    ob_tour_model_desc: "اختر المحرك المناسب لمهمتك — تحرير سريع، تعديل احترافي، توليد إبداعي أو إزالة الخلفية.",
+
+    ob_tour_prompt_title: "صف فكرتك",
+    ob_tour_prompt_desc: "اكتب بلغة طبيعية. جرّب: \"عدّل صورتي بأسلوب ويس أندرسون مع ألوان دافئة\".",
+    ob_tour_prompt_demo: "عدّل صورتي بأسلوب ويس أندرسون — ألوان باستيل دافئة، تأطير متناظر...",
+
+    ob_tour_upload_title: "أضف صور مرجعية",
+    ob_tour_upload_desc: "حمّل صورك لـ Nano Banana Pro — يستخدمها الذكاء الاصطناعي كأساس للتحرير.",
+
+    ob_tour_size_title: "اختر الدقة",
+    ob_tour_size_desc: "مربع للمنشورات، عمودي للقصص والريلز، أفقي للبنرات وخلفيات الشاشة.",
+
+    ob_tour_gpt_title: "تحتاج مساعدة في النطاق؟ ✨",
+    ob_tour_gpt_desc: "GPT Chat هو مساعدك الذكي لصياغة نطاقات مثالية — صف فكرتك ويكتبها كالمحترفين.",
+
+    ob_tour_generate_title: "جاهز؟ اضغط توليد!",
+    ob_tour_generate_desc: "صورتك ستكون جاهزة خلال ثوانٍ. تظهر النتائج في السجل.",
 };

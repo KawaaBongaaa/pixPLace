@@ -105,7 +105,7 @@ export class GenerationManager {
      */
     getCurrentMode() {
         // TODO: Реализовать получение из mode-cards компонента
-        return 'photo_session'; // default
+        return 'nano_banana'; // default
     }
 
     /**
@@ -147,7 +147,7 @@ export class GenerationManager {
             console.log('🚀 Starting generation with data:', generationData);
 
             // Вызов функции генерации из app_modern.js
-            await generateImage.call(window, { preventDefault: () => {} }, generationData);
+            await generateImage.call(window, { preventDefault: () => { } }, generationData);
 
         } catch (error) {
             console.error('❌ Generation failed:', error);
@@ -189,11 +189,14 @@ export class GenerationManager {
     /**
      * Получение негативного промпта
      */
+    /**
+     * Получение негативного промпта
+     */
     getNegativePrompt() {
-        const checkbox = document.getElementById('negativePromptCheckbox');
+        // Updated logic: if negative prompt has text, use it. Checkbox removed.
         const input = document.getElementById('negativePromptInput');
 
-        if (checkbox && checkbox.checked && input) {
+        if (input && input.value.trim().length > 0) {
             return input.value.trim();
         }
 

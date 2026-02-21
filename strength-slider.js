@@ -35,7 +35,7 @@ function getCurrentModeFromSources() {
     }
 
     // Priority 3: Try active mode card data attribute
-    const activeCard = document.querySelector('.mode-card.active, .carousel-2d-item.active');
+    const activeCard = document.querySelector('[data-mode].selected, .carousel-2d-item.active');
     if (activeCard) {
         const cardMode = activeCard.dataset?.mode || activeCard.dataset?.style;
         if (cardMode) {

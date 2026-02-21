@@ -1,0 +1,223 @@
+// core/history-service.js - Сервис для работы с внешней историей генераций
+
+class HistoryService {
+    constructor() {
+        this.baseUrl = (window.CONFIG && window.CONFIG.HISTORY_WEBHOOK_URL)
+            ? window.CONFIG.HISTORY_WEBHOOK_URL
+            : 'https://alv-n8n.pixplace.space/webhook/get-generation-history';
+        this.cache = new Map(); // Кэш страниц истории
+        this.currentPage = 0;
+        this.pageSize = 30;
+        this.hasMorePages = true;
+        this.loadingStates = new Set();
+
+        // 🔥 TEMPORARY: Флаг для тестирования без аутентификации
+        this.testMode = true; // В ПРОДАКШЕНЕ установить false
+
+        console.log('📚 HistoryService initialized', this.testMode ? '(TEST MODE)' : '');
+    }
+
+    /**
+     * Загружает страницу истории генераций
+     * @param {string} userId - ID пользователя
+     * @param {number} page - Номер страницы (начиная с 0)
+     * @param {number} limit - Количество элементов на страницу
+     * @returns {Promise<Object>} - Объект с generations и мета-данными
+     */
+    async loadHistoryPage(userId, page = 0, limit = 30) {
+        // 🔥 TEMPORARY: В тестовом режиме обходим проверку user_id
+        if (!this.testMode && !userId) {
+            throw new Error('User ID is required');
+        }
+
+        // Используем фиксированный ключ для тестового режима
+        const effectiveUserId = this.testMode ? 'test_user' : userId;
+        const cacheKey = `${effectiveUserId}_${page}_${limit}`;
+
+        // Проверяем кэш
+        if (this.cache.has(cacheKey)) {
+            console.log(`📋 Returning cached history page ${page} for user ${userId}`);
+            return this.cache.get(cacheKey);
+        }
+
+        // Проверяем что запрос не выполняется
+        if (this.loadingStates.has(cacheKey)) {
+            console.log(`⏳ History page ${page} already loading, waiting...`);
+            // Ждем завершения загрузки
+            while (this.loadingStates.has(cacheKey)) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            return this.cache.get(cacheKey);
+        }
+
+        this.loadingStates.add(cacheKey);
+
+        try {
+            // 🔥 TEMPORARY: В тестовом режиме отправляем null вместо user_id
+            const queryUserId = this.testMode ? null : userId;
+            console.log(`📡 Loading history page ${page} for user ${userId} (limit: ${limit})`, this.testMode ? '(TEST MODE - sending null)' : '');
+
+            const response = await fetch(`${this.baseUrl}?user_id=${queryUserId}&page=${page}&limit=${limit}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            let responseData = await response.json();
+
+            // 🔥 FIX: Handle array response from webhook
+            if (Array.isArray(responseData) && responseData.length > 0) {
+                console.log('📦 API returned array, using first element');
+                responseData = responseData[0];
+            }
+
+            console.log(`✅ Received history data: ${responseData.generations?.length || 0} items`);
+
+            // Форматируем данные в ожидаемый формат
+            // Данные могут приходить в формате {json: {...}} или напрямую
+            const formattedData = {
+                generations: (responseData.generations || []).map(item => {
+                    // Извлекаем данные из поля json, если оно есть, иначе используем item напрямую
+                    const genData = item.json || item;
+                    return {
+                        id: genData.generation_id || genData.row_number, // 🔥 CRITICAL FIX: Ensure `id` is present for UI dependencies
+                        generation_id: genData.generation_id || genData.row_number,
+                        task_uuid: genData.task_uuid,
+                        prompt: genData.prompt,
+                        mode: genData.mode,
+                        style: genData.style,
+                        status: genData.status,
+                        image_url: genData.image_url,
+                        result: genData.image_url, // 🔥 COMPATIBILITY: Map image_url to result for UI
+                        timestamp: genData.timestamp,
+                        generation_cost: genData.generation_cost,
+                        cost_currency: genData.cost_currency
+                    };
+                }),
+                total: responseData.total || 0,
+                page: page,
+                limit: limit,
+                hasMore: responseData.hasMore || (responseData.generations && responseData.generations.length === limit)
+            };
+
+            // Определяем есть ли еще страницы
+            this.hasMorePages = formattedData.hasMore || formattedData.generations.length === limit;
+
+            // Сохраняем в кэш
+            this.cache.set(cacheKey, formattedData);
+
+            // Очищаем кэш если он слишком большой (> 10 страниц)
+            if (this.cache.size > 10) {
+                this.cleanupCache();
+            }
+
+            console.log(`💾 Cached history page ${page}, cache size: ${this.cache.size}`);
+
+            return formattedData;
+
+        } catch (error) {
+            console.error('❌ Failed to load history page:', error);
+            throw error;
+        } finally {
+            this.loadingStates.delete(cacheKey);
+        }
+    }
+
+    /**
+     * Проверяет статус генерации по taskUUID
+     * @param {string} taskUUID - UUID задачи
+     * @param {string} userId - ID пользователя
+     * @returns {Promise<Object>} - Статус генерации
+     */
+    async checkGenerationStatus(taskUUID, userId) {
+        if (!taskUUID || !userId) {
+            throw new Error('TaskUUID and UserID are required');
+        }
+
+        try {
+            console.log(`🔍 Checking status for task ${taskUUID}`);
+
+            const response = await fetch(`${this.baseUrl}/status?task_uuid=${taskUUID}&user_id=${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log(`📊 Status check result:`, data.status);
+
+            return data;
+
+        } catch (error) {
+            console.error('❌ Failed to check generation status:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Очищает кэш старых страниц
+     */
+    cleanupCache() {
+        if (this.cache.size <= 5) return; // Оставляем минимум 5 страниц
+
+        const keys = Array.from(this.cache.keys());
+        const keysToRemove = keys.slice(0, Math.floor(keys.length / 2)); // Удаляем половину
+
+        keysToRemove.forEach(key => this.cache.delete(key));
+
+        console.log(`🧹 Cleaned history cache: ${keysToRemove.length} pages removed, ${this.cache.size} remaining`);
+    }
+
+    /**
+     * Получает кэшированную страницу без запроса
+     * @param {string} userId
+     * @param {number} page
+     * @param {number} limit
+     * @returns {Object|null}
+     */
+    getCachedPage(userId, page = 0, limit = 30) {
+        const cacheKey = `${userId}_${page}_${limit}`;
+        return this.cache.get(cacheKey) || null;
+    }
+
+    /**
+     * Очищает весь кэш
+     */
+    clearCache() {
+        this.cache.clear();
+        this.loadingStates.clear();
+        this.currentPage = 0;
+        this.hasMorePages = true;
+        console.log('🗑️ History cache cleared');
+    }
+
+    /**
+     * Получает статистику кэша
+     * @returns {Object}
+     */
+    getCacheStats() {
+        return {
+            size: this.cache.size,
+            loadingStates: this.loadingStates.size,
+            currentPage: this.currentPage,
+            hasMorePages: this.hasMorePages
+        };
+    }
+}
+
+// Экспорт
+export { HistoryService };
+const historyService = new HistoryService();
+export default historyService;

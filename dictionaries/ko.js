@@ -1,6 +1,5 @@
 // Korean translations for PixPlace
 export const ko = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "연결 중...",
     connected: "Telegram에 연결됨",
@@ -46,13 +45,13 @@ export const ko = {
     mode_background_removal: "배경 제거",
     mode_upscale_image: "이미지 개선",
     mode_print_maker: "SDXL 티셔츠 프린트 | PoD 도우미",
-    mode_photo_session: "나노 바나나 | 포토 에디터",
+    mode_nano_banana: "나노 바나나 | 포토 에디터",
     mode_fast_generation: "Flux Shnel | 빠름 | 간단한 이미지",
     mode_pixplace_pro: "Flux Krea | 로고 | 텍스트",
     mode_details: "모델 세부정보",
 
     // 모드 설명
-    mode_photo_session_desc: "최고의 포토 에디터! 최대 4개의 참고 이미지를 업로드하고 AI에게 무엇을 변경할지 알려주세요 — AI가 모두 처리합니다 🚀",
+    mode_nano_banana_desc: "최고의 포토 에디터! 최대 4개의 참고 이미지를 업로드하고 AI에게 무엇을 변경할지 알려주세요 — AI가 모두 처리합니다 🚀",
     mode_fast_generation_desc: "일반 이미지 생성에서 가장 빠른 모델 — 업로드 없이 즉시 작동",
     mode_pixplace_pro_desc: "프로페셔널 모드로 전환 — 로고 디자인, 텍스트 구성, 복잡한 레이아웃에 이상적, 진정한 프로 디자이너처럼 💪",
     mode_print_maker_desc: "Print-on-Demand 크리에이터 전용으로 특별히 설계됨 — 의류, 가방 등에 인쇄 가능한 디자인 생성 🔥",
@@ -169,4 +168,51 @@ export const ko = {
 
     // AI Chat
     ai_welcome_chat: "AI 프롬프트 도우미: 채팅에 오신 것을 환영합니다!",
+    ai_chat_ready: "AI chat ready!",
+
+    // Footer translations (Auto-added)
+    footer_desc: "Next-generation AI creative studio. Turn your ideas into reality with our advanced generative tools.",
+    footer_product: "Product",
+    footer_generate: "Generate",
+    footer_pricing: "Pricing",
+    footer_credits: "Credits",
+    footer_resources: "Resources",
+    footer_news: "News Channel",
+    footer_blog: "Blog",
+    footer_community: "Community",
+    footer_legal: "Legal",
+    footer_privacy: "Privacy Policy",
+    footer_terms: "Terms of Service",
+    footer_support: "Support",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "pixPLace에 오신 것을 환영합니다",
+    ob_cinema_tagline: "AI로 당신의 말을 놀라운 비주얼로 변환하세요",
+    ob_cinema_btn: "함께 탐험해요",
+    ob_skip: "건너뛰기",
+    ob_next: "다음 →",
+    ob_finish: "시작해봐요! 🚀",
+    ob_step_of: "{{current}} / {{total}}",
+
+    ob_tour_tabs_title: "이미지 또는 비디오?",
+    ob_tour_tabs_desc: "이미지 생성과 비디오 도구 사이를 전환하세요 — 각 탭은 다른 AI 모델을 사용합니다.",
+
+    ob_tour_model_title: "AI 모델 선택",
+    ob_tour_model_desc: "작업에 맞는 엔진 선택 — 빠른 편집, 전문 보정, 창의적 생성 또는 배경 제거.",
+
+    ob_tour_prompt_title: "아이디어를 설명하세요",
+    ob_tour_prompt_desc: "자연어로 작성하세요. 예: \"웨스 앤더슨 스타일로 내 사진을 편집해, 따뜻한 톤으로\".",
+    ob_tour_prompt_demo: "웨스 앤더슨 스타일로 사진 편집해 — 따뜻한 파스텔 톤, 대칭 구도...",
+
+    ob_tour_upload_title: "참고 이미지 추가",
+    ob_tour_upload_desc: "Nano Banana Pro를 위해 사진을 업로드하세요 — AI가 편집 기반으로 사용합니다.",
+
+    ob_tour_size_title: "출력 해상도 선택",
+    ob_tour_size_desc: "피드는 정방형, 스토리·릴스는 세로, 배너·배경화면은 가로.",
+
+    ob_tour_gpt_title: "프롬프트 도움이 필요하세요? ✨",
+    ob_tour_gpt_desc: "GPT Chat은 완벽한 프롬프트를 만드는 AI 어시스턴트 — 아이디어를 말하면 전문가처럼 다시 써줍니다.",
+
+    ob_tour_generate_title: "준비됐나요? 생성 클릭!",
+    ob_tour_generate_desc: "이미지는 몇 초 안에 준비됩니다. 결과는 히스토리에 표시됩니다.",
 }

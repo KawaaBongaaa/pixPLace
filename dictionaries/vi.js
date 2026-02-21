@@ -1,5 +1,4 @@
 export const vi = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "Đang kết nối...",
     connected: "Đã kết nối với Telegram",
@@ -45,13 +44,13 @@ export const vi = {
     mode_background_removal: "Xóa nền",
     mode_upscale_image: "Cải thiện ảnh",
     mode_print_maker: "In áo SDXL | Trợ lý PoD",
-    mode_photo_session: "Nano Banana | Chỉnh sửa Ảnh",
+    mode_nano_banana: "Nano Banana | Chỉnh sửa Ảnh",
     mode_fast_generation: "Flux Shnel | Nhanh | Hình đơn giản",
     mode_pixplace_pro: "Flux Krea | Logo | Văn bản",
     mode_details: "Chi tiết mô hình",
 
     // Mô tả chế độ
-    mode_photo_session_desc: "Hoàn hảo để chỉnh sửa ảnh — hướng dẫn AI với tối đa 4 tài liệu tham khảo hình ảnh hoặc để AI tự do làm việc",
+    mode_nano_banana_desc: "Hoàn hảo để chỉnh sửa ảnh — hướng dẫn AI với tối đa 4 tài liệu tham khảo hình ảnh hoặc để AI tự do làm việc",
     mode_fast_generation_desc: "Mô hình nhanh nhất để tạo ảnh nhanh — hoạt động ngay lập tức không cần tải lên",
     mode_pixplace_pro_desc: "Chuyển sang Chế độ Chuyên nghiệp — lý tưởng cho thiết kế logo, bố cục văn bản và bố cục phức tạp như một Nhà thiết kế Pro thực sự",
     mode_print_maker_desc: "Được thiết kế đặc biệt cho người tạo Print-on-Demand — tạo thiết kế sẵn sàng in trên áo, túi và nhiều hơn nữa",
@@ -172,4 +171,35 @@ export const vi = {
 
     // AI Chat
     ai_welcome_chat: "Trợ lý AI Prompt: Chào mừng đến với cuộc trò chuyện!",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "Chào mừng đến với pixPLace",
+    ob_cinema_tagline: "Biến lời nói thành hình ảnh tuyệt đẹp với AI",
+    ob_cinema_btn: "Hãy khám phá",
+    ob_skip: "Bỏ qua",
+    ob_next: "Tiếp theo →",
+    ob_finish: "Bắt đầu tạo ra! 🚀",
+    ob_step_of: "{{current}} / {{total}}",
+
+    ob_tour_tabs_title: "Ảnh hay Video?",
+    ob_tour_tabs_desc: "Chuyển đổi giữa tạo ảnh và công cụ video — mỗi tab mở khóa các mô hình AI khác nhau.",
+
+    ob_tour_model_title: "Chọn mô hình AI",
+    ob_tour_model_desc: "Chọn engine phù hợp với tác vụ — chỉnh sửa nhanh, chỉnh sửa chuyên nghiệp, tạo sáng tạo hoặc xóa nền.",
+
+    ob_tour_prompt_title: "Mô tả ý tưởng của bạn",
+    ob_tour_prompt_desc: "Viết bằng ngôn ngữ tự nhiên. Thử: \"chỉnh sửa ảnh theo phong cách Wes Anderson với tông ấm áp\".",
+    ob_tour_prompt_demo: "Chỉnh sửa ảnh theo phong cách Wes Anderson — tông pastel ấm, bố cục đối xứng...",
+
+    ob_tour_upload_title: "Thêm ảnh tham khảo",
+    ob_tour_upload_desc: "Tải ảnh của bạn cho Nano Banana Pro — AI dùng chúng làm cơ sở chỉnh sửa.",
+
+    ob_tour_size_title: "Chọn độ phân giải đầu ra",
+    ob_tour_size_desc: "Vuông cho feed, Dọc cho Story và Reels, Ngang cho banner và hình nền.",
+
+    ob_tour_gpt_title: "Cần giúp đỡ với prompt? ✨",
+    ob_tour_gpt_desc: "GPT Chat là trợ lý AI để tạo prompt hoàn hảo — mô tả ý tưởng và nó sẽ viết lại như chuyên gia.",
+
+    ob_tour_generate_title: "Sẵn sàng? Nhấn Tạo!",
+    ob_tour_generate_desc: "Ảnh của bạn sẽ sẵn sàng trong vài giây. Kết quả xuất hiện trong Lịch sử.",
 }

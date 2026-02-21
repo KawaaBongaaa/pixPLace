@@ -1,7 +1,132 @@
 // 🔧 ПЛЭНИНГ МЕНЮ КАРУСЕЛИ ИЛИКАЦИЯ - НОВЫЙ МОДУЛЬ ДЛЯ МЕНЮ ПЛАНОВ
 // Экспортируем функции в глобальную область видимости
 
-window.initPlansCarousel = function() {
+// Динамическая загрузка стилей для модуля
+const loadPlansModalStyles = () => {
+    // Загружаем modals.css
+    if (!document.querySelector('link[href="./css/shared/modals.css"]')) {
+        const linkModals = document.createElement('link');
+        linkModals.rel = 'stylesheet';
+        linkModals.href = './css/shared/modals.css';
+        document.head.appendChild(linkModals);
+    }
+
+    if (!document.querySelector('link[href="./css/shared/credit-packs.css"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = './css/shared/credit-packs.css';
+        document.head.appendChild(link);
+    }
+
+    console.log('✅ Plans modal CSS (modals & credit-packs) loaded dynamically');
+};
+
+// Функция для динамической загрузки limitModal
+async function loadLimitModal() {
+    // 🔥 Загружаем стили первым делом
+    loadPlansModalStyles();
+
+    // Проверяем, не загружен ли уже модал
+    let modal = document.getElementById('limitModal');
+    if (modal) {
+        // 🔥 INTEGRITY CHECK: Ensure modal has content
+        const hasContent = modal.querySelector('.limit-modal-content');
+        const hasButtons = modal.querySelector('.plan-btn') || modal.querySelector('#upgradeBtn');
+
+        if (!hasContent || !hasButtons) {
+            console.warn('⚠️ Found empty/corrupt limitModal, removing and reloading...', { hasContent: !!hasContent, hasButtons: !!hasButtons });
+            modal.remove();
+            modal = null;
+        } else {
+            console.log('✅ Used existing limitModal from DOM');
+            return modal;
+        }
+    }
+
+    try {
+        console.log('🔄 Fetching limit-modal.html with cache busting...');
+        // Загружаем HTML модала с cache-busting
+        const response = await fetch(`./modals/limit-modal.html?t=${Date.now()}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const html = await response.text();
+
+        // Создаем временный контейнер для парсинга HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+
+        // Извлекаем модал и добавляем в body
+        modal = tempDiv.firstElementChild;
+
+        // 🔥 VALIDATION BEFORE APPENDING
+        if (!modal || !modal.querySelector('.limit-modal-content')) {
+            throw new Error('Loaded HTML does not contain valid modal content');
+        }
+
+        document.body.appendChild(modal);
+
+        console.log('✅ Limit modal loaded dynamically with validated content');
+
+        // Инициализируем обработчики событий для модала
+        initLimitModalHandlers(modal);
+
+        // 🔥 Запускаем отложенную инициализацию карусели
+        if (window.lazyInitializePlansModal) {
+            window.lazyInitializePlansModal();
+        }
+
+        return modal;
+    } catch (error) {
+        console.error('❌ Failed to load limit modal:', error);
+        return null;
+    }
+}
+
+// Функция для инициализации обработчиков событий limitModal
+function initLimitModalHandlers(modal) {
+    if (!modal) return;
+
+    // Обработчик закрытия модала
+    const closeBtn = modal.querySelector('#closeLimitModal');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+    }
+
+    // Обработчик клика по backdrop
+    const backdrop = modal.querySelector('.limit-modal-backdrop');
+    if (backdrop) {
+        backdrop.addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+    }
+
+    // Обработчики для кнопок планов
+    const planButtons = modal.querySelectorAll('.plan-btn');
+    planButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const planType = btn.id.includes('lite') ? 'lite' :
+                btn.id.includes('pro') ? 'pro' : 'studio';
+            console.log(`Selected plan: ${planType}`);
+
+            // Здесь можно добавить логику оплаты/редиректа
+            if (typeof showToast !== 'undefined') {
+                showToast('info', `Redirecting to ${planType} payment...`);
+            }
+        });
+    });
+
+    console.log('✅ Limit modal handlers initialized');
+}
+
+// Загружаем стили при инициализации модуля
+loadPlansModalStyles();
+
+
+window.initPlansCarousel = function () {
     const carousel = document.querySelector('.plans-carousel');
     const indicators = document.querySelectorAll('.indicator');
 
@@ -31,6 +156,7 @@ window.initPlansCarousel = function() {
 
         const cards = document.querySelectorAll('.plan-card');
         const totalSlides = Math.ceil(cards.length / 3); // 3 карточки на слайд
+        let currentPlanSlide = 0;
 
         // Функция для обновления индикаторов
         function updateIndicators(activeIndex) {
@@ -39,22 +165,21 @@ window.initPlansCarousel = function() {
             });
         }
 
-        // Функция для прокрутки к слайду
+        // Функция для прокрутки к слайду (per-card)
         function scrollToSlide(slideIndex) {
             currentPlanSlide = slideIndex;
-            const cardWidth = cards[0].offsetWidth;
-            const gap = 16; // Расстояние между карточками в px
-            const scrollLeft = slideIndex * (cardWidth * 3 + gap * 2);
-            carousel.scrollTo({
-                left: scrollLeft,
-                behavior: 'smooth'
-            });
+            const targetCard = cards[slideIndex];
+            if (targetCard) {
+                targetCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
             updateIndicators(slideIndex);
         }
 
-        // Убираем автопрокрутку полностью, оставляем только пользовательское управление
-
-        // Клик по индикаторам (остался функционал)
+        // Клик по индикаторам
         indicators.forEach((indicator, index) => {
             let lastClickTime = 0;
 
@@ -68,7 +193,7 @@ window.initPlansCarousel = function() {
             });
         });
 
-        // Свайпы - чистое пользовательское управление (без задержек)
+        // Свайпы - чистое пользовательское управление
         let touchStartX = 0;
         let touchStartTime = 0;
 
@@ -83,8 +208,8 @@ window.initPlansCarousel = function() {
             const diff = touchStartX - touchEndX;
 
             // Простая обработка свайпа
-            if (Math.abs(diff) > 60 && touchDuration > 100) {
-                if (diff > 0 && currentPlanSlide < totalSlides - 1) {
+            if (Math.abs(diff) > 60 && touchDuration < 500) {
+                if (diff > 0 && currentPlanSlide < cards.length - 1) {
                     scrollToSlide(currentPlanSlide + 1);
                 } else if (diff < 0 && currentPlanSlide > 0) {
                     scrollToSlide(currentPlanSlide - 1);
@@ -98,19 +223,27 @@ window.initPlansCarousel = function() {
 
         if (centerCard) {
             setTimeout(() => {
-                const containerWidth = carousel.offsetWidth;
-                const cardWidth = centerCard.offsetWidth;
-                const cardLeft = centerCard.offsetLeft;
-                const scrollPosition = cardLeft - (containerWidth / 2) + (cardWidth / 2);
-                carousel.scrollLeft = Math.max(0, scrollPosition);
+                try {
+                    const containerWidth = carousel.offsetWidth;
+                    const cardWidth = centerCard.offsetWidth;
+                    const cardLeft = centerCard.offsetLeft;
+                    const scrollPosition = cardLeft - (containerWidth / 2) + (cardWidth / 2);
+                    carousel.scrollLeft = Math.max(0, scrollPosition);
+                } catch (e) {
+                    console.warn('Error calculating scroll center:', e);
+                }
 
                 // Простое центрирование одной строкой
                 setTimeout(() => {
-                    centerCard.scrollIntoView({
-                        behavior: 'instant',
-                        block: 'nearest',
-                        inline: 'center'
-                    });
+                    try {
+                        centerCard.scrollIntoView({
+                            behavior: 'instant',
+                            block: 'nearest',
+                            inline: 'center'
+                        });
+                    } catch (e) {
+                        // ignore scrollIntoView errors in incompatible browsers
+                    }
                 }, 100);
             }, 50);
         }
@@ -122,7 +255,7 @@ window.initPlansCarousel = function() {
     });
 };
 
-window.initPlanCards = function() {
+window.initPlanCards = function () {
     const cards = document.querySelectorAll('.plan-card');
 
     return new Promise((resolve) => {
@@ -163,51 +296,87 @@ window.initPlanCards = function() {
 
 
 // Отложенная инициализация - модуль загружен, инициализация будет при первом показе модала
+// Отложенная инициализация - модуль загружен, инициализация будет при первом показе модала
 let plansModalInitialized = false;
 
-function lazyInitializePlansModal() {
+async function lazyInitializePlansModal() {
     if (plansModalInitialized) return Promise.resolve();
 
-    // Наблюдатель за появлением модала лимита - инициализируем карусель при показе
     console.log('🎭 Setting up plans modal lazy initialization');
+
+    // Наблюдатель за появлением модала лимита
     const observer = new MutationObserver(async function (mutations) {
-        mutations.forEach(async function (mutation) {
+        for (const mutation of mutations) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                const modal = document.getElementById('limitModal');
-                if (modal && modal.classList.contains('show')) {
-                    // Модал появился - инициализируем карусель с async/await
+                const modal = mutation.target;
+                if (modal.classList.contains('show')) {
                     console.log('🎭 Limit modal shown - initializing plans carousel');
                     try {
                         await window.initPlansCarousel();
                         await window.initPlanCards();
-                        await window.initGlassmorphismEffects();
                         console.log('✅ Plans modal initialization complete');
                         plansModalInitialized = true;
-                        observer.disconnect(); // Больше не следим
+                        observer.disconnect();
                     } catch (error) {
                         console.error('❌ Error initializing plans modal:', error);
                     }
                 }
             }
-        });
+        }
     });
 
+    // Пытаемся найти модал в DOM (он может быть уже загружен или загрузится позже)
     const modal = document.getElementById('limitModal');
     if (modal) {
         observer.observe(modal, {
             attributes: true,
             attributeFilter: ['class']
         });
+
+        // Если уже открыт - инициализируем сразу
+        if (modal.classList.contains('show') && !plansModalInitialized) {
+            console.log('🎭 Limit modal already shown - initializing immediately');
+            try {
+                await window.initPlansCarousel();
+                await window.initPlanCards();
+                console.log('✅ Plans modal initialization complete (immediate)');
+                plansModalInitialized = true;
+            } catch (error) {
+                console.error('❌ Error initializing plans modal immediately:', error);
+            }
+        }
+    } else {
+        // Если модала нет, можно повесить observer на body или ждать события, 
+        // но так как loadLimitModal создает модал и вызывает lazyInitializePlansModal,
+        // этот блок else скорее всего не нужен, но оставим событие как fallback
     }
+
+    // Fallback: событие custom event, если кто-то вызовет
+    document.addEventListener('limitModal:shown', async () => {
+        if (!plansModalInitialized) {
+            console.log('🎭 Limit modal shown via event - fallback initialization');
+            try {
+                await window.initPlansCarousel();
+                await window.initPlanCards();
+                plansModalInitialized = true;
+            } catch (error) {
+                console.error('❌ Error in fallback plans modal initialization:', error);
+            }
+        }
+    });
 
     return Promise.resolve();
 }
 
 // Настройка отложенной инициализации при загрузке DOM
 document.addEventListener('DOMContentLoaded', function () {
-    // Не инициализируем сразу, ждем когда понадобится
-    console.log('🔧 Plans modal module loaded and ready (lazy load)');
+    console.log('🔧 Plans modal module loaded (lazy load)');
 });
 
 // Экспортируем функцию отложенной инициализации
 window.lazyInitializePlansModal = lazyInitializePlansModal;
+
+// Экспорт функции динамической загрузки limitModal 
+window.loadLimitModal = loadLimitModal;
+
+export { loadLimitModal, lazyInitializePlansModal };

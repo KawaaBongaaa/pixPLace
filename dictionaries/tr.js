@@ -1,6 +1,5 @@
 // Turkish translations for PixPlace
 export const tr = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "Bağlanıyor...",
     connected: "Telegram'a bağlandı",
@@ -46,13 +45,13 @@ export const tr = {
     mode_background_removal: "Arka Planı Kaldır",
     mode_upscale_image: "Görüntü İyileştir",
     mode_print_maker: "SDXL Tişört Baskısı | PoD Yardımcısı",
-    mode_photo_session: "Nano Musa | Fotoğraf Düzenleyici",
+    mode_nano_banana: "Nano Musa | Fotoğraf Düzenleyici",
     mode_fast_generation: "Flux Shnel | Hızlı | Basit Resimler",
     mode_pixplace_pro: "Flux Krea | Logo | Metin",
     mode_details: "Model Detayları",
 
     // İnsan benzeri moda açıklamaları - Türkçe gençlik slengi ve kültürel ifade ile
-    mode_photo_session_desc: "Mükemmel fotoğraf editörü! Maksimum 4 referans görsel yükle ve AI'ye ne değiştireceğini söyle — her şeyi senin için halleder 🚀",
+    mode_nano_banana_desc: "Mükemmel fotoğraf editörü! Maksimum 4 referans görsel yükle ve AI'ye ne değiştireceğini söyle — her şeyi senin için halleder 🚀",
     mode_fast_generation_desc: "Genel görüntü üretiminde en hızlı model — yükleme olmadan anında çalışır",
     mode_pixplace_pro_desc: "Pro Moda Geçiş — logo tasarımı, metin kompozisyonları ve karmaşık düzenler için gerçek bir Pro Tasarımcı gibi ideal 💪",
     mode_print_maker_desc: "Özellikle Print-on-Demand ustaları için tasarlandı — tişörtler, çantalar ve daha fazlasında baskıya hazır tasarımlar yap 🔥",
@@ -119,6 +118,7 @@ export const tr = {
     ui_error_message: "Arayüz hatası:",
     ai_chat_title: "AI Asistanı",
     ai_chat_input_placeholder: "AI asistanına sor...",
+    ai_chat_ready: "AI chat ready!",
 
     // Limit Modal
     limit_title: "Üretim limiti aşıldı",
@@ -159,4 +159,50 @@ export const tr = {
 
     // AI Chat
     ai_welcome_chat: "AI Prompt Yardımcısı: Sohbete hoş geldiniz!",
+
+    // Footer translations (Auto-added)
+    footer_desc: "Next-generation AI creative studio. Turn your ideas into reality with our advanced generative tools.",
+    footer_product: "Product",
+    footer_generate: "Generate",
+    footer_pricing: "Pricing",
+    footer_credits: "Credits",
+    footer_resources: "Resources",
+    footer_news: "News Channel",
+    footer_blog: "Blog",
+    footer_community: "Community",
+    footer_legal: "Legal",
+    footer_privacy: "Privacy Policy",
+    footer_terms: "Terms of Service",
+    footer_support: "Support",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "pixPLace'e Hoş Geldiniz",
+    ob_cinema_tagline: "AI ile kelimelerinizi nefes kesici görsellere dönüştürün",
+    ob_cinema_btn: "Hadi keşfedelim",
+    ob_skip: "Geç",
+    ob_next: "Sonraki →",
+    ob_finish: "Hadi yaratın! 🚀",
+    ob_step_of: "{{current}} / {{total}}",
+
+    ob_tour_tabs_title: "Görüntüler mi, Videolar mı?",
+    ob_tour_tabs_desc: "Görüntü üretimi ve video araçları arasında geçiş yapın — her sekme farklı AI modellerini açar.",
+
+    ob_tour_model_title: "AI Modelini Seçin",
+    ob_tour_model_desc: "Görevinize uygun motoru seçin — hızlı düzenleme, profesyonel rötuş, yaratıcı üretim veya arka plan kaldırma.",
+
+    ob_tour_prompt_title: "Fikrinizi Açıklayın",
+    ob_tour_prompt_desc: "Doğal dilde yazın. Deneyin: \"Fotoğrafımı Wes Anderson tarzında düzenle, sıcak tonlarla\".",
+    ob_tour_prompt_demo: "Fotoğrafımı Wes Anderson tarzında düzenle — sıcak pastel tonlar, simetrik çerçeveleme...",
+
+    ob_tour_upload_title: "Referans Görseller Ekleyin",
+    ob_tour_upload_desc: "Nano Banana Pro için fotoğraflarınızı yükleyin — AI onları düzenleme tabanı olarak kullanır.",
+
+    ob_tour_size_title: "Çözünürlük Seçin",
+    ob_tour_size_desc: "Akış için kare, Hikaye ve Reels için dikey, banner ve duvar kağıtları için yatay.",
+
+    ob_tour_gpt_title: "Prompt konusunda yardım lazım mı? ✨",
+    ob_tour_gpt_desc: "GPT Chat, mükemmel promptlar oluşturmak için AI asistanınız — fikrinizi anlatın ve onu profesyonel gibi yeniden yazar.",
+
+    ob_tour_generate_title: "Hazır mısınız? Üret'e Tıklayın!",
+    ob_tour_generate_desc: "Görüntünüz saniyeler içinde hazır olacak. Sonuçlar Geçmiş'te görünür.",
 }

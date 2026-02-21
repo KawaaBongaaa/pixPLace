@@ -1,0 +1,141 @@
+/* ================================================
+   🎨 STYLE CARD GRID CSS MODULE
+   Lazy loaded styles for style selection cards
+   ================================================ */
+
+/* DROPDOWN CONTAINER */
+/* STYLE DROPDOWN BUTTON (See responsive-layout.css for global styles) */
+
+#styleDropdown {
+    display: none;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    max-height: 400px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+#styleDropdown.show {
+    display: block !important;
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* GRID CONTAINER */
+.style-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    width: 100%;
+}
+
+/* STYLE CARDS */
+.style-dropdown .carousel-2d-item {
+    width: 100%;
+    aspect-ratio: 1;
+    /* Квадратные карточки */
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid var(--border-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-primary);
+}
+
+.style-dropdown .carousel-2d-item:hover {
+    transform: scale(1.05);
+    border-color: var(--primary-500);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.style-dropdown .carousel-2d-item.active {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+.style-dropdown .carousel-2d-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.2s ease;
+}
+
+.style-dropdown .carousel-2d-item:hover img {
+    transform: scale(1.1);
+}
+
+.style-dropdown .carousel-2d-item p {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    padding: 6px 4px 4px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    z-index: 2;
+}
+
+/* RESPONSIVE ADJUSTMENTS */
+@media (max-width: 768px) {
+    .style-grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+    }
+
+    .style-dropdown .carousel-2d-item p {
+        font-size: 10px;
+        padding: 4px 2px 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .style-grid-container {
+        grid-template-columns: repeat(3, 1fr);
+        /* 3 колонки на мобильных */
+        gap: 6px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .style-grid-container {
+        /* Force 3 columns on wide screens (sidebar is ~300px) */
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+}
+
+/* LOADING STATE */
+.style-dropdown.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* ACCESSIBILITY IMPROVEMENTS */

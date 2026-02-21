@@ -3,108 +3,123 @@
 
 <head>
     <meta charset="UTF-8">
+    <!-- 🔥 CRITICAL: Set theme + inline colors BEFORE any CSS loads to prevent white flash -->
+    <script>
+        (function () {
+            var theme;
+            try {
+                var s = localStorage.getItem('appSettings');
+                theme = s ? JSON.parse(s).theme : 'dark';
+            } catch (e) { theme = 'dark'; }
+            if (theme === 'auto') {
+                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            theme = theme || 'dark';
+            var d = document.documentElement;
+            d.setAttribute('data-theme', theme);
+            // 🔥 Set inline background+color IMMEDIATELY so page is correct color
+            if (theme === 'dark') {
+                d.style.backgroundColor = '#09090b';
+                d.style.color = '#fafafa';
+            } else {
+                d.style.backgroundColor = '#ffffff';
+                d.style.color = '#1e293b';
+            }
+        })();
+    </script>
+    <!-- 🔥 ANTI-FOUC: Hide body until CSS + fonts loaded to prevent layout jumps -->
+    <style>
+        /* 🔥 ANTI-FOUC: Hide only UI, keep background visible */
+        #app,
+        footer,
+        .toast-container {
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            pointer-events: none;
+        }
+
+        body.ready #app,
+        body.ready footer,
+        body.ready .toast-container {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 🧠 ZOOM-OUT EFFECT for Background Animation */
+        #canvasContainer {
+            transform: scale(1.4);
+            transition: transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+
+        body.ready #canvasContainer {
+            transform: scale(1);
+        }
+    </style>
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=3, user-scalable=yes, viewport-fit=cover, shrink-to-fit=no">
     <title>The pixPLace | Ai Generative Service</title>
+
+    <!-- SYSTEM CHECK: Detect file:// protocol -->
+    <script>
+        if (window.location.protocol === 'file:') {
+            alert('CRITICAL ERROR: Application cannot run locally due to browser security restrictions (CORS).\n\nYou MUST run this project using a local server.\n\nQuick Fix:\n1. Open terminal in project folder\n2. Run: npx serve .\n3. Open http://localhost:3000');
+        }
+    </script>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 
-    <!-- MINIMAL CRITICAL CSS: только один файл -->
-    <link rel="stylesheet" href="css/styles_modern.css">
+    <!-- ⚡ MODERN DESIGN STACK: Tailwind CSS + CSS Shadows -->
+    <link rel="stylesheet" href="css/output.css">
+    <!-- <link rel="stylesheet" href="css/main.css"> -->
+    <link rel="stylesheet" href="css/mode-cards.css">
+    <link rel="stylesheet" href="css/responsive-layout.css">
+    <link rel="stylesheet" href="css/shared/user-menu.css">
+    <link rel="stylesheet" href="css/shared/brain-animation.css">
 
-    <!-- ⚡ CRITICAL CSS FIRST (render-blocking for proper initial layout) -->
-    <link rel="stylesheet" href="css/responsive.css">
-
-
-    <link rel="stylesheet" href="css/shared/forms.css">
-    <link rel="stylesheet" href="css/shared/buttons.css">
-
-    <!-- NON-CRITICAL COMPONENTS - CONDITIONAL LOADING -->
-    <link rel="preload" href="css/components.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- 🎬 ONBOARDING: Lazy CSS — swappable, loads only for new users -->
+    <link id="onboardingCSS" rel="stylesheet" href="onboarding/onboarding.css" media="print" onload="this.media='all'">
     <noscript>
-        <link rel="stylesheet" href="css/components.css">
+        <link rel="stylesheet" href="onboarding/onboarding.css">
     </noscript>
 
+
+
+    <!-- TAILWIND SAFELIST: Force include dynamic classes -->
+    <!-- fixed bottom-5 right-5 w-70 w-15 h-15 object-cover block flex items-center justify-center gap-3 px-6 py-4 mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-xl border text-white text-gray-600 text-sm font-bold cursor-pointer transition-all duration-300 hover:bg-gray-200 opacity-0 translate-y-28 translate-y-0 scale-95 scale-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-screen z-50 z-10001 inset-0 backdrop-blur-lg border-gray-300 dark:border-gray-600 p-4 m-1 max-w-800 text-center uppercase tracking-wide flex-col justify-between space-y-2 relative absolute top-0 left-0 right-0 bottom-0 w-full h-full rounded-full rounded-lg rounded-md rounded-sm text-2xl text-lg text-base text-xs font-semibold bg-black bg-gray-100 bg-blue-600 hover:bg-blue-700 text-[var(--text-primary)] theme-text-primary bg-[var(--bg-primary)] theme-bg-primary border-[var(--border-primary)] theme-border-primary w-10 h-10 w-8 h-8 w-5 h-5 w-4 h-4 w-3.5 h-3.5 w-2 h-2 w-1 h-1 w-0.75 h-0.75 w-1.25 h-1.25 aspect-ratio-1 loading visible invisible pulse spin flux-shnel-hidden has-image need-image selected active collapsed expanded show hide fade-in fade-out animate-in animate-out glassmorphism-animate-in md:grid-cols-2 lg:grid-cols-3 max-w-95vw w-95vw md:flex md:hidden sm:px-4 dark:bg-gray-700 dark:text-gray-300 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800/95 dark:border-gray-600/80 dark:hover:bg-gray-600 btn-primary btn-secondary card card-header card-body card-footer modal modal-overlay modal-backdrop input label hidden visible loading status-success status-error status-warning status-info w-70 h-70 w-95 h-30 w-60 h-60 top-15% left-25% top-70% right-20% bottom-20% left-15% focus:outline-none focus:border-blue-500 scroll-smooth container md:container -->
+    <script src="https://unpkg.com/css-shadows@latest/dist/css-shadows.min.js"></script>
+
+    <!-- МИГРАЦИЯ: Inline стили заменены на Tailwind классы в HTML элементах -->
+    <!-- Все правила видимости теперь управляются через JavaScript + Tailwind классы -->
+
+
+
+
+
+    <!-- ⚡ CSS Shadows Integration -->
     <script>
-        // ⚡ PERFORMANCE: Load remaining CSS after DOM ready, before full page load
-        function loadNonCriticalCSS() {
-            const cssFiles = [
-                'css/cost-badge.css',
-                'css/auth.css',
-                'css/modals.css',
-                'css/animations.css',
-                'css/ai-coach.css',
-                // New shared modules - lazy loaded
-                'css/shared/credit-packs.css',
-                'css/shared/user-menu.css',
-                'css/shared/styles.css',
-                'css/shared/toasts.css',
-                'css/shared/upload.css',
-                'css/shared/mode-carousel.css',
-                'css/shared/ai-coach.css',
-                'css/shared/footer.css'
-                // strength-slider.css moved to conditional loading - only when slider is actually used
-            ];
-
-            cssFiles.forEach(href => {
-                const link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = href;
-                link.onload = () => {
-                    if (console?.log && window.location.hostname === 'localhost') {
-                        console.log('✅ Loaded CSS:', href);
-                    }
-                };
-                document.head.appendChild(link);
-            });
-        }
-
-        // ⚡ PERFORMANCE: Conditional loading for shared modules
-        function loadSharedCSS(module) {
-            const cssMap = {
-                'modals': 'css/shared/modals.css',
-                'history': 'css/shared/history.css',
-                'indicators': 'css/shared/indicators.css'
-            };
-
-            const href = cssMap[module];
-            if (!href) return;
-
-            // Check if already loaded
-            const existing = document.querySelector(`link[href="${href}"]`);
-            if (existing) return;
-
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = href;
-            link.onload = () => {
-                if (console?.log && window.location.hostname === 'localhost') {
-                    console.log('✅ Loaded shared CSS:', href);
-                }
-            };
-            document.head.appendChild(link);
-        }
-
-        // Global functions for conditional loading
-        window.loadModalCSS = () => loadSharedCSS('modals');
-        window.loadHistoryCSS = () => loadSharedCSS('history');
-        window.loadIndicatorsCSS = () => loadSharedCSS('indicators');
-
-        // Load non-critical CSS after DOMContentLoaded instead of full window load
-        document.addEventListener('DOMContentLoaded', loadNonCriticalCSS);
+        // Initialize CSS Shadows for enhanced effects
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.CSSShadows) {
+                console.log('✅ CSS Shadows library loaded');
+            }
+        });
     </script>
 
     <!-- Telegram Web App SDK - для правильной авторизации в Telegram WebView -->
     <script defer src="https://telegram.org/js/telegram-web-app.js?56"></script>
+    <script>
+        // 🔥 МИНИМАЛИСТИЧНЫЙ EARLY EXPAND - сразу после загрузки SDK
+        if (window.Telegram?.WebApp?.expand) {
+            window.Telegram.WebApp.expand();
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- PRELOAD critical fonts for FCP priority -->
-    <!-- REMOVED: Preload links causing 404 errors - Google Fonts CSS handles font loading -->
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"
+    <!-- LOAD FONTS - 🔥 FIX: Remove display=swap to prevent FOUT -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=optional"
+        rel="stylesheet"
         onerror="this.onerror=null; console.warn('Google Fonts failed to load, using system fonts'); document.documentElement.style.setProperty('--font-family', 'system-ui, -apple-system, sans-serif');">
-    <link href="https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+JP+N&display=swap" rel="stylesheet"
-        onerror="this.onerror=null; console.warn('WDXL Font failed to load, using fallback');">
     <script>
         // Глобальные переменные для совместимости - переводы через DictionaryManager
         window.showToast = (type, message) => console.log(`Toast (${type}): ${message}`);
@@ -114,8 +129,7 @@
             // Базовые свойства для совместимости с ранней инициализацией
             tg: null,
             userId: null,
-            userName: null,
-            selectedStyle: 'realistic'
+            userName: null
         };
 
         // Функция ручного развертывания полноэкранного режима (для iPad и других проблемных устройств) - останется доступной после загрузки SDK
@@ -138,6 +152,36 @@
         // Делаем функцию глобальной для доступа из других скриптов
         window.manualExpand = manualExpand;
 
+        // 🔥 LAZY LOADING для модала результатов генерации
+        let modalModuleLoaded = false;
+
+        // Инициализация lazy loading при первом обращении
+        window.showGenerationResultModal = async function (item) {
+            console.log('📸 showGenerationResultModal called, checking if module loaded...');
+
+            if (!modalModuleLoaded) {
+                console.log('🚀 First call - loading modal module dynamically...');
+
+                try {
+                    // Настоящий динамический импорт модуля
+                    await import('./modals/generation-result-modal.js');
+                    modalModuleLoaded = true;
+                    console.log('✅ Modal module loaded successfully via dynamic import');
+                } catch (error) {
+                    console.error('❌ Failed to load modal module:', error);
+                    return;
+                }
+            }
+
+            // Теперь модуль загружен, вызываем функцию создания модала
+            window.createGenerationResultModal(item);
+        };
+
+        // Резервная функция для совместимости
+        window.closeGenerationResultModal = function () {
+            console.log('🔒 closeGenerationResultModal called (fallback)');
+            // Функция будет переопределена после загрузки модуля
+        };
 
     </script>
 
@@ -165,43 +209,42 @@
         });
     </script>
 
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-        (function (m, e, t, r, i, k, a) {
-            m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
-            m[i].l = 1 * new Date();
-            for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
-            k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-        })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=103591399', 'ym');
+    <!-- Cookie Consent & Tracking -->
+    <script src="core/cookie-manager.js?v=2.2" defer></script>
 
-        ym(103591399, 'init', { ssr: true, webvisor: true, clickmap: true, ecommerce: "dataLayer", accurateTrackBounce: true, trackLinks: true });
-    </script>
-    <noscript>
-        <div><img src="https://mc.yandex.ru/watch/103591399" style="position:absolute; left:-9999px;" alt="" /></div>
-    </noscript>
-    <!-- /Yandex.Metrika counter -->
-
-
+    <!-- ⚡ PERFORMANCE: JS Module Preloading -->
+    <link rel="modulepreload" href="app_modern.js">
+    <link rel="modulepreload" href="core/services.js">
+    <link rel="modulepreload" href="store/app-state.js">
+    <link rel="modulepreload" href="screen-manager.js">
+    <link rel="modulepreload" href="dictionary-manager.js">
 
 </head>
 
-<body data-theme="dark" data-lang="en">
+<body data-lang="en">
+    <!-- 🔥 ANTI-FOUC: We now apply 'ready' dynamically in app_modern.js after translations load -->
+    <!-- Removed inline classList.add('ready') to prevent text jumps -->
 
-
-
-
+    <!-- 🧠 Neural Brain Animation Background -->
+    <div id="canvasContainer">
+        <canvas id="brainCanvas"></canvas>
+    </div>
+    <script src="core/brain-animation.js" defer></script>
 
     <!-- Main App -->
-    <div id="app" class="app">
+    <!-- Main App -->
+    <div id="app" class="app min-h-screen flex flex-col relative z-10">
         <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="header-left">
-                    <button class="logo" onclick="showGeneration()"
-                        style="all: unset; display: flex; align-items: center; gap: var(--space-3); cursor: pointer;">
+        <header class="theme-header sticky top-0 z-100 overflow-visible transition-colors duration-300">
+            <div class="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 lg:px-6 lg:py-4 max-w-full">
+                <div class="flex items-start flex-1 min-w-0">
+                    <button
+                        class="logo flex items-center gap-3 cursor-pointer font-bold text-2xl text-[var(--text-primary)] no-underline min-w-0 flex-initial"
+                        onclick="showGeneration()">
                         <svg version="1.1" id="layer1" xmlns:ev="http://www.w3.org/2001/xml-events"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-                            y="0px" viewBox="0 0 863.1 706.9" style="width:70px; height:70px;;" xml:space="preserve">
+                            y="0px" viewBox="0 0 863.1 706.9"
+                            class="w-10 h-10 sm:w-[50px] sm:h-[50px] lg:w-[70px] lg:h-[70px]" xml:space="preserve">
                             <path d="M413,488.9c-2.9-52.7-49-126.7-111-115c-16.7,4-58.6,12.4-37,36c15.5,23.5,47.8,53.5,51,7c3.4-5.6,6-0.9,9,2
 	c8.7,18.6,30.9,29.7,41,47c8.2,5.6,0.7,12.2-5,16c-1.1,14.9,7.1,33.6,1,48c-5.1,14-21.7-9.1-37-4c-19.5,9.5-57,23.3-52,51
 	c-3.1,43.2,35.5,65.3,13,76c-65.2,15.2-83.3-68.7-68-117c10.5-23.9,59.8-38.4,57-68c-12.4-26.6-48.1-37.6-75-31
@@ -244,20 +287,11 @@
 	C633.4,85.9,679.2,87.4,666.7,102.6z M811.8,307.1c-79.1-51.1-39.5-95.7-112.3-144.2C694.8,106.6,853.8,298.3,811.8,307.1z"
                                 fill="currentColor" />
                         </svg>
-                        <span class="logo-text" data-i18n="app_title">pixPLace</span>
+                        <span class="logo-text text-sm sm:text-base" data-i18n="app_title">pixPLace</span>
                     </button>
                 </div>
-                <div class="header-right">
-                    <!-- Отображение баланса пользователя -->
-                    <div class="user-balance" id="userBalance">
-                        <div class="user-info">
-                            <span id="userNameDisplay" class="user-name">--</span>
-                            <span class="balance-text">Balance:</span>
-                        </div>
-                        <span id="userCreditsDisplay" class="credits-amount">--</span>
-                    </div>
-
-                    <!-- Рядом с кнопками языка/темы -->
+                <div class="header-right flex items-center gap-1.5 sm:gap-2">
+                    <!-- Кнопки языка -->
                     <!--
     <button id="musicToggle" class="music-toggle" onclick="toggleMusicDropdown()">
         <span class="music-icon">🎵</span>
@@ -298,51 +332,160 @@
     <iframe id="musicPlayer" style="display: none;" width="100%" height="166" scrolling="no"
         frameborder="no" allow="autoplay"></iframe>
     -->
-                    <button class="control-btn back-btn" onclick="showGeneration()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button
+                        class="relative w-10 h-10 border-none rounded-xl bg-[var(--bg-secondary)] text-[var(--text-secondary)] cursor-pointer flex items-center justify-center transition-all duration-150 hidden overflow-hidden"
+                        onclick="showGeneration()">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 12H5" />
                             <path d="M12 19l-7-7 7-7" />
                         </svg>
                     </button>
-                    <div class="lang-wrapper">
-                        <button class="control-btn" id="langBtn" type="button" title="Language">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <!-- Login Button - REMOVED: Now integrated into user menu -->
+                    <!-- <button class="relative w-10 h-10 border-none rounded-xl bg-blue-600 text-white cursor-pointer flex items-center justify-center transition-all duration-150 hover:bg-blue-700 overflow-hidden mr-2" id="loginBtn" onclick="loadTelegramAuthModal()" title="Login with Telegram" type="button">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="8.5" cy="7" r="4" />
+                            <line x1="20" y1="8" x2="20" y2="14" />
+                            <line x1="23" y1="11" x2="17" y2="11" />
+                        </svg>
+                    </button> -->
+
+
+
+                    <!-- AUTH LOGIN BUTTON -->
+                    <div class="relative inline-block overflow-visible z-[99999]">
+                        <button
+                            class="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 border-none rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-150 overflow-hidden"
+                            id="authBtn" type="button" title="Sign In">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                <polyline points="10 17 15 12 10 7" />
+                                <line x1="15" y1="12" x2="3" y2="12" />
+                            </svg>
+                        </button>
+                        <!-- Auth Methods Dropdown -->
+                        <ul id="authMenu"
+                            class="hidden floating-menu-dropdown absolute top-full right-0 mt-2 min-w-48 p-1 m-0 list-none">
+                            <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors flex items-center gap-2"
+                                onclick="handleEmailLogin()">
+                                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                                    <path d="M22 7l-10 7L2 7" />
+                                </svg>
+                                Email
+                            </li>
+                            <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors flex items-center gap-2"
+                                onclick="handleSignInClick()">
+                                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                                    <path d="M12 7v0a2 2 0 012 2v1a2 2 0 01-2 2v0a2 2 0 01-2-2V9a2 2 0 012-2z" />
+                                    <path d="M8 17.5c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5" />
+                                </svg>
+                                Telegram Bot
+                            </li>
+                            <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors flex items-center gap-2"
+                                onclick="handleTelegramOAuth()">
+                                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
+                                    <polyline points="10 17 15 12 10 7" />
+                                    <line x1="15" y1="12" x2="3" y2="12" />
+                                </svg>
+                                Telegram Auth
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="relative inline-block overflow-visible z-[100000]">
+                        <button
+                            class="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 border-none rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-150 overflow-hidden"
+                            id="langBtn" type="button" title="Language">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M2 12h20" />
                                 <path
                                     d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                             </svg>
                         </button>
-                        <ul id="langMenu" class="lang-menu"></ul>
-                    </div>
-                    <button class="control-btn" onclick="toggleTheme()" title="Theme">
-                        <svg class="theme-icon sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="12" cy="12" r="5" />
-                            <path
-                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                        </svg>
-                        <svg class="theme-icon moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                        </svg>
-                    </button>
-                    <!-- USER MENU 
-
+                        <ul id="langMenu"
+                            class="hidden floating-menu-dropdown absolute top-full right-0 mt-2 min-w-36 max-h-[85vh] overflow-y-auto p-1 m-0 list-none">
+                            <li data-lang="en"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇬🇧 English</li>
+                            <li data-lang="ru"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇷🇺 Русский</li>
+                            <li data-lang="es"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇪🇸 Español</li>
+                            <li data-lang="fr"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇫🇷 Français</li>
+                            <li data-lang="de"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇩🇪 Deutsch</li>
+                            <li data-lang="zh"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇨🇳 中文</li>
+                            <li data-lang="pt"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇵🇹 Português</li>
+                            <li data-lang="ar"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇸🇦 العربية</li>
+                            <li data-lang="hi"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇮🇳 हिन्दी</li>
+                            <li data-lang="ja"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇯🇵 日本語</li>
+                            <li data-lang="it"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇮🇹 Italiano</li>
+                            <li data-lang="ko"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇰🇷 한국어</li>
+                            <li data-lang="tr"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇹🇷 Türkçe</li>
+                            <li data-lang="pl"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇵🇱 Polski</li>
+                            <li data-lang="vi"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇻🇳 Tiếng Việt</li>
+                            <li data-lang="th"
+                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
+                                🇹🇭 ไทย</li>
+                        </ul>
+                    </div><!-- USER MENU (Hamburger) -->
                     <div class="user-menu-wrapper">
-                        <button class="control-btn" id="userMenuBtn" title="Personal Account">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="8" r="5" />
-                                <path d="M20 21a8 8 0 0 0-16 0" />
+                        <button
+                            class="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 border-none rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-150 overflow-hidden"
+                            id="userMenuBtn" title="Menu">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <line x1="3" y1="12" x2="21" y2="12" />
+                                <line x1="3" y1="18" x2="21" y2="18" />
                             </svg>
                         </button>
-                        <div class="user-menu-dropdown" id="userMenuDropdown">
+
+                        <div class="user-menu-dropdown floating-menu-dropdown absolute top-full right-0 mt-2 min-w-60"
+                            id="userMenuDropdown">
                             <div class="user-account-info">
-                                <div class="user-display-name" id="userMenuName">--</div>
-                                <div class="user-balance-info">
+                                <div class="user-display-name" id="userMenuNameFull">
+                                    <!-- Content will be replaced by JavaScript -->
+                                </div>
+                                <div class="user-balance-info" id="userBalanceInfo">
                                     <span class="balance-label">Balance:</span>
                                     <span class="balance-value" id="userMenuCredits">--</span>
-                                    <button class="history-btn" onclick="openFinancialHistory()">
+                                    <button class="history-btn" onclick="openFinancialHistory()"
+                                        title="Payment History">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="2" y1="12" x2="22" y2="12" />
                                             <line x1="2" y1="16" x2="22" y2="16" />
@@ -354,411 +497,835 @@
                                 </div>
                             </div>
                             <div class="user-menu-actions">
-                                <button class="user-action-btn expand-btn" onclick="window.manualExpand()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-                                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                                <button class="user-action-btn theme-btn" onclick="toggleTheme()">
+                                    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="5" />
+                                        <path
+                                            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                                     </svg>
-                                    Expand Screen
+                                    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                                    </svg>
+                                    <span>Toggle Theme</span>
                                 </button>
                                 <button class="user-action-btn plans-btn" onclick="openSubscriptionPlans()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="1" y="4" width="12" height="12" rx="2" ry="2" />
-                                        <circle cx="9" cy="10" r="2" />
-                                        <path d="M16.5 9.4L7.5 14.4L5.5 12.4" />
-                                    </svg>
-                                    Choose Plan
+                                    Pricing
                                 </button>
+                                <!-- Credit Packs need to transfer inside pricing plan tarifs 
                                 <button class="user-action-btn credits-btn" onclick="openCreditPacks()">
-                                    💎 Buy Credits
-                                </button>
-                            </div>
-                        </div>
-                    </div> -->
-                    <!---->
-                </div>
-            </div>
-        </header>
-        <!-- Status Bar -->
-        <div id="statusBar" class="status-bar">
-            <div class="status-content">
-                <div class="status-icon">↻</div>
-                <span class="status-text" data-i18n="connecting">Connecting...</span>
-            </div>
-        </div>
-        <!-- Main Content -->
-        <main class="main-content" data-current-screen="generation">
-            <!-- Auth Screen -->
-            <div id="authScreen" class="screen auth-screen">
-                <div class="screen-content">
-                    <div class="auth-container">
-                        <div class="auth-header">
-                            <div class="auth-logo">
-                                <svg class="logo-img" style="width:120px; height:120px">
-                                    <use xlink:href="#pixplace-logo" />
-                                </svg>
-                            </div>
-                            <h1 class="auth-title" data-i18n="auth_title">Welcome to pixPLace</h1>
-                            <p class="auth-subtitle" data-i18n="auth_subtitle1">A space where your ideas come to life
-                                and creativity flows.</p>
-                        </div>
-                        <div class="auth-content" style="padding: 30px; text-align: center;">
-                            <p style="color: #333; font-size: 18px; margin-bottom: 30px;" data-i18n="auth_subtitle2">
-                                Just sign in with Telegram and start creating with joy.</p>
-
-                            <button class="auth-btn" onclick="handleTelegramLogin()"
-                                style="width: 100%; max-width: 300px; height: 80px; background: #0084ff; color: white; font-size: 20px; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,132,255,0.3);">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
-                                    <path
-                                        d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 5.547c.24.24.443.442.443.783v.054c0 .34-.203.542-.443.783l-.054.054-2.572 2.572-1.781 1.781a.48.48 0 0 1-.683 0l-.054-.054-.832-.832-.832-.832-.832-.832-.832-.832-.054-.054a.48.48 0 0 1 0-.683l.054-.054 1.781-1.781L14.746 5.6c1.086 1.086 2.238 2.238 2.572 2.572z" />
-                                </svg>
-                                <span data-i18n="auth_button_text">SIGN IN WITH TELEGRAM</span>
-                            </button>
-
-                            <div class="auth-footer" style="margin-top: 30px; color: #666;">
-                                <p class="auth-notice" data-i18n="auth_notice">💜 Your data's safe with us — we value
-                                    your trust.</p>
+                                    Buy Credits
+                                </button> -->
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </header>
+
+        <!-- Header compact mode: transforms when scrolling past model toggle -->
+        <style>
+            /* Smooth transitions for compact mode */
+            .theme-header {
+                transition: padding 0.3s ease, background 0.3s ease;
+            }
+
+            .theme-header .logo svg,
+            .theme-header .logo-text,
+            .theme-header .header-right button {
+                transition: all 0.3s ease;
+            }
+
+            /* Compact state */
+            .theme-header.header-compact {
+                padding: 2px 8px !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                pointer-events: none;
+            }
+
+            .theme-header.header-compact .logo,
+            .theme-header.header-compact .header-right,
+            .theme-header.header-compact .header-right button {
+                pointer-events: auto;
+            }
+
+            .dark .theme-header.header-compact,
+            .theme-header.header-compact[data-theme="dark"] {
+                background: transparent !important;
+            }
+
+            .theme-header.header-compact>div {
+                padding: 2px 6px !important;
+            }
+
+            .theme-header.header-compact .logo svg {
+                width: 24px !important;
+                height: 24px !important;
+                opacity: 0.6;
+            }
+
+            .theme-header.header-compact .logo-text {
+                opacity: 0;
+                font-size: 0;
+                width: 0;
+                overflow: hidden;
+                margin: 0;
+                padding: 0;
+            }
+
+            .theme-header.header-compact .logo {
+                gap: 0 !important;
+            }
+
+            .theme-header.header-compact .header-right button {
+                width: 26px !important;
+                height: 26px !important;
+                background: rgba(128, 128, 128, 0.12) !important;
+                backdrop-filter: blur(8px);
+                border-radius: 8px !important;
+            }
+
+            .theme-header.header-compact .header-right button svg {
+                width: 14px !important;
+                height: 14px !important;
+            }
+
+            .theme-header.header-compact .header-right {
+                gap: 4px !important;
+            }
+
+            /* Active generation tab — subtle glass */
+            .generation-tab.active {
+                background: rgba(255, 255, 255, 0.65) !important;
+                border-color: rgba(180, 180, 180, 0.4) !important;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+            }
+
+            /* Fix: Use data-theme selector and ensure high contrast (Black text on White Glass) */
+            .dark .generation-tab.active,
+            [data-theme="dark"] .generation-tab.active {
+                background: rgba(255, 255, 255, 0.9) !important;
+                border-color: rgba(255, 255, 255, 0.8) !important;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+                color: #000000 !important;
+            }
+
+            /* Fallback padding for main content to prevent initial overlap */
+            main {
+                padding-top: 112px;
+            }
+        </style>
+        <style>
+            /* Ensure header is fixed and doesn't affect flow when resizing */
+            header.theme-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 100;
+            }
+        </style>
+        <script>
+            (function () {
+                const header = document.querySelector('header.theme-header');
+                const mainContent = document.querySelector('main');
+                let isCompact = false;
+                let ticking = false;
+
+                // Sync main padding with header height to prevent layout jump
+                function updateLayoutPadding() {
+                    if (header && mainContent) {
+                        // Use actual height if seemingly valid (not compact), else fallback or keep previous
+                        // We assume full header is at least 80px
+                        const height = header.offsetHeight > 80 ? header.offsetHeight : 100;
+
+                        // Only update padding if header is likely in full state
+                        if (!isCompact && height > 80) {
+                            // Add extra 10px spacing (tight fit)
+                            mainContent.style.paddingTop = `${height + 2}px`;
+                        } else if (!mainContent.style.paddingTop) {
+                            // If no padding set yet, force safe default
+                            mainContent.style.paddingTop = '112px';
+                        }
+                    }
+                }
+
+                // Initial layout sync
+                window.addEventListener('load', updateLayoutPadding);
+                window.addEventListener('resize', updateLayoutPadding);
+                // Safety check
+                setTimeout(updateLayoutPadding, 500);
+
+                window.addEventListener('scroll', function () {
+                    if (!ticking) {
+                        requestAnimationFrame(function () {
+                            const scrollY = Math.max(0, window.scrollY);
+                            // Threshold 10px separates intentional scroll from elastic bounce noise
+                            if (!isCompact && scrollY > 10) {
+                                header.classList.add('header-compact');
+                                isCompact = true;
+                                // We DO NOT update padding here — content stays put!
+                            } else if (isCompact && scrollY <= 0) {
+                                header.classList.remove('header-compact');
+                                isCompact = false;
+                                // Now we can verify padding is correct for full height
+                                requestAnimationFrame(updateLayoutPadding);
+                            }
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                }, { passive: true });
+            })();
+        </script>
+        <main class="flex-1 px-3 sm:px-4 lg:px-6 xl:px-8 mx-auto w-full max-w-[1600px] min-h-0"
+            data-current-screen="generation">
+
             <!-- Generation Screen -->
-            <div id="generationScreen" class="screen active">
-                <div class="screen-content">
-                    <div class="generation-form-container">
+            <div id="generationScreen" class="screen">
+                <div class="max-w-full">
+                    <div class="max-w-6xl mx-auto">
                         <form class="generation-form">
-                            <!-- Окно выбора режима (карточки в ряд) -->
-                            <div class="form-group">
-                                <label class="form-label" data-i18n="mode_label">Generation Mode</label>
-                                <!-- Контейнер для карточек режимов -->
-                                <div id="modeCardsWrapper" class="mode-cards-wrapper">
-                                    <div class="mode-cards-grid">
-                                        <div class="mode-card" data-mode="photo_session">
-                                            <span class="mode-badge mode-badge--premium"
-                                                data-i18n="badge_premium">Premium</span>
-                                            <h4 class="mode-title">Nano Banana Editor</h4>
-                                            <div class="mode-capabilities">
-                                                <span class="capability-badge">edit-image</span>
-                                                <span class="capability-badge">txt2img</span>
-                                                <span class="capability-badge">img2img</span>
-                                            </div>
-                                            <span class="mode-info-indicator">i</span>
-                                        </div>
-
-                                        <div class="mode-card" data-mode="pixplace_pro">
-                                            <span class="mode-badge mode-badge--standard"
-                                                data-i18n="badge_standard">Standard</span>
-                                            <h4 class="mode-title">Flux Pro Advanced</h4>
-                                            <div class="mode-capabilities">
-                                                <span class="capability-badge">txt2img</span>
-                                                <span class="capability-badge">img2img</span>
-                                            </div>
-                                            <span class="mode-info-indicator">i</span>
-                                        </div>
-
-                                        <div class="mode-card" data-mode="dreamshaper_xl">
-                                            <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
-                                            <h4 class="mode-title">DreamShaper XL</h4>
-                                            <div class="mode-capabilities">
-                                                <span class="capability-badge">txt2img</span>
-                                                <span class="capability-badge">img2img</span>
-                                            </div>
-                                            <span class="mode-info-indicator">i</span>
-                                        </div>
-
-                                        <div class="mode-card" data-mode="fast_generation">
-                                            <span class="mode-badge mode-badge--standard"
-                                                data-i18n="badge_standard">Standard</span>
-                                            <h4 class="mode-title">Flux Fast Generation</h4>
-                                            <div class="mode-capabilities">
-                                                <span class="capability-badge">txt2img</span>
-                                            </div>
-                                            <span class="mode-info-indicator">i</span>
-                                        </div>
-
-                                        <div class="mode-card" data-mode="print_maker">
-                                            <span class="mode-badge mode-badge--standard"
-                                                data-i18n="badge_standard">Standard</span>
-                                            <h4 class="mode-title">Print on Demand</h4>
-                                            <div class="mode-capabilities">
-                                                <span class="capability-badge">txt2img</span>
-                                                <span class="capability-badge">img2img</span>
-                                            </div>
-                                            <span class="mode-info-indicator">i</span>
-                                        </div>
-
-                                        <div class="mode-card" data-mode="background_removal">
-                                            <span class="mode-badge mode-badge--free" data-i18n="badge_free">Free</span>
-                                            <h4 class="mode-title">Remove Background</h4>
-                                            <div class="mode-capabilities">
-                                                <span class="capability-badge">img2img</span>
-                                            </div>
-                                            <span class="mode-info-indicator">i</span>
-                                        </div>
-
-                                        <div class="mode-card" data-mode="upscale_image">
-                                            <span class="mode-badge mode-badge--premium"
-                                                data-i18n="badge_premium">Premium</span>
-                                            <h4 class="mode-title">Upscale Image</h4>
-                                            <div class="mode-capabilities">
-                                                <span class="capability-badge">img2img</span>
-                                            </div>
-                                            <span class="mode-info-indicator">i</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Mode Description Block - NEW: Additional information about selected generation mode -->
-                            <div id="modeDescriptionBlock" class="mode-description-block" style="display: none;">
-                                <div class="mode-description-content">
-                                    <div class="mode-description-text">
-                                        <p id="modeDescriptionText"></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Скрытый селект для совместимости с существующей логикой -->
-                            <select id="modeSelect" style="display: none;">
-                                <option value="photo_session">Nano Banana Editor</option>
-                                <option value="fast_generation">Flux Fast Generation</option>
-                                <option value="pixplace_pro">Flux Pro Advanced</option>
-                                <option value="print_maker">Print on Demand</option>
-                                <option value="background_removal">Remove Background</option>
-                                <option value="upscale_image">Upscale Image</option>
-                            </select>
-                            <!-- Prompt Input -->
-                            <div id="promptFormGroup" class="form-group">
-                                <label class="form-label" data-i18n="prompt_label">Describe your image</label>
-                                <div class="input-wrapper">
-                                    <textarea id="promptInput" class="form-textarea"
-                                        data-i18n-placeholder="prompt_placeholder"
-                                        placeholder="Describe your vision and watch AI bring it to life" rows="3"
-                                        maxlength="2000"></textarea>
-                                    <div class="input-counter">
-                                        <span id="charCounter">0</span>/2000
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Negative Prompt Checkbox and Input (DreamShaper XL only) -->
-                            <div id="negativePromptSection" class="form-group" style="display: none;">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="negativePromptCheckbox">
-                                    <span class="checkbox-custom"></span>
-                                    <span class="checkbox-text" data-i18n="use_negative_prompt">Use Negative
-                                        Prompt</span>
-                                </label>
-                            </div>
-
-                            <div id="negativePromptFormGroup" class="form-group" style="display: none;">
-                                <div class="input-wrapper">
-                                    <textarea id="negativePromptInput" class="form-textarea"
-                                        placeholder="Describe what you want to avoid in the image" rows="2"
-                                        maxlength="3000"></textarea>
-                                    <div class="input-counter">
-                                        <span id="negativeCharCounter">0</span>/3000
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Mode & Size & Image Upload Row -->
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" data-i18n="size_label">Size</label>
-                                    <select id="sizeSelect" class="form-select">
-                                        <option value="square" class="size-text">1 : 1</option>
-                                        <option value="portrait" class="size-text">3 : 4</option>
-                                        <option value="landscape" class="size-text">4 : 3</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <div class="user-image-upload" id="userImageWrapper">
-                                        <input type="file" id="userImage" class="user-image-label" multiple
-                                            accept="image/png,image/jpeg,image/webp,image/gif" style="display: none;" />
-                                        <button type="button" id="chooseUserImage"
-                                            class="btn-link outside-upload modern-upload-btn">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                                stroke="currentColor" stroke-width="2">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                <polyline points="7,10 12,15 17,10" />
-                                                <line x1="12" y1="15" x2="12" y2="3" />
+                            <div class="layout-section-modes">
+                                <!-- Вкладки выбора типа генерации с сеткой карточек -->
+                                <div class="mb-4">
+                                    <!-- Панель выбора режимов -->
+                                    <div
+                                        class="flex justify-center items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 px-2 sm:px-4">
+                                        <button type="button"
+                                            class="generation-tab active group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-300 hover:bg-white/60 dark:hover:bg-white/10 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                                            data-tab="image">
+                                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 group-hover:scale-110"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                                <polyline points="21 15 16 10 5 21" />
                                             </svg>
-                                            <p class="btn-link-text" data-i18n="upload_image">Upload Image</p>
+                                            <span>Images</span>
                                         </button>
-                                        <div id="userImagePreview" class="user-image-preview hidden">
-                                            <!-- Контейнер для множественных превью -->
-                                            <div id="previewContainer" class="preview-container">
-                                                <!-- Изображения будут добавляться динамически -->
+                                        <button type="button"
+                                            class="generation-tab group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-300 hover:bg-white/60 dark:hover:bg-white/10 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                                            data-tab="video">
+                                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 group-hover:scale-110"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                                                <line x1="7" y1="2" x2="7" y2="22" />
+                                                <line x1="17" y1="2" x2="17" y2="22" />
+                                                <line x1="2" y1="12" x2="22" y2="12" />
+                                                <line x1="2" y1="7" x2="7" y2="7" />
+                                                <line x1="2" y1="17" x2="7" y2="17" />
+                                                <line x1="17" y1="7" x2="22" y2="7" />
+                                                <line x1="17" y1="17" x2="22" y2="17" />
+                                            </svg>
+                                            <span>Videos</span>
+                                        </button>
+                                    </div>
+                                    <label class="text-xs px-4 pt-1 font-medium opacity-75 theme-text-secondary block"
+                                        data-i18n="mode_label">Model</label>
+                                    <!-- Контент вкладок -->
+                                    <div class="tabs-content">
+                                        <!-- Images Tab -->
+                                        <div class="tab-pane active" data-tab="image">
+                                            <!-- Toggle for mode cards -->
+                                            <button type="button" id="modeCardsToggle"
+                                                class="mode-cards-toggle collapsed">
+                                                <span class="toggle-text" id="modeCardsToggleText">Nano Banana
+                                                    Pro</span>
+                                            </button>
+                                            <div id="modeCardsWrapper" class="mode-cards-wrapper collapsed mt-2"
+                                                style="display:none">
+                                                <div
+                                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 p-2 sm:gap-3 sm:p-3 lg:gap-4 lg:p-4">
+                                                    <div class="mode-group mb-6">
+                                                        <h4
+                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                            Google Gemini</h4>
+                                                        <div class="mode-group-cards">
+                                                            <div class="mode-card rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                data-mode="nano_banana"
+                                                                data-description="Ultimate photo editor! Drop up to 4 reference pics and just tell the AI what to change — it handles everything for you 🚀">
+                                                                <span class="cost-badge absolute -top-2 -right-2">~5-10
+                                                                    credits</span>
+                                                                <h4
+                                                                    class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                                    Nano Banana</h4>
+                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                    <span
+                                                                        class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
+                                                                    <span
+                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                </div>
+                                                                <span
+                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                            </div>
+
+                                                            <div class="mode-card rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                data-mode="nano_banana_pro"
+                                                                data-description="Professional-grade photo editing! Advanced AI with enhanced precision for complex edits, up to 4 reference images, perfect for professional photo retouching and modifications 💎">
+                                                                <span class="cost-badge absolute -top-2 -right-2">~15
+                                                                    credits</span>
+                                                                <h4
+                                                                    class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                                    Nano Banana Pro</h4>
+                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                    <span
+                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    <span
+                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                </div>
+                                                                <span
+                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mode-group mb-6">
+                                                        <h4
+                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                            Flux</h4>
+                                                        <div class="mode-group-cards">
+                                                            <div class="mode-card rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                data-mode="pixplace_pro"
+                                                                data-description="Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer">
+                                                                <span class="cost-badge absolute -top-2 -right-2">~4
+                                                                    credits</span>
+                                                                <h4
+                                                                    class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                                    Flux Pro</h4>
+                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                    <span
+                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    <span
+                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                </div>
+                                                                <span
+                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                            </div>
+
+                                                            <div class="mode-card rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                data-mode="fast_generation"
+                                                                data-description="Fastest model for quick image generation — works instantly without uploads">
+                                                                <span class="cost-badge absolute -top-2 -right-2">~3
+                                                                    credits</span>
+                                                                <h4
+                                                                    class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                                    Flux Fast</h4>
+                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                    <span
+                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                </div>
+                                                                <span
+                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mode-group mb-6">
+                                                        <h4
+                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                            SDXL</h4>
+                                                        <div class="mode-group-cards">
+                                                            <div class="mode-card rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                data-mode="print_maker"
+                                                                data-description="Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond">
+                                                                <span class="cost-badge absolute -top-2 -right-2">~5
+                                                                    credits</span>
+                                                                <h4
+                                                                    class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                                    Print on Demand</h4>
+                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                    <span
+                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    <span
+                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                </div>
+                                                                <span
+                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                            </div>
+
+                                                            <div class="mode-card rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                data-mode="dreamshaper_xl"
+                                                                data-description="Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.">
+                                                                <span
+                                                                    class="cost-badge absolute -top-2 -right-2">Free</span>
+                                                                <h4
+                                                                    class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                                    Dreamshaper XL</h4>
+                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                    <span
+                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    <span
+                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                </div>
+                                                                <span
+                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mode-group">
+                                                        <h4
+                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                            Other</h4>
+                                                        <div class="mode-group-cards">
+                                                            <div class="mode-card rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                data-mode="upscale_image"
+                                                                data-description="Boost image quality and resolution — make your visuals look crisp and detailed">
+                                                                <span class="cost-badge absolute -top-2 -right-2">~12
+                                                                    credits</span>
+                                                                <h4
+                                                                    class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                                    Enhance Image</h4>
+                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                    <span
+                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                </div>
+                                                                <span
+                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                            </div>
+
+                                                            <div class="mode-card rounded-xl p-3 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                data-mode="background_removal"
+                                                                data-description="Remove the background and keep the main object. Upload a photo to start">
+                                                                <span
+                                                                    class="cost-badge absolute -top-2 -right-2">Free</span>
+                                                                <h4
+                                                                    class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                                    Remove Background</h4>
+                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                    <span
+                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                </div>
+                                                                <span
+                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Videos Tab -->
+                                        <div class="tab-pane" data-tab="video" style="display:none">
+                                            <!-- Toggle for video mode cards -->
+                                            <button type="button" id="videoCardsToggle" class="mode-cards-toggle">
+                                                <span class="toggle-text" id="videoCardsToggleText"></span>
+                                                <span class="toggle-icon"></span>
+                                            </button>
+                                            <div id="videoCardsWrapper" class="mode-cards-wrapper collapsed mt-2">
+                                                <div
+                                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 p-2 sm:gap-3 sm:p-3 lg:gap-4 lg:p-4">
+                                                    <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
+                                                        data-mode="video_gen"
+                                                        data-description="Transform your ideas into dynamic videos! Describe any scene or concept, and watch AI create engaging video content from scratch 🎬✨">
+                                                        <span
+                                                            class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
+                                                            Soon</span>
+                                                        <h4
+                                                            class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                            Video Generation</h4>
+                                                        <div class="flex flex-wrap gap-2 mb-2">
+                                                            <span
+                                                                class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded-md text-xs font-medium">text-to-video</span>
+                                                        </div>
+                                                        <span
+                                                            class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
+                                                    </div>
+
+                                                    <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
+                                                        data-mode="image_to_video"
+                                                        data-description="Bring static images to life! Upload any photo and transform it into smooth, animated video sequences with AI-powered motion 🌟📹">
+                                                        <span
+                                                            class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
+                                                            Soon</span>
+                                                        <h4
+                                                            class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                            Image to Video</h4>
+                                                        <div class="flex flex-wrap gap-2 mb-2">
+                                                            <span
+                                                                class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">img-to-video</span>
+                                                        </div>
+                                                        <span
+                                                            class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
+                                                    </div>
+
+                                                    <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
+                                                        data-mode="video_edit"
+                                                        data-description="Professional video editing tools powered by AI. Enhance, modify, and perfect your video content with intelligent editing features 🎯🔧">
+                                                        <span
+                                                            class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
+                                                            Soon</span>
+                                                        <h4
+                                                            class="text-lg font-semibold text-[var(--text-primary)] mb-3">
+                                                            Video Edit</h4>
+                                                        <div class="flex flex-wrap gap-2 mb-2">
+                                                            <span
+                                                                class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">video-tools</span>
+                                                        </div>
+                                                        <span
+                                                            class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <small id="userImageError" class="error-msg"></small>
                                 </div>
-                                <div class="form-group">
-                                    <!-- COMPACT STRENGTH SLIDER - Below upload -->
-                                    <div id="strengthSliderGroup" class="compact-strength-slider"
-                                        style="display: none;">
-                                        <div class="compact-slider-container">
-                                            <label class="compact-slider-label">
-                                                <span class="slider-text">Strength</span>
-                                            </label>
-                                            <div class="compact-slider-wrapper">
-                                                <input type="range" id="strengthSlider" class="compact-slider-input"
+
+                                <!-- Скрытый селект для совместимости с существующей логикой -->
+                                <select id="modeSelect" style="display: none;">
+                                    <option value="nano_banana">Nano Banana Editor</option>
+                                    <option value="nano_banana_pro">Nano Banana Pro</option>
+                                    <option value="fast_generation">Flux Fast Generation</option>
+                                    <option value="pixplace_pro">Flux Pro Advanced</option>
+                                    <option value="print_maker">Print on Demand</option>
+                                    <option value="background_removal">Remove Background</option>
+                                    <option value="upscale_image">Upscale Image</option>
+                                </select>
+
+                                <!-- Mode Description Block - SEPARATED: Now in independent form-group to avoid affecting card layout -->
+                                <div class="form-group" id="modeDescriptionGroup">
+                                    <div id="modeDescriptionBlock" class="mode-description-block"
+                                        style="display: block;">
+                                        <div class="mode-description-content">
+                                            <div class="mode-description-text">
+                                                <p id="modeDescriptionText"
+                                                    class="text-[10px] sm:text-xs leading-relaxed opacity-50 text-gray-500 dark:text-gray-400 m-0 py-1 px-1"
+                                                    data-i18n="mode_nano_banana_pro_desc">
+                                                    Professional-grade photo editing! Advanced AI with enhanced
+                                                    precision
+                                                    for complex edits, up to 4 reference images, perfect for
+                                                    professional
+                                                    photo retouching and modifications 💎</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ⚡ MODERN PROMPT INPUT CARD -->
+                            <div class="layout-section-prompt" id="promptFormGroup">
+                                <div
+                                    class="relative w-full rounded-2xl bg-white/90 dark:bg-[#0f172a] backdrop-blur-xl border border-white/20 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:bg-white dark:hover:bg-[#0f172a] group z-10">
+                                    <!-- Positive Prompt Area -->
+                                    <div class="relative w-full">
+                                        <textarea id="promptInput"
+                                            class="w-full bg-transparent border-none focus:ring-0 p-3 sm:p-4 min-h-[80px] sm:min-h-[120px] lg:min-h-[160px] text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base resize-none font-medium leading-relaxed scrollbar-hide"
+                                            data-i18n-placeholder="prompt_placeholder"
+                                            placeholder="Describe your vision and watch AI bring it to life"
+                                            maxlength="2000"></textarea>
+
+                                        <!-- Character Counter -->
+                                        <div
+                                            class="absolute bottom-2 right-4 text-[10px] font-mono opacity-40 pointer-events-none">
+                                            <span id="charCounter">0/2000</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Image Preview Area (Hidden by default) -->
+                                    <div id="userImagePreview" class="hidden px-4 pb-2">
+                                        <div id="previewContainer" class="flex flex-wrap gap-2"></div>
+                                    </div>
+
+                                    <!-- Divider with Negative Prompt Toggle -->
+                                    <div
+                                        class="relative h-px w-full bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent opacity-30 my-0">
+                                    </div>
+
+                                    <!-- Negative Prompt Section (Collapsible) -->
+                                    <div class="collapse-section">
+                                        <button type="button"
+                                            class="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-400 hover:text-blue-500/80 dark:hover:text-blue-400/80 transition-colors px-4 py-1 w-full text-left focus:outline-none group/neg"
+                                            onclick="const container = document.getElementById('negativePromptContainer'); const icon = this.querySelector('svg'); container.classList.toggle('hidden'); icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';">
+                                            <svg style="width: 10px; height: 10px;"
+                                                class="transition-transform duration-200 opacity-50 group-hover/neg:opacity-100"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                    d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                            <span>Negative prompt</span>
+                                        </button>
+
+                                        <div id="negativePromptContainer"
+                                            class="hidden px-4 pb-3 pt-0 transition-all duration-200 ease-in-out">
+                                            <div class="relative">
+                                                <textarea id="negativePromptInput"
+                                                    class="w-full bg-gray-50/50 dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700 focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/30 p-3 text-[11px] text-gray-600 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 resize-none font-medium"
+                                                    rows="2"
+                                                    placeholder="Things to avoid (e.g. blurry, low quality, deformed)..."
+                                                    maxlength="3000"></textarea>
+                                                <div
+                                                    class="absolute bottom-1 right-2 text-[8px] font-mono opacity-20 pointer-events-none">
+                                                    <span id="negativeCharCounter">0/3000</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Toolbar Area -->
+                                    <div
+                                        class="flex flex-col sm:flex-row items-center justify-between p-2 sm:p-3 bg-white/30 dark:bg-black/20 backdrop-blur-md border-t border-white/5 gap-3 sm:gap-0">
+
+                                        <!-- Left Tools -->
+                                        <div
+                                            class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto scrollbar-hide pb-1 sm:pb-0">
+
+                                            <!-- Aspect Ratio Selector -->
+                                            <div class="relative min-w-[120px]" id="sizeGroup">
+                                                <select id="sizeSelect"
+                                                    class="appearance-none w-full bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-3 pr-8 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors">
+                                                    <option value="square">Square 1:1 (1024×1024)</option>
+                                                    <option value="ultra_wide_landscape">Ultra-Wide Landscape 21:9
+                                                        (1536×640)</option>
+                                                    <option value="wide_landscape">Wide Landscape 16:9 (1344×768)
+                                                    </option>
+                                                    <option value="standard_landscape">Standard Landscape 4:3 (1152×896)
+                                                    </option>
+                                                    <option value="classic_landscape">Classic Landscape 3:2 (1280×832)
+                                                    </option>
+                                                    <option value="classic_portrait">Classic Portrait 2:3 (832×1280)
+                                                    </option>
+                                                    <option value="standard_portrait">Standard Portrait 3:4 (896×1152)
+                                                    </option>
+                                                    <option value="tall_portrait">Tall Portrait 9:16 (768×1344)</option>
+                                                    <option value="ultra_tall_portrait">Ultra-Tall Portrait 9:21
+                                                        (640×1536)</option>
+                                                </select>
+                                                <div
+                                                    class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none opacity-60">
+                                                    <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
+
+                                            <!-- Upload Button -->
+                                            <input type="file" id="userImage" class="hidden" multiple
+                                                accept="image/png,image/jpeg,image/webp,image/gif" />
+                                            <button type="button" id="chooseUserImage"
+                                                class="flex items-center gap-1.5 bg-white/50 dark:bg-slate-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg py-1.5 px-3 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all whitespace-nowrap">
+                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                    <polyline points="7,10 12,15 17,10" />
+                                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                                </svg>
+                                                <span data-i18n="upload_image">Upload</span>
+                                            </button>
+
+                                            <!-- Strength Slider (Hidden by default) -->
+                                            <div id="strengthSliderGroup"
+                                                class="hidden items-center gap-2 bg-white/50 dark:bg-slate-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg py-1 px-3">
+                                                <span class="text-[9px] font-bold opacity-60 uppercase">Str</span>
+                                                <input type="range" id="strengthSlider"
+                                                    class="appearance-none w-16 h-1 bg-gray-200 dark:bg-gray-600 rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
                                                     min="0.01" max="1.0" step="0.01" value="0.8">
-                                                <span id="strengthValue" class="compact-slider-value">80%</span>
+                                                <span id="strengthValue"
+                                                    class="text-[9px] font-bold min-w-[24px] text-right">80%</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right: Generate Button -->
+                                        <button type="submit" id="generateBtn"
+                                            class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl py-2 px-6 text-sm font-bold shadow-xl shadow-blue-500/30 border-2 border-white/20 hover:border-white/40 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transform transition-all duration-200 w-full sm:w-auto bg-[length:200%_auto] hover:bg-right">
+                                            <span data-i18n="generate_btn">Generate</span>
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2.5">
+                                                <path d="M5 12h14M12 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+
+                                <!-- Hidden items for script compatibility -->
+                            </div>
+                            <div class="layout-section-extras">
+                                <div id="negativePromptSection" style="display: none;"></div>
+                                <div id="userImageWrapper" style="display: none;"></div>
+
+
+                                <!-- Choose a Style Section - CLEAN REPLACEMENT -->
+                                <div class="form-group" id="chooseStyleSection">
+                                    <div class="style-dropdown-button" onclick="handleStyleCheckboxChange()">
+                                        <input type="checkbox" id="styleCheckbox" style="display: none;">
+                                        <span class="dropdown-arrow">▼</span>
+                                        <span class="dropdown-label" data-i18n="use_style_selection">Choose a
+                                            Style</span>
+                                        <span class="selected-style-indicator" id="selectedStyleIndicator"></span>
+                                    </div>
+                                    <div class="style-dropdown" id="styleDropdown">
+                                        <div class="style-grid-container">
+                                            <!-- No Style Option -->
+                                            <div class="carousel-2d-item" onclick="resetStyleSelection()">
+                                                <div
+                                                    class="w-full h-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600">
+                                                    <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </div>
+                                                <p data-i18n="style_none">No Style</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="realistic"
+                                                onclick="selectStyleCard('realistic')">
+                                                <img src="https://i.pinimg.com/236x/bd/63/9e/bd639e0617cac14d309c4d73bc40fc70.jpg"
+                                                    alt="Realistic Style" loading="lazy" />
+                                                <p data-i18n="style_realistic">Realistic</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="popart"
+                                                onclick="selectStyleCard('popart')">
+                                                <img src="https://i.pinimg.com/236x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg"
+                                                    alt="Pop Art Style" loading="lazy" />
+                                                <p data-i18n="style_popart">Pop Art</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="cyberpunk"
+                                                onclick="selectStyleCard('cyberpunk')">
+                                                <img src="https://i.pinimg.com/236x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
+                                                    alt="Cyberpunk Style" loading="lazy" />
+                                                <p data-i18n="style_cyberpunk">Cyberpunk</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="cartoon"
+                                                onclick="selectStyleCard('cartoon')">
+                                                <img src="https://i.pinimg.com/236x/47/dd/14/47dd14400e61dde173fc1c7302b2810d.jpg"
+                                                    alt="Cartoon Style" loading="lazy" />
+                                                <p data-i18n="style_cartoon">Cartoon</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="sketch"
+                                                onclick="selectStyleCard('sketch')">
+                                                <img src="https://i.pinimg.com/236x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg"
+                                                    alt="Sketch Art" loading="lazy" />
+                                                <p data-i18n="style_sketch">Sketch</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="anime"
+                                                onclick="selectStyleCard('anime')">
+                                                <img src="https://i.pinimg.com/236x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg"
+                                                    alt="Anime Style" loading="lazy" />
+                                                <p data-i18n="style_anime">Anime</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="fantasy"
+                                                onclick="selectStyleCard('fantasy')">
+                                                <img src="https://i.pinimg.com/236x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg"
+                                                    alt="Fantasy Style" loading="lazy" />
+                                                <p data-i18n="style_fantasy">Fantasy</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="surrealism"
+                                                onclick="selectStyleCard('surrealism')">
+                                                <img src="https://i.pinimg.com/236x/37/3a/1c/373a1c221bdcf4b501498263674aed7e.jpg"
+                                                    alt="Surrealism Design" loading="lazy" />
+                                                <p data-i18n="style_surrealism">Surrealism</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="artistic"
+                                                onclick="selectStyleCard('artistic')">
+                                                <img src="https://i.pinimg.com/236x/69/30/f4/6930f42752c14b5ad3dce15f215344d1.jpg"
+                                                    alt="Artistic Style" loading="lazy" />
+                                                <p data-i18n="style_artistic">Artistic</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="abstract"
+                                                onclick="selectStyleCard('abstract')">
+                                                <img src="https://i.pinimg.com/236x/a4/56/0a/a4560a03b54ba349b42ced80bf402bb1.jpg"
+                                                    alt="Abstract Style" loading="lazy" />
+                                                <p data-i18n="style_abstract">Abstract</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="minimalism"
+                                                onclick="selectStyleCard('minimalism')">
+                                                <img src="https://i.pinimg.com/236x/33/b3/a3/33b3a3d227992ce02ca6da59baab0cf4.jpg"
+                                                    alt="Minimalism Design" loading="lazy" />
+                                                <p data-i18n="style_minimalism">Minimalism</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="fashion"
+                                                onclick="selectStyleCard('fashion')">
+                                                <img src="https://i.pinimg.com/236x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
+                                                    alt="Fashion Design" loading="lazy" />
+                                                <p data-i18n="style_fashion">Fashion</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="3d"
+                                                onclick="selectStyleCard('3d')">
+                                                <img src="https://i.pinimg.com/236x/67/15/77/671577e00166b3e1fed8bab82520b970.jpg"
+                                                    alt="3D Design" loading="lazy" />
+                                                <p data-i18n="style_3d">3D</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="interior"
+                                                onclick="selectStyleCard('interior')">
+                                                <img src="https://i.pinimg.com/236x/ff/d3/05/ffd305ca4f27d4d55fe5ce7f0a78f9ba.jpg"
+                                                    alt="Interior Design" loading="lazy" />
+                                                <p data-i18n="style_interior">Interior</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="architecture"
+                                                onclick="selectStyleCard('architecture')">
+                                                <img src="https://i.pinimg.com/236x/8a/0d/e8/8a0de899bdb0a2f764b67792940bd0e0.jpg"
+                                                    alt="Architecture Design" loading="lazy" />
+                                                <p data-i18n="style_architecture">Architecture</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="print"
+                                                onclick="selectStyleCard('print')">
+                                                <img src="https://i.pinimg.com/236x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg"
+                                                    alt="Print Design, Print on Demand" loading="lazy" />
+                                                <p data-i18n="style_print">Print</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="sticker"
+                                                onclick="selectStyleCard('sticker')">
+                                                <img src="https://i.pinimg.com/236x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
+                                                    alt="Sticker Design" loading="lazy" />
+                                                <p data-i18n="style_sticker">Sticker</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="banner"
+                                                onclick="selectStyleCard('banner')">
+                                                <img src="https://i.pinimg.com/236x/43/a1/57/43a157f45bd1e916776598941396b6f4.jpg"
+                                                    alt="Banner Design" loading="lazy" />
+                                                <p data-i18n="style_banner">Banner</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="infographic"
+                                                onclick="selectStyleCard('infographic')">
+                                                <img src="https://i.pinimg.com/236x/6f/8a/e9/6f8ae9b723f25d77d5d7d5275b4f8c06.jpg"
+                                                    alt="Ai infographic Design" loading="lazy" />
+                                                <p data-i18n="style_infographic">Infografic</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="logo"
+                                                onclick="selectStyleCard('logo')">
+                                                <img src="https://i.pinimg.com/236x/dc/d8/6a/dcd86a15d7736f8a3759ff78d1a5b07c.jpg"
+                                                    alt="Ai Logo Design" loading="lazy" />
+                                                <p data-i18n="style_logo">Logo</p>
+                                            </div>
+                                            <div class="carousel-2d-item" data-style="vector"
+                                                onclick="selectStyleCard('vector')">
+                                                <img src="https://i.pinimg.com/236x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
+                                                    alt="Vector Design" loading="lazy" />
+                                                <p data-i18n="style_vector">Vector</p>
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
+                                <!-- Generation History Toggle Button -->
+                                <button type="button" id="historyToggleBtn" onclick="toggleHistoryList()"
+                                    class="w-full flex items-center justify-between mt-4 px-4 py-3 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-white/10 hover:border-blue-400/40 dark:hover:border-blue-400/30 transition-all duration-300 cursor-pointer group shadow-sm">
+                                    <!-- Left: Icon + Text -->
+                                    <span class="flex items-center gap-2.5">
+                                        <svg class="w-4.5 h-4.5 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <polyline points="12 6 12 12 16 14" />
+                                        </svg>
+                                        <span data-i18n="history_toggle">Generation History</span>
+                                        <span id="historyCountBadge"
+                                            class="hidden px-1.5 py-0.5 text-[10px] font-bold bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300 rounded-full leading-none"></span>
+                                    </span>
+                                    <!-- Right: Chevron -->
+                                    <svg id="historyChevron"
+                                        class="w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-300 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </button>
+                                <div id="historyList" class="history-list hidden"></div>
                             </div>
-
-                            <!-- Generate Button -->
-                            <button type="submit" class="generate-btn" id="generateBtn">
-                                <span class="btn-text" data-i18n="generate_btn">Generate</span>
-                                <div class="btn-ripple"></div>
-                            </button>
-                            <!-- Choose a Style Section - CLEAN REPLACEMENT -->
-                            <div class="form-group" id="chooseStyleSection">
-                                <div class="style-dropdown-button" onclick="handleStyleCheckboxChange()">
-                                    <input type="checkbox" id="styleCheckbox" style="display: none;">
-                                    <span class="dropdown-arrow">▼</span>
-                                    <span class="dropdown-label" data-i18n="use_style_selection">Choose a Style</span>
-                                    <span class="selected-style-indicator" id="selectedStyleIndicator"></span>
-                                </div>
-                                <div class="style-dropdown" id="styleDropdown">
-                                    <div class="style-grid-container">
-                                        <div class="carousel-2d-item" data-style="realistic"
-                                            onclick="selectStyleCard('realistic')">
-                                            <img src="https://i.pinimg.com/236x/bd/63/9e/bd639e0617cac14d309c4d73bc40fc70.jpg"
-                                                alt="Realistic Style" loading="lazy" />
-                                            <p data-i18n="style_realistic">Realistic</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="popart"
-                                            onclick="selectStyleCard('popart')">
-                                            <img src="https://i.pinimg.com/236x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg"
-                                                alt="Pop Art Style" loading="lazy" />
-                                            <p data-i18n="style_popart">Pop Art</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="cyberpunk"
-                                            onclick="selectStyleCard('cyberpunk')">
-                                            <img src="https://i.pinimg.com/236x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
-                                                alt="Cyberpunk Style" loading="lazy" />
-                                            <p data-i18n="style_cyberpunk">Cyberpunk</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="cartoon"
-                                            onclick="selectStyleCard('cartoon')">
-                                            <img src="https://i.pinimg.com/236x/47/dd/14/47dd14400e61dde173fc1c7302b2810d.jpg"
-                                                alt="Cartoon Style" loading="lazy" />
-                                            <p data-i18n="style_cartoon">Cartoon</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="sketch"
-                                            onclick="selectStyleCard('sketch')">
-                                            <img src="https://i.pinimg.com/236x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg"
-                                                alt="Sketch Art" loading="lazy" />
-                                            <p data-i18n="style_sketch">Sketch</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="anime"
-                                            onclick="selectStyleCard('anime')">
-                                            <img src="https://i.pinimg.com/236x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg"
-                                                alt="Anime Style" loading="lazy" />
-                                            <p data-i18n="style_anime">Anime</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="fantasy"
-                                            onclick="selectStyleCard('fantasy')">
-                                            <img src="https://i.pinimg.com/236x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg"
-                                                alt="Fantasy Style" loading="lazy" />
-                                            <p data-i18n="style_fantasy">Fantasy</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="surrealism"
-                                            onclick="selectStyleCard('surrealism')">
-                                            <img src="https://i.pinimg.com/236x/37/3a/1c/373a1c221bdcf4b501498263674aed7e.jpg"
-                                                alt="Surrealism Design" loading="lazy" />
-                                            <p data-i18n="style_surrealism">Surrealism</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="artistic"
-                                            onclick="selectStyleCard('artistic')">
-                                            <img src="https://i.pinimg.com/236x/69/30/f4/6930f42752c14b5ad3dce15f215344d1.jpg"
-                                                alt="Artistic Style" loading="lazy" />
-                                            <p data-i18n="style_artistic">Artistic</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="abstract"
-                                            onclick="selectStyleCard('abstract')">
-                                            <img src="https://i.pinimg.com/236x/a4/56/0a/a4560a03b54ba349b42ced80bf402bb1.jpg"
-                                                alt="Abstract Style" loading="lazy" />
-                                            <p data-i18n="style_abstract">Abstract</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="minimalism"
-                                            onclick="selectStyleCard('minimalism')">
-                                            <img src="https://i.pinimg.com/236x/33/b3/a3/33b3a3d227992ce02ca6da59baab0cf4.jpg"
-                                                alt="Minimalism Design" loading="lazy" />
-                                            <p data-i18n="style_minimalism">Minimalism</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="fashion"
-                                            onclick="selectStyleCard('fashion')">
-                                            <img src="https://i.pinimg.com/236x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
-                                                alt="Fashion Design" loading="lazy" />
-                                            <p data-i18n="style_fashion">Fashion</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="3d" onclick="selectStyleCard('3d')">
-                                            <img src="https://i.pinimg.com/236x/67/15/77/671577e00166b3e1fed8bab82520b970.jpg"
-                                                alt="3D Design" loading="lazy" />
-                                            <p data-i18n="style_3d">3D</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="interior"
-                                            onclick="selectStyleCard('interior')">
-                                            <img src="https://i.pinimg.com/236x/ff/d3/05/ffd305ca4f27d4d55fe5ce7f0a78f9ba.jpg"
-                                                alt="Interior Design" loading="lazy" />
-                                            <p data-i18n="style_interior">Interior</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="architecture"
-                                            onclick="selectStyleCard('architecture')">
-                                            <img src="https://i.pinimg.com/236x/8a/0d/e8/8a0de899bdb0a2f764b67792940bd0e0.jpg"
-                                                alt="Architecture Design" loading="lazy" />
-                                            <p data-i18n="style_architecture">Architecture</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="print"
-                                            onclick="selectStyleCard('print')">
-                                            <img src="https://i.pinimg.com/236x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg"
-                                                alt="Print Design, Print on Demand" loading="lazy" />
-                                            <p data-i18n="style_print">Print</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="sticker"
-                                            onclick="selectStyleCard('sticker')">
-                                            <img src="https://i.pinimg.com/236x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
-                                                alt="Sticker Design" loading="lazy" />
-                                            <p data-i18n="style_sticker">Sticker</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="banner"
-                                            onclick="selectStyleCard('banner')">
-                                            <img src="https://i.pinimg.com/236x/43/a1/57/43a157f45bd1e916776598941396b6f4.jpg"
-                                                alt="Banner Design" loading="lazy" />
-                                            <p data-i18n="style_banner">Banner</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="infographic"
-                                            onclick="selectStyleCard('infographic')">
-                                            <img src="https://i.pinimg.com/236x/6f/8a/e9/6f8ae9b723f25d77d5d7d5275b4f8c06.jpg"
-                                                alt="Ai infographic Design" loading="lazy" />
-                                            <p data-i18n="style_infographic">Infografic</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="logo"
-                                            onclick="selectStyleCard('logo')">
-                                            <img src="https://i.pinimg.com/236x/dc/d8/6a/dcd86a15d7736f8a3759ff78d1a5b07c.jpg"
-                                                alt="Ai Logo Design" loading="lazy" />
-                                            <p data-i18n="style_logo">Logo</p>
-                                        </div>
-                                        <div class="carousel-2d-item" data-style="vector"
-                                            onclick="selectStyleCard('vector')">
-                                            <img src="https://i.pinimg.com/236x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
-                                                alt="Vector Design" loading="lazy" />
-                                            <p data-i18n="style_vector">Vector</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="button" id="historyToggleBtn" class="history-toggle-btn"
-                                onclick="toggleHistoryList()" data-i18n="history_toggle"><span
-                                    class="toggle-icon">▼</span></button>
-                            <div id="historyList" class="history-list hidden"></div>
                         </form>
                     </div>
                 </div>
@@ -770,138 +1337,248 @@
     </div>
     <!-- Toast Notifications -->
     <div id="toastContainer" class="toast-container"></div>
-    <!-- Модальное окно лимита -->
-    <div id="limitModal" class="limit-modal">
-        <div class="limit-modal-backdrop"></div>
-        <div class="limit-modal-content">
-            <div class="limit-icon">⚡</div>
-            <h2 class="limit-title" data-i18n="limit_title">Достигнут Лимит Генераций</h2>
-            <p class="limit-message" data-i18n="limit_message">Токены для генерации Закончились!
-                Вы можете получить Больше Токенов, оплатив подписку на канал pixPLace,
-                Чтобы продолжить создавать Восхитительные Изображения!</p>
 
-            <!-- Контейнер карусели планов -->
-            <div class="plans-carousel-container">
-                <div class="plans-carousel-wrapper">
-                    <div class="plans-carousel">
-                        <!-- ЛИТЕ тариф -->
-                        <div class="plan-card lite-plan">
-                            <div class="plan-header">
-                                <div class="plan-title" data-i18n="plan_lite_title">Lite</div>
-                                <div class="credits" data-i18n="plan_lite_credits">500 credits</div>
-                            </div>
-                            <div class="plan-price">
-                                <span class="price" data-i18n-price="plan_lite_price">€12</span>
-                            </div>
-                            <div class="plan-features">
-                                <div class="feature" data-i18n="plan_lite_feature1">• Fast generation</div>
-                                <div class="feature" data-i18n="plan_lite_feature2">• Premium models</div>
-                                <div class="feature" data-i18n="plan_lite_feature3">• HD quality</div>
-                            </div>
-                            <button class="btn btn-primary plan-btn" id="upgradeBtn">
-                                <span class="btn-text" data-i18n="plan_lite_select">Buy Lite</span>
-                            </button>
-                        </div>
-
-                        <!-- ПРО тариф -->
-                        <div class="plan-card pro-plan">
-                            <!-- Шильдик Most Popular -->
-                            <div class="plan-badge" data-i18n="most_popular">Most Popular</div>
-                            <div class="plan-header">
-                                <div class="plan-title" data-i18n="plan_pro_title">Pro</div>
-                                <div class="credits" data-i18n="plan_pro_credits">1000 credits</div>
-                            </div>
-                            <div class="plan-price">
-                                <span class="price" data-i18n-price="plan_pro_price">€17</span>
-                            </div>
-                            <div class="plan-features">
-                                <div class="feature" data-i18n="plan_pro_feature1">• Premium models</div>
-                                <div class="feature" data-i18n="plan_pro_feature2">• AI Prompt Assistant included</div>
-                                <div class="feature" data-i18n="plan_pro_feature3">• HD quality</div>
-                            </div>
-                            <button class="btn btn-primary plan-btn" id="upgradebtn_pro">
-                                <span class="btn-text" data-i18n="plan_pro_select">Buy Pro</span>
-                            </button>
-                        </div>
-
-                        <!-- СТУДИО тариф -->
-                        <div class="plan-card studio-plan">
-                            <div class="plan-header">
-                                <div class="plan-title" data-i18n="plan_studio_title">Design Studio</div>
-                                <div class="credits" data-i18n="plan_studio_credits">2000 credits</div>
-                            </div>
-                            <div class="plan-price">
-                                <span class="price" data-i18n-price="plan_studio_price">€22</span>
-                            </div>
-                            <div class="plan-features">
-                                <div class="feature" data-i18n="plan_studio_feature1">• Max performance</div>
-                                <div class="feature" data-i18n="plan_studio_feature2">• All premium models</div>
-                                <div class="feature" data-i18n="plan_studio_feature3">• Priority support</div>
-                            </div>
-                            <button class="btn btn-primary plan-btn" id="upgradebtn_studio">
-                                <span class="btn-text" data-i18n="plan_studio_select">Buy Studio</span>
-                            </button>
-                        </div>
+    <!-- ⚡ MODERN FOOTER: 2026 Glassmorphism Design -->
+    <footer
+        class="relative z-50 w-full bg-white/80 dark:bg-gray-950 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 transition-colors duration-300 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <!-- Brand Column -->
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span
+                            class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                            pixPLace
+                        </span>
                     </div>
-
-                    <!-- Индикаторы карусели -->
-                    <div class="carousel-indicators">
-                        <span class="indicator active" data-slide="0"></span>
-                        <span class="indicator" data-slide="1"></span>
-                        <span class="indicator" data-slide="2"></span>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed" data-i18n="footer_desc">
+                        Next-generation AI creative studio. Turn your ideas into reality with our advanced generative
+                        tools.
+                    </p>
+                    <div class="flex gap-4">
+                        <!-- Telegram Social Link -->
+                        <a href="https://t.me/pixPLaceBot" target="_blank" rel="noopener noreferrer"
+                            class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                            aria-label="Telegram">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.48-1.03-2.4-1.63-1.06-.69-.37-1.07.23-1.69.15-.16 2.75-2.52 2.8-.73.06.82-.12.47-.57 1.48-.36.76-.04 1.35-.94 1.93-1.6-.9-2.07-.66-2.9-.66-.85-.86-2.22-1.31-2.22-1.31s-.68.21-.69 1.25.4 1.63 1.05 1.84c.88.29 2.96.81 2.96.81s.88-.34 2.22-.84c1.16-.44 2.37-.87 3.53-1.3l.03-.01c1.37-.51 1.64-.69 1.83-.69.41 0 .61.27.61.57z" />
+                            </svg>
+                        </a>
                     </div>
+                </div>
+
+                <!-- Links Column 1: Product -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4"
+                        data-i18n="footer_product">Product</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" onclick="showGeneration(); return false;"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                                <span data-i18n="footer_generate">Generate</span>
+                            </a></li>
+                        <li><a href="#" onclick="openSubscriptionPlans(); return false;"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                                    <line x1="7" y1="7" x2="7.01" y2="7" />
+                                </svg>
+                                <span data-i18n="footer_pricing">Pricing</span>
+                            </a></li>
+                        <li><a href="#" onclick="openCreditPacks(); return false;"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                                </svg>
+                                <span data-i18n="footer_credits">Credits</span>
+                            </a></li>
+                    </ul>
+                </div>
+
+                <!-- Links Column 2: Community & Resources -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4"
+                        data-i18n="footer_resources">Community & Resources</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="https://t.me/pixplace_public/20" target="_blank"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+                                    <path d="M18 14h-8" />
+                                    <path d="M15 18h-5" />
+                                    <path d="M10 6h8v4h-8V6Z" />
+                                </svg>
+                                <span>Ai News Channel</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://t.me/pixplace_public/21" target="_blank"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+                                    <path d="M9 18h6" />
+                                    <path d="M10 22h4" />
+                                    <path d="M12 14V2" />
+                                </svg>
+                                <span>Daily Prompt Ideas</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://t.me/pixplace_public" target="_blank"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                                <span data-i18n="footer_community">Community Chat</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://prompt.pixplace.space/" target="_blank"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                                </svg>
+                                <span data-i18n="footer_blog">Blog & Tutorials</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Links Column 3: Legal -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4"
+                        data-i18n="footer_legal">Legal</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" onclick="legalRouter.navigateTo('privacy'); return false;"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                </svg>
+                                <span data-i18n="footer_privacy">Privacy Policy</span>
+                            </a></li>
+                        <li><a href="#" onclick="legalRouter.navigateTo('terms'); return false;"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" />
+                                </svg>
+                                <span data-i18n="footer_terms">Terms of Service</span>
+                            </a></li>
+                        <li><a href="https://t.me/pixplace_support" target="_blank"
+                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <circle cx="12" cy="12" r="4" />
+                                    <line x1="4.93" y1="4.93" x2="9.17" y2="9.17" />
+                                    <line x1="14.83" y1="14.83" x2="19.07" y2="19.07" />
+                                    <line x1="14.83" y1="9.17" x2="19.07" y2="4.93" />
+                                    <line x1="4.93" y1="19.07" x2="9.17" y2="14.83" />
+                                </svg>
+                                <span data-i18n="footer_support">Contact Support</span>
+                            </a></li>
+                    </ul>
                 </div>
             </div>
 
-            <!-- Кнопка "Может позже" -->
-            <div class="limit-actions">
-                <button id="closeLimitModal" class="btn btn-secondary close-btn">
-                    <span class="btn-icon" size="48px">❆</span>
-                    <span class="btn-text" data-i18n="closeLimitModal">Maybe Later</span>
-                </button>
+            <div
+                class="border-t border-gray-200 dark:border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
+                <p>&copy; 2026 pixPLace Inc. All rights reserved.</p>
+                <div class="flex gap-4">
+                    <!-- Social icons could go here -->
+                </div>
             </div>
-        </div>
-    </div>
-    <footer class="footer pt-8 pb-6 f6 color-fg-muted p-responsive" role="contentinfo">
-        <h2 class="sr-only"></h2>
-        <div class="mx-2">
-            <div class="d-flex flex-items-center flex-shrink-0 mx-2">
-                <a aria-label="pixPLace" class="footer-octicon mr-2"
-                    href="https://t.me/pixPLaceBot?start=footer_placeholder">
-                </a>
-                <span>
-                    © 2025 pixPLace,&nbsp;Inc.
-                </span>
-            </div>
-            <nav aria-label="Footer">
-                <h3 class="sr-only" id="sr-footer-heading"></h3>
-
-                <ul class="list-style-none d-flex flex-justify-center flex-wrap mb-2 mb-lg-0"
-                    aria-labelledby="sr-footer-heading">
-                </ul>
-            </nav>
         </div>
     </footer>
-    <script type="module" src="mode-cards.js"></script>
-    <script type="module" src="cost-badge.js"></script>
-    <script type="module" src="style-manager.js"></script>
-    <script type="module" src="style-management.js"></script>
-    <script type="module" src="user-account.js"></script>
-    <!-- strength-slider.js moved to conditional lazy loading -->
-    <script type="module" src="app_modern.js"></script>
-    <script type="module" src="parallel-generation.js"></script>
 
-    <!-- AI Coach Styles - loaded early for delayed loading attention animations -->
-    <link rel="stylesheet" href="css/ai-coach.css">
+    <!-- Core Utilities -->
+    <script src="core/legal-router.js"></script>
 
+    <script src="parallel-generation.js"></script>
     <script src="telegram-auth.js"></script>
+
+    <script type="module" src="app_modern.js?v=2535"></script>
 
     <!-- ФИНАЛЬНЫЙ ТЕСТ - КНОПКА В BODY - ВРЕМЕННО ОТКЛЮЧЕНА -->
     <button onclick="handleTelegramLogin()"
         style="position: fixed; top: 200px; left: 200px; width: 400px; height: 120px; background: #ff00ff; color: white; font-size: 32px; font-weight: bold; border: 10px solid #000000; border-radius: 20px; z-index: 1000000; cursor: pointer; display: none !important;">
         🚀 TELEGRAM АВТОРИЗАЦИЯ<br />ФИНАЛЬНЫЙ ТЕСТ
     </button>
+    <!-- 🎬 ONBOARDING LOADER: Swappable — replace onboarding/ folder to change flow -->
+    <script>
+        (function launchOnboarding() {
+            // Only launch for new users
+            if (localStorage.getItem('pixplace_onboarding_done')) return;
+
+            function fireOnboardingDone() {
+                document.dispatchEvent(new CustomEvent('pixplace:onboarding:done'));
+            }
+
+            function startOnboarding() {
+                // Small delay so app UI settles
+                setTimeout(function () {
+                    import('./onboarding/onboarding.js').then(function (m) {
+                        var ob = new m.PixPlaceOnboarding();
+
+                        // 🔥 Patch _finish to fire consent event after onboarding ends
+                        var origFinish = ob._finish.bind(ob);
+                        ob._finish = function () {
+                            origFinish();
+                            // Give onboarding fade-out animation ~400ms, then signal done
+                            setTimeout(fireOnboardingDone, 450);
+                        };
+
+                        ob.start();
+                    }).catch(function (err) {
+                        console.warn('[Onboarding] Failed to load module:', err);
+                        // Fire anyway so cookie banner isn't stuck
+                        fireOnboardingDone();
+                    });
+                }, 600);
+            }
+
+            // Listen for app:ready event (dispatched by app_modern.js)
+            var handled = false;
+            document.addEventListener('app:ready', function () {
+                if (handled) return;
+                handled = true;
+                startOnboarding();
+            }, { once: true });
+
+            // Safety fallback: if app:ready never fires within 5s, start anyway
+            setTimeout(function () {
+                if (!handled) {
+                    handled = true;
+                    startOnboarding();
+                }
+            }, 5000);
+        })();
+    </script>
 
 </body>
 
-</html>
+</html

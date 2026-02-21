@@ -1,6 +1,5 @@
 // Hindi translations for PixPlace
 export const hi = {
-    loading: "The pixPLace",
     app_title: "pixPLace",
     connecting: "कनेक्ट हो रहा है...",
     connected: "Telegram से कनेक्ट हो गया",
@@ -46,14 +45,14 @@ export const hi = {
     mode_background_removal: "बैकग्राउंड हटाएं",
     mode_upscale_image: "इमेज को बढ़ाएं",
     mode_print_maker: "Print on Demand SDXL",
-    mode_photo_session: "Nano Banana",
+    mode_nano_banana: "Nano Banana",
     mode_fast_generation: "Flux Fast Generation",
     mode_pixplace_pro: "Flux Pro Advanced",
     mode_dreamshaper_xl: "DreamShaper XL",
     mode_details: "मॉडल डिटेल्स",
 
     // मोड विवरण
-    mode_photo_session_desc: "अंतिम फोटो एडिटर! 4 तक रेफरेंस इमेज अपलोड करें और AI को बताएं कि क्या बदलना है — AI सब कुछ संभालेगा 🚀",
+    mode_nano_banana_desc: "अंतिम फोटो एडिटर! 4 तक रेफरेंस इमेज अपलोड करें और AI को बताएं कि क्या बदलना है — AI सब कुछ संभालेगा 🚀",
     mode_fast_generation_desc: "साधारण इमेज जनरेशन के लिए सबसे तेज मॉडल — बिना अपलोड के तुरंत काम करता है",
     mode_pixplace_pro_desc: "प्रोफेशनल मोड में स्विच करें — लोगो डिजाइन, टेक्स्ट कम्पोजिशन और कॉम्प्लेक्स लेआउट के लिए परफेक्ट, जैसे एक सच में प्रो डिजाइनर 💪",
     mode_print_maker_desc: "Print-on-Demand क्रिएटर्स के लिए खास डिजाइन — कपड़ों, बैग आदि पर प्रिंट करने के लिए रेडी डिजाइन्स बनाएं 🔥",
@@ -87,13 +86,14 @@ export const hi = {
     remove_user_image: "हटाएं",
     reference_image: "रेफरेंस",
     upload_image: "इमेज अपलोड करें",
-    please_upload_photo_session: "कृपया फोटो सेशन मोड के लिए अपनी इमेज अपलोड करें।\\nया दूसरा मोड चुनें",
+    please_upload_nano_banana: "कृपया फोटो सेशन मोड के लिए अपनी इमेज अपलोड करें।\\nया दूसरा मोड चुनें",
     upload_failed: "इमेज अपलोड विफल हुआ। फिर से प्रयास करें।",
     please_upload_for_upscale: "कृपया अपस्केल के लिए एक इमेज अपलोड करें।",
     please_upload_for_background_removal: "कृपया बैकग्राउंड रिमूवल के लिए इमेज अपलोड करें।",
-    ai_coach_ready: "✨ AI Prompt Helper AI जनरेशन में मदद करने के लिए तैयार है!",
-    ai_welcome_intro: "AI Prompt Helper: स्वागत है! मैं आपका AI असिस्टेंट हूं जो इमेज जनरेशन परिणामों की क्वालिटी में सुधार करता है। प्रॉम्प्ट बनाने के बारे में कोई भी प्रश्न स्वागत! या अपनी विज्ञान की संक्षिप्त व्याख्या करें, मैं आपके लिए एक पेशेवर प्रॉम्प्ट बनाऊंगा।",
-    ai_welcome_chat: "AI Prompt Helper: चैट में स्वागत हे! मैं आपका AI असिस्टेंट हूं जो इमेज बनाने में मदद करता है। मुझे बताएं कि आप क्या जनरेट करना चाहते हैं और मैं आपको एक उच्च क्वालिटी प्रॉम्प्ट बनाने में मदद करूंगा। मुझे कुछ भी पूछें, मैं जनरेशन में मदद करूंगा!",
+    ai_chat_ready: "AI chat ready!",
+    ai_coach_ready: "✨ GPT Chat AI जनरेशन में मदद करने के लिए तैयार है!",
+    ai_welcome_intro: "GPT Chat: स्वागत है! मैं आपका AI असिस्टेंट हूं जो इमेज जनरेशन परिणामों की क्वालिटी में सुधार करता है। प्रॉम्प्ट बनाने के बारे में कोई भी प्रश्न स्वागत! या अपनी विज्ञान की संक्षिप्त व्याख्या करें, मैं आपके लिए एक पेशेवर प्रॉम्प्ट बनाऊंगा。",
+    ai_welcome_chat: "GPT Chat: चैट में स्वागत हे! मैं आपका AI असिस्टेंट हूं जो इमेज बनाने में मदद करता है। मुझे बताएं कि आप क्या जनरेट करना चाहते हैं और मैं आपको एक उच्च क्वालिटी प्रॉम्प्ट बनाने में मदद करूंगा। मुझे कुछ भी पूछें, मैं जनरेशन में मदद करूंगा!",
     ai_placeholder_modal: "अपने AI असिस्टेंट को लिखें...",
     ai_placeholder_chat: "अपना संदेश लिखें...",
     ai_send_button: "भेजें",
@@ -169,5 +169,36 @@ export const hi = {
     image_added_success: "इमेज जनरेशन के लिए ऐड हुई!",
     ui_error_message: "इंटरफेस एरर:",
 
-    load_more_history: "और दिखाएं"
+    load_more_history: "और दिखाएं",
+
+    // ── Onboarding Flow v2 ───────────────────────────────────────
+    ob_cinema_title: "pixPLace में आपका स्वागत है",
+    ob_cinema_tagline: "AI से अपने शब्दों को शानदार विज़ुअल में बदलें",
+    ob_cinema_btn: "चलो एक्सप्लोर करें",
+    ob_skip: "छोड़ें",
+    ob_next: "अगला →",
+    ob_finish: "बनाना शुरू करें! 🚀",
+    ob_step_of: "{{current}} / {{total}}",
+
+    ob_tour_tabs_title: "इमेजेस या वीडियो?",
+    ob_tour_tabs_desc: "इमेज जनरेशन और वीडियो टूल्स के बीच स्विच करें — हर टैब अलग AI मॉडल खोलता है।",
+
+    ob_tour_model_title: "अपना AI मॉडल चुनें",
+    ob_tour_model_desc: "अपनी टास्क के लिए सही इंजन चुनें — फास्ट एडिटिंग, प्रो रिटचिंग, क्रिएटिव जनरेशन या बैकग्राउंड रिमूवल।",
+
+    ob_tour_prompt_title: "अपना आइडिया बताएं",
+    ob_tour_prompt_desc: "नेचुरल लैंग्वेज में लिखें। कोशिश करें: \"मेरी फोटो को वेस एंडरसन स्टाइल में एडिट करो, वार्म टोन्स के साथ\"।",
+    ob_tour_prompt_demo: "मेरी फोटो को वेस एंडरसन स्टाइल में एडिट करो — वार्म पास्टल टोन्स, सिमेट्रिकल फ्रेमिंग...",
+
+    ob_tour_upload_title: "रेफरेंस इमेज जोड़ें",
+    ob_tour_upload_desc: "Nano Banana Pro के लिए अपनी फोटो अपलोड करें — AI उन्हें एडिटिंग बेस के रूप में उपयोग करता है।",
+
+    ob_tour_size_title: "आउटपुट रेज़ोल्यूशन चुनें",
+    ob_tour_size_desc: "फीड के लिए स्क्वायर, स्टोरीज़ के लिए पोर्ट्रेट, बैनर के लिए लैंडस्केप।",
+
+    ob_tour_gpt_title: "प्रॉम्प्ट में मदद चाहिए? ✨",
+    ob_tour_gpt_desc: "GPT Chat आपका AI असिस्टेंट है परफेक्ट प्रॉम्प्ट बनाने के लिए — अपना आइडिया बताएं और वो उसे प्रो की तरह लिखेगा।",
+
+    ob_tour_generate_title: "रेडी हैं? Generate दबाएं!",
+    ob_tour_generate_desc: "आपकी इमेज सेकंडों में तैयार हो जाएगी। रिज़ल्ट हिस्ट्री में दिखेगा।",
 };

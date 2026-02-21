@@ -1,0 +1,613 @@
+/* ============================================================
+   pixPLace Onboarding Flow v2.0
+   Cinema Intro + Smart Spotlight Tour (8 steps)
+   ✅ Swappable: replace this file + onboarding.js for a new flow
+   ============================================================ */
+
+/* ─── CINEMA INTRO ──────────────────────────────────────────── */
+
+.ob-cinema-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Semi-transparent: lets the neural animation show through */
+    background: rgba(5, 5, 8, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.ob-cinema-overlay.ob-visible {
+    opacity: 1;
+}
+
+.ob-cinema-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 48px 44px 40px;
+    max-width: 480px;
+    width: calc(100% - 40px);
+    /* Neutral dark glass — matches app's design language */
+    background: rgba(15, 17, 22, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 24px;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.03),
+        0 24px 72px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    transform: translateY(20px) scale(0.97);
+    opacity: 0;
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.65s ease;
+}
+
+.ob-cinema-card.ob-visible {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* Subtle top border line */
+.ob-cinema-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(200, 200, 220, 0.25),
+            rgba(200, 200, 220, 0.4),
+            rgba(200, 200, 220, 0.25),
+            transparent);
+    border-radius: 1px;
+    animation: ob-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes ob-shimmer {
+
+    0%,
+    100% {
+        opacity: 0.4;
+        width: 40%;
+    }
+
+    50% {
+        opacity: 1;
+        width: 60%;
+    }
+}
+
+/* Logo container */
+.ob-cinema-logo {
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ob-cinema-logo.ob-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.ob-cinema-logo svg {
+    width: 62px;
+    height: 62px;
+    color: rgba(220, 220, 235, 0.9);
+    filter: drop-shadow(0 0 16px rgba(200, 200, 235, 0.2));
+}
+
+.ob-cinema-logo-ring {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Subtle pulsing ring */
+.ob-cinema-logo-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    animation: ob-pulse-ring 3s ease-out infinite;
+}
+
+@keyframes ob-pulse-ring {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Title */
+.ob-cinema-title {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+    color: rgba(250, 250, 255, 0.95);
+    margin: 0 0 10px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s;
+}
+
+.ob-cinema-title.ob-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Tagline */
+.ob-cinema-tagline {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: rgba(250, 250, 255, 0.45);
+    margin: 0 0 32px;
+    max-width: 320px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease 0.28s, transform 0.5s ease 0.28s;
+}
+
+.ob-cinema-tagline.ob-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* CTA Button — neutral, matches app's button style */
+.ob-cinema-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(250, 250, 255, 0.9);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    transition: opacity 0.5s ease 0.42s,
+        transform 0.5s ease 0.42s,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.ob-cinema-btn.ob-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.ob-cinema-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px) scale(1.01);
+}
+
+.ob-cinema-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Animated shine */
+.ob-cinema-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.08) 50%, transparent 60%);
+    transform: translateX(-100%);
+    animation: ob-btn-shine 4s ease-in-out infinite 1s;
+}
+
+@keyframes ob-btn-shine {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    25% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Skip button */
+.ob-cinema-skip {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: rgba(250, 250, 255, 0.28);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.ob-cinema-skip:hover {
+    color: rgba(250, 250, 255, 0.55);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Progress dots in cinema */
+.ob-progress-dots {
+    display: flex;
+    gap: 5px;
+    margin-top: 24px;
+    opacity: 0;
+    transition: opacity 0.4s ease 0.55s;
+}
+
+.ob-progress-dots.ob-visible {
+    opacity: 1;
+}
+
+.ob-progress-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.ob-progress-dot.ob-active {
+    width: 18px;
+    border-radius: 2.5px;
+    background: rgba(200, 200, 220, 0.7);
+}
+
+.ob-progress-dot.ob-done {
+    background: rgba(200, 200, 220, 0.35);
+}
+
+/* ─── SPOTLIGHT TOUR ─────────────────────────────────────────── */
+
+.ob-tour-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 999998;
+    pointer-events: none;
+}
+
+.ob-spotlight-svg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: all;
+    cursor: default;
+}
+
+.ob-spotlight-mask {
+    fill: rgba(4, 4, 8, 0.78);
+}
+
+/* Highlight ring around target element */
+.ob-spotlight-ring {
+    position: fixed;
+    border-radius: 12px;
+    pointer-events: none;
+    box-shadow:
+        0 0 0 2px rgba(200, 200, 220, 0.5),
+        0 0 0 4px rgba(200, 200, 220, 0.08),
+        0 0 16px rgba(200, 200, 240, 0.12);
+    animation: ob-ring-pulse 2.2s ease-in-out infinite;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ob-ring-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 2px rgba(200, 200, 220, 0.5), 0 0 0 4px rgba(200, 200, 220, 0.08), 0 0 16px rgba(200, 200, 240, 0.12);
+    }
+
+    50% {
+        box-shadow: 0 0 0 2px rgba(220, 220, 240, 0.8), 0 0 0 8px rgba(200, 200, 220, 0.06), 0 0 28px rgba(200, 200, 240, 0.2);
+    }
+}
+
+/* ─── TOOLTIP ────────────────────────────────────────────────── */
+
+.ob-tooltip {
+    position: fixed;
+    z-index: 999999;
+    width: 300px;
+    max-width: calc(100vw - 32px);
+    background: rgba(14, 16, 20, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.03),
+        0 20px 56px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    pointer-events: all;
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        top 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ob-tooltip.ob-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Arrow */
+.ob-tooltip-arrow {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: rgba(14, 16, 20, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transform: rotate(45deg);
+    left: 20px;
+}
+
+.ob-tooltip-arrow.ob-arrow-top {
+    top: -6px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.ob-tooltip-arrow.ob-arrow-bottom {
+    bottom: -6px;
+    border-left: none;
+    border-top: none;
+}
+
+/* Step counter */
+.ob-tooltip-step {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: rgba(200, 200, 220, 0.55);
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ob-tooltip-step::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(200, 200, 220, 0.6);
+    animation: ob-dot-blink 1.8s ease-in-out infinite;
+}
+
+@keyframes ob-dot-blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+}
+
+/* Title */
+.ob-tooltip-title {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(250, 250, 255, 0.95);
+    margin: 0 0 7px;
+    line-height: 1.3;
+}
+
+/* Description */
+.ob-tooltip-desc {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: rgba(250, 250, 255, 0.45);
+    margin: 0 0 16px;
+}
+
+/* Typewriter prompt demo */
+.ob-typewriter-demo {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-family: 'Inter', system-ui, monospace;
+    font-size: 11px;
+    color: rgba(200, 220, 255, 0.75);
+    line-height: 1.5;
+    min-height: 36px;
+    position: relative;
+}
+
+.ob-typewriter-cursor {
+    display: inline-block;
+    width: 1.5px;
+    height: 12px;
+    background: rgba(200, 220, 255, 0.6);
+    margin-left: 1px;
+    vertical-align: middle;
+    animation: ob-cursor-blink 0.8s ease-in-out infinite;
+}
+
+@keyframes ob-cursor-blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Tooltip footer */
+.ob-tooltip-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+/* Progress dots in tooltip */
+.ob-tooltip-dots {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+}
+
+.ob-tooltip-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    transition: all 0.25s ease;
+}
+
+.ob-tooltip-dot.ob-active {
+    width: 12px;
+    border-radius: 2px;
+    background: rgba(200, 200, 220, 0.6);
+}
+
+.ob-tooltip-dot.ob-done {
+    background: rgba(200, 200, 220, 0.28);
+}
+
+/* Buttons */
+.ob-tooltip-buttons {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.ob-btn-skip {
+    background: none;
+    border: none;
+    color: rgba(250, 250, 255, 0.28);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: color 0.2s, background 0.2s;
+    white-space: nowrap;
+}
+
+.ob-btn-skip:hover {
+    color: rgba(250, 250, 255, 0.55);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ob-btn-next {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(250, 250, 255, 0.9);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    white-space: nowrap;
+}
+
+.ob-btn-next:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.ob-btn-next:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .ob-cinema-card {
+        padding: 40px 24px 32px;
+        border-radius: 20px;
+    }
+
+    .ob-cinema-title {
+        font-size: 22px;
+    }
+
+    .ob-cinema-tagline {
+        font-size: 13px;
+    }
+
+    .ob-tooltip {
+        width: calc(100vw - 28px);
+        border-radius: 14px;
+        padding: 14px;
+    }
+
+    .ob-tooltip-title {
+        font-size: 14px;
+    }
+
+    .ob-tooltip-desc {
+        font-size: 11px;
+        margin-bottom: 12px;
+    }
+}
+
+/* ─── LIGHT THEME ────────────────────────────────────────────── */
+
+[data-theme="light"] .ob-cinema-overlay {
+    background: rgba(8, 10, 18, 0.78);
+}
+
+[data-theme="light"] .ob-spotlight-mask {
+    fill: rgba(6, 8, 16, 0.76);
+}

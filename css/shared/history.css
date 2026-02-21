@@ -1,0 +1,317 @@
+/* FINANCIAL HISTORY COMPONENT */
+
+/* Financial History List */
+.financial-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.financial-history-item {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: all 0.2s;
+}
+
+.financial-history-item:hover {
+    background-color: var(--bg-tertiary);
+    transform: translateY(-0.25rem);
+}
+
+.history-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.history-item-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.history-item-amount.positive {
+    color: var(--success-500);
+    font-weight: 700;
+}
+
+.history-item-amount.negative {
+    color: var(--error-500);
+    font-weight: 700;
+}
+
+.history-item-details {
+    font-size: 0.875rem;
+}
+
+.history-item-type {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.history-item-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.history-item-preview {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    border: 1px solid var(--border-primary);
+}
+
+/* =============================================================================
+   GENERATION HISTORY COMPONENT - MODERN GRID & GLASSMORPHISM 2026
+   ============================================================================= */
+
+/* Main History Container */
+#historyList.history-list {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 8px 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-top: 8px !important;
+}
+
+@media (max-width: 320px) {
+    #historyList.history-list {
+        gap: 4px !important;
+        padding: 4px 0 !important;
+    }
+}
+
+/* Reset hidden state */
+#historyList.history-list.hidden {
+    display: none !important;
+}
+
+/* Responsive grid */
+@media (min-width: 480px) {
+    #historyList.history-list {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+}
+
+@media (min-width: 768px) {
+    #historyList.history-list {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    #historyList.history-list {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 14px !important;
+    }
+}
+
+@media (min-width: 1280px) {
+    #historyList.history-list {
+        /* 🔥 FIXED: Constrain to 2 columns on desktop sidebar (width ~300px) */
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    #historyList.history-list {
+        /* Still keep 2 columns for better visibility in sidebar */
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* History Card — Modern 2026 */
+.history-mini {
+    aspect-ratio: 1 / 1 !important;
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 14px !important;
+    min-height: 100px;
+    /* 🔥 OPTIMIZATION: Prevent layout thrashing */
+    border-radius: 14px !important;
+    background-color: var(--bg-secondary, #f1f5f9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    cursor: pointer !important;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    animation: historyCardIn 0.4s ease-out both !important;
+}
+
+/* Loading cards — keep their own pulse animation, not historyCardIn */
+.history-mini.history-loading {
+    animation: loading-pulse 2s ease-in-out infinite !important;
+    opacity: 1 !important;
+}
+
+/* Loading cards — caption should always be visible (showing "Generating...") */
+.history-mini.history-loading .history-caption {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* Staggered animation */
+.history-mini:nth-child(1) {
+    animation-delay: 0s !important;
+}
+
+.history-mini:nth-child(2) {
+    animation-delay: 0.04s !important;
+}
+
+.history-mini:nth-child(3) {
+    animation-delay: 0.08s !important;
+}
+
+.history-mini:nth-child(4) {
+    animation-delay: 0.12s !important;
+}
+
+.history-mini:nth-child(5) {
+    animation-delay: 0.16s !important;
+}
+
+.history-mini:nth-child(6) {
+    animation-delay: 0.20s !important;
+}
+
+@keyframes historyCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.history-mini:hover {
+    transform: translateY(-3px) scale(1.03) !important;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(59, 130, 246, 0.3) !important;
+    z-index: 10 !important;
+}
+
+/* Dark theme */
+[data-theme="dark"] .history-mini {
+    background-color: var(--bg-secondary-dark, #1e293b) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="dark"] .history-mini:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Image */
+.history-mini img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.history-mini:hover img {
+    transform: scale(1.08) !important;
+}
+
+/* Caption — Glassmorphism */
+.history-caption {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    padding: 6px 8px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    backdrop-filter: blur(12px) saturate(1.5) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(1.5) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    opacity: 0 !important;
+    transform: translateY(100%) !important;
+    transition: all 0.3s ease !important;
+}
+
+.history-mini:hover .history-caption {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* Loading animation */
+.history-loading {
+    border: none !important;
+    box-shadow: none !important;
+    animation: loading-pulse 2s ease-in-out infinite !important;
+}
+
+@keyframes loading-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Load More button — spans full grid width */
+#loadMoreHistoryBtn {
+    grid-column: 1 / -1 !important;
+}
+
+/* Broken image placeholder */
+.broken-image-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--bg-secondary, #f8f9fa) !important;
+    border-radius: 8px !important;
+    color: var(--text-secondary, #6c757d) !important;
+    font-size: 11px !important;
+    text-align: center !important;
+    padding: 12px !important;
+}
+
+.history-mini:hover .broken-image-placeholder {
+    background-color: var(--bg-hover, #e2e8f0) !important;
+}
+
+.broken-image-icon {
+    font-size: 24px !important;
+    margin-bottom: 4px !important;
+}
+
+.broken-image-text {
+    font-weight: 500 !important;
+}
+
+.broken-image-subtext {
+    font-size: 10px !important;
+    margin-top: 4px !important;
+    opacity: 0.8 !important;
+}
