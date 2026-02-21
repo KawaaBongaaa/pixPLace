@@ -47,13 +47,10 @@ ehthumbs_vista.db
 */backup/
 pixPLace-main*/
 
-# Dev-only files (not needed for production / GitHub Pages)
-dev-server.js
-test-env.js
-
-# macOS DS_Store everywhere
-**/.DS_Store
-
-# Node modules (not needed for static GH Pages deploy)
-node_modules/
-package-lock.json
+# AI Agent System Files
+.gemini/
+.agents/
+.cursorrules
+.clinerules
+.cline/
+.cursor/
