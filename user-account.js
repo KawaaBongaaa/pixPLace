@@ -731,13 +731,93 @@ function handleSignInClick() {
     }
 }
 
-// 🔐 Вход через Telegram OAuth (redirect на сайт)
+// 🔐 Вход через Telegram Login Widget (нативный popup)
 function handleTelegramOAuth() {
-    console.log('🔐 Telegram OAuth clicked');
+    console.log('🔐 Telegram Login Widget clicked');
     const authMenu = document.getElementById('authMenu');
     if (authMenu) authMenu.classList.add('hidden');
 
-    window.open('https://prompt.pixplace.space/pixplace-ai-app/', '_blank');
+    // Если Telegram.Login уже доступен — сразу показываем popup
+    if (typeof Telegram !== 'undefined' && Telegram.Login) {
+        Telegram.Login.auth(
+            { bot_id: '7841453788', request_access: true },
+            function (userData) {
+                if (!userData) {
+                    console.warn('⚠️ Telegram auth cancelled or failed');
+                    window.showToast?.('warning', 'Auth cancelled');
+                    return;
+                }
+                onTelegramAuthCallback(userData);
+            }
+        );
+    } else {
+        // Загружаем виджет динамически и пробуем снова
+        loadTelegramWidgetAndAuth();
+    }
+}
+
+// Загрузка telegram-widget.js и повторный вызов auth
+function loadTelegramWidgetAndAuth() {
+    if (document.getElementById('tg-widget-script')) {
+        console.warn('⚠️ Widget script already loading, retry in 1s');
+        setTimeout(handleTelegramOAuth, 1000);
+        return;
+    }
+    const script = document.createElement('script');
+    script.id = 'tg-widget-script';
+    script.async = true;
+    script.src = 'https://telegram.org/js/telegram-widget.js?22';
+    script.onload = () => {
+        console.log('✅ telegram-widget.js loaded dynamically');
+        setTimeout(handleTelegramOAuth, 100);
+    };
+    script.onerror = () => {
+        console.error('❌ Failed to load telegram-widget.js');
+        window.showToast?.('error', 'Failed to load Telegram auth. Check your connection.');
+    };
+    document.head.appendChild(script);
+}
+
+// ✅ Callback после успешной авторизации через Telegram
+async function onTelegramAuthCallback(userData) {
+    console.log('✅ Telegram auth successful:', userData.first_name || userData.username);
+
+    // Сохраняем локально
+    localStorage.setItem('telegram_auth_completed', 'true');
+    localStorage.setItem('telegram_user', JSON.stringify(userData));
+    localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+    // Обновляем глобальное состояние
+    if (window.appState) {
+        window.appState.userId = userData.id;
+        window.appState.userName = userData.first_name || userData.username;
+    }
+
+    // Показываем приветствие
+    window.showToast?.('success', `Welcome, ${userData.first_name || userData.username}! 🎉`);
+    updateUserMenuInfo();
+
+    // Регистрируем в n8n (некритично — ошибка не блокирует вход)
+    try {
+        const response = await fetch('https://alv-n8n.pixplace.space/webhook/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: userData.id,
+                username: userData.username || '',
+                first_name: userData.first_name || '',
+                last_name: userData.last_name || '',
+                photo_url: userData.photo_url || '',
+                auth_date: userData.auth_date,
+                hash: userData.hash,
+                traffic_source: 'webapp/telegram_oauth'
+            })
+        });
+        const data = await response.json();
+        console.log('📥 n8n auth response:', data);
+    } catch (err) {
+        console.warn('⚠️ n8n registration failed (non-critical):', err);
+    }
 }
 
 // ✉️ Вход через Email (placeholder)
@@ -764,6 +844,8 @@ window.buyCreditPack = buyCreditPack;
 window.handleSignInClick = handleSignInClick;
 window.handleTelegramOAuth = handleTelegramOAuth;
 window.handleEmailLogin = handleEmailLogin;
+window.onTelegramAuthCallback = onTelegramAuthCallback;
+window.loadTelegramWidgetAndAuth = loadTelegramWidgetAndAuth;
 
 // Экспортируем функции модуля
 export {
