@@ -2076,10 +2076,13 @@ async function generateImage(event) {
         event.preventDefault();
     }
 
-    // 🚀 USE window.generationManager (parallel-generation.js is a regular script, not ES module)
-    const generationManager = window.generationManager;
-    if (!generationManager) {
-        console.error('❌ generationManager not found on window. parallel-generation.js may not have loaded.');
+    // 🚀 LAZY LOAD: Dynamically import generationManager
+    let generationManager;
+    try {
+        const module = await import('./parallel-generation.js');
+        generationManager = module.generationManager;
+    } catch (error) {
+        console.error('❌ Failed to load generation module:', error);
         showToast('error', 'Failed to load generation module');
         return;
     }
