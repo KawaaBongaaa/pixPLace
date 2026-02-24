@@ -18,16 +18,61 @@ jobs:
 
       # ── Inject all secret webhook URLs into app_modern.js ──────────────────
       - name: Inject webhook secrets
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          CHAT_WEBHOOK_URL: ${{ secrets.CHAT_WEBHOOK_URL }}
+          N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
+          N8N_ENHANCE_WEBHOOK_URL: ${{ secrets.N8N_ENHANCE_WEBHOOK_URL }}
+          HISTORY_WEBHOOK_URL: ${{ secrets.HISTORY_WEBHOOK_URL }}
+          AUTH_WEBHOOK_URL: ${{ secrets.AUTH_WEBHOOK_URL }}
         run: |
-          echo "🔧 Injecting webhook URLs from GitHub Secrets..."
-
-          sed -i "s|PLACEHOLDER_WEBHOOK_URL|${{ secrets.WEBHOOK_URL }}|g" app_modern.js
-          sed -i "s|PLACEHOLDER_CHAT_WEBHOOK_URL|${{ secrets.CHAT_WEBHOOK_URL }}|g" app_modern.js
-          sed -i "s|PLACEHOLDER_N8N_WEBHOOK_URL|${{ secrets.N8N_WEBHOOK_URL }}|g" app_modern.js
-          sed -i "s|PLACEHOLDER_N8N_ENHANCE_WEBHOOK_URL|${{ secrets.N8N_ENHANCE_WEBHOOK_URL }}|g" app_modern.js
-          sed -i "s|PLACEHOLDER_HISTORY_WEBHOOK_URL|${{ secrets.HISTORY_WEBHOOK_URL }}|g" app_modern.js
-
-          echo "✅ All webhook URLs injected."
+          echo "🔧 Injecting webhook URLs safely with Node.js..."
+          
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            
+            const replacements = {
+              "PLACEHOLDER_WEBHOOK_URL": process.env.WEBHOOK_URL || "",
+              "PLACEHOLDER_CHAT_WEBHOOK_URL": process.env.CHAT_WEBHOOK_URL || "",
+              "PLACEHOLDER_N8N_WEBHOOK_URL": process.env.N8N_WEBHOOK_URL || "",
+              "PLACEHOLDER_N8N_ENHANCE_WEBHOOK_URL": process.env.N8N_ENHANCE_WEBHOOK_URL || "",
+              "PLACEHOLDER_HISTORY_WEBHOOK_URL": process.env.HISTORY_WEBHOOK_URL || "",
+              "PLACEHOLDER_AUTH_WEBHOOK_URL": process.env.AUTH_WEBHOOK_URL || ""
+            };
+            
+            function processDirectory(dir) {
+              const files = fs.readdirSync(dir);
+              
+              for (const file of files) {
+                const fullPath = path.join(dir, file);
+                const stat = fs.statSync(fullPath);
+                
+                if (stat.isDirectory()) {
+                  if (!fullPath.includes("node_modules") && !fullPath.includes(".git") && !fullPath.includes(".gemini") && !fullPath.includes(".agents") && !fullPath.includes(".vscode")) {
+                    processDirectory(fullPath);
+                  }
+                } else if (fullPath.endsWith(".js")) {
+                  let content = fs.readFileSync(fullPath, "utf8");
+                  let changed = false;
+                  
+                  for (const [placeholder, value] of Object.entries(replacements)) {
+                    if (content.includes(placeholder)) {
+                      content = content.split(placeholder).join(value);
+                      changed = true;
+                    }
+                  }
+                  
+                  if (changed) {
+                    fs.writeFileSync(fullPath, content);
+                    console.log(`✅ Updated ${fullPath}`);
+                  }
+                }
+              }
+            }
+            
+            processDirectory(".");
+          '
 
       # ── Verify no placeholders remain ──────────────────────────────────────
       - name: Verify replacements

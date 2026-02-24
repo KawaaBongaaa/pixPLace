@@ -126,7 +126,7 @@ export class AuthManager {
         console.log('🔑 Starting API authentication for user:', user.first_name);
 
         try {
-            const response = await fetch("https://pixplace.vercel.app/api/auth", {
+            const response = await fetch("PLACEHOLDER_AUTH_WEBHOOK_URL", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -483,7 +483,7 @@ export class AuthManager {
 }
 
 // Глобальная функция для совместимости с legacy кодом
-window.handleTelegramLogin = async function() {
+window.handleTelegramLogin = async function () {
     console.log('🔄 handleTelegramLogin called - redirecting to AuthManager');
 
     try {
