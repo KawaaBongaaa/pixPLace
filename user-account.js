@@ -803,13 +803,7 @@ async function onTelegramAuthCallback(userData) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                user_id: userData.id,
-                username: userData.username || '',
-                first_name: userData.first_name || '',
-                last_name: userData.last_name || '',
-                photo_url: userData.photo_url || '',
-                auth_date: userData.auth_date,
-                hash: userData.hash,
+                ...userData,
                 traffic_source: 'webapp/telegram_oauth'
             })
         });
