@@ -27,19 +27,14 @@ class DictionaryManager {
 
             let baseLang = 'en'; // Единый дефолт для всего приложения
 
-            // 1. Проверяем localStorage ПЕРЕД Telegram (пользовательский выбор имеет приоритет)
+            // 1. Проверяем localStorage ПЕРЕД Telegram
             const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            // 🔥 ВСЕГДА ПРИОРИТЕТ СОХРАНЕННОМУ ЯЗЫКУ С НАСТРОЕК (если он валиден)
             if (settings.language && this.supportedLanguages.includes(settings.language)) {
-                // 🔥 ПРОВЕРКА: пользователь сам выбирал этот язык?
-                const isUserSet = settings.isLanguageSetByUser === true;
-                if (isUserSet) {
-                    baseLang = settings.language;
-                }
+                baseLang = settings.language;
             }
-
-
-            // 2. ПРОВЕРЯЕМ TELEGRAM ТОЛЬКО ЕСЛИ НЕТ ПОЛЬЗОВАТЕЛЬСКОГО ВЫБОРА
-            if (!settings.isLanguageSetByUser) {
+            // 2. ПРОВЕРЯЕМ TELEGRAM И БРАУЗЕР ТОЛЬКО ЕСЛИ ЯЗЫК НЕ БЫЛ ПРОЧИТАН ИЗ НАСТРОЕК СОЗНАТЕЛЬНО
+            else {
                 try {
                     // Доступен ли Telegram SDK?
                     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
