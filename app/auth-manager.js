@@ -126,7 +126,7 @@ export class AuthManager {
         console.log('🔑 Starting API authentication for user:', user.first_name);
 
         try {
-            const response = await fetch("https://alv-n8n.pixplace.space/webhook/auth", {
+            const response = await fetch("https://alv-n8n.pixplace.space/webhook-test/auth", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

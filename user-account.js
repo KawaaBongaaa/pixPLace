@@ -275,6 +275,38 @@ function updateUserMenuInfo() {
         window.appState?.userUsername ||
         window.appState?.userId || 'User';
 
+    // Управление видимостью кнопки Входа и Аватарки
+    const authBtnWrapper = document.getElementById('authBtn')?.parentElement;
+    const userMenuWrapper = document.querySelector('.user-menu-wrapper');
+    const userMenuBtn = document.getElementById('userMenuBtn');
+
+    if (isAuthenticated) {
+        if (authBtnWrapper) authBtnWrapper.classList.add('hidden');
+        if (userMenuWrapper) userMenuWrapper.classList.remove('hidden');
+
+        // Устанавливаем аватарку
+        const photoUrl = window.appState?.userPhotoUrl || JSON.parse(localStorage.getItem('telegram_user') || '{}').photo_url;
+        if (photoUrl && userMenuBtn) {
+            userMenuBtn.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover">`;
+        } else if (userMenuBtn) {
+            // Если аватарки нет, ставим иконку пользователя вместо гамбургера
+            userMenuBtn.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+        }
+    } else {
+        if (authBtnWrapper) authBtnWrapper.classList.remove('hidden');
+        if (userMenuWrapper) userMenuWrapper.classList.add('hidden');
+        if (userMenuBtn) {
+            userMenuBtn.innerHTML = `
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            `;
+        }
+    }
+
     // Заменяем содержимое dropdown в зависимости от состояния авторизации
     if (dropdownNameElement) {
         if (isAuthenticated) {
@@ -799,7 +831,7 @@ async function onTelegramAuthCallback(userData) {
 
     // Регистрируем в n8n (некритично — ошибка не блокирует вход)
     try {
-        const response = await fetch('https://alv-n8n.pixplace.space/webhook/auth', {
+        const response = await fetch('https://alv-n8n.pixplace.space/webhook-test/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
