@@ -266,6 +266,35 @@ function toggleUserMenu(e) {
     }
 }
 
+// Функция выхода из аккаунта
+function handleLogout() {
+    console.log('🚪 Logout clicked');
+    // Очищаем данные пользователя из localStorage
+    localStorage.removeItem('telegram_user');
+    sessionStorage.removeItem('auth_user_id');
+
+    // Очищаем состояние в appState
+    if (window.appState) {
+        window.appState.userId = null;
+        window.appState.userName = null;
+        window.appState.userUsername = null;
+        window.appState.userPhotoUrl = null;
+        window.appState.isAuthenticated = false;
+    }
+
+    // Закрываем меню
+    const menu = document.getElementById('userMenuDropdown');
+    if (menu) menu.classList.remove('show');
+
+    // Обновляем UI
+    updateUserMenuInfo();
+    window.showToast?.('info', window.appState?.translate?.('logged_out') || 'Logged out successfully');
+
+    // Перезагружаем страницу для полного сброса состояния (раскомментировать если нужно)
+    // window.location.reload();
+}
+window.handleLogout = handleLogout;
+
 // Функция обновления данных в меню пользователя
 function updateUserMenuInfo() {
     // Получаем элементы
