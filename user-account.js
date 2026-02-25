@@ -240,7 +240,10 @@ function showGeneration() {
 }
 
 // Функция переключения меню пользователя
-function toggleUserMenu() {
+function toggleUserMenu(e) {
+    if (e && e.stopPropagation) {
+        e.stopPropagation();
+    }
     const menu = document.getElementById('userMenuDropdown');
     if (!menu) return;
 

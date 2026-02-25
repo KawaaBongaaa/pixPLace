@@ -24,20 +24,20 @@ let modeCardsExports = null;
 let costBadgeModule = null;
 
 async function getSelectedModeFromComponent() {
-    console.log('🔍 getSelectedModeFromComponent() called at:', new Date().toISOString());
+    // console.log('🔍 getSelectedModeFromComponent() called at:', new Date().toISOString());
 
     if (modeCardsExports) {
-        console.log('✅ Using cached modeCardsExports');
+        // console.log('✅ Using cached modeCardsExports');
         const mode = modeCardsExports.getSelectedMode();
-        console.log('📋 Returned mode from cached exports:', mode);
+        // console.log('📋 Returned mode from cached exports:', mode);
         return mode;
     }
 
     try {
-        console.log('📦 Importing mode-cards.js module...');
+        // console.log('📦 Importing mode-cards.js module...');
         modeCardsExports = await import('./mode-cards.js');
         const mode = modeCardsExports.getSelectedMode();
-        console.log('📋 Returned mode from fresh import:', mode);
+        // console.log('📋 Returned mode from fresh import:', mode);
         return mode;
     } catch (error) {
         console.error('❌ Failed to load mode-cards to get selected mode:', error);
