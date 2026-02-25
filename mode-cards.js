@@ -9,13 +9,8 @@ let activeTab = 'image';
 // ЭКСПОРТИРУЕМ ФУНКЦИЮ ДЛЯ ПОЛУЧЕНИЯ ВЫБРАННОГО РЕЖИМА
 export function getSelectedMode() {
     const mode = activeTab === 'video' ? selectedVideoMode : selectedImageMode;
-    console.log('🎛️ getSelectedMode() called:', {
-        activeTab,
-        selectedImageMode,
-        selectedVideoMode,
-        returnedMode: mode,
-        timestamp: new Date().toISOString()
-    });
+    // Убрали спам в консоль
+    // console.log('🎛️ getSelectedMode() called:', { ... });
     return mode;
 }
 
