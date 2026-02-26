@@ -299,8 +299,7 @@ window.handleLogout = handleLogout;
 function updateUserMenuInfo() {
     // Получаем элементы
     const dropdownNameElement = document.getElementById('userMenuNameFull');
-    const balanceInfoElement = document.getElementById('userBalanceInfo');
-    const creditsElement = document.getElementById('userMenuCredits');
+    const creditsElement = document.getElementById('userCreditsDisplay'); // Now in header
 
     const isAuthenticated = !!window.appState?.userId;
     const userName = window.appState?.userName ||
@@ -309,12 +308,21 @@ function updateUserMenuInfo() {
 
     // Управление видимостью кнопки Входа и Аватарки
     const authBtnWrapper = document.getElementById('authBtn')?.parentElement;
-    const userMenuWrapper = document.querySelector('.user-menu-wrapper');
     const userMenuBtn = document.getElementById('userMenuBtn');
+
+    const headerLangBtn = document.getElementById('headerLangBtnWrapper');
+    const headerBalance = document.getElementById('headerBalanceWrapper');
+    const authActions = document.getElementById('userMenuAuthActions');
+    const logoutWrap = document.getElementById('userMenuLogoutBtnWrap');
 
     if (isAuthenticated) {
         if (authBtnWrapper) authBtnWrapper.classList.add('hidden');
-        if (userMenuWrapper) userMenuWrapper.classList.remove('hidden');
+
+        if (headerLangBtn) headerLangBtn.classList.add('hidden');
+        if (headerBalance) headerBalance.classList.remove('hidden');
+
+        if (authActions) authActions.classList.remove('hidden');
+        if (logoutWrap) logoutWrap.classList.remove('hidden');
 
         // Устанавливаем аватарку
         const photoUrl = window.appState?.userPhotoUrl || JSON.parse(localStorage.getItem('telegram_user') || '{}').photo_url;
@@ -326,10 +334,16 @@ function updateUserMenuInfo() {
         }
     } else {
         if (authBtnWrapper) authBtnWrapper.classList.remove('hidden');
-        if (userMenuWrapper) userMenuWrapper.classList.add('hidden');
+
+        if (headerLangBtn) headerLangBtn.classList.remove('hidden');
+        if (headerBalance) headerBalance.classList.add('hidden');
+
+        if (authActions) authActions.classList.add('hidden');
+        if (logoutWrap) logoutWrap.classList.add('hidden');
+
         if (userMenuBtn) {
             userMenuBtn.innerHTML = `
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <line x1="3" y1="12" x2="21" y2="12" />
@@ -343,17 +357,13 @@ function updateUserMenuInfo() {
     if (dropdownNameElement) {
         if (isAuthenticated) {
             dropdownNameElement.innerHTML = userName;
+            dropdownNameElement.style.display = 'block';
         } else {
-            dropdownNameElement.innerHTML = 'Guest';
+            dropdownNameElement.style.display = 'none'; // Скрываем имя для гостя
         }
     }
 
-    // Управляем видимостью баланса - показываем только для авторизованных
-    if (balanceInfoElement) {
-        balanceInfoElement.style.display = isAuthenticated ? 'flex' : 'none';
-    }
-
-    // Обновляем кредиты
+    // Обновляем кредиты в хедере
     if (creditsElement) {
         const credits = window.appState?.userCredits || 0;
         creditsElement.textContent = credits;

@@ -401,7 +401,8 @@
                         </ul>
                     </div>
 
-                    <div class="relative inline-block overflow-visible z-[100000]">
+                    <!-- LANGUAGE BUTTON IN HEADER (GUEST ONLY) -->
+                    <div id="headerLangBtnWrapper" class="relative inline-block overflow-visible z-[100000]">
                         <button
                             class="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 border-none rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-150 overflow-hidden"
                             id="langBtn" type="button" title="Language">
@@ -464,7 +465,22 @@
                                 class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
                                 🇹🇭 ไทย</li>
                         </ul>
-                    </div><!-- USER MENU (Hamburger) -->
+                    </div>
+
+                    <!-- BALANCE IN HEADER (AUTHORIZED ONLY) -->
+                    <div id="headerBalanceWrapper"
+                        class="hidden items-center justify-center gap-1 sm:gap-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg sm:rounded-xl px-2 py-1 sm:px-3 sm:py-1.5 cursor-pointer shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:bg-gray-200 dark:hover:bg-gray-600"
+                        onclick="openFinancialHistory()" title="Payment History">
+                        <span class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100"
+                            id="userCreditsDisplay">--</span>
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 drop-shadow-sm transition-transform hover:scale-110"
+                            viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.64-2.25 1.64-1.74 0-2.28-.92-2.36-1.79H7.86c.1 1.66 1.4 2.85 3.04 3.21V19h2.36v-1.63c1.69-.37 2.89-1.46 2.89-2.97 0-1.85-1.51-2.5-3.84-3.26z" />
+                        </svg>
+                    </div>
+
+                    <!-- USER MENU (Hamburger) -->
                     <div class="user-menu-wrapper">
                         <button
                             class="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 border-none rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-150 overflow-hidden"
@@ -480,52 +496,109 @@
                         <div class="user-menu-dropdown floating-menu-dropdown absolute top-full right-0 mt-2 min-w-60"
                             id="userMenuDropdown">
                             <div class="user-account-info">
-                                <div class="user-display-name" id="userMenuNameFull">
+                                <div class="user-display-name text-center font-bold text-lg mb-2 capitalize"
+                                    id="userMenuNameFull">
                                     <!-- Content will be replaced by JavaScript -->
                                 </div>
-                                <div class="user-balance-info" id="userBalanceInfo">
-                                    <span class="balance-label">Balance:</span>
-                                    <span class="balance-value" id="userMenuCredits">--</span>
-                                    <button class="history-btn" onclick="openFinancialHistory()"
-                                        title="Payment History">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            </div>
+                            <div class="user-menu-actions space-y-1.5">
+                                <!-- Auth-only actions wrapper -->
+                                <div id="userMenuAuthActions"
+                                    class="hidden space-y-1.5 border-b border-gray-200 dark:border-gray-700/50 pb-2 mb-2">
+                                    <div class="relative w-full">
+                                        <button
+                                            class="user-action-btn language-btn w-full flex justify-between items-center"
+                                            id="inMenuLangToggle"
+                                            onclick="document.getElementById('inMenuLangList').classList.toggle('hidden');">
+                                            <div class="flex items-center">
+                                                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <path d="M2 12h20" />
+                                                    <path
+                                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                                </svg>
+                                                <span data-i18n="language">Language</span>
+                                            </div>
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2">
+                                                <path d="M6 9l6 6 6-6" />
+                                            </svg>
+                                        </button>
+
+                                        <!-- Inline Languages Menu -->
+                                        <div id="inMenuLangList"
+                                            class="hidden grid grid-cols-2 gap-1 px-3 pb-2 pt-2 bg-gray-50 dark:bg-gray-800/40 rounded-lg mx-2 my-1">
+                                            <div onclick="document.querySelectorAll('li[data-lang=\'en\']')[0].click()"
+                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
+                                                🇬🇧 EN</div>
+                                            <div onclick="document.querySelectorAll('li[data-lang=\'ru\']')[0].click()"
+                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
+                                                🇷🇺 RU</div>
+                                            <div onclick="document.querySelectorAll('li[data-lang=\'es\']')[0].click()"
+                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
+                                                🇪🇸 ES</div>
+                                            <div onclick="document.querySelectorAll('li[data-lang=\'fr\']')[0].click()"
+                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
+                                                🇫🇷 FR</div>
+                                            <div onclick="document.querySelectorAll('li[data-lang=\'de\']')[0].click()"
+                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
+                                                🇩🇪 DE</div>
+                                            <div onclick="document.querySelectorAll('li[data-lang=\'zh\']')[0].click()"
+                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
+                                                🇨🇳 ZH</div>
+                                        </div>
+                                    </div>
+
+                                    <button class="user-action-btn history-btn text-left"
+                                        onclick="openFinancialHistory()">
+                                        <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="2" y1="12" x2="22" y2="12" />
                                             <line x1="2" y1="16" x2="22" y2="16" />
                                             <line x1="2" y1="20" x2="22" y2="20" />
                                             <path d="M12 8l-4-4m4-4l4 4" />
                                             <path d="M12 20V4" />
                                         </svg>
+                                        <span data-i18n="payment_history">Payment History</span>
                                     </button>
                                 </div>
-                            </div>
-                            <div class="user-menu-actions">
-                                <button class="user-action-btn theme-btn" onclick="toggleTheme()">
-                                    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
+
+                                <button class="user-action-btn theme-btn text-left" onclick="toggleTheme()">
+                                    <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2">
                                         <circle cx="12" cy="12" r="5" />
                                         <path
                                             d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                                     </svg>
-                                    <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
+                                    <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                                     </svg>
                                     <span data-i18n="toggle_theme">Toggle Theme</span>
                                 </button>
-                                <button class="user-action-btn plans-btn" onclick="openSubscriptionPlans()">
+                                <button class="user-action-btn plans-btn text-left" onclick="openSubscriptionPlans()">
+                                    <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2l10 6.5v7L12 22 2 15.5v-7L12 2z" />
+                                    </svg>
                                     <span data-i18n="pricing">Pricing</span>
                                 </button>
-                                <button
-                                    class="user-action-btn logout-btn text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-100 dark:border-red-900/30"
-                                    onclick="handleLogout()">
-                                    <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                        <polyline points="16 17 21 12 16 7" />
-                                        <line x1="21" y1="12" x2="9" y2="12" />
-                                    </svg>
-                                    <span data-i18n="logout">Logout</span>
-                                </button>
+
+                                <div id="userMenuLogoutBtnWrap"
+                                    class="hidden pt-2 mt-2 border-t border-gray-200 dark:border-gray-700/50">
+                                    <button
+                                        class="user-action-btn logout-btn text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-100 dark:border-red-900/30 text-left"
+                                        onclick="handleLogout()">
+                                        <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                            <polyline points="16 17 21 12 16 7" />
+                                            <line x1="21" y1="12" x2="9" y2="12" />
+                                        </svg>
+                                        <span data-i18n="logout">Logout</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -588,7 +661,7 @@
                 gap: 0 !important;
             }
 
-            .theme-header.header-compact .header-right button {
+            .theme-header.header-compact .header-right>div>button:not(.user-action-btn) {
                 width: 26px !important;
                 height: 26px !important;
                 background: rgba(128, 128, 128, 0.12) !important;
@@ -596,9 +669,21 @@
                 border-radius: 8px !important;
             }
 
-            .theme-header.header-compact .header-right button svg {
+            .theme-header.header-compact .header-right>div>button:not(.user-action-btn) svg {
                 width: 14px !important;
                 height: 14px !important;
+            }
+
+            .theme-header.header-compact #headerBalanceWrapper {
+                padding: 4px 8px !important;
+                background: transparent !important;
+                border: 1px solid rgba(128, 128, 128, 0.2) !important;
+                box-shadow: none !important;
+                transform: scale(0.95);
+            }
+
+            .theme-header.header-compact #headerBalanceWrapper span {
+                font-size: 0.8rem;
             }
 
             .theme-header.header-compact .header-right {
