@@ -8,7 +8,7 @@ function generateAuthSession() {
 }
 
 // Функция для обработки авторизации через Telegram
-function handleTelegramLogin() {
+async function handleTelegramLogin() {
     console.log('🔔 Handle Telegram login called');
 
     // СНАЧАЛА ПРОВЕРЯЕМ - ДОСТУПЕН ЛИ TELEGRAM WEB APP API?
@@ -28,30 +28,61 @@ function handleTelegramLogin() {
                     username: user.username
                 });
 
-                // Сохраняем данные пользователя
-                if (typeof window.appState !== 'undefined') {
-                    window.appState.userId = user.id;
-                    window.appState.userName = user.first_name;
+                if (typeof window.showToast === 'function') {
+                    window.showToast('info', 'Logging in via Telegram...');
                 }
 
-                // Переходим на главный экран
-                if (typeof window.showGeneration === 'function') {
-                    window.showGeneration();
-                }
+                // Call backend webhook to get real internal ID
+                const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...user,
+                        initData: webApp.initData,
+                        traffic_source: 'webapp/telegram_mini_app'
+                    })
+                });
+                const data = await response.json();
 
-                // Показываем приветствие
-                setTimeout(() => {
-                    if (typeof window.showToast === 'function') {
-                        window.showToast('success', `Добро пожаловать, ${user.first_name}! 🎉`);
+                if (data.userId) {
+                    // Сохраняем данные пользователя
+                    if (typeof window.appState !== 'undefined') {
+                        window.appState.userId = data.userId;
+                        window.appState.userName = data.userName || user.first_name;
+                        window.appState.userAvatar = data.userPhotoUrl || user.photo_url || null;
                     }
-                }, 1000);
 
-                return; // Успешная WebApp авторизация
+                    if (typeof window.updateUserMenuInfo === 'function') {
+                        window.updateUserMenuInfo();
+                    }
+
+                    // Переходим на главный экран
+                    if (typeof window.showGeneration === 'function') {
+                        window.showGeneration();
+                    }
+
+                    // Показываем приветствие
+                    setTimeout(() => {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('success', `Добро пожаловать, ${window.appState?.userName || user.first_name}! 🎉`);
+                        }
+                    }, 1000);
+
+                    return; // Успешная WebApp авторизация
+                } else {
+                    console.warn('⚠️ WebApp: Backend did not return a valid userId');
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('error', 'Login failed: Invalid server response');
+                    }
+                }
             } else {
                 console.log('⚠️ WebApp доступен, но данных пользователя нет - продолжаем с инструкциями');
             }
         } catch (error) {
             console.error('❌ Ошибка WebApp авторизации:', error);
+            if (typeof window.showToast === 'function') {
+                window.showToast('error', 'Login failed: Server unreachable');
+            }
         }
     }
 
@@ -144,8 +175,50 @@ function listenForAuthReturn(sessionId) {
     }, 3 * 60 * 1000); // 3 минуты климакс
 }
 
-function completeTelegramAuth(authData) {
+async function completeTelegramAuth(authData) {
     console.log('✅ Completing Telegram auth with data:', authData);
+
+    if (authData.user) {
+        try {
+            if (typeof window.showToast === 'function') {
+                window.showToast('info', 'Completing login...');
+            }
+
+            const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    auth_provider: 'telegram',
+                    ...authData.user,
+                    traffic_source: 'webapp/telegram_oauth_return'
+                })
+            });
+            const data = await response.json();
+
+            if (data.userId && typeof window.appState !== 'undefined') {
+                window.appState.userId = data.userId;
+                window.appState.userName = data.userName || authData.user.first_name || authData.user.username;
+                window.appState.userAvatar = data.userPhotoUrl || authData.user.photo_url || null;
+
+                // Update UI immediately 
+                if (typeof window.updateUserMenuInfo === 'function') {
+                    window.updateUserMenuInfo();
+                }
+            } else {
+                console.warn('⚠️ Backend did not return a valid userId');
+                if (typeof window.showToast === 'function') {
+                    window.showToast('error', 'Login failed: Invalid server response');
+                }
+                return; // Stop execution if backend failed to provide internal ID
+            }
+        } catch (err) {
+            console.error('❌ Telegram auth webhook failed:', err);
+            if (typeof window.showToast === 'function') {
+                window.showToast('error', 'Login failed: Server unreachable');
+            }
+            return; // Stop execution if server unreachable
+        }
+    }
 
     // Сохраняем авторизационные данные
     localStorage.setItem('telegram_auth_completed', 'true');
@@ -154,14 +227,6 @@ function completeTelegramAuth(authData) {
 
     if (authData.user) {
         localStorage.setItem('telegram_user_data', JSON.stringify(authData.user));
-    }
-
-    // Сохраняем в appState если доступен
-    if (typeof window.appState !== 'undefined') {
-        if (authData.user) {
-            window.appState.userId = authData.user.id;
-            window.appState.userName = authData.user.first_name || authData.user.username;
-        }
     }
 
     // Удаляем экран авторизации
