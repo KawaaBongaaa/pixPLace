@@ -354,130 +354,27 @@
 
 
 
-                    <!-- AUTH LOGIN BUTTON -->
-                    <div class="relative inline-block overflow-visible z-[99999]">
+                    <!-- GUEST ACTIONS (Pricing + Sign In) -->
+                    <div id="headerGuestActions" class="flex items-center gap-1.5 sm:gap-2">
                         <button
-                            class="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 border-none rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-150 overflow-hidden"
-                            id="authBtn" type="button" title="Sign In">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                                <polyline points="10 17 15 12 10 7" />
-                                <line x1="15" y1="12" x2="3" y2="12" />
-                            </svg>
+                            class="relative px-3 py-1.5 sm:px-4 sm:py-2 border-none rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 font-medium cursor-pointer flex items-center justify-center transition-all duration-150 hover:bg-gray-200 dark:hover:bg-gray-600 text-xs sm:text-sm"
+                            id="headerPricingBtn" onclick="openSubscriptionPlans()" title="Pricing">
+                            <span data-i18n="pricing">Pricing</span>
                         </button>
-                        <!-- Auth Methods Dropdown -->
-                        <ul id="authMenu"
-                            class="hidden floating-menu-dropdown absolute top-full right-0 mt-2 min-w-48 p-1 m-0 list-none">
-                            <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors flex items-center gap-2"
-                                onclick="handleEmailLogin()">
-                                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                                    <path d="M22 7l-10 7L2 7" />
-                                </svg>
-                                Email
-                            </li>
-                            <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors flex items-center gap-2"
-                                onclick="handleSignInClick()">
-                                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-                                    <path d="M12 7v0a2 2 0 012 2v1a2 2 0 01-2 2v0a2 2 0 01-2-2V9a2 2 0 012-2z" />
-                                    <path d="M8 17.5c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5" />
-                                </svg>
-                                Telegram Bot
-                            </li>
-                            <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors flex items-center gap-2"
-                                onclick="handleTelegramOAuth()">
-                                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
-                                    <polyline points="10 17 15 12 10 7" />
-                                    <line x1="15" y1="12" x2="3" y2="12" />
-                                </svg>
-                                Telegram Auth
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- LANGUAGE BUTTON IN HEADER (GUEST ONLY) -->
-                    <div id="headerLangBtnWrapper" class="relative inline-block overflow-visible z-[100000]">
                         <button
-                            class="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 border-none rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer flex items-center justify-center transition-all duration-150 overflow-hidden"
-                            id="langBtn" type="button" title="Language">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M2 12h20" />
-                                <path
-                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                            </svg>
+                            class="relative px-3 py-1.5 sm:px-4 sm:py-2 border-none rounded-lg sm:rounded-xl bg-blue-600 text-white font-medium cursor-pointer flex items-center justify-center transition-all duration-150 hover:bg-blue-700 text-xs sm:text-sm shadow-sm hover:shadow"
+                            id="headerSignInBtn" onclick="openAuthModal()" title="Sign In">
+                            <span data-i18n="sign_in">Sign In</span>
                         </button>
-                        <ul id="langMenu"
-                            class="hidden floating-menu-dropdown absolute top-full right-0 mt-2 min-w-36 max-h-[85vh] overflow-y-auto p-1 m-0 list-none">
-                            <li data-lang="en"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇬🇧 English</li>
-                            <li data-lang="ru"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇷🇺 Русский</li>
-                            <li data-lang="es"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇪🇸 Español</li>
-                            <li data-lang="fr"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇫🇷 Français</li>
-                            <li data-lang="de"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇩🇪 Deutsch</li>
-                            <li data-lang="zh"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇨🇳 中文</li>
-                            <li data-lang="pt"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇵🇹 Português</li>
-                            <li data-lang="ar"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇸🇦 العربية</li>
-                            <li data-lang="hi"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇮🇳 हिन्दी</li>
-                            <li data-lang="ja"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇯🇵 日本語</li>
-                            <li data-lang="it"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇮🇹 Italiano</li>
-                            <li data-lang="ko"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇰🇷 한국어</li>
-                            <li data-lang="tr"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇹🇷 Türkçe</li>
-                            <li data-lang="pl"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇵🇱 Polski</li>
-                            <li data-lang="vi"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇻🇳 Tiếng Việt</li>
-                            <li data-lang="th"
-                                class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2.5 py-1.5 text-sm transition-colors">
-                                🇹🇭 ไทย</li>
-                        </ul>
                     </div>
 
                     <!-- BALANCE IN HEADER (AUTHORIZED ONLY) -->
                     <div id="headerBalanceWrapper"
-                        class="hidden items-center justify-center gap-1 sm:gap-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg sm:rounded-xl px-2 py-1 sm:px-3 sm:py-1.5 cursor-pointer shadow-sm border border-gray-200 dark:border-gray-600 transition-all hover:bg-gray-200 dark:hover:bg-gray-600"
-                        onclick="openFinancialHistory()" title="Payment History">
+                        class="hidden items-center justify-center gap-1 sm:gap-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg sm:rounded-xl px-2 py-1 sm:px-3 sm:py-1.5 shadow-sm border border-gray-200 dark:border-gray-600 transition-all cursor-default">
+                        <span
+                            class="text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">cr</span>
                         <span class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100"
                             id="userCreditsDisplay">--</span>
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 drop-shadow-sm transition-transform hover:scale-110"
-                            viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.64-2.25 1.64-1.74 0-2.28-.92-2.36-1.79H7.86c.1 1.66 1.4 2.85 3.04 3.21V19h2.36v-1.63c1.69-.37 2.89-1.46 2.89-2.97 0-1.85-1.51-2.5-3.84-3.26z" />
-                        </svg>
                     </div>
 
                     <!-- USER MENU (Hamburger) -->
@@ -502,54 +399,29 @@
                                 </div>
                             </div>
                             <div class="user-menu-actions space-y-1.5">
+                                <!-- Language Toggle (Always Visible) -->
+                                <div
+                                    class="relative w-full border-b border-gray-200 dark:border-gray-700/50 pb-1.5 mb-1.5">
+                                    <button
+                                        class="user-action-btn language-btn w-full flex justify-between items-center"
+                                        id="inMenuLangToggle"
+                                        onclick="if(window.openLanguageModal) openLanguageModal();">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <path d="M2 12h20" />
+                                                <path
+                                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                            </svg>
+                                            <span data-i18n="language">Language</span>
+                                        </div>
+                                    </button>
+                                </div>
+
                                 <!-- Auth-only actions wrapper -->
                                 <div id="userMenuAuthActions"
                                     class="hidden space-y-1.5 border-b border-gray-200 dark:border-gray-700/50 pb-2 mb-2">
-                                    <div class="relative w-full">
-                                        <button
-                                            class="user-action-btn language-btn w-full flex justify-between items-center"
-                                            id="inMenuLangToggle"
-                                            onclick="document.getElementById('inMenuLangList').classList.toggle('hidden');">
-                                            <div class="flex items-center">
-                                                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2">
-                                                    <circle cx="12" cy="12" r="10" />
-                                                    <path d="M2 12h20" />
-                                                    <path
-                                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                                                </svg>
-                                                <span data-i18n="language">Language</span>
-                                            </div>
-                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2">
-                                                <path d="M6 9l6 6 6-6" />
-                                            </svg>
-                                        </button>
-
-                                        <!-- Inline Languages Menu -->
-                                        <div id="inMenuLangList"
-                                            class="hidden grid grid-cols-2 gap-1 px-3 pb-2 pt-2 bg-gray-50 dark:bg-gray-800/40 rounded-lg mx-2 my-1">
-                                            <div onclick="document.querySelectorAll('li[data-lang=\'en\']')[0].click()"
-                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
-                                                🇬🇧 EN</div>
-                                            <div onclick="document.querySelectorAll('li[data-lang=\'ru\']')[0].click()"
-                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
-                                                🇷🇺 RU</div>
-                                            <div onclick="document.querySelectorAll('li[data-lang=\'es\']')[0].click()"
-                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
-                                                🇪🇸 ES</div>
-                                            <div onclick="document.querySelectorAll('li[data-lang=\'fr\']')[0].click()"
-                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
-                                                🇫🇷 FR</div>
-                                            <div onclick="document.querySelectorAll('li[data-lang=\'de\']')[0].click()"
-                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
-                                                🇩🇪 DE</div>
-                                            <div onclick="document.querySelectorAll('li[data-lang=\'zh\']')[0].click()"
-                                                class="cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md px-2 py-1.5 text-xs transition-colors">
-                                                🇨🇳 ZH</div>
-                                        </div>
-                                    </div>
-
                                     <button class="user-action-btn history-btn text-left"
                                         onclick="openFinancialHistory()">
                                         <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
@@ -564,25 +436,19 @@
                                     </button>
                                 </div>
 
-                                <button class="user-action-btn theme-btn text-left" onclick="toggleTheme()">
-                                    <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2">
+                                <button
+                                    class="user-action-btn theme-btn flex justify-center items-center w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+                                    onclick="toggleTheme()" title="Toggle Theme">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
                                         <circle cx="12" cy="12" r="5" />
                                         <path
                                             d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                                     </svg>
-                                    <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2">
+                                    <svg class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
                                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                                     </svg>
-                                    <span data-i18n="toggle_theme">Toggle Theme</span>
-                                </button>
-                                <button class="user-action-btn plans-btn text-left" onclick="openSubscriptionPlans()">
-                                    <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M12 2l10 6.5v7L12 22 2 15.5v-7L12 2z" />
-                                    </svg>
-                                    <span data-i18n="pricing">Pricing</span>
                                 </button>
 
                                 <div id="userMenuLogoutBtnWrap"
@@ -1608,6 +1474,180 @@
             </div>
         </div>
     </footer>
+
+    <!-- NEW AUTHENTICATION MODAL -->
+    <div id="authModal" style="z-index: 999999;"
+        class="fixed inset-0 hidden items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm transition-opacity duration-300 opacity-0 px-4">
+        <!-- Modal Container -->
+        <div class="bg-white dark:bg-gray-800 w-full max-w-[368px] rounded-[24px] shadow-2xl relative overflow-hidden transform transition-transform duration-300 scale-95 opacity-0 flex flex-col items-center"
+            id="authModalContent">
+
+            <!-- Close Button -->
+            <button onclick="closeAuthModal()"
+                class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors z-10 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <div class="p-6 sm:p-6 w-full flex flex-col items-center">
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2" style="color: inherit;"
+                        data-i18n="auth_welcome">Welcome
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400" style="color: inherit;"
+                        data-i18n="auth_subtitle">
+                        Sign in or create an
+                        account to continue</p>
+                </div>
+
+                <div class="w-full flex flex-col items-center">
+                    <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Google Auth Container -->
+                        <div id="googleSignInWrapper"
+                            class="w-full flex justify-center mb-1 overflow-hidden rounded-xl">
+                            <!-- Google button will be rendered here -->
+                        </div>
+
+                        <!-- Telegram Auth Button -->
+                        <div style="width: 100%;">
+                            <button onclick="handleTelegramOAuth()"
+                                class="relative flex items-center justify-center rounded-md font-medium transition-colors duration-200 shadow-sm cursor-pointer"
+                                style="width: 100%; height: 40px; background-color: #2AABEE; color: white; border: none; overflow: hidden; position: relative;"
+                                onmouseover="this.style.backgroundColor='#229ED9'"
+                                onmouseout="this.style.backgroundColor='#2AABEE'">
+
+                                <div
+                                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; pointer-events: none;">
+                                    <svg style="width: 18px; height: 18px; flex-shrink: 0;" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path
+                                            d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.888-.666 3.463-1.509 5.773-2.506 6.931-2.991 3.297-1.378 3.982-1.616 4.425-1.624z" />
+                                    </svg>
+                                </div>
+
+                                <span data-i18n="continue_with_telegram" class="text-[14px] font-medium text-center"
+                                    style="font-family: 'Roboto', arial, sans-serif; position: relative; z-index: 5;">Continue
+                                    with Telegram</span>
+                            </button>
+                        </div>
+
+                        <div class="relative flex items-center py-1">
+                            <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                            <span class="flex-shrink-0 px-3 text-sm text-gray-400 dark:text-gray-500 uppercase"
+                                data-i18n="or">Or</span>
+                            <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                        </div>
+
+                        <!-- Email Flow -->
+                        <div class="space-y-2" style="width: 100%;">
+                            <div>
+                                <input type="email" id="authEmailInput"
+                                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500 focus:border-transparent transition-colors placeholder-gray-400 dark:placeholder-gray-500 outline-none"
+                                    placeholder="Email address">
+                            </div>
+                            <button onclick="handleEmailLoginSubmit()"
+                                class="flex items-center justify-center rounded-md bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-white text-white dark:text-gray-900 shadow-sm transition-colors duration-200 cursor-pointer"
+                                style="position: relative; width: 100%; height: 40px; overflow: hidden; border: none;">
+                                <span data-i18n="continue" class="text-white dark:text-gray-900"
+                                    style="font-size: 14px; font-weight: 500; font-family: 'Roboto', arial, sans-serif;">Continue</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center text-[11px] text-gray-500 dark:text-gray-400 w-full max-w-[320px] mx-auto">
+                    <span data-i18n="auth_terms_agreement">By continuing, you agree to our</span>
+                    <a href="#" onclick="closeAuthModal(); legalRouter.navigateTo('terms'); return false;"
+                        class="text-blue-600 dark:text-blue-400 hover:underline" data-i18n="footer_terms">Terms of
+                        Service</a>
+                    <span data-i18n="auth_and">and</span>
+                    <a href="#" onclick="closeAuthModal(); legalRouter.navigateTo('privacy'); return false;"
+                        class="text-blue-600 dark:text-blue-400 hover:underline" data-i18n="footer_privacy">Privacy
+                        Policy</a>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LANGUAGE SELECTION MODAL -->
+    <div id="languageModal" style="z-index: 999999;"
+        class="fixed inset-0 hidden items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm transition-opacity duration-300 opacity-0 px-4">
+        <!-- Modal Container -->
+        <div class="bg-white dark:bg-gray-800 w-full max-w-[340px] rounded-[24px] shadow-2xl relative overflow-hidden transform transition-transform duration-300 scale-95 opacity-0 flex flex-col max-h-[85vh]"
+            id="languageModalContent">
+
+            <!-- Header -->
+            <div class="flex items-center justify-center p-5 border-b border-gray-100 dark:border-gray-700/50 relative">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white" data-i18n="select_language">Language</h3>
+                <button onclick="closeLanguageModal()"
+                    class="absolute right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Language List -->
+            <div class="overflow-y-auto p-4 custom-scrollbar">
+                <div class="flex flex-col gap-1.5">
+                    <button onclick="selectLanguageFromModal('en')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇬🇧</span> English</button>
+                    <button onclick="selectLanguageFromModal('ru')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇷🇺</span> Русский</button>
+                    <button onclick="selectLanguageFromModal('es')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇪🇸</span> Español</button>
+                    <button onclick="selectLanguageFromModal('fr')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇫🇷</span> Français</button>
+                    <button onclick="selectLanguageFromModal('de')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇩🇪</span> Deutsch</button>
+                    <button onclick="selectLanguageFromModal('zh')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇨🇳</span> 中文</button>
+                    <button onclick="selectLanguageFromModal('pt')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇵🇹</span> Português</button>
+                    <button onclick="selectLanguageFromModal('ar')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇸🇦</span> العربية</button>
+                    <button onclick="selectLanguageFromModal('hi')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇮🇳</span> हिन्दी</button>
+                    <button onclick="selectLanguageFromModal('ja')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇯🇵</span> 日本語</button>
+                    <button onclick="selectLanguageFromModal('it')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇮🇹</span> Italiano</button>
+                    <button onclick="selectLanguageFromModal('ko')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇰🇷</span> 한국어</button>
+                    <button onclick="selectLanguageFromModal('tr')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇹🇷</span> Türkçe</button>
+                    <button onclick="selectLanguageFromModal('pl')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇵🇱</span> Polski</button>
+                    <button onclick="selectLanguageFromModal('vi')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇻🇳</span> Tiếng Việt</button>
+                    <button onclick="selectLanguageFromModal('th')"
+                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                            class="text-xl">🇹🇭</span> ไทย</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Core Utilities -->
     <script src="core/legal-router.js"></script>
