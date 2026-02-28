@@ -837,7 +837,7 @@ async function onTelegramAuthCallback(userData) {
 
     // Блокируем UI на время запроса к серверу
     try {
-        const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
+        const response = await fetch('https://alv-n8n.pixplace.space/webhook-test/telegram-auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
