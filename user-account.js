@@ -851,8 +851,14 @@ async function onTelegramAuthCallback(userData) {
         // Если n8n вернул наш реальный внутренний userId
         if (data.userId) {
             // Сохраняем локально, но ТОЛЬКО после успеха на бэке
+            const userDataToSave = {
+                ...userData,
+                internalUserId: data.userId
+            };
+
             localStorage.setItem('telegram_auth_completed', 'true');
-            localStorage.setItem('telegram_user', JSON.stringify(userData));
+            localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
+            localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
             if (window.appState) {
@@ -970,6 +976,20 @@ async function handleGoogleAuthCallback(response) {
             window.appState.userId = data.userId;
             window.appState.userName = data.userName || data.name || 'User';
             window.appState.userAvatar = data.userPhotoUrl || data.picture || null;
+
+            // 🔥 СОХРАНЯЕМ В LOCALSTORAGE ДЛЯ ВОССТАНОВЛЕНИЯ ПРИ ПЕРЕЗАГРУЗКЕ
+            const userDataToSave = {
+                id: data.userId, // Используем именно внутренний ID
+                internalUserId: data.userId,
+                first_name: data.userName || data.name || 'User',
+                photo_url: data.userPhotoUrl || data.picture || null,
+                auth_provider: 'google'
+            };
+
+            localStorage.setItem('telegram_auth_completed', 'true');
+            localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
+            localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
+            localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
             // Если функция обновления UI существует, вызываем её
             if (typeof updateUserMenuInfo === 'function') {
