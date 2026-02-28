@@ -120,30 +120,11 @@ function initUserAccount() {
 
     console.log('✅ User Account module initialized');
 
-    // Auth menu button toggle
-    const authBtn = document.getElementById('authBtn');
-    const authMenu = document.getElementById('authMenu');
-    if (authBtn && authMenu) {
-        authBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            authMenu.classList.toggle('hidden');
-            // Close language menu if open
-            const langMenu = document.getElementById('langMenu');
-            if (langMenu) langMenu.classList.add('hidden');
-            // Close user menu if open
-            const userMenu = document.getElementById('userMenuDropdown');
-            if (userMenu) userMenu.classList.remove('show');
-        });
-        console.log('✅ Auth menu button handler attached');
+    // Custom logic for guest actions
+    const headerPricingBtn = document.getElementById('headerPricingBtn');
+    if (headerPricingBtn) {
+        // Pricing button works out of the box because it has onclick inline
     }
-
-    // Close auth menu on outside click
-    document.addEventListener('click', (e) => {
-        if (authMenu && !authMenu.classList.contains('hidden') &&
-            !authMenu.contains(e.target) && !authBtn?.contains(e.target)) {
-            authMenu.classList.add('hidden');
-        }
-    });
 }
 
 async function downloadAndConvertImage(imageUrl, itemId) {
@@ -306,36 +287,32 @@ function updateUserMenuInfo() {
         window.appState?.userUsername ||
         window.appState?.userId || 'User';
 
-    // Управление видимостью кнопки Входа и Аватарки
-    const authBtnWrapper = document.getElementById('authBtn')?.parentElement;
+    // Управление видимостью кнопок Гостя и Аватарки
+    const headerGuestActions = document.getElementById('headerGuestActions');
     const userMenuBtn = document.getElementById('userMenuBtn');
 
-    const headerLangBtn = document.getElementById('headerLangBtnWrapper');
     const headerBalance = document.getElementById('headerBalanceWrapper');
     const authActions = document.getElementById('userMenuAuthActions');
     const logoutWrap = document.getElementById('userMenuLogoutBtnWrap');
 
     if (isAuthenticated) {
-        if (authBtnWrapper) authBtnWrapper.classList.add('hidden');
+        if (headerGuestActions) headerGuestActions.classList.add('hidden');
 
-        if (headerLangBtn) headerLangBtn.classList.add('hidden');
         if (headerBalance) headerBalance.classList.remove('hidden');
-
         if (authActions) authActions.classList.remove('hidden');
         if (logoutWrap) logoutWrap.classList.remove('hidden');
 
         // Устанавливаем аватарку
         const photoUrl = window.appState?.userPhotoUrl || JSON.parse(localStorage.getItem('telegram_user') || '{}').photo_url;
         if (photoUrl && userMenuBtn) {
-            userMenuBtn.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover">`;
+            userMenuBtn.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover rounded-xl" style="width:100%; height:100%; border-radius:10px;">`;
         } else if (userMenuBtn) {
             // Если аватарки нет, ставим иконку пользователя вместо гамбургера
             userMenuBtn.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
         }
     } else {
-        if (authBtnWrapper) authBtnWrapper.classList.remove('hidden');
+        if (headerGuestActions) headerGuestActions.classList.remove('hidden');
 
-        if (headerLangBtn) headerLangBtn.classList.remove('hidden');
         if (headerBalance) headerBalance.classList.add('hidden');
 
         if (authActions) authActions.classList.add('hidden');
@@ -855,25 +832,12 @@ function loadTelegramWidgetAndAuth() {
 // ✅ Callback после успешной авторизации через Telegram
 async function onTelegramAuthCallback(userData) {
     console.log('✅ Telegram auth successful:', userData.first_name || userData.username);
+    if (typeof closeAuthModal === 'function') closeAuthModal();
+    window.showToast?.('info', 'Telegram Auth submitted. Processing...');
 
-    // Сохраняем локально
-    localStorage.setItem('telegram_auth_completed', 'true');
-    localStorage.setItem('telegram_user', JSON.stringify(userData));
-    localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
-
-    // Обновляем глобальное состояние
-    if (window.appState) {
-        window.appState.userId = userData.id;
-        window.appState.userName = userData.first_name || userData.username;
-    }
-
-    // Показываем приветствие
-    window.showToast?.('success', `Welcome, ${userData.first_name || userData.username}! 🎉`);
-    updateUserMenuInfo();
-
-    // Регистрируем в n8n (некритично — ошибка не блокирует вход)
+    // Блокируем UI на время запроса к серверу
     try {
-        const response = await fetch('https://alv-n8n.pixplace.space/webhook-test/auth', {
+        const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -882,22 +846,201 @@ async function onTelegramAuthCallback(userData) {
             })
         });
         const data = await response.json();
-        console.log('📥 n8n auth response:', data);
+        console.log('📥 n8n telegram auth response:', data);
+
+        // Если n8n вернул наш реальный внутренний userId
+        if (data.userId) {
+            // Сохраняем локально, но ТОЛЬКО после успеха на бэке
+            localStorage.setItem('telegram_auth_completed', 'true');
+            localStorage.setItem('telegram_user', JSON.stringify(userData));
+            localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+            if (window.appState) {
+                // ВНИМАНИЕ: Записываем возвращенный из базы ID, а не телеграмовский
+                window.appState.userId = data.userId;
+                window.appState.userName = data.userName || userData.first_name || userData.username;
+                window.appState.userAvatar = data.userPhotoUrl || userData.photo_url || null;
+            }
+            window.showToast?.('success', `Welcome, ${window.appState.userName}! 🎉`);
+            updateUserMenuInfo();
+        } else {
+            console.warn('⚠️ Server did not return a valid userId');
+            window.showToast?.('error', 'Login failed: Invalid server response');
+        }
     } catch (err) {
-        console.warn('⚠️ n8n registration failed (non-critical):', err);
+        console.warn('⚠️ Telegram auth webhook failed:', err);
+        window.showToast?.('error', 'Login failed: Server unreachable');
     }
 }
 
-// ✉️ Вход через Email (placeholder)
-function handleEmailLogin() {
-    console.log('✉️ Email login clicked');
-    const authMenu = document.getElementById('authMenu');
-    if (authMenu) authMenu.classList.add('hidden');
+// ==================== AUTHENTICATION MODAL ====================
+
+function openAuthModal() {
+    const modal = document.getElementById('authModal');
+    const content = document.getElementById('authModalContent');
+    if (!modal || !content) return;
+
+    modal.classList.remove('hidden');
+    // Небольшая задержка для запуска CSS-анимации
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95', 'opacity-0');
+    }, 10);
+
+    const currentLang = localStorage.getItem('app_language') || 'en';
+    const isDark = document.documentElement.classList.contains('dark');
+
+    const renderGoogleBtn = () => {
+        const googleWrapper = document.getElementById('googleSignInWrapper');
+        if (googleWrapper && googleWrapper.children.length === 0 && window.google) {
+            try {
+                google.accounts.id.initialize({
+                    client_id: "809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com", // TODO: Replace with actual Client ID
+                    callback: handleGoogleAuthCallback
+                });
+                google.accounts.id.renderButton(
+                    googleWrapper,
+                    {
+                        theme: isDark ? "filled_black" : "outline",
+                        size: "large",
+                        type: "standard",
+                        shape: "rectangular",
+                        text: "continue_with",
+                        width: googleWrapper.offsetWidth || 320,
+                        locale: currentLang
+                    }
+                );
+            } catch (e) {
+                console.error('Failed to initialize Google Auth', e);
+            }
+        }
+    };
+
+    const existingScript = document.getElementById('google-gsi-script');
+    if (!existingScript) {
+        const script = document.createElement('script');
+        script.id = 'google-gsi-script';
+        script.src = `https://accounts.google.com/gsi/client?hl=${currentLang}`;
+        script.async = true;
+        script.defer = true;
+        script.onload = renderGoogleBtn;
+        document.head.appendChild(script);
+    } else if (window.google) {
+        renderGoogleBtn();
+    }
+}
+
+function closeAuthModal() {
+    const modal = document.getElementById('authModal');
+    const content = document.getElementById('authModalContent');
+    if (!modal || !content) return;
+
+    modal.classList.add('opacity-0');
+    content.classList.add('scale-95', 'opacity-0');
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+// Обработка успешного входа через Google
+async function handleGoogleAuthCallback(response) {
+    console.log("Encoded JWT ID token: " + response.credential);
+    closeAuthModal();
+    window.showToast?.('info', 'Google Auth submitted. Processing...');
+
+    // Отправляем JWT токен на бэкенд (n8n)
+    try {
+        const res = await fetch('https://alv-n8n.pixplace.space/webhook/google-auth'
+            , {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    auth_provider: 'google',
+                    token: response.credential,
+                    traffic_source: 'webapp/google_oauth'
+                })
+            });
+        const data = await res.json();
+        console.log('📥 n8n google auth response:', data);
+        window.showToast?.('success', 'Google Auth successful!');
+
+        // Обновляем глобальное состояние (зависит от ответа бэкенда)
+        if (window.appState && data.userId) {
+            window.appState.userId = data.userId;
+            window.appState.userName = data.userName || data.name || 'User';
+            window.appState.userAvatar = data.userPhotoUrl || data.picture || null;
+
+            // Если функция обновления UI существует, вызываем её
+            if (typeof updateUserMenuInfo === 'function') {
+                updateUserMenuInfo();
+            }
+        } else {
+            console.warn('Google Auth: n8n returned success, but no userId in response data:', data);
+        }
+    } catch (err) {
+        console.warn('⚠️ Google Auth n8n registration failed:', err);
+    }
+}
+
+// ✉️ Вход через Email
+function handleEmailLoginSubmit() {
+    const emailInput = document.getElementById('authEmailInput');
+    const email = emailInput ? emailInput.value.trim() : '';
+
+    if (!email || !email.includes('@')) {
+        window.showToast?.('error', 'Please enter a valid email address');
+        return;
+    }
+
+    console.log('✉️ Email login clicked for:', email);
+    closeAuthModal();
 
     // TODO: реализовать email auth flow
     if (typeof window.showToast === 'function') {
-        window.showToast('info', 'Email login coming soon!');
+        window.showToast('info', 'Check your email for the magic link!');
     }
+}
+
+// ==================== LANGUAGE MODAL ====================
+
+function openLanguageModal() {
+    const modal = document.getElementById('languageModal');
+    const content = document.getElementById('languageModalContent');
+    if (!modal || !content) return;
+
+    modal.classList.remove('hidden');
+    // Закрываем меню юзера, если открыто
+    const userMenu = document.getElementById('userMenuDropdown');
+    if (userMenu) userMenu.classList.remove('show');
+
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95', 'opacity-0');
+    }, 10);
+}
+
+function closeLanguageModal() {
+    const modal = document.getElementById('languageModal');
+    const content = document.getElementById('languageModalContent');
+    if (!modal || !content) return;
+
+    modal.classList.add('opacity-0');
+    content.classList.add('scale-95', 'opacity-0');
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+function selectLanguageFromModal(lang) {
+    const li = document.querySelector(`#langMenu li[data-lang="${lang}"]`);
+    if (li) {
+        li.click();
+    } else {
+        if (typeof changeLanguage === 'function') changeLanguage(lang);
+    }
+    closeLanguageModal();
 }
 
 // Экспортируем функции в глобальную область видимости
@@ -911,9 +1054,15 @@ window.closeCreditPacksModal = closeCreditPacksModal;
 window.buyCreditPack = buyCreditPack;
 window.handleSignInClick = handleSignInClick;
 window.handleTelegramOAuth = handleTelegramOAuth;
-window.handleEmailLogin = handleEmailLogin;
+window.handleEmailLoginSubmit = handleEmailLoginSubmit;
 window.onTelegramAuthCallback = onTelegramAuthCallback;
 window.loadTelegramWidgetAndAuth = loadTelegramWidgetAndAuth;
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
+window.handleGoogleAuthCallback = handleGoogleAuthCallback;
+window.openLanguageModal = openLanguageModal;
+window.closeLanguageModal = closeLanguageModal;
+window.selectLanguageFromModal = selectLanguageFromModal;
 
 // Экспортируем функции модуля
 export {

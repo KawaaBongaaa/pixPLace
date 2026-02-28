@@ -1929,17 +1929,40 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     try {
         services = await initializeGlobalServices(appState); // ПЕРЕДАЕМ СУЩЕСТВУЮЩИЙ appState!
 
+        // 🔥 НОВОЕ: Проверка URL параметров (prompt и source) для автозаполнения
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPrompt = urlParams.get('prompt');
+        const urlSource = urlParams.get('source');
+
+        if (urlPrompt) {
+            console.log(`📝 Found prompt from URL (source: ${urlSource || 'unknown'})`);
+            const promptInput = document.getElementById('promptInput');
+            if (promptInput) {
+                promptInput.value = urlPrompt;
+                // trigger input event after a small delay to ensure UI is ready
+                setTimeout(() => {
+                    promptInput.dispatchEvent(new Event('input'));
+                    // Очищаем URL от параметров после применения
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }, 100);
+            }
+        }
+
         // 🔥 НОВОЕ: Проверка входящего промпта после инициализации сервисов
         const pendingPrompt = localStorage.getItem('pending_prompt');
         if (pendingPrompt) {
             console.log('📝 Found pending prompt from landing:', pendingPrompt);
             const promptInput = document.getElementById('promptInput');
             if (promptInput) {
-                promptInput.value = pendingPrompt;
-                // trigger input event after a small delay to ensure UI is ready
-                setTimeout(() => {
-                    promptInput.dispatchEvent(new Event('input'));
-                }, 100);
+                // Если промпт уже задан через URL, не перезаписываем его
+                if (!urlPrompt) {
+                    promptInput.value = pendingPrompt;
+                    // trigger input event after a small delay to ensure UI is ready
+                    setTimeout(() => {
+                        promptInput.dispatchEvent(new Event('input'));
+                    }, 100);
+                }
             }
             // Clear after use
             localStorage.removeItem('pending_prompt');
