@@ -179,6 +179,9 @@ export class App {
             // Инициализация основ системы
             await this.initializationManager.initializeCore();
 
+            // 🔐 Инициализация авторизации (здесь происходит загрузка сессии)
+            await this.authManager.initialize();
+
             // 🔐 ДОЖИДАЕМСЯ ПОЛНОГО ЗАВЕРШЕНИЯ ИНИЦИАЛИЗАЦИИ АВТОРИЗАЦИИ
             console.log('⏳ Waiting for COMPLETE auth initialization...');
             // AuthManager.initialize() уже выполнил waitForWebAppData() - теперь UI в безопасность
