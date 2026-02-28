@@ -564,6 +564,9 @@ class GenerationManager {
 // Глобальный экземпляр
 const generationManager = new GenerationManager();
 
-// Экспорт для использования в других файлах
+// Экспорт для использования в других файлах (modern ES modules)
+export { GenerationManager, generationManager };
+
+// Fallback for global scope
 window.GenerationManager = GenerationManager;
 window.generationManager = generationManager;
