@@ -31,7 +31,7 @@ export class AuthManager {
         // Если WebApp авторизация не удалась - проверим localStorage
         if (!webAppAuthSuccess) {
             console.log('🔄 WebApp auth failed, checking stored auth...');
-            await this.checkStoredAuth();
+            await this.checkInitialAuth();
         }
 
         console.log('✅ Auth Manager initialized');
