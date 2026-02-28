@@ -2122,6 +2122,25 @@ async function generateImage(event) {
         return;
     }
 
+    // 🔒 USER RE-AUTHENTICATION CHECK
+    // Проверка авторизации перед генерацией (СТРОГАЯ - только внутренний ID из БД)
+    // Внутренний ID (от хука) обычно является строкой (UUID/ObjectId), 
+    // в то время как Telegram ID - это число
+    const rawUserId = window.appState?.userId || window.appState?.user?.id;
+    const internalUserId = typeof rawUserId === 'string' ? rawUserId : null;
+
+    // Если внутренний ID не найден или это число (значит это Telegram ID, а не ID из БД)
+    if (!internalUserId || typeof internalUserId !== 'string') {
+        console.warn('🛑 Generation blocked: User lacks internal database ID (not fully authenticated with backend)', { rawUserId });
+        showToast('error', appState.translate('error_auth_required') || 'Пожалуйста, дождитесь завершения входа для использования этой функции');
+
+        // Открываем модалку входа автоматически
+        if (window.openAuthModal) {
+            window.openAuthModal();
+        }
+        return;
+    }
+
     // Добавляем taskUUID для всего задания генерации
     const taskUUID = generateUUIDv4();
     const generationIdForCleanup = Date.now(); // Keep a local reference for cleanup safety
@@ -2355,12 +2374,24 @@ async function generateImage(event) {
 
                 // Останавливаем немедленную генерацию и показываем предупреждение
                 const shouldContinue = await showWarningAboutNoImage();
+
                 if (!shouldContinue) {
-                    // Пользователь решил добавить изображение - прокрутка к кнопке загрузки теперь в модальном окне
-                    showGeneration();
+                    // Пользователь решил добавить изображение - отменяем генерацию
+                    // Фокусируемся на зоне загрузки
+                    const dropzone = document.getElementById('imageDropzone');
+                    if (dropzone) {
+                        dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Добавим эффект подсветки
+                        dropzone.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50');
+                        setTimeout(() => dropzone.classList.remove('ring-4', 'ring-blue-500', 'ring-opacity-50'), 1500);
+                    }
                     return; // НЕ отправляем webhook
                 }
+
                 // Продолжаем генерацию без изображения (text-to-image режим)
+                console.log(`🎯 Modal accepted, proceeding with ${mode} mode without image (first time)`);
+                // Так как превью не было создано выше, создаем его сейчас
+                window.createPreviewForGeneration(generation);
             } else {
                 console.log(`🎯 Skipping modal for ${mode} mode (already shown in this session)`);
                 // Если модалка уже была показана, создаем превью сразу без модалки
