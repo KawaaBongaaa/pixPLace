@@ -161,9 +161,11 @@ class GenerationManager {
                 width: generation.width,
                 height: generation.height,
                 // size: generation.size, // Оставляем для обратной совместимости если нужно
-                user_id: (appState && appState.user && appState.user.id) ? appState.user.id : null,
-                user_name: (appState && appState.user && appState.user.name) ? appState.user.name : null,
-                user_username: (appState && appState.user && appState.user.username) ? appState.user.username : null,
+
+                // ВАЖНО: Приоритет отдаем внутреннему ID из базы (строка), если он есть
+                user_id: window.appState?.userId || ((appState && appState.user && appState.user.id) ? appState.user.id : null),
+                user_name: window.appState?.userName || ((appState && appState.user && appState.user.name) ? appState.user.name : null),
+                user_username: window.appState?.userName || ((appState && appState.user && appState.user.username) ? appState.user.username : null),
                 user_language: (appState && appState.language) ? appState.language : 'en',
                 user_is_premium: (appState && appState.user && appState.user.isPremium) ? appState.user.isPremium : false,
                 telegram_platform: appState?.tg?.platform || 'unknown',
