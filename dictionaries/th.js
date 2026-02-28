@@ -208,4 +208,18 @@ export const th = {
 
     ob_tour_generate_title: "พร้อมแล้ว? กด Generate!",
     ob_tour_generate_desc: "ภาพของคุณจะพร้อมภายในไม่กี่วินาที ผลลัพธ์จะปรากฏในประวัติ",
+
+    // Auth Modal New Keys
+    language: "ภาษา",
+    pricing: "ราคา",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 }

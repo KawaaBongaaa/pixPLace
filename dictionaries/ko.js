@@ -215,4 +215,18 @@ export const ko = {
 
     ob_tour_generate_title: "준비됐나요? 생성 클릭!",
     ob_tour_generate_desc: "이미지는 몇 초 안에 준비됩니다. 결과는 히스토리에 표시됩니다.",
+
+    // Auth Modal New Keys
+    language: "언어",
+    pricing: "요금",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 }

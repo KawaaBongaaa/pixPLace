@@ -203,4 +203,18 @@ export const ja = {
 
     ob_tour_generate_title: "準備できた？生成ボタンを押して！",
     ob_tour_generate_desc: "画像は数秒で完成します。結果は履歴パネルに表示されます。",
+
+    // Auth Modal New Keys
+    language: "言語",
+    pricing: "価格",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 };

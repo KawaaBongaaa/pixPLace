@@ -231,4 +231,18 @@ export const ru = {
 
     ob_tour_generate_title: "Готово? Жми Generate!",
     ob_tour_generate_desc: "Изображение будет готово за секунды. Результат появится в Истории — смахни, чтобы увидеть.",
+
+    // Auth Modal New Keys
+    language: "Язык",
+    pricing: "Тарифы",
+    sign_in: "Войти",
+    auth_welcome: "Добро пожаловать",
+    auth_subtitle: "Войдите или создайте аккаунт для продолжения",
+    continue_with_google: "Продолжить с Google",
+    continue_with_telegram: "Продолжить с Telegram",
+    enter_your_email: "Email адрес",
+    continue: "Продолжить",
+    or: "Или",
+    auth_terms_agreement: "Продолжая, вы соглашаетесь с",
+    auth_and: "и"
 };

@@ -198,4 +198,18 @@ export const pt = {
 
     ob_tour_generate_title: "Pronto? Clique em Gerar!",
     ob_tour_generate_desc: "Sua imagem estará pronta em segundos. Os resultados aparecem no Histórico.",
+
+    // Auth Modal New Keys
+    language: "Idioma",
+    pricing: "Preços",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 }

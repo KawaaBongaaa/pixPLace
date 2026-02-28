@@ -201,4 +201,18 @@ export const hi = {
 
     ob_tour_generate_title: "रेडी हैं? Generate दबाएं!",
     ob_tour_generate_desc: "आपकी इमेज सेकंडों में तैयार हो जाएगी। रिज़ल्ट हिस्ट्री में दिखेगा।",
+
+    // Auth Modal New Keys
+    language: "भाषा",
+    pricing: "मूल्य निर्धारण",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 };

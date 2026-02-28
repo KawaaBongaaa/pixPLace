@@ -202,4 +202,18 @@ export const ar = {
 
     ob_tour_generate_title: "جاهز؟ اضغط توليد!",
     ob_tour_generate_desc: "صورتك ستكون جاهزة خلال ثوانٍ. تظهر النتائج في السجل.",
+
+    // Auth Modal New Keys
+    language: "اللغة",
+    pricing: "التسعير",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 };

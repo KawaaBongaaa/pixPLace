@@ -221,4 +221,18 @@ export const fr = {
 
     ob_tour_generate_title: "Prêt ? Lance la génération !",
     ob_tour_generate_desc: "Ton image sera prête en quelques secondes. Les résultats apparaissent dans l'Historique.",
+
+    // Auth Modal New Keys
+    language: "Langue",
+    pricing: "Tarification",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 };

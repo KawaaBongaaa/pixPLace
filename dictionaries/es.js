@@ -207,4 +207,18 @@ export const es = {
 
     ob_tour_generate_title: "¿Listo? ¡Dale a Generar!",
     ob_tour_generate_desc: "Tu imagen estará lista en segundos. Los resultados aparecen en el Historial.",
+
+    // Auth Modal New Keys
+    language: "Idioma",
+    pricing: "Precios",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 };

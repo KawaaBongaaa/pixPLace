@@ -202,4 +202,18 @@ export const vi = {
 
     ob_tour_generate_title: "Sẵn sàng? Nhấn Tạo!",
     ob_tour_generate_desc: "Ảnh của bạn sẽ sẵn sàng trong vài giây. Kết quả xuất hiện trong Lịch sử.",
+
+    // Auth Modal New Keys
+    language: "Ngôn ngữ",
+    pricing: "Định giá",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 }

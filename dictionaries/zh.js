@@ -205,4 +205,18 @@ export const zh = {
 
     ob_tour_generate_title: "准备好了？点击生成！",
     ob_tour_generate_desc: "你的图片将在几秒内完成。结果出现在历史记录中。",
+
+    // Auth Modal New Keys
+    language: "语言",
+    pricing: "定价",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 };

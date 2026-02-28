@@ -205,4 +205,18 @@ export const tr = {
 
     ob_tour_generate_title: "Hazır mısınız? Üret'e Tıklayın!",
     ob_tour_generate_desc: "Görüntünüz saniyeler içinde hazır olacak. Sonuçlar Geçmiş'te görünür.",
+
+    // Auth Modal New Keys
+    language: "Dil",
+    pricing: "Fiyatlandırma",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 }
