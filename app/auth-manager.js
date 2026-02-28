@@ -31,7 +31,7 @@ export class AuthManager {
         // Если WebApp авторизация не удалась - проверим localStorage
         if (!webAppAuthSuccess) {
             console.log('🔄 WebApp auth failed, checking stored auth...');
-            await this.checkStoredAuth();
+            await this.checkInitialAuth();
         }
 
         console.log('✅ Auth Manager initialized');
@@ -126,14 +126,12 @@ export class AuthManager {
         console.log('🔑 Starting API authentication for user:', user.first_name);
 
         try {
-            const response = await fetch("PLACEHOLDER_AUTH_WEBHOOK_URL", {
+            const response = await fetch("https://alv-n8n.pixplace.space/webhook/telegram-auth", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    user_id: user.id,
-                    username: user.username,
-                    first_name: user.first_name,
-                    last_name: user.last_name,
+                    auth_provider: 'telegram',
+                    ...user,
                     initData: initData,
                     traffic_source: "webapp/start ads-teleram-eng-01",
                 }),
@@ -142,10 +140,15 @@ export class AuthManager {
             const data = await response.json();
             console.log('📥 API auth response:', data);
 
-            if (data.ok) {
+            if (data.userId) {
+                // Прямо здесь обновляем appState реальным внутренним userId
+                this.internalUserId = data.userId;
+                this.userName = data.userName || user.first_name || user.username;
+
                 // Сохранение данных
                 this.saveAuthData({
                     ...user,
+                    internalUserId: data.userId,
                     auth_type: 'webapp_api'
                 });
 
@@ -154,7 +157,7 @@ export class AuthManager {
 
                 console.log('✅ WebApp API authentication successful');
             } else {
-                throw new Error(data.error || 'API auth failed');
+                throw new Error(data.error || 'API auth failed - no userId returned');
             }
 
         } catch (error) {
@@ -222,8 +225,9 @@ export class AuthManager {
 
         // Синхронизация с глобальным appState
         if (window.appState) {
-            window.appState.userId = user.id;
-            window.appState.userName = user.first_name || user.username;
+            // Используем внутренний ID базы данных (строку), если он доступен
+            window.appState.userId = user.internalUserId || this.internalUserId || user.id;
+            window.appState.userName = this.userName || user.first_name || user.username;
         }
 
         // Скрыть модал если показан
