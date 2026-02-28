@@ -82,8 +82,8 @@ const CONFIG = {
     // ⚠️ Do NOT put real URLs here — they are replaced at deploy time
     WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/8f797a7b-df4e-4fd0-881d-408666418195',
     CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6',
-    N8N_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/nano-banana',
-    N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/enhance_img_or_removebg',
+    N8N_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/nano_banana',
+    N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/enhance_img_or_removebg',
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
 
 

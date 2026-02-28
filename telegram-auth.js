@@ -226,7 +226,13 @@ async function completeTelegramAuth(authData) {
     localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
     if (authData.user) {
-        localStorage.setItem('telegram_user_data', JSON.stringify(authData.user));
+        // Добавляем внутренний ID, если он был получен (из appState, куда мы его только что записали)
+        const userToSave = { ...authData.user };
+        if (window.appState && window.appState.userId) {
+            userToSave.internalUserId = window.appState.userId;
+        }
+        localStorage.setItem('telegram_user', JSON.stringify(userToSave));
+        localStorage.setItem('telegram_user_data', JSON.stringify(userToSave));
     }
 
     // Удаляем экран авторизации
