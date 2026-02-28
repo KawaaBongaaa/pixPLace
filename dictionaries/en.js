@@ -238,4 +238,18 @@ export const en = {
 
     ob_tour_generate_title: "Ready? Hit Generate!",
     ob_tour_generate_desc: "Your image will be ready in seconds. Results appear in History — swipe to see them.",
+
+    // Auth Modal New Keys
+    language: "Language",
+    pricing: "Pricing",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 };

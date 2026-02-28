@@ -220,4 +220,18 @@ export const pl = {
 
     ob_tour_generate_title: "Gotowy? Kliknij Generuj!",
     ob_tour_generate_desc: "Twój obraz będzie gotowy w kilka sekund. Wyniki pojawiają się w Historii.",
+
+    // Auth Modal New Keys
+    language: "Język",
+    pricing: "Cennik",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 }

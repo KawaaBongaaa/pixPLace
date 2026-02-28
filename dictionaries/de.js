@@ -210,4 +210,18 @@ export const de = {
 
     ob_tour_generate_title: "Bereit? Klick auf Generieren!",
     ob_tour_generate_desc: "Dein Bild ist in Sekunden fertig. Die Ergebnisse erscheinen im Verlauf.",
+
+    // Auth Modal New Keys
+    language: "Sprache",
+    pricing: "Preise",
+    sign_in: "Sign In",
+    auth_welcome: "Welcome",
+    auth_subtitle: "Sign in or create an account to continue",
+    continue_with_google: "Continue with Google",
+    continue_with_telegram: "Continue with Telegram",
+    enter_your_email: "Email address",
+    continue: "Continue",
+    or: "Or",
+    auth_terms_agreement: "By continuing, you agree to our",
+    auth_and: "and"
 };
