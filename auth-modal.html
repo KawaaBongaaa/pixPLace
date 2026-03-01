@@ -1,38 +1,77 @@
 <!-- Auth Modal Screen - Lazy loaded on Login button click -->
-<div id="authScreen" class="screen">
-    <div class="screen-content">
-        <!-- Close/Back Button -->
-        <button onclick="ScreenManager.showApp()" class="absolute top-4 left-4 w-10 h-10 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 border-none rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 z-10">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12,19 5,12 12,5"></polyline>
+<div id="authScreen"
+    class="screen fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-md transition-opacity duration-300">
+
+    <!-- Stable Card Container to prevent layout shifts/jitter -->
+    <div
+        class="relative w-full max-w-md mx-4 min-h-[480px] bg-white/10 dark:bg-gray-900/60 backdrop-blur-2xl border border-white/20 dark:border-gray-700/50 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] flex flex-col items-center justify-center p-8 overflow-hidden transform transition-all duration-300 scale-95 opacity-0 animate-[modalFadeInScale_0.3s_ease-out_forwards]">
+
+        <!-- Subtle gradient orb effect in background -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none">
+        </div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none">
+        </div>
+
+        <!-- Close Button -->
+        <button onclick="ScreenManager.removeAuthScreen()"
+            class="absolute top-4 left-4 w-10 h-10 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 rounded-full flex justify-center items-center text-gray-700 dark:text-gray-300 transition-colors backdrop-blur-sm z-10">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
 
-        <div class="text-center">
-            <div class="mb-6">
-                <div class="w-30 h-30 mx-auto mb-4">
-                    <svg class="w-full h-full">
-                        <use xlink:href="#pixplace-logo" />
-                    </svg>
-                </div>
-                <h1 class="text-4xl font-black theme-text-primary mb-1 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">Welcome to pixPLace</h1>
-                <p class="text-lg theme-text-secondary max-w-500 mx-auto">A space where your ideas come to life and creativity flows.</p>
-            </div>
-            <div class="p-9 text-center">
-                <p class="theme-text-primary text-lg mb-8">Just sign in with Telegram and start creating with joy.</p>
+        <div class="w-full relative z-10 flex flex-col items-center text-center">
 
-                <button id="telegramAuthBtn" class="w-full max-w-75 h-20 bg-blue-600 text-white text-2xl font-bold border-none rounded-2xl cursor-pointer flex items-center justify-center gap-4 mx-auto mb-5 shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-102" onclick="handleTelegramLogin()">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
-                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 5.547c.24.24.443.442.443.783v.054c0 .34-.203.542-.443.783l-.054.054-2.572 2.572-1.781 1.781a.48.48 0 0 1-.683 0l-.054-.054-.832-.832-.832-.832-.832-.832-.832-.832-.054-.054a.48.48 0 0 1 0-.683l.054-.054 1.781-1.781L14.746 5.6c1.086 1.086 2.238 2.238 2.572 2.572z" />
-                    </svg>
-                    <span>SIGN IN WITH TELEGRAM</span>
-                </button>
-
-                <div class="mt-9 text-gray-500 dark:text-gray-400">
-                    <p class="text-lg">💜 Your data's safe with us — we value your trust.</p>
-                </div>
+            <!-- Logo area -->
+            <div class="w-24 h-24 mb-6 flex items-center justify-center drop-shadow-md">
+                <svg class="w-full h-full text-blue-600 dark:text-blue-400">
+                    <use xlink:href="#pixplace-logo" />
+                </svg>
             </div>
+
+            <h2
+                class="text-3xl font-black mb-2 bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                Welcome to pixPLace</h2>
+            <p class="text-base text-gray-600 dark:text-gray-400 max-w-[280px] mb-8 font-medium">A space where your
+                ideas come to life and creativity flows.</p>
+
+            <!-- High Contrast Telegram Button -->
+            <!-- We use very bright gradient and massive text shadows/fonts to ensure high contrast -->
+            <button id="telegramAuthBtn" onclick="handleTelegramLogin()"
+                class="group relative w-full h-[64px] rounded-2xl bg-gradient-to-r from-[#0088cc] to-[#00a2f2] text-white border border-[#33b5e5]/50 shadow-[0_8px_20px_rgba(0,136,204,0.3)] hover:shadow-[0_12px_28px_rgba(0,136,204,0.5)] transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden">
+                <!-- Glossy overlay -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"
+                    class="relative z-10 drop-shadow-md">
+                    <path
+                        d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 5.547c.24.24.443.442.443.783v.054c0 .34-.203.542-.443.783l-.054.054-2.572 2.572-1.781 1.781a.48.48 0 0 1-.683 0l-.054-.054-.832-.832-.832-.832-.832-.832-.832-.832-.054-.054a.48.48 0 0 1 0-.683l.054-.054 1.781-1.781L14.746 5.6c1.086 1.086 2.238 2.238 2.572 2.572z" />
+                </svg>
+                <span class="relative z-10 text-lg font-black tracking-wide drop-shadow-md">SIGN IN WITH TELEGRAM</span>
+            </button>
+
+            <p class="mt-8 text-sm font-medium text-gray-500 dark:text-gray-400">
+                <span class="inline-block mr-1">💜</span> Secure & private login
+            </p>
         </div>
     </div>
 </div>
+
+<style>
+    /* Add the keyframe directly to this file since it's lazy-loaded, ensuring it's available immediately when rendered */
+    @keyframes modalFadeInScale {
+        0% {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+</style>
