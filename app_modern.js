@@ -2097,6 +2097,9 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
         console.error('❌ Session restore failed:', e);
     }
 
+    // 🔐 Немедленно обновляем UI (аватарка, logout) — updateUserMenuInfo() уже будет
+    // дополнительно вызван в initializeUI() через setTimeout(150)
+
     initializeUI();
     initUserImageUpload();
 
