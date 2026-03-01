@@ -87,6 +87,21 @@ export class AppStateManager {
     get generationHistory() { return this.state.generationHistory; }
     get currentGeneration() { return this.state.currentGeneration; }
     set currentGeneration(value) { this.state.currentGeneration = value; }
+
+    // Explicit User getters and setters for backward compatibility
+    get userId() { return this.state.user.id; }
+    set userId(value) {
+        this.updateState({ user: { ...this.state.user, id: value } });
+    }
+    get userName() { return this.state.user.name; }
+    set userName(value) {
+        this.updateState({ user: { ...this.state.user, name: value } });
+    }
+    get userAvatar() { return this.state.user.photo_url; }
+    set userAvatar(value) {
+        this.updateState({ user: { ...this.state.user, photo_url: value } });
+    }
+
     get userImageState() { return this.state.userImageState; }
     get selectedStyle() { return this.state.selectedStyle; }
     set selectedStyle(value) { this.updateState({ selectedStyle: value }); }
