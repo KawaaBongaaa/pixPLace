@@ -39,18 +39,30 @@ async function handleTelegramLogin() {
                     body: JSON.stringify({
                         ...user,
                         initData: webApp.initData,
-                        traffic_source: 'webapp/telegram_mini_app'
+                        traffic_source: 'webapp/telegram_webapp'
                     })
                 });
                 const data = await response.json();
 
                 if (data.userId) {
-                    // Сохраняем данные пользователя
+                    // Сохраняем данные пользователя в appState
                     if (typeof window.appState !== 'undefined') {
-                        window.appState.userId = data.userId;
+                        window.appState.userId = String(data.userId);
                         window.appState.userName = data.userName || user.first_name;
                         window.appState.userAvatar = data.userPhotoUrl || user.photo_url || null;
                     }
+
+                    // 🔥 СОХРАНЯЕМ СЕССИЮ В LOCALSTORAGE (F5 FIX)
+                    const userDataToSave = {
+                        ...user,
+                        internalUserId: data.userId,
+                        first_name: data.userName || user.first_name,
+                        photo_url: data.userPhotoUrl || user.photo_url || null
+                    };
+                    localStorage.setItem('telegram_auth_completed', 'true');
+                    localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
+                    localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
+                    localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
                     if (typeof window.updateUserMenuInfo === 'function') {
                         window.updateUserMenuInfo();
