@@ -885,39 +885,43 @@ function openAuthModal() {
     const content = document.getElementById('authModalContent');
     if (!modal || !content) return;
 
+    // Показываем модалку через flex, затем анимируем через rAF (без setTimeout — нет дёргания)
     modal.classList.remove('hidden');
-    // Небольшая задержка для запуска CSS-анимации
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.remove('scale-95', 'opacity-0');
-    }, 10);
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95', 'opacity-0');
+        });
+    });
 
     const currentLang = localStorage.getItem('app_language') || 'en';
     const isDark = document.documentElement.classList.contains('dark');
 
     const renderGoogleBtn = () => {
         const googleWrapper = document.getElementById('googleSignInWrapper');
-        if (googleWrapper && googleWrapper.children.length === 0 && window.google) {
-            try {
-                google.accounts.id.initialize({
-                    client_id: "809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com", // TODO: Replace with actual Client ID
-                    callback: handleGoogleAuthCallback
-                });
-                google.accounts.id.renderButton(
-                    googleWrapper,
-                    {
-                        theme: isDark ? "filled_black" : "outline",
-                        size: "large",
-                        type: "standard",
-                        shape: "rectangular",
-                        text: "continue_with",
-                        width: googleWrapper.offsetWidth || 320,
-                        locale: currentLang
-                    }
-                );
-            } catch (e) {
-                console.error('Failed to initialize Google Auth', e);
-            }
+        const placeholder = document.getElementById('googleSignInPlaceholder');
+        if (!googleWrapper || !window.google) return;
+        // Рендерим только если кнопки ещё нет
+        if (googleWrapper.querySelector('iframe')) return;
+        try {
+            google.accounts.id.initialize({
+                client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
+                callback: handleGoogleAuthCallback
+            });
+            google.accounts.id.renderButton(googleWrapper, {
+                theme: isDark ? 'filled_black' : 'outline',
+                size: 'large',
+                type: 'standard',
+                shape: 'rectangular',
+                text: 'continue_with',
+                width: 320,  // фиксированная ширина — offsetWidth=0 при hidden не проблема
+                locale: currentLang
+            });
+            // Скрываем плейсхолдер когда кнопка готова
+            if (placeholder) placeholder.style.display = 'none';
+        } catch (e) {
+            console.error('Failed to render Google Auth button', e);
         }
     };
 
@@ -927,7 +931,6 @@ function openAuthModal() {
         script.id = 'google-gsi-script';
         script.src = `https://accounts.google.com/gsi/client?hl=${currentLang}`;
         script.async = true;
-        script.defer = true;
         script.onload = renderGoogleBtn;
         document.head.appendChild(script);
     } else if (window.google) {
