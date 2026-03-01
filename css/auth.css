@@ -14,8 +14,13 @@ html.auth-session-active #headerBalanceWrapper {
     display: flex !important;
 }
 
-/* Скрываем гамбургер-иконку пока аватарка не загружена */
-html.auth-session-active #userMenuBtn>svg {
+/* Если сессия активна — userMenuBtn видима (гость не видит кнопку — управляется JS) */
+html.auth-session-active #userMenuBtn {
+    display: flex !important;
+}
+
+/* Если сессия НЕ активна — прячем кнопку меню сразу (до JS) */
+html:not(.auth-session-active) #userMenuBtn {
     display: none !important;
 }
 
