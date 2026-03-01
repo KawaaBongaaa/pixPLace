@@ -14,6 +14,11 @@ html.auth-session-active #headerBalanceWrapper {
     display: flex !important;
 }
 
+/* Скрываем гамбургер-иконку пока аватарка не загружена */
+html.auth-session-active #userMenuBtn>svg {
+    display: none !important;
+}
+
 /* =====================================================
    ЭКРАН АВТОРИЗАЦИИ - НОРМАЛЬНЫЕ ПРОИЗВОДСТВЕННЫЕ СТИЛИ
    ===================================================== */
