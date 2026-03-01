@@ -27,6 +27,33 @@
             }
         })();
     </script>
+    <!-- 🔐 ANTI-FOUC: Ранняя проверка auth-сессии — синхронно, до рендера UI
+         Срок жизни сессии: 30 дней. При валидной сессии скрываем Sign In сразу. -->
+    <script>
+        (function () {
+            var SESSION_TTL = 30 * 24 * 60 * 60 * 1000; // 30 дней в мс
+            try {
+                var authCompleted = localStorage.getItem('telegram_auth_completed');
+                var userDataStr = localStorage.getItem('telegram_user');
+                var timestamp = parseInt(localStorage.getItem('telegram_auth_timestamp') || '0');
+                var isExpired = (Date.now() - timestamp) > SESSION_TTL;
+
+                if (authCompleted === 'true' && userDataStr && !isExpired) {
+                    var user = JSON.parse(userDataStr);
+                    if (user && (user.internalUserId || user.id)) {
+                        // Сессия валидна — немедленно скрываем Sign In через CSS-класс
+                        document.documentElement.classList.add('auth-session-active');
+                    }
+                } else if (isExpired && authCompleted === 'true') {
+                    // Сессия истекла (> 30 дней) — очищаем
+                    localStorage.removeItem('telegram_auth_completed');
+                    localStorage.removeItem('telegram_user');
+                    localStorage.removeItem('telegram_user_data');
+                    localStorage.removeItem('telegram_auth_timestamp');
+                }
+            } catch (e) { /* silent fail */ }
+        })();
+    </script>
     <!-- 🔥 ANTI-FOUC: Hide body until CSS + fonts loaded to prevent layout jumps -->
     <style>
         /* 🔥 ANTI-FOUC: Hide only UI, keep background visible */
@@ -70,6 +97,8 @@
 
     <!-- ⚡ MODERN DESIGN STACK: Tailwind CSS + CSS Shadows -->
     <link rel="stylesheet" href="css/output.css">
+    <!-- 🔐 auth.css подключается рано — содержит anti-FOUC правила для auth-session-active -->
+    <link rel="stylesheet" href="css/auth.css">
     <!-- <link rel="stylesheet" href="css/main.css"> -->
     <link rel="stylesheet" href="css/mode-cards.css">
     <link rel="stylesheet" href="css/responsive-layout.css">
