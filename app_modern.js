@@ -906,29 +906,13 @@ async function initializeUI() {
         window.initUserAccount();
     }
 
-    // 🔐 ВОССТАНОВЛЕНИЕ СЕССИИ АВТОРИЗАЦИИ (F5 FIX) - С отложенным запуском для гарантии готовности DOM
+    // 🔐 Сессия уже восстановлена синхронно ДО вызова initializeUI (см. после services init).
+    // Обновляем UI после готовности DOM
     setTimeout(() => {
-        try {
-            const authCompleted = localStorage.getItem('telegram_auth_completed');
-            const userDataStr = localStorage.getItem('telegram_user');
-            if (authCompleted === 'true' && userDataStr) {
-                const user = JSON.parse(userDataStr);
-                if (user && (user.internalUserId || user.id)) {
-                    console.log('🔄 Restoring user session on app load for:', user.first_name || user.username || 'User');
-                    window.appState.userId = user.internalUserId || user.id;
-                    window.appState.userName = user.first_name || user.username;
-                    window.appState.userAvatar = user.photoUrl || user.photo_url || null;
-
-                    // Обновляем UI (аватарку, имя, баланс)
-                    if (window.updateUserMenuInfo) {
-                        window.updateUserMenuInfo();
-                    }
-                }
-            }
-        } catch (sessionError) {
-            console.error('❌ Failed to restore session on load:', sessionError);
+        if (window.updateUserMenuInfo) {
+            window.updateUserMenuInfo();
         }
-    }, 100);
+    }, 150);
 
     // 🚀 Initialize language dropdown
     if (initLazyLanguageDropdown) {
@@ -2094,6 +2078,24 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     // Обновляем глобальные ссылки для совместимости (legacy support)
     window.appState = services.appState;
     console.log('✅ Services initialized, appState bridged for compatibility');
+
+    // 🔐 ВОССТАНОВЛЕНИЕ СЕССИИ (F5 FIX) — синхронно, сразу после назначения window.appState
+    // Делается ДО initializeUI(), чтобы гарантировать правильный порядок.
+    try {
+        const authCompleted = localStorage.getItem('telegram_auth_completed');
+        const userDataStr = localStorage.getItem('telegram_user');
+        if (authCompleted === 'true' && userDataStr) {
+            const user = JSON.parse(userDataStr);
+            if (user && (user.internalUserId || user.id)) {
+                console.log('🔄 Restoring session for:', user.first_name || user.username || 'User');
+                window.appState.userId = user.internalUserId ? String(user.internalUserId) : String(user.id);
+                window.appState.userName = user.first_name || user.username || 'User';
+                window.appState.userAvatar = user.photo_url || user.photoUrl || null;
+            }
+        }
+    } catch (e) {
+        console.error('❌ Session restore failed:', e);
+    }
 
     initializeUI();
     initUserImageUpload();
