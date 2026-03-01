@@ -85,7 +85,17 @@ function initUserAccount() {
 
     console.log('🎯 Initializing User Account module');
 
-    userAccountState.isInitialized = true; // Устанавливаем флаг инициализации
+    userAccountState.isInitialized = true;
+
+    // Предзагружаем Google GSI script заранее — чтобы кнопка рендерилась мгновенно при открытии модалки
+    if (!document.getElementById('google-gsi-script')) {
+        const script = document.createElement('script');
+        script.id = 'google-gsi-script';
+        script.src = `https://accounts.google.com/gsi/client?hl=${localStorage.getItem('app_language') || 'en'}`;
+        script.async = true;
+        document.head.appendChild(script);
+    }
+
 
     // Добавляем обработчик клика на кнопку меню пользователя
     const userMenuBtn = document.getElementById('userMenuBtn');
@@ -249,12 +259,17 @@ function toggleUserMenu(e) {
 
 // Функция выхода из аккаунта
 function handleLogout() {
-    console.log('🚪 Logout clicked');
-    // Очищаем данные пользователя из localStorage
+    // Очищаем все auth-данные из localStorage
+    localStorage.removeItem('telegram_auth_completed');
     localStorage.removeItem('telegram_user');
+    localStorage.removeItem('telegram_user_data');
+    localStorage.removeItem('telegram_auth_timestamp');
     sessionStorage.removeItem('auth_user_id');
 
-    // Очищаем состояние в appState
+    // Снимаем CSS-класс сессии (иначе CSS скрывает guest-кнопки)
+    document.documentElement.classList.remove('auth-session-active');
+
+    // Сбрасываем appState
     if (window.appState) {
         window.appState.userId = null;
         window.appState.userName = null;
@@ -266,12 +281,8 @@ function handleLogout() {
     const menu = document.getElementById('userMenuDropdown');
     if (menu) menu.classList.remove('show');
 
-    // Обновляем UI
     updateUserMenuInfo();
     window.showToast?.('info', window.appState?.translate?.('logged_out') || 'Logged out successfully');
-
-    // Перезагружаем страницу для полного сброса состояния (раскомментировать если нужно)
-    // window.location.reload();
 }
 window.handleLogout = handleLogout;
 
@@ -295,38 +306,26 @@ function updateUserMenuInfo() {
     const logoutWrap = document.getElementById('userMenuLogoutBtnWrap');
 
     if (isAuthenticated) {
+        // Авторизован: скрываем guest-кнопки, показываем баланс и аватарку
         if (headerGuestActions) headerGuestActions.classList.add('hidden');
-
         if (headerBalance) headerBalance.classList.remove('hidden');
         if (authActions) authActions.classList.remove('hidden');
         if (logoutWrap) logoutWrap.classList.remove('hidden');
+        if (userMenuBtn) userMenuBtn.classList.remove('hidden');
 
-        // Устанавливаем аватарку
         const photoUrl = window.appState?.userAvatar || JSON.parse(localStorage.getItem('telegram_user') || '{}').photo_url;
         if (photoUrl && userMenuBtn) {
-            userMenuBtn.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover rounded-xl" style="width:100%; height:100%; border-radius:10px;">`;
+            userMenuBtn.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover rounded-xl" style="width:100%;height:100%;border-radius:10px;">`;
         } else if (userMenuBtn) {
-            // Если аватарки нет, ставим иконку пользователя вместо гамбургера
-            userMenuBtn.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+            userMenuBtn.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
         }
     } else {
+        // Гость: показываем Pricing+SignIn, прячем аватарку и баланс полностью
         if (headerGuestActions) headerGuestActions.classList.remove('hidden');
-
         if (headerBalance) headerBalance.classList.add('hidden');
-
         if (authActions) authActions.classList.add('hidden');
         if (logoutWrap) logoutWrap.classList.add('hidden');
-
-        if (userMenuBtn) {
-            userMenuBtn.innerHTML = `
-                <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-            `;
-        }
+        if (userMenuBtn) userMenuBtn.classList.add('hidden');
     }
 
     // Заменяем содержимое dropdown в зависимости от состояния авторизации
