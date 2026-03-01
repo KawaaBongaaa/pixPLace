@@ -258,8 +258,7 @@ function handleLogout() {
     if (window.appState) {
         window.appState.userId = null;
         window.appState.userName = null;
-        window.appState.userUsername = null;
-        window.appState.userPhotoUrl = null;
+        window.appState.userAvatar = null;
         window.appState.isAuthenticated = false;
     }
 
@@ -303,7 +302,7 @@ function updateUserMenuInfo() {
         if (logoutWrap) logoutWrap.classList.remove('hidden');
 
         // Устанавливаем аватарку
-        const photoUrl = window.appState?.userPhotoUrl || JSON.parse(localStorage.getItem('telegram_user') || '{}').photo_url;
+        const photoUrl = window.appState?.userAvatar || JSON.parse(localStorage.getItem('telegram_user') || '{}').photo_url;
         if (photoUrl && userMenuBtn) {
             userMenuBtn.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover rounded-xl" style="width:100%; height:100%; border-radius:10px;">`;
         } else if (userMenuBtn) {
