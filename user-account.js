@@ -884,14 +884,14 @@ function openAuthModal() {
     const content = document.getElementById('authModalContent');
     if (!modal || !content) return;
 
-    // Показываем модалку через flex, затем анимируем через rAF (без setTimeout — нет дёргания)
+    // Гарантируем начальное состояние анимации ДО показа (независимо от предыдущего состояния)
+    content.classList.add('scale-95', 'opacity-0');
+
     modal.classList.remove('hidden');
-    modal.style.display = 'flex';
+    // Один rAF: браузер уже отрисовал начальное состояние → запускаем анимацию
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95', 'opacity-0');
-        });
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95', 'opacity-0');
     });
 
     const currentLang = localStorage.getItem('app_language') || 'en';
