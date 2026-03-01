@@ -43,6 +43,11 @@
                     if (user && (user.internalUserId || user.id)) {
                         // Сессия валидна — немедленно скрываем Sign In через CSS-класс
                         document.documentElement.classList.add('auth-session-active');
+                        // Сохраняем фото для мгновенного рендера аватарки
+                        window.__earlyAuth = {
+                            photoUrl: user.photo_url || user.photoUrl || null,
+                            firstName: user.first_name || user.username || null
+                        };
                     }
                 } else if (isExpired && authCompleted === 'true') {
                     // Сессия истекла (> 30 дней) — очищаем
@@ -418,6 +423,19 @@
                                 <line x1="3" y1="18" x2="21" y2="18" />
                             </svg>
                         </button>
+                        <!-- 🔐 ANTI-FOUC: Мгновенная подстановка аватарки -->
+                        <script>
+                            (function () {
+                                var auth = window.__earlyAuth;
+                                if (auth && auth.photoUrl) {
+                                    var btn = document.getElementById('userMenuBtn');
+                                    if (btn) {
+                                        btn.innerHTML = '<img src="' + auth.photoUrl + '" onerror="this.parentElement.innerHTML=\'<svg class=\\\"w-4 h-4 sm:w-5 sm:h-5\\\" viewBox=\\\"0 0 24 24\\\" fill=\\\"none\\\" stroke=\\\"currentColor\\\" stroke-width=\\\"2\\\" stroke-linecap=\\\"round\\\" stroke-linejoin=\\\"round\\\"><line x1=\\\"3\\\" y1=\\\"6\\\" x2=\\\"21\\\" y2=\\\"6\\\"/><line x1=\\\"3\\\" y1=\\\"12\\\" x2=\\\"21\\\" y2=\\\"12\\\"/><line x1=\\\"3\\\" y1=\\\"18\\\" x2=\\\"21\\\" y2=\\\"18\\\"/></svg>\'" ' +
+                                            'alt="" style="width:100%;height:100%;border-radius:10px;object-fit:cover;display:block;">';
+                                    }
+                                }
+                            })();
+                        </script>
 
                         <div class="user-menu-dropdown floating-menu-dropdown absolute top-full right-0 mt-2 min-w-60"
                             id="userMenuDropdown">
