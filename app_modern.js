@@ -906,27 +906,29 @@ async function initializeUI() {
         window.initUserAccount();
     }
 
-    // 🔐 ВОССТАНОВЛЕНИЕ СЕССИИ АВТОРИЗАЦИИ (F5 FIX)
-    try {
-        const authCompleted = localStorage.getItem('telegram_auth_completed');
-        const userDataStr = localStorage.getItem('telegram_user');
-        if (authCompleted === 'true' && userDataStr) {
-            const user = JSON.parse(userDataStr);
-            if (user && (user.internalUserId || user.id)) {
-                console.log('🔄 Restoring user session on app load for:', user.first_name || user.username || 'User');
-                window.appState.userId = user.internalUserId || user.id;
-                window.appState.userName = user.first_name || user.username;
-                window.appState.userAvatar = user.photoUrl || user.photo_url || null;
+    // 🔐 ВОССТАНОВЛЕНИЕ СЕССИИ АВТОРИЗАЦИИ (F5 FIX) - С отложенным запуском для гарантии готовности DOM
+    setTimeout(() => {
+        try {
+            const authCompleted = localStorage.getItem('telegram_auth_completed');
+            const userDataStr = localStorage.getItem('telegram_user');
+            if (authCompleted === 'true' && userDataStr) {
+                const user = JSON.parse(userDataStr);
+                if (user && (user.internalUserId || user.id)) {
+                    console.log('🔄 Restoring user session on app load for:', user.first_name || user.username || 'User');
+                    window.appState.userId = user.internalUserId || user.id;
+                    window.appState.userName = user.first_name || user.username;
+                    window.appState.userAvatar = user.photoUrl || user.photo_url || null;
 
-                // Обновляем UI (аватарку, имя, баланс)
-                if (window.updateUserMenuInfo) {
-                    window.updateUserMenuInfo();
+                    // Обновляем UI (аватарку, имя, баланс)
+                    if (window.updateUserMenuInfo) {
+                        window.updateUserMenuInfo();
+                    }
                 }
             }
+        } catch (sessionError) {
+            console.error('❌ Failed to restore session on load:', sessionError);
         }
-    } catch (sessionError) {
-        console.error('❌ Failed to restore session on load:', sessionError);
-    }
+    }, 100);
 
     // 🚀 Initialize language dropdown
     if (initLazyLanguageDropdown) {
