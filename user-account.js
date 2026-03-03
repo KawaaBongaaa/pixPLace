@@ -327,7 +327,7 @@ function updateUserMenuInfo() {
 
         const photoUrl = window.appState?.userAvatar || JSON.parse(localStorage.getItem('telegram_user') || '{}').photo_url;
         if (photoUrl && userMenuBtn) {
-            userMenuBtn.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover rounded-xl" style="width:100%;height:100%;border-radius:10px;">`;
+            userMenuBtn.innerHTML = `<img src="${photoUrl}" alt="Avatar" referrerpolicy="no-referrer" class="w-full h-full object-cover rounded-xl" style="width:100%;height:100%;border-radius:10px;">`;
         } else if (userMenuBtn) {
             userMenuBtn.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
         }
@@ -711,7 +711,6 @@ function buyCreditPack(amount) {
     window.open(url, '_blank');
 
     closeCreditPacksModal();
-    showToast('info', `Открыта страница покупки ${amount} кредитов`);
 }
 
 // Функция закрытия модального окна Credit Packs
@@ -1062,14 +1061,15 @@ function closeLanguageModal() {
     }, 300);
 }
 
-function selectLanguageFromModal(lang) {
-    const li = document.querySelector(`#langMenu li[data-lang="${lang}"]`);
-    if (li) {
-        li.click();
-    } else {
-        if (typeof changeLanguage === 'function') changeLanguage(lang);
-    }
+async function selectLanguageFromModal(lang) {
     closeLanguageModal();
+    if (window.dictionaryManager) {
+        try {
+            await window.dictionaryManager.setLanguage(lang);
+        } catch (error) {
+            console.error('❌ Error switching language:', error);
+        }
+    }
 }
 
 // Экспортируем функции в глобальную область видимости

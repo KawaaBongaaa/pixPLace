@@ -28,9 +28,7 @@ async function handleTelegramLogin() {
                     username: user.username
                 });
 
-                if (typeof window.showToast === 'function') {
-                    window.showToast('info', 'Logging in via Telegram...');
-                }
+
 
                 // Call backend webhook to get real internal ID
                 const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
@@ -101,9 +99,7 @@ async function handleTelegramLogin() {
     // ЕСЛИ WEBAPP НЕДОСТУПЕН ИЛИ НЕ СРАБОТАЛ - ПОКАЗЫВАЕМ КРАСИВЫЙ МОДАЛЬНЫЙ ДИАЛОГ
     console.log('📱 Показываем инструкции по авторизации в модальном окне');
 
-    if (typeof window.showToast === 'function') {
-        window.showToast('info', 'Открываем инструкции по авторизации...');
-    }
+
 
     // Load beautiful modal dialog instead of alert()
     setTimeout(async () => {
@@ -192,9 +188,7 @@ async function completeTelegramAuth(authData) {
 
     if (authData.user) {
         try {
-            if (typeof window.showToast === 'function') {
-                window.showToast('info', 'Completing login...');
-            }
+
 
             const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
                 method: 'POST',

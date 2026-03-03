@@ -396,7 +396,7 @@
                             <span data-i18n="pricing">Pricing</span>
                         </button>
                         <button
-                            class="relative px-3 py-1.5 sm:px-4 sm:py-2 border-none rounded-lg sm:rounded-xl bg-blue-600 text-white font-semibold cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-blue-700 text-xs sm:text-sm shadow-sm hover:shadow-lg auth-btn-premium"
+                            class="relative px-3 py-1.5 sm:px-4 sm:py-2 border-none rounded-lg sm:rounded-xl bg-blue-600 text-white font-semibold cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-blue-700 text-xs sm:text-sm shadow-[0_4px_15px_rgba(37,99,235,0.4)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.6)] hover:-translate-y-[1px] auth-btn-premium"
                             id="headerSignInBtn" onclick="openAuthModal()" title="Sign In" style="overflow: hidden;">
                             <div class="shine-layer" style="animation-delay: 2s;"></div>
                             <span data-i18n="sign_in">Sign In</span>
@@ -436,23 +436,36 @@
                                 </div>
                             </div>
                             <div class="user-menu-actions space-y-1.5">
-                                <!-- Language Toggle (Always Visible) -->
+                                <!-- Top Row: Language and Theme Settings -->
                                 <div
-                                    class="relative w-full border-b border-gray-200 dark:border-gray-700/50 pb-1.5 mb-1.5">
+                                    class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700/50 pb-1.5 mb-1.5">
                                     <button
-                                        class="user-action-btn language-btn w-full flex justify-between items-center"
+                                        class="user-action-btn language-btn flex flex-1 justify-center items-center py-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
                                         id="inMenuLangToggle"
-                                        onclick="if(window.openLanguageModal) openLanguageModal();">
-                                        <div class="flex items-center">
-                                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none"
-                                                stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <path d="M2 12h20" />
-                                                <path
-                                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                                            </svg>
-                                            <span data-i18n="language">Language</span>
-                                        </div>
+                                        onclick="if(window.openLanguageModal) openLanguageModal();"
+                                        title="Change Language">
+                                        <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10" />
+                                            <path d="M2 12h20" />
+                                            <path
+                                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                        </svg>
+                                    </button>
+
+                                    <button
+                                        class="user-action-btn theme-btn flex flex-1 justify-center items-center py-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+                                        onclick="toggleTheme()" title="Toggle Theme">
+                                        <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="5" />
+                                            <path
+                                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                                        </svg>
+                                        <svg class="w-5 h-5 hidden text-gray-700 dark:text-gray-300" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                                        </svg>
                                     </button>
                                 </div>
 
@@ -473,20 +486,7 @@
                                     </button>
                                 </div>
 
-                                <button
-                                    class="user-action-btn theme-btn flex justify-center items-center w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
-                                    onclick="toggleTheme()" title="Toggle Theme">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <circle cx="12" cy="12" r="5" />
-                                        <path
-                                            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                                    </svg>
-                                    <svg class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                                    </svg>
-                                </button>
+
 
                                 <div id="userMenuLogoutBtnWrap"
                                     class="hidden pt-2 mt-2 border-t border-gray-200 dark:border-gray-700/50">
@@ -1550,7 +1550,7 @@
                         <div class="relative w-full group" style="height: 40px; margin-bottom: 4px;">
                             <!-- 1. Наша кастомная UI-кнопка (под низом) -->
                             <button type="button"
-                                class="absolute inset-0 w-full h-full flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer z-0 group-hover:bg-[#333333] auth-btn-premium"
+                                class="absolute inset-0 w-full h-full flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer z-0 group-hover:bg-[#333333] group-hover:shadow-[0_6px_20px_rgba(255,255,255,0.15)] group-hover:-translate-y-[1px] auth-btn-premium"
                                 style="background-color: #272727; color: white; border: 1px solid rgba(255,255,255,0.1);">
 
                                 <!-- Эффект стеклянного блеска -->
@@ -1744,7 +1744,7 @@
         }
     </style>
 
-    <script src="parallel-generation.js"></script>
+    <script type="module" src="parallel-generation.js"></script>
     <script src="telegram-auth.js"></script>
 
     <script type="module" src="app_modern.js?v=2535"></script>
