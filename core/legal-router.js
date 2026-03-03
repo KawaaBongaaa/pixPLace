@@ -126,7 +126,7 @@ const LegalRouter = {
         const filename = `${docType}-${region}.html`;
         const path = isLegalDir ? filename : `legal/${filename}`;
 
-        window.location.href = path;
+        window.open(path, '_blank');
     },
 
     /**
