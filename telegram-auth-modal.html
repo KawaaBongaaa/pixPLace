@@ -1,12 +1,15 @@
 <!-- Telegram Auth Instructions Modal - Lazy loaded on demand -->
-<div id="telegramAuthInstructionsModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-lg">
-    <div class="relative max-w-md w-full mx-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+<div id="telegramAuthInstructionsModal"
+    class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-lg">
+    <div
+        class="relative max-w-md w-full mx-4 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <!-- Header -->
         <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                     <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 5.547c.24.24.443.442.443.783v.054c0 .34-.203.542-.443.783l-.054.054-2.572 2.572-1.781 1.781a.48.48 0 0 1-.683 0l-.054-.054-.832-.832-.832-.832-.832-.832-.832-.832-.054-.054a.48.48 0 0 1 0-.683l.054-.054 1.781-1.781L14.746 5.6c1.086 1.086 2.238 2.238 2.572 2.572z"/>
+                        <path
+                            d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 5.547c.24.24.443.442.443.783v.054c0 .34-.203.542-.443.783l-.054.054-2.572 2.572-1.781 1.781a.48.48 0 0 1-.683 0l-.054-.054-.832-.832-.832-.832-.832-.832-.832-.832-.054-.054a.48.48 0 0 1 0-.683l.054-.054 1.781-1.781L14.746 5.6c1.086 1.086 2.238 2.238 2.572 2.572z" />
                     </svg>
                 </div>
                 <div>
@@ -24,14 +27,16 @@
                     <div class="text-blue-500 dark:text-blue-400 text-lg">↳</div>
                     <div class="flex-1 flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
+                            <div
+                                class="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
                                 <span class="text-blue-600 dark:text-blue-400 font-bold text-xs">1</span>
                             </div>
                             <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
                                 Click the button to open our Telegram bot
                             </p>
                         </div>
-                        <button onclick="openTelegramBot()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-sm shadow-md hover:shadow-lg">
+                        <button onclick="openTelegramBot()"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-sm shadow-md hover:shadow-lg">
                             Connect via Telegram
                         </button>
                     </div>
@@ -41,7 +46,8 @@
                 <div class="flex items-center gap-3">
                     <div class="text-blue-500 dark:text-blue-400 text-lg">↳</div>
                     <div class="flex items-center gap-3">
-                        <div class="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div
+                            class="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
                             <span class="text-blue-600 dark:text-blue-400 font-bold text-xs">2</span>
                         </div>
                         <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
@@ -54,7 +60,8 @@
                 <div class="flex items-center gap-3">
                     <div class="text-blue-500 dark:text-blue-400 text-lg">↳</div>
                     <div class="flex items-center gap-3">
-                        <div class="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div
+                            class="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
                             <span class="text-blue-600 dark:text-blue-400 font-bold text-xs">3</span>
                         </div>
                         <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
@@ -73,7 +80,8 @@
 
         <!-- Footer -->
         <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600 text-center">
-            <button onclick="closeTelegramAuthModal()" class="text-gray-500 dark:text-gray-400 text-sm hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+            <button onclick="closeTelegramAuthModal()"
+                class="text-gray-500 dark:text-gray-400 text-sm hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                 Cancel
             </button>
         </div>
