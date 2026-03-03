@@ -396,8 +396,9 @@
                             <span data-i18n="pricing">Pricing</span>
                         </button>
                         <button
-                            class="relative px-3 py-1.5 sm:px-4 sm:py-2 border-none rounded-lg sm:rounded-xl bg-blue-600 text-white font-medium cursor-pointer flex items-center justify-center transition-all duration-150 hover:bg-blue-700 text-xs sm:text-sm shadow-sm hover:shadow"
-                            id="headerSignInBtn" onclick="openAuthModal()" title="Sign In">
+                            class="relative px-3 py-1.5 sm:px-4 sm:py-2 border-none rounded-lg sm:rounded-xl bg-blue-600 text-white font-semibold cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-blue-700 text-xs sm:text-sm shadow-sm hover:shadow-lg auth-btn-premium"
+                            id="headerSignInBtn" onclick="openAuthModal()" title="Sign In" style="overflow: hidden;">
+                            <div class="shine-layer" style="animation-delay: 2s;"></div>
                             <span data-i18n="sign_in">Sign In</span>
                         </button>
                     </div>
@@ -1516,14 +1517,14 @@
          они конфликтовали с auth.css transition. Теперь анимация только через auth.css + JS class toggle -->
     <div id="authModal" style="z-index: 999999;"
         class="fixed inset-0 hidden flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm px-4"
-        aria-modal="true" role="dialog" aria-label="Sign in">
+        aria-modal="true" role="dialog" aria-label="Sign in" onclick="if(event.target === this) closeAuthModal()">
         <!-- Modal Container -->
         <div class="bg-white dark:bg-gray-800 w-full max-w-[368px] rounded-[24px] shadow-2xl relative transform transition-all duration-300 scale-95 opacity-0 flex flex-col items-center"
             id="authModalContent">
 
             <!-- Close Button -->
             <button onclick="closeAuthModal()"
-                class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors z-10 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full">
+                class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors z-10 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full cursor-pointer">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1545,64 +1546,56 @@
 
                 <div class="w-full flex flex-col items-center">
                     <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px;">
-                        <!-- Google Auth: наш кастомный button + скрытый GSI контейнер -->
-                        <!-- Скрытый контейнер для GSI iframe — вне видимой области -->
-                        <div id="googleSignInHidden" aria-hidden="true" style="
-                            position: fixed;
-                            top: -9999px;
-                            left: -9999px;
-                            width: 1px;
-                            height: 1px;
-                            overflow: hidden;
-                            opacity: 0;
-                            pointer-events: none;
-                        "></div>
+                        <!-- Google Sign-In with Custom Overlay -->
+                        <div class="relative w-full group" style="height: 40px; margin-bottom: 4px;">
+                            <!-- 1. Наша кастомная UI-кнопка (под низом) -->
+                            <button type="button"
+                                class="absolute inset-0 w-full h-full flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer z-0 group-hover:bg-[#333333] auth-btn-premium"
+                                style="background-color: #272727; color: white; border: 1px solid rgba(255,255,255,0.1);">
 
-                        <!-- Наша кастомная Google кнопка — всегда свой дизайн -->
-                        <button id="googleSignInWrapper" type="button" class="w-full" onclick="triggerGoogleSignIn()"
-                            style="
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                gap: 10px;
-                                height: 44px;
-                                border-radius: 10px;
-                                border: 1px solid rgba(255,255,255,0.12);
-                                background: rgba(255,255,255,0.07);
-                                color: rgba(255,255,255,0.8);
-                                font-size: 14px;
-                                font-weight: 500;
-                                cursor: pointer;
-                                transition: background 0.18s ease, border-color 0.18s ease;
-                                width: 100%;
-                            "
-                            onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.borderColor='rgba(255,255,255,0.22)'"
-                            onmouseout="this.style.background='rgba(255,255,255,0.07)';this.style.borderColor='rgba(255,255,255,0.12)'">
-                            <!-- Google G icon — полноцветный -->
-                            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
-                                    fill="#4285F4" />
-                                <path
-                                    d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
-                                    fill="#34A853" />
-                                <path
-                                    d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"
-                                    fill="#FBBC05" />
-                                <path
-                                    d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"
-                                    fill="#EA4335" />
-                            </svg>
-                            <span data-i18n="continue_with_google">Continue with Google</span>
-                        </button>
+                                <!-- Эффект стеклянного блеска -->
+                                <div class="shine-layer" style="animation-delay: 0s;"></div>
+
+                                <div
+                                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; pointer-events: none;">
+                                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; flex-shrink: 0;">
+                                        <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+                                            <path fill="#4285F4"
+                                                d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
+                                            <path fill="#34A853"
+                                                d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
+                                            <path fill="#FBBC05"
+                                                d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
+                                            <path fill="#EA4335"
+                                                d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
+                                        </g>
+                                    </svg>
+                                </div>
+                                <span data-i18n="continue_with_google" class="text-[14px] font-semibold text-center"
+                                    style="font-family: 'Roboto', arial, sans-serif;">Continue with Google</span>
+                            </button>
+
+                            <!-- 2. Невидимый официальный GSI Wrapper (сверху) -->
+                            <!-- Используем прозрачный контейнер с hover-эффектом -->
+                            <div
+                                class="absolute inset-0 w-full h-full z-10 overflow-hidden rounded-md bg-transparent hover:bg-white/5 group-hover:bg-white/5 transition-all duration-300 cursor-pointer">
+                                <!-- Растягиваем в 2 раза за верхний край, чтобы область клика гарантированно ушла ниже границы кнопки -->
+                                <div id="googleSignInWrapper" class="opacity-0 absolute inset-0 w-full h-full"
+                                    style="transform: scale(2); transform-origin: top center; cursor: pointer;">
+                                </div>
+                            </div>
+                        </div>
+
 
                         <!-- Telegram Auth Button -->
                         <div style="width: 100%;">
                             <button onclick="handleTelegramOAuth()"
-                                class="relative flex items-center justify-center rounded-md font-medium transition-colors duration-200 shadow-sm cursor-pointer"
-                                style="width: 100%; height: 40px; background-color: #2AABEE; color: white; border: none; overflow: hidden; position: relative;"
-                                onmouseover="this.style.backgroundColor='#229ED9'"
-                                onmouseout="this.style.backgroundColor='#2AABEE'">
+                                class="relative flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer auth-btn-premium hover:opacity-95 active:scale-[0.98]"
+                                style="width: 100%; height: 40px; background-color: #2AABEE; color: white; border: none; overflow: hidden; position: relative;">
+
+                                <!-- Эффект стеклянного блеска (с задержкой) -->
+                                <div class="shine-layer" style="animation-delay: 4s; transform: skewX(-35deg);"></div>
+
 
                                 <div
                                     style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; pointer-events: none;">
@@ -1613,7 +1606,7 @@
                                     </svg>
                                 </div>
 
-                                <span data-i18n="continue_with_telegram" class="text-[14px] font-medium text-center"
+                                <span data-i18n="continue_with_telegram" class="text-[14px] font-semibold text-center"
                                     style="font-family: 'Roboto', arial, sans-serif; position: relative; z-index: 5;">Continue
                                     with Telegram</span>
                             </button>
@@ -1634,10 +1627,14 @@
                                     placeholder="Email address">
                             </div>
                             <button onclick="handleEmailLoginSubmit()"
-                                class="flex items-center justify-center rounded-md bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-white text-white dark:text-gray-900 shadow-sm transition-colors duration-200 cursor-pointer"
-                                style="position: relative; width: 100%; height: 40px; overflow: hidden; border: none;">
-                                <span data-i18n="continue" class="text-white dark:text-gray-900"
-                                    style="font-size: 14px; font-weight: 500; font-family: 'Roboto', arial, sans-serif;">Continue</span>
+                                class="flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer auth-btn-premium hover:opacity-95 active:scale-[0.98]"
+                                style="position: relative; width: 100%; height: 40px; background-color: #272727; color: white; border: 1px solid rgba(255,255,255,0.1); overflow: hidden;">
+
+                                <!-- Эффект стеклянного блеска (с задержкой 8с и другим углом) -->
+                                <div class="shine-layer" style="animation-delay: 8s; transform: skewX(-15deg);"></div>
+
+                                <span data-i18n="continue" class="text-white"
+                                    style="font-size: 14px; font-weight: 600; font-family: 'Roboto', arial, sans-serif;">Continue</span>
                             </button>
                         </div>
                     </div>

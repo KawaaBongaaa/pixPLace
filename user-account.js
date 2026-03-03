@@ -125,6 +125,21 @@ function initUserAccount() {
         }
     });
 
+    // Закрытие Auth Modal по клавише Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const authModal = document.getElementById('authModal');
+            if (authModal && !authModal.classList.contains('hidden')) {
+                // Если существует window.closeAuthModal, вызываем его для правильной анимации
+                if (typeof window.closeAuthModal === 'function') {
+                    window.closeAuthModal();
+                } else if (typeof closeAuthModal === 'function') {
+                    closeAuthModal();
+                }
+            }
+        }
+    });
+
     console.log('✅ User Account module initialized');
 
     // Custom logic for guest actions
@@ -895,46 +910,26 @@ function openAuthModal() {
     const isDark = document.documentElement.classList.contains('dark');
 
     const renderGoogleBtn = () => {
-        if (!window.google) return;
-        const hiddenContainer = document.getElementById('googleSignInHidden');
-        if (!hiddenContainer) return;
-        if (hiddenContainer.querySelector('iframe')) return; // уже отрендерено
+        const googleWrapper = document.getElementById('googleSignInWrapper');
+        if (!googleWrapper || !window.google) return;
+        if (googleWrapper.querySelector('.g_id_signin, iframe')) return;
         try {
             google.accounts.id.initialize({
                 client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
                 callback: handleGoogleAuthCallback
             });
-            // renderButton в скрытый div — нужен для полной инициализации GSI
-            // Без него google.accounts.id.prompt() не открывает popup
-            google.accounts.id.renderButton(hiddenContainer, {
-                theme: 'filled_black',
+            google.accounts.id.renderButton(googleWrapper, {
+                theme: 'outline', // Изменили на outline для лучшего совпадения по высоте
                 size: 'large',
                 type: 'standard',
                 shape: 'rectangular',
                 text: 'continue_with',
-                width: 200,
+                width: 320, // Сделали 320px ровно под ширину контейнера
                 locale: currentLang
             });
         } catch (e) {
-            console.error('Failed to initialize Google Auth', e);
+            console.error('Failed to render Google Auth button', e);
         }
-    };
-
-    // triggerGoogleSignIn — вызывается при клике нашей кастомной кнопки
-    // Используем google.accounts.id.prompt() — официальный API, НЕ программный клик на iframe
-    window.triggerGoogleSignIn = function () {
-        if (!window.google?.accounts?.id) {
-            console.warn('Google GSI not loaded yet');
-            return;
-        }
-        // prompt() показывает Google sign-in UI и вызывает handleGoogleAuthCallback с JWT
-        google.accounts.id.prompt(function (notification) {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                // One-Tap недоступен — пробуем кликнуть реальный GSI элемент
-                const gsiBtn = document.querySelector('#googleSignInHidden [role="button"]');
-                if (gsiBtn) gsiBtn.click();
-            }
-        });
     };
 
     const existingScript = document.getElementById('google-gsi-script');
