@@ -87,14 +87,11 @@ function initUserAccount() {
 
     userAccountState.isInitialized = true;
 
-    // Предзагружаем Google GSI script заранее — чтобы кнопка рендерилась мгновенно при открытии модалки
-    if (!document.getElementById('google-gsi-script')) {
-        const script = document.createElement('script');
-        script.id = 'google-gsi-script';
-        script.src = `https://accounts.google.com/gsi/client?hl=${localStorage.getItem('app_language') || 'en'}`;
-        script.async = true;
-        document.head.appendChild(script);
-    }
+    // 🔥 Google GSI теперь загружается ЦЕНТРАЛИЗОВАННО в index.html
+    // через <script src="https://accounts.google.com/gsi/client" async defer>
+    // и инициализируется через window.initGoogleSignIn().
+    // Убрана дублирующая загрузка отсюда чтобы устранить двойную инициализацию
+    // и джиттер от resize iframe при открытии модала.
 
 
     // Добавляем обработчик клика на кнопку меню пользователя
@@ -898,30 +895,46 @@ function openAuthModal() {
     const isDark = document.documentElement.classList.contains('dark');
 
     const renderGoogleBtn = () => {
-        const googleWrapper = document.getElementById('googleSignInWrapper');
-        const placeholder = document.getElementById('googleSignInPlaceholder');
-        if (!googleWrapper || !window.google) return;
-        // Рендерим только если кнопки ещё нет
-        if (googleWrapper.querySelector('iframe')) return;
+        if (!window.google) return;
+        const hiddenContainer = document.getElementById('googleSignInHidden');
+        if (!hiddenContainer) return;
+        if (hiddenContainer.querySelector('iframe')) return; // уже отрендерено
         try {
             google.accounts.id.initialize({
                 client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
                 callback: handleGoogleAuthCallback
             });
-            google.accounts.id.renderButton(googleWrapper, {
-                theme: isDark ? 'filled_black' : 'outline',
+            // renderButton в скрытый div — нужен для полной инициализации GSI
+            // Без него google.accounts.id.prompt() не открывает popup
+            google.accounts.id.renderButton(hiddenContainer, {
+                theme: 'filled_black',
                 size: 'large',
                 type: 'standard',
                 shape: 'rectangular',
                 text: 'continue_with',
-                width: 320,  // фиксированная ширина — offsetWidth=0 при hidden не проблема
+                width: 200,
                 locale: currentLang
             });
-            // Скрываем плейсхолдер когда кнопка готова
-            if (placeholder) placeholder.style.display = 'none';
         } catch (e) {
-            console.error('Failed to render Google Auth button', e);
+            console.error('Failed to initialize Google Auth', e);
         }
+    };
+
+    // triggerGoogleSignIn — вызывается при клике нашей кастомной кнопки
+    // Используем google.accounts.id.prompt() — официальный API, НЕ программный клик на iframe
+    window.triggerGoogleSignIn = function () {
+        if (!window.google?.accounts?.id) {
+            console.warn('Google GSI not loaded yet');
+            return;
+        }
+        // prompt() показывает Google sign-in UI и вызывает handleGoogleAuthCallback с JWT
+        google.accounts.id.prompt(function (notification) {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                // One-Tap недоступен — пробуем кликнуть реальный GSI элемент
+                const gsiBtn = document.querySelector('#googleSignInHidden [role="button"]');
+                if (gsiBtn) gsiBtn.click();
+            }
+        });
     };
 
     const existingScript = document.getElementById('google-gsi-script');
