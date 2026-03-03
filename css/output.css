@@ -14,7 +14,6 @@
     --color-red-900: oklch(39.6% 0.141 25.723);
     --color-orange-100: oklch(95.4% 0.038 75.164);
     --color-orange-200: oklch(90.1% 0.076 70.697);
-    --color-orange-500: oklch(70.5% 0.213 47.604);
     --color-orange-800: oklch(47% 0.157 37.304);
     --color-orange-900: oklch(40.8% 0.123 38.172);
     --color-yellow-400: oklch(85.2% 0.199 91.936);
@@ -22,12 +21,10 @@
     --color-yellow-600: oklch(68.1% 0.162 75.834);
     --color-green-100: oklch(96.2% 0.044 156.743);
     --color-green-200: oklch(92.5% 0.084 155.995);
-    --color-green-400: oklch(79.2% 0.209 151.711);
     --color-green-500: oklch(72.3% 0.219 149.579);
     --color-green-600: oklch(62.7% 0.194 149.214);
     --color-green-800: oklch(44.8% 0.119 151.328);
     --color-green-900: oklch(39.3% 0.095 152.535);
-    --color-cyan-500: oklch(71.5% 0.143 215.221);
     --color-blue-50: oklch(97% 0.014 254.604);
     --color-blue-100: oklch(93.2% 0.032 255.585);
     --color-blue-200: oklch(88.2% 0.059 254.128);
@@ -51,12 +48,10 @@
     --color-purple-600: oklch(55.8% 0.288 302.321);
     --color-purple-800: oklch(43.8% 0.218 303.724);
     --color-purple-900: oklch(38.1% 0.176 304.987);
-    --color-pink-500: oklch(65.6% 0.241 354.308);
     --color-slate-400: oklch(70.4% 0.04 256.788);
     --color-slate-600: oklch(44.6% 0.043 257.281);
     --color-slate-700: oklch(37.2% 0.044 257.287);
     --color-slate-800: oklch(27.9% 0.041 260.031);
-    --color-slate-900: oklch(20.8% 0.042 265.755);
     --color-slate-950: oklch(12.9% 0.042 264.695);
     --color-black: #000;
     --color-white: #fff;
@@ -83,7 +78,6 @@
     --blur-lg: 16px;
     --blur-xl: 24px;
     --blur-2xl: 40px;
-    --blur-3xl: 64px;
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -1477,9 +1471,6 @@
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
-  .animate-\[modalFadeInScale_0\.3s_ease-out_forwards\] {
-    animation: modalFadeInScale 0.3s ease-out forwards;
-  }
   .animate-\[pulse-glow_1\.5s_ease-in-out_infinite_alternate\] {
     animation: pulse-glow 1.5s ease-in-out infinite alternate;
   }
@@ -2687,10 +2678,6 @@
   }
   .blur {
     --tw-blur: blur(8px);
-    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
-  }
-  .blur-3xl {
-    --tw-blur: blur(var(--blur-3xl));
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
   .blur-\[100px\] {
@@ -6243,106 +6230,126 @@
   color: #10b981;
 }
 html.auth-session-active #headerGuestActions {
-  display: none !important;
+  display: none;
 }
 html.auth-session-active #headerBalanceWrapper {
-  display: flex !important;
+  display: flex;
 }
 html.auth-session-active #userMenuBtn {
-  display: flex !important;
+  display: flex;
 }
 html:not(.auth-session-active) #userMenuBtn {
-  display: none !important;
+  display: none;
 }
 #authModal {
-  background: rgba(0, 0, 0, 0.65) !important;
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  will-change: backdrop-filter;
 }
 #authModalContent {
-  background: rgba(13, 17, 34, 0.88) !important;
-  border: 1px solid rgba(255, 255, 255, 0.09) !important;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 24px 64px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.35) !important;
+  background: rgba(13, 17, 34, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 24px 64px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  transition: transform 0.3s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.25s ease !important;
+  transition: transform 0.3s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.25s ease;
+  min-height: 420px;
+  will-change: transform, opacity;
 }
 #authModalContent h2 {
-  color: #f1f5f9 !important;
+  color: #f1f5f9;
 }
 #authModalContent p {
-  color: rgba(148, 163, 184, 0.8) !important;
+  color: rgba(148, 163, 184, 0.8);
 }
 #authModalContent>button[onclick="closeAuthModal()"] {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 0.5) !important;
-  border-radius: 50% !important;
-  transition: all 0.2s !important;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
 }
 #authModalContent>button[onclick="closeAuthModal()"]:hover {
-  background: rgba(255, 255, 255, 0.14) !important;
-  color: #fff !important;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
 }
 #googleSignInWrapper {
-  border-radius: 10px !important;
+  border-radius: 10px;
+  min-height: 44px;
+  height: 44px;
+  contain: layout;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 #googleSignInWrapper iframe {
-  border-radius: 10px !important;
+  border-radius: 10px;
+  width: 100% !important;
+  height: 44px !important;
+  display: block;
 }
 #googleSignInPlaceholder {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 10px !important;
-  color: rgba(255, 255, 255, 0.65) !important;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  width: 100%;
+  height: 44px;
+  transition: opacity 0.2s ease;
+}
+#googleSignInWrapper.gsi-ready #googleSignInPlaceholder {
+  opacity: 0;
+  pointer-events: none;
 }
 #authModal button[onclick="handleTelegramOAuth()"] {
-  background: rgba(42, 171, 238, 0.14) !important;
-  border: 1px solid rgba(42, 171, 238, 0.3) !important;
-  color: #fff !important;
-  border-radius: 10px !important;
-  transition: background 0.2s, border-color 0.2s !important;
+  background: rgba(42, 171, 238, 0.14);
+  border: 1px solid rgba(42, 171, 238, 0.3);
+  color: #fff;
+  border-radius: 10px;
+  transition: background 0.2s, border-color 0.2s;
 }
 #authModal button[onclick="handleTelegramOAuth()"]:hover {
-  background: rgba(42, 171, 238, 0.25) !important;
-  border-color: rgba(42, 171, 238, 0.55) !important;
+  background: rgba(42, 171, 238, 0.25);
+  border-color: rgba(42, 171, 238, 0.55);
 }
 #authModal .relative.flex.items-center>div {
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 #authModal .relative.flex.items-center>span {
-  color: rgba(255, 255, 255, 0.25) !important;
+  color: rgba(255, 255, 255, 0.25);
 }
 #authEmailInput {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  color: #f1f5f9 !important;
-  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  border-radius: 10px;
 }
 #authEmailInput::-moz-placeholder {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(255, 255, 255, 0.3);
 }
 #authEmailInput::placeholder {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(255, 255, 255, 0.3);
 }
 #authEmailInput:focus {
-  border-color: rgba(99, 102, 241, 0.5) !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 #authModal button[onclick="handleEmailLoginSubmit()"] {
-  background: rgba(99, 102, 241, 0.9) !important;
-  border: none !important;
-  border-radius: 10px !important;
-  transition: background 0.2s !important;
+  background: rgba(99, 102, 241, 0.9);
+  border: none;
+  border-radius: 10px;
+  transition: background 0.2s;
 }
 #authModal button[onclick="handleEmailLoginSubmit()"]:hover {
-  background: rgba(99, 102, 241, 1) !important;
+  background: rgba(99, 102, 241, 1);
 }
 #authModal .mt-4 {
-  color: rgba(255, 255, 255, 0.25) !important;
+  color: rgba(255, 255, 255, 0.25);
 }
 #authModal .mt-4 a {
-  color: rgba(129, 140, 248, 0.8) !important;
+  color: rgba(129, 140, 248, 0.8);
 }
 #styleDropdown {
   display: none;
