@@ -73,16 +73,40 @@ class HistoryService {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            let responseData = await response.json();
+            let responseData;
+
+            // 🔥 CRITICAL FIX: To prevent "Unexpected end of JSON input" error
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const text = await response.text();
+                if (text && text.trim().length > 0) {
+                    try {
+                        responseData = JSON.parse(text);
+                    } catch (e) {
+                        console.warn('⚠️ Webhook returned invalid JSON string, treating as empty', e);
+                        responseData = [];
+                    }
+                } else {
+                    console.log('📦 Webhook returned empty body but status was OK');
+                    responseData = [];
+                }
+            } else {
+                console.warn('⚠️ Webhook returned non-JSON content type:', contentType);
+                responseData = [];
+            }
 
             // Определяем массив генераций с поддержкой различных форматов webhook (особенно n8n)
             let generationsArray = [];
+            let totalItems = 0;
+            let hasMoreApi = undefined;
 
             if (Array.isArray(responseData)) {
                 // Если webhook вернул массив
                 if (responseData.length === 1 && Array.isArray(responseData[0].generations)) {
-                    // n8n обернул объект: [ { generations: [...] } ]
+                    // n8n обернул объект: [ { generations: [...], total, hasMore } ]
                     generationsArray = responseData[0].generations;
+                    totalItems = responseData[0].total || 0;
+                    hasMoreApi = responseData[0].hasMore;
                 } else if (responseData.length === 1 && Array.isArray(responseData[0])) {
                     // n8n обернул массив в массив: [ [...] ]
                     generationsArray = responseData[0];
@@ -93,6 +117,8 @@ class HistoryService {
             } else if (responseData && Array.isArray(responseData.generations)) {
                 // Прямой объект JSON с полем generations
                 generationsArray = responseData.generations;
+                totalItems = responseData.total || 0;
+                hasMoreApi = responseData.hasMore;
             } else {
                 console.warn('⚠️ Webhook returned unexpected format, treating as empty array', responseData);
                 generationsArray = [];
@@ -116,15 +142,15 @@ class HistoryService {
                         status: genData.status,
                         image_url: genData.image_url,
                         result: genData.image_url, // 🔥 COMPATIBILITY: Map image_url to result for UI
-                        timestamp: genData.timestamp,
+                        timestamp: genData.timestamp || genData.createdAt,
                         generation_cost: genData.generation_cost,
                         cost_currency: genData.cost_currency
                     };
                 }),
-                total: responseData.total || 0,
+                total: totalItems,
                 page: page,
                 limit: limit,
-                hasMore: responseData.hasMore !== undefined ? responseData.hasMore : (generationsArray.length === limit)
+                hasMore: hasMoreApi !== undefined ? hasMoreApi : (generationsArray.length === limit)
             };
 
             // Определяем есть ли еще страницы
