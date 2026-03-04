@@ -29,12 +29,17 @@ async function handleTelegramLogin() {
 
 
                 // Call backend webhook to get real internal ID
+                // Извлекаем hash из initData, так как он нужен бекенду для проверки подписи
+                const initDataParams = new URLSearchParams(webApp.initData || '');
+                const authHash = initDataParams.get('hash');
+
                 const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         ...user,
                         initData: webApp.initData,
+                        hash: authHash,
                         traffic_source: 'webapp/telegram_webapp'
                     })
                 });
