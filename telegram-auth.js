@@ -1,7 +1,5 @@
 // telegram-auth.js - Модуль для обработки авторизации через Telegram
 
-console.log('📱 Telegram Auth module initialized');
-
 // ГЕНЕРИРУЕМ УНИКАЛЬНЫЙ ПАРАМЕТР СЕССИИ ДЛЯ КАЖДОЙ АВТОРИЗАЦИИ
 function generateAuthSession() {
     return 'auth_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -258,5 +256,3 @@ async function completeTelegramAuth(authData) {
 
 // Export functions globally
 window.handleTelegramLogin = handleTelegramLogin;
-
-console.log('✅ Telegram Auth functions registered globally');
