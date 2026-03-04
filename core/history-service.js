@@ -12,7 +12,7 @@ class HistoryService {
         this.loadingStates = new Set();
 
         // 🔥 TEMPORARY: Флаг для тестирования без аутентификации
-        this.testMode = true; // В ПРОДАКШЕНЕ установить false
+        this.testMode = false; // В ПРОДАКШЕНЕ установить false
 
         console.log('📚 HistoryService initialized', this.testMode ? '(TEST MODE)' : '');
     }
@@ -24,7 +24,7 @@ class HistoryService {
      * @param {number} limit - Количество элементов на страницу
      * @returns {Promise<Object>} - Объект с generations и мета-данными
      */
-    async loadHistoryPage(userId, page = 0, limit = 30) {
+    async loadHistoryPage(userId, page = 0, limit = 30, forceRefresh = false) {
         // 🔥 TEMPORARY: В тестовом режиме обходим проверку user_id
         if (!this.testMode && !userId) {
             throw new Error('User ID is required');
@@ -33,6 +33,10 @@ class HistoryService {
         // Используем фиксированный ключ для тестового режима
         const effectiveUserId = this.testMode ? 'test_user' : userId;
         const cacheKey = `${effectiveUserId}_${page}_${limit}`;
+
+        if (forceRefresh) {
+            this.cache.delete(cacheKey);
+        }
 
         // Проверяем кэш
         if (this.cache.has(cacheKey)) {
@@ -71,23 +75,40 @@ class HistoryService {
 
             let responseData = await response.json();
 
-            // 🔥 FIX: Handle array response from webhook
-            if (Array.isArray(responseData) && responseData.length > 0) {
-                console.log('📦 API returned array, using first element');
-                responseData = responseData[0];
+            // Определяем массив генераций с поддержкой различных форматов webhook (особенно n8n)
+            let generationsArray = [];
+
+            if (Array.isArray(responseData)) {
+                // Если webhook вернул массив
+                if (responseData.length === 1 && Array.isArray(responseData[0].generations)) {
+                    // n8n обернул объект: [ { generations: [...] } ]
+                    generationsArray = responseData[0].generations;
+                } else if (responseData.length === 1 && Array.isArray(responseData[0])) {
+                    // n8n обернул массив в массив: [ [...] ]
+                    generationsArray = responseData[0];
+                } else {
+                    // Прямой массив объектов генераций
+                    generationsArray = responseData;
+                }
+            } else if (responseData && Array.isArray(responseData.generations)) {
+                // Прямой объект JSON с полем generations
+                generationsArray = responseData.generations;
+            } else {
+                console.warn('⚠️ Webhook returned unexpected format, treating as empty array', responseData);
+                generationsArray = [];
             }
 
-            console.log(`✅ Received history data: ${responseData.generations?.length || 0} items`);
+            console.log(`✅ Received history data: ${generationsArray.length} items from webhook`);
 
             // Форматируем данные в ожидаемый формат
             // Данные могут приходить в формате {json: {...}} или напрямую
             const formattedData = {
-                generations: (responseData.generations || []).map(item => {
+                generations: generationsArray.map(item => {
                     // Извлекаем данные из поля json, если оно есть, иначе используем item напрямую
                     const genData = item.json || item;
                     return {
-                        id: genData.generation_id || genData.row_number, // 🔥 CRITICAL FIX: Ensure `id` is present for UI dependencies
-                        generation_id: genData.generation_id || genData.row_number,
+                        id: genData.generation_id || genData.id || genData.row_number, // 🔥 CRITICAL FIX: Ensure `id` is present for UI dependencies
+                        generation_id: genData.generation_id || genData.id || genData.row_number,
                         task_uuid: genData.task_uuid,
                         prompt: genData.prompt,
                         mode: genData.mode,
@@ -103,7 +124,7 @@ class HistoryService {
                 total: responseData.total || 0,
                 page: page,
                 limit: limit,
-                hasMore: responseData.hasMore || (responseData.generations && responseData.generations.length === limit)
+                hasMore: responseData.hasMore !== undefined ? responseData.hasMore : (generationsArray.length === limit)
             };
 
             // Определяем есть ли еще страницы
