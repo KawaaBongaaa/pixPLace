@@ -93,13 +93,9 @@ const LegalRouter = {
      * @param {string} docType 'privacy' or 'terms'
      */
     navigateTo: function (docType) {
-        const region = this.getRegion();
-
-        if (region) {
-            this._redirect(docType, region);
-        } else {
-            this._showModal(docType);
-        }
+        // Bypass the region prompt, default to 'usa' (or 'eu' if previously selected)
+        const region = this.getRegion() || 'usa';
+        this._redirect(docType, region);
     },
 
     /**
