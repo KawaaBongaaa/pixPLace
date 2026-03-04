@@ -71,12 +71,7 @@ async function handleTelegramLogin() {
                         window.showGeneration();
                     }
 
-                    // Показываем приветствие
-                    setTimeout(() => {
-                        if (typeof window.showToast === 'function') {
-                            window.showToast('success', `Добро пожаловать, ${window.appState?.userName || user.first_name}! 🎉`);
-                        }
-                    }, 1000);
+
 
                     return; // Успешная WebApp авторизация
                 } else {
@@ -252,16 +247,7 @@ async function completeTelegramAuth(authData) {
         window.showGeneration();
     }
 
-    // Показываем приветственное сообщение
-    setTimeout(() => {
-        if (typeof window.showToast === 'function') {
-            let userName = 'Пользователь';
-            if (authData.user) {
-                userName = authData.user.first_name || authData.user.first_name || 'Пользователь';
-            }
-            window.showToast('success', `Добро пожаловать, ${userName}! 🎉`);
-        }
-    }, 1000);
+
 
     // Очищаем сессионные данные
     localStorage.removeItem('telegram_auth_session');

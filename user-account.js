@@ -961,7 +961,6 @@ function closeAuthModal() {
 async function handleGoogleAuthCallback(response) {
     console.log("Encoded JWT ID token: " + response.credential);
     closeAuthModal();
-    window.showToast?.('info', 'Google Auth submitted. Processing...');
 
     // Отправляем JWT токен на бэкенд (n8n)
     try {
@@ -977,7 +976,6 @@ async function handleGoogleAuthCallback(response) {
             });
         const data = await res.json();
         console.log('📥 n8n google auth response:', data);
-        window.showToast?.('success', 'Google Auth successful!');
 
         // Обновляем глобальное состояние (зависит от ответа бэкенда)
         if (window.appState && data.userId) {
@@ -1038,6 +1036,7 @@ function openLanguageModal() {
     if (!modal || !content) return;
 
     modal.classList.remove('hidden');
+    modal.classList.add('flex');
     // Закрываем меню юзера, если открыто
     const userMenu = document.getElementById('userMenuDropdown');
     if (userMenu) userMenu.classList.remove('show');
@@ -1058,6 +1057,7 @@ function closeLanguageModal() {
 
     setTimeout(() => {
         modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }, 300);
 }
 
