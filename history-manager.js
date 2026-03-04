@@ -82,6 +82,12 @@ function replaceLoadingWithPreview(taskUUID, generationData) {
         if (window.globalHistoryLoader) {
             window.globalHistoryLoader.forceLoadVisibleHistoryPreviews();
         }
+
+        // Инвалидируем кэш серверной истории, т.к. появилась новая генерация
+        if (window.appServices?.history) {
+            console.log('🧹 Clearing HistoryService cache due to new generation');
+            window.appServices.history.clearCache();
+        }
     }, 100);
 
     console.log('✅ Successfully replaced loading animation with preview for:', taskUUID);
@@ -498,15 +504,78 @@ function loadNextHistoryPage() {
     const totalPages = Math.ceil(validItems.length / ITEMS_PER_PAGE);
 
     if (currentHistoryPage >= totalPages) {
-        console.log('📄 No more pages to load');
-        // Скрываем кнопку если больше нет страниц
-        const btn = document.getElementById('loadMoreHistoryBtn');
-        if (btn) {
-            btn.textContent = 'Все загружено! 🎉';
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
+        // Если локальных страниц больше нет, пробуем загрузить с сервера
+        const historyService = window.appServices?.history;
+        const userId = historyService?.testMode ? null : window.appState?.user?.id;
+
+        // Если сервис доступен и есть еще страницы на бэкенде
+        if (historyService && historyService.hasMorePages && userId) {
+            console.log('📡 Fetching next page from HistoryService backend...');
+            const btn = document.getElementById('loadMoreHistoryBtn');
+            if (btn) {
+                btn.innerHTML = '<svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4m-3.93 7.07l-2.83-2.83M7.76 7.76L4.93 4.93"/></svg> Загрузка сервера...';
+                btn.disabled = true;
+            }
+
+            // Вычисляем следующую страницу для сервера (каждая серверная страница = 30 элементов)
+            const serverPageToLoad = Math.floor(validItems.length / 30);
+
+            historyService.loadHistoryPage(userId, serverPageToLoad, 30).then(historyData => {
+                if (historyData?.generations?.length > 0) {
+                    const serverGenerations = historyData.generations;
+                    const localGenerations = window.appState?.generationHistory || [];
+                    const localIds = new Set(localGenerations.map(g => g.id || g.taskUUID));
+
+                    // Добавляем только те, которых нет локально
+                    const newItems = serverGenerations.filter(g => !localIds.has(g.id || g.taskUUID));
+
+                    if (newItems.length > 0) {
+                        const allGenerations = [...localGenerations, ...newItems];
+                        allGenerations.sort((a, b) => {
+                            const timeA = new Date(a.timestamp || a.created_at || 0).getTime();
+                            const timeB = new Date(b.timestamp || b.created_at || 0).getTime();
+                            return timeB - timeA;
+                        });
+
+                        if (window.appState?.setGenerationHistory) {
+                            window.appState.setGenerationHistory(allGenerations);
+                        }
+
+                        updateHistoryDisplay(currentHistoryPage);
+                    } else {
+                        // Если новых нет, но есть еще страницы серверов
+                        updateHistoryDisplay(currentHistoryPage);
+                    }
+
+                    // Восстанавливаем кнопку
+                    if (btn) {
+                        btn.disabled = false;
+                    }
+                } else {
+                    // Сервер вернул пустой список
+                    if (btn) {
+                        btn.innerHTML = `<div class="p-4 text-lg font-bold">🎉 Все загружено!</div>`;
+                    }
+                }
+            }).catch(e => {
+                console.error('❌ Failed to fetch next server page:', e);
+                if (btn) {
+                    btn.textContent = 'Ошибка загрузки';
+                    btn.disabled = false;
+                }
+            });
+            return;
+        } else {
+            console.log('📄 No more pages to load');
+            // Скрываем кнопку если больше нет страниц
+            const btn = document.getElementById('loadMoreHistoryBtn');
+            if (btn) {
+                btn.innerHTML = '<div class="p-4 text-lg font-bold">🎉 Все загружено!</div>';
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
+            return;
         }
-        return;
     }
 
     console.log(`📄 Loading next history page: ${currentHistoryPage} (total pages: ${totalPages})`);
