@@ -100,12 +100,18 @@ class TelegramService {
                         try {
                             // 🔥 НОВОЕ: Авторизация через Backend сразу при загрузке WebApp
                             console.log('🔐 Authenticating WebApp user via backend webhook...');
+
+                            // Извлекаем hash из initData, так как он нужен бекенду для проверки подписи
+                            const initDataParams = new URLSearchParams(this.tg.initData || '');
+                            const authHash = initDataParams.get('hash');
+
                             const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                     ...user,
                                     initData: this.tg.initData,
+                                    hash: authHash,
                                     traffic_source: 'webapp/telegram_webapp_auto'
                                 })
                             });
