@@ -17,102 +17,183 @@ class TelegramService {
     async initialize() {
         console.log('📱 Initializing Telegram WebApp service');
 
-        // 🔥 ИЗМЕНЕНИЕ: ЭТО ЖЕНСТАЯ АВТОРИЗАЦИЯ - ОБЯЗАТЕЛЬНО ПОЛУЧАЕМ СВЕЖИЕ ДАННЫЕ ОТ TELEGRAM
-        // Сохраненные данные используются ТОЛЬКО если Telegram недоступен (fallback для сессий)
+        // --- 1. HANDLE INCOMING DATA (From URL) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlUserId = urlParams.get('user_id');
+        const urlUserData = urlParams.get('user_data');
+        const urlPrompt = urlParams.get('prompt');
 
-        // Ждем доступности Telegram SDK с оптимизированными задержками
-        console.log('⏳ Waiting for Telegram SDK to load...');
+        // If we have a prompt in the URL, store it immediately
+        if (urlPrompt) {
+            console.log('📝 Prompt received in URL:', urlPrompt);
+            localStorage.setItem('pending_prompt', urlPrompt);
+        }
+
+        // --- 2. БЫСТРАЯ ПРОВЕРКА ОКРУЖЕНИЯ ---
+        // Проверяем, запущен ли сайт внутри Telegram: WebApp всегда передает свои параметры в HASH.
+        const hash = window.location.hash || '';
+        const isTelegramContext = hash.includes('tgWebAppData') || window.location.search.includes('tgWebApp');
+
+        // Priority 2: URL Parameters (Handshake from Landing)
+        if (urlUserId && urlUserData) {
+            try {
+                const parsedUser = JSON.parse(decodeURIComponent(urlUserData));
+                console.log('👤 User data handshaked from URL:', parsedUser);
+
+                this.appState.setUser({
+                    id: parsedUser.id.toString(),
+                    name: parsedUser.first_name + (parsedUser.last_name ? ' ' + parsedUser.last_name : ''),
+                    username: parsedUser.username || null,
+                    photo_url: parsedUser.photo_url || null,
+                    language: parsedUser.language_code || 'en',
+                    isPremium: parsedUser.is_premium || false
+                });
+
+                localStorage.setItem('tg_user_data', JSON.stringify(parsedUser));
+
+                // Clean URL after handshake
+                const cleanUrl = window.location.pathname + window.location.hash;
+                window.history.replaceState({}, document.title, cleanUrl);
+
+                return true;
+            } catch (e) {
+                console.error('❌ Failed to parse user_data from URL:', e);
+            }
+        }
+
+        // Если не в Telegram и нет хендшейка - сразу загружаем приложение без задержек!
+        if (!isTelegramContext) {
+            console.log('🌐 Regular browser context detected - bypassing Telegram SDK init.');
+
+            // Final Fallback: Clean URL but we resolve false since WebApp is bypassed
+            const cleanUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, cleanUrl);
+            return false;
+        }
+
+        // Ждем доступности Telegram SDK, так как мы внутри Telegram
+        console.log('⏳ Telegram context detected. Waiting for Telegram SDK to load...');
 
         return new Promise((resolve) => {
             let attempts = 0;
-            const maxAttempts = 5; // 1 секунда максимум (5 * 200ms = 1000ms) - было 25!
-            const retryDelay = 100; // каждые 100мс - было 200!
+            const maxAttempts = 30; // 30 * 100ms = 3 секунды максимум для бота
+            const retryDelay = 100;
 
-            const checkWebApp = () => {
+            const checkWebApp = async () => {
                 attempts++;
-                if (attempts === 1 || attempts >= maxAttempts) {
+                if (attempts === 1 || attempts >= maxAttempts || attempts % 10 === 0) {
                     console.log(`🔍 WebApp check attempt ${attempts}/${maxAttempts}`);
                 }
 
-                if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+                if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
                     console.log('📱 WebApp detected, initializing...');
 
                     this.tg = window.Telegram.WebApp;
                     this.tg.ready();
                     this.appState.setTg(this.tg);
 
-                    // --- 1. HANDLE INCOMING DATA (From URL or WebApp) ---
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const urlUserId = urlParams.get('user_id');
-                    const urlUserData = urlParams.get('user_data');
-                    const urlPrompt = urlParams.get('prompt');
-
-                    // If we have a prompt in the URL, store it immediately
-                    if (urlPrompt) {
-                        console.log('📝 Prompt received in URL:', urlPrompt);
-                        localStorage.setItem('pending_prompt', urlPrompt);
-                    }
-
                     // Priority 1: Telegram WebApp User
-                    if (this.tg.initDataUnsafe?.user) {
+                    if (this.tg.initDataUnsafe && this.tg.initDataUnsafe.user) {
                         const user = this.tg.initDataUnsafe.user;
                         console.log('👤 Loading user from initDataUnsafe:', user);
-                        this.appState.setUser({
-                            id: user.id.toString(),
-                            name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-                            username: user.username || null,
-                            photo_url: user.photo_url || null,
-                            language: user.language_code || 'en',
-                            isPremium: user.is_premium || false
-                        });
 
-                        localStorage.setItem('tg_user_data', JSON.stringify(user));
+                        try {
+                            // 🔥 НОВОЕ: Авторизация через Backend сразу при загрузке WebApp
+                            console.log('🔐 Authenticating WebApp user via backend webhook...');
+                            const response = await fetch('https://alv-n8n.pixplace.space/webhook/telegram-auth', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    ...user,
+                                    initData: this.tg.initData,
+                                    traffic_source: 'webapp/telegram_webapp_auto'
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            if (data.userId) {
+                                console.log('✅ Backend auth successful, DB internal ID:', data.userId);
+
+                                // Устанавливаем в AppState ПОЛНОСТЬЮ данные из DB
+                                this.appState.setUser({
+                                    id: String(data.userId), // Используем ВНУТРЕННИЙ ID
+                                    name: data.userName || user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                                    username: user.username || null,
+                                    photo_url: data.userPhotoUrl || user.photo_url || null,
+                                    language: user.language_code || 'en',
+                                    isPremium: user.is_premium || false
+                                });
+
+                                // Сохраняем сессию так же, как в обычной авторизации (fixes F5 localstorage bug)
+                                const userDataToSave = {
+                                    ...user,
+                                    internalUserId: data.userId,
+                                    first_name: data.userName || user.first_name,
+                                    photo_url: data.userPhotoUrl || user.photo_url || null
+                                };
+
+                                localStorage.setItem('telegram_auth_completed', 'true');
+                                localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
+                                localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
+                                localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+                                // Сообщаем об успехе авторизации приложению если оно уже готово
+                                if (typeof window.updateUserMenuInfo === 'function') {
+                                    window.updateUserMenuInfo();
+                                }
+                            } else {
+                                console.warn('⚠️ Backend did not return a valid userId form WebApp init');
+                                // Fallback к старому поведению (Только Telegram ID)
+                                this.appState.setUser({
+                                    id: user.id.toString(),
+                                    name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                                    username: user.username || null,
+                                    photo_url: user.photo_url || null,
+                                    language: user.language_code || 'en',
+                                    isPremium: user.is_premium || false
+                                });
+                                localStorage.setItem('tg_user_data', JSON.stringify(user));
+                            }
+                        } catch (err) {
+                            console.error('❌ Failed to authenticate WebApp user via backend:', err);
+                            // Fallback к старому поведению (Только Telegram ID)
+                            this.appState.setUser({
+                                id: user.id.toString(),
+                                name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                                username: user.username || null,
+                                photo_url: user.photo_url || null,
+                                language: user.language_code || 'en',
+                                isPremium: user.is_premium || false
+                            });
+                            localStorage.setItem('tg_user_data', JSON.stringify(user));
+                        }
+
+                        // Clean URL just in case
+                        const cleanUrl = window.location.pathname + window.location.hash;
+                        window.history.replaceState({}, document.title, cleanUrl);
                         resolve(true);
                         return;
                     }
-                    // Priority 2: URL Parameters (Handshake from Landing)
-                    else if (urlUserId && urlUserData) {
-                        try {
-                            const parsedUser = JSON.parse(decodeURIComponent(urlUserData));
-                            console.log('👤 User data handshaked from URL:', parsedUser);
 
-                            this.appState.setUser({
-                                id: parsedUser.id.toString(),
-                                name: parsedUser.first_name + (parsedUser.last_name ? ' ' + parsedUser.last_name : ''),
-                                username: parsedUser.username || null,
-                                photo_url: parsedUser.photo_url || null,
-                                language: parsedUser.language_code || 'en',
-                                isPremium: parsedUser.is_premium || false
-                            });
-
-                            localStorage.setItem('tg_user_data', JSON.stringify(parsedUser));
-
-                            // Clean URL after handshake
-                            const cleanUrl = window.location.pathname + window.location.hash;
-                            window.history.replaceState({}, document.title, cleanUrl);
-
-                            resolve(true);
-                            return;
-                        } catch (e) {
-                            console.error('❌ Failed to parse user_data from URL:', e);
-                        }
-                    }
-
-                    // Final Fallback: URL is cleaned but we still resolve true if WebApp exists
+                    // Telegram WebApp exists but no user info
                     const cleanUrl = window.location.pathname + window.location.hash;
                     window.history.replaceState({}, document.title, cleanUrl);
                     resolve(true);
                     return;
 
                 } else if (attempts >= maxAttempts) {
-                    console.warn('❌ Telegram WebApp not available after max attempts');
+                    console.warn('❌ Telegram WebApp not available after max attempts in bot context');
+                    const cleanUrl = window.location.pathname + window.location.hash;
+                    window.history.replaceState({}, document.title, cleanUrl);
                     resolve(false);
                 } else {
                     setTimeout(checkWebApp, retryDelay);
                 }
             };
 
-            setTimeout(checkWebApp, 1500);
+            // Start check loop
+            checkWebApp();
         });
     }
 
