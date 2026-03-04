@@ -486,38 +486,8 @@ export class AuthManager {
     }
 }
 
-// Глобальная функция для совместимости с legacy кодом
-window.handleTelegramLogin = async function () {
-    console.log('🔄 handleTelegramLogin called - redirecting to AuthManager');
-
-    try {
-        // Если AuthManager инициализирован, используем его
-        if (window.authManagerInstance) {
-            await window.authManagerInstance.showAuthModal();
-        } else {
-            console.warn('⚠️ AuthManager not initialized, fallback to manual flow');
-
-            // Fallback: показать alert с инструкциями
-            alert(`Для авторизации выполните следующие шаги:
-
-1. 🔔 Откройте Telegram бота: @pixPLaceBot
-2. 📱 Отправьте команду: /start
-3. 🔑 Получите персональную ссылку для авторизации
-4. 🔗 Перейдите по ссылке в браузере
-5. ✅ Авторизация будет завершена автоматически
-
-После авторизации вы сможете использовать все функции приложения!`);
-
-            // Открыть бота в новой вкладке
-            window.open('https://t.me/pixPLaceBot?start=manual_auth', '_blank', 'noopener,noreferrer');
-        }
-    } catch (error) {
-        console.error('❌ handleTelegramLogin failed:', error);
-
-        // Экстренный fallback
-        alert('Ошибка авторизации. Пожалуйста, попробуйте снова.');
-    }
-};
+// Глобальная функция для совместимости с legacy кодом удалена, 
+// так как она перезаписывала правильную функцию из telegram-auth.js
 
 // Экспорт для глобального доступа
 window.AuthManagerInstance = null;
