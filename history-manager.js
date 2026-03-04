@@ -330,7 +330,8 @@ function updateHistoryDisplay(page = 0) {
         // Добавляем элементы страницы
         pageItems.forEach((item, index) => {
             // Проверяем, не существует ли уже элемент для эту раздела (предотвращаем дубликаты)
-            if (document.getElementById(`history-${item.id}`)) {
+            const itemId = item.id || item.generation_id;
+            if (document.getElementById(`history-${itemId}`)) {
                 return;
             }
 
@@ -469,7 +470,14 @@ function updateHistoryCount() {
     try {
         const badge = document.getElementById('historyCountBadge');
         if (badge) {
-            const count = window.appState?.generationHistory?.length || 0;
+            // Фильтруем пустые и дедуплицируем элементы, чтобы цифра точно совпадала с UI
+            const history = window.appState?.generationHistory || [];
+            const validItems = history.filter(item => item && typeof item === 'object');
+
+            // Считаем уникальные ID (так же, как их рисует UI)
+            const uniqueIds = new Set(validItems.map(item => item.id || item.generation_id));
+            const count = uniqueIds.size;
+
             if (count > 0) {
                 badge.textContent = count;
                 badge.classList.remove('hidden');
