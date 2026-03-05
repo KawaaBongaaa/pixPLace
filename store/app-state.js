@@ -273,17 +273,8 @@ export class AppStateManager {
 
     // Метод сохранения истории
     saveHistory() {
-        try {
-            localStorage.setItem('generationHistory', JSON.stringify(this.state.generationHistory));
-        } catch (error) {
-            console.error('Failed to save history:', error);
-            // Попытка сохранить в sessionStorage как fallback
-            try {
-                sessionStorage.setItem('generationHistory', JSON.stringify(this.state.generationHistory));
-            } catch (fallbackError) {
-                console.error('Fallback storage also failed:', fallbackError);
-            }
-        }
+        // Оставляем пустым - история теперь хранится только на сервере
+        console.log('ℹ️ saveHistory is deprecated - history is now managed by server');
     }
 
     // Методы для работы с настройками (из старого AppState)
@@ -525,7 +516,6 @@ export class AppStateManager {
             theme: this.state.theme,
             user: this.state.user,
             telegram: this.state.telegram,
-            generationHistory: this.state.generationHistory,
             balanceHistory: this.state.balanceHistory
         };
     }
@@ -536,7 +526,6 @@ export class AppStateManager {
         if (data.theme) this.state.theme = data.theme;
         if (data.user) this.state.user = { ...this.state.user, ...data.user };
         if (data.telegram) this.state.telegram = { ...this.state.telegram, ...data.telegram };
-        if (data.generationHistory) this.state.generationHistory = data.generationHistory;
         if (data.balanceHistory) this.state.balanceHistory = data.balanceHistory;
     }
 
