@@ -199,24 +199,19 @@ function createLoadingHistoryItem(generation) {
 
 // Функция просмотра элемента истории (вынесена из app_modern.js)
 function viewHistoryItem(id) {
-    // 1. Сначала ищем в локальной истории (недавние генерации)
-    let item = window.appState.generationHistory.find(h => h.id == id);
-
-    // 2. Если не нашли, ищем в кэше HistoryService
-    if (!item) {
-        console.log('📡 Item not found in local history, checking HistoryService cache...');
-        const historyService = window.appServices?.history;
-        if (historyService && historyService.cache) {
-            for (const pageData of historyService.cache.values()) {
-                const foundInPage = pageData.generations.find(g => g.generation_id == id || g.id == id);
-                if (foundInPage) {
-                    item = foundInPage;
-                    // Приводим к формату модалки
-                    item.id = item.generation_id || item.id;
-                    item.result = item.image_url || item.result;
-                    console.log('✅ Found item in HistoryService cache');
-                    break;
-                }
+    // 1. Ищем в кэше HistoryService
+    let item = null;
+    const historyService = window.appServices?.history;
+    if (historyService && historyService.cache) {
+        for (const pageData of historyService.cache.values()) {
+            const foundInPage = pageData.generations.find(g => g.generation_id == id || g.id == id);
+            if (foundInPage) {
+                item = foundInPage;
+                // Приводим к формату модалки
+                item.id = item.generation_id || item.id;
+                item.result = item.image_url || item.result;
+                console.log('✅ Found item in HistoryService cache');
+                break;
             }
         }
     }
@@ -255,33 +250,7 @@ function updateHistoryDisplay(page = 0) {
     const ITEMS_PER_PAGE = 20; // Sync with initial load
 
     // 🔥 ДИАГНОСТИКА: Подробное логирование состояния
-    const generationHistory = window.appState?.generationHistory || [];
-
-    const filteredHistory = generationHistory.filter(item => {
-        // Only require the item object to exist, we handle broken images in the UI
-        const isValid = item && typeof item === 'object';
-        return isValid;
-    });
-
-    // Обновляем состояние если были изменения
-    if (filteredHistory.length !== generationHistory.length) {
-        window.appState.setGenerationHistory(filteredHistory);
-        window.appState.saveHistory();
-
-        // Принудительное обновление количества элементов в UI (через бейдж)
-        setTimeout(() => {
-            const badge = document.getElementById('historyCountBadge');
-            if (badge) {
-                if (count > 0) {
-                    badge.textContent = count;
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.textContent = '';
-                    badge.classList.add('hidden');
-                }
-            }
-        }, 0); // 🔥 OPTIMIZATION: Immediate execution, no 100ms delay
-    }
+    const generationHistory = window.appState?.externalHistory || window.appState?.generationHistory || [];
 
     const validItems = [...generationHistory].filter(item => item && typeof item === 'object');
 
@@ -471,7 +440,7 @@ function updateHistoryCount() {
         const badge = document.getElementById('historyCountBadge');
         if (badge) {
             // Фильтруем пустые и дедуплицируем элементы, чтобы цифра точно совпадала с UI
-            const history = window.appState?.generationHistory || [];
+            const history = window.appState?.externalHistory || window.appState?.generationHistory || [];
             const validItems = history.filter(item => item && typeof item === 'object');
 
             // Считаем уникальные ID (так же, как их рисует UI)
@@ -501,7 +470,8 @@ let currentHistoryPage = 0;
 // Функция для загрузки следующей страницы истории
 function loadNextHistoryPage() {
     // 🔥 СИНХРОНИЗАЦИЯ: Используем ту же логику фильтрации что и в updateHistoryDisplay
-    const validItems = window.appState.generationHistory.filter(item =>
+    const historyData = window.appState?.externalHistory || window.appState?.generationHistory || [];
+    const validItems = historyData.filter(item =>
         item && typeof item === 'object'
     );
 
@@ -531,7 +501,7 @@ function loadNextHistoryPage() {
             historyService.loadHistoryPage(userId, serverPageToLoad, 30).then(historyData => {
                 if (historyData?.generations?.length > 0) {
                     const serverGenerations = historyData.generations;
-                    const localGenerations = window.appState?.generationHistory || [];
+                    const localGenerations = window.appState?.externalHistory || window.appState?.generationHistory || [];
                     const localIds = new Set(localGenerations.map(g => g.id || g.taskUUID));
 
                     // Добавляем только те, которых нет локально
@@ -545,7 +515,9 @@ function loadNextHistoryPage() {
                             return timeB - timeA;
                         });
 
-                        if (window.appState?.setGenerationHistory) {
+                        if (window.appState?.setExternalHistory) {
+                            window.appState.setExternalHistory(allGenerations);
+                        } else if (window.appState?.setGenerationHistory) {
                             window.appState.setGenerationHistory(allGenerations);
                         }
 
@@ -622,7 +594,8 @@ function showAllHistory() {
     if (!historyList) return;
 
     // Показываем все элементы
-    const validItems = [...window.appState.generationHistory].filter(item => item && typeof item === 'object');
+    const historyData = window.appState?.externalHistory || window.appState?.generationHistory || [];
+    const validItems = [...historyData].filter(item => item && typeof item === 'object');
 
     historyList.innerHTML = validItems.map(item => {
         const element = document.createElement('div');
@@ -631,7 +604,7 @@ function showAllHistory() {
         element.onclick = () => viewHistoryItem(item.id || item.generation_id);
 
         element.innerHTML = `
-            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L3JlY3Q+PC9zdmc+"
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L21lY3Q+PC9zdmc+"
                  data-src="${item.result || ''}"
                  alt="Generated"
                  class="lazy-loading ${item.result ? '' : 'opacity-70'}"
@@ -667,7 +640,6 @@ async function clearHistory() {
             'Are you sure you want to delete ALL generation history? This action cannot be undone.',
             () => {
                 window.appState.generationHistory = [];
-                window.appState.saveHistory();
                 updateHistoryDisplay();
 
                 // Импортируем функцию triggerHaptic из app_modern.js
@@ -686,7 +658,6 @@ async function clearHistory() {
         // Fallback to native confirm
         if (confirm('Clear all generation history?')) {
             window.appState.generationHistory = [];
-            window.appState.saveHistory();
             updateHistoryDisplay();
         }
     }
@@ -711,7 +682,6 @@ async function deleteHistoryItem(id) {
                     // Fallback if setter is missing (unlikely given other code)
                     console.error('setGenerationHistory not found on appState');
                 }
-                window.appState.saveHistory();
 
                 // 2. Remove from DOM with animation
                 const element = document.getElementById(`history-${id}`);
@@ -740,7 +710,6 @@ async function deleteHistoryItem(id) {
         console.error('Delete failed:', e);
         if (confirm('Delete this image?')) {
             window.appState.generationHistory = window.appState.generationHistory.filter(item => item.id != id);
-            window.appState.saveHistory();
             updateHistoryDisplay();
         }
     }
@@ -788,47 +757,19 @@ async function toggleHistoryList() {
 
             // Загружаем первую страницу через HistoryService
             console.log('📡 Loading first page from HistoryService');
-            const historyData = await historyService.loadHistoryPage(userId, 0, 30);
+            const historyData = await historyService.loadHistoryPage(userId, 0, 30, true);
 
             // Устанавливаем данные в AppState
             if (window.appState?.setHistoryFromExternal) {
                 window.appState.setHistoryFromExternal(historyData);
+                // Also update generationHistory to fully switch over
+                if (window.appState?.setGenerationHistory) {
+                    window.appState.setGenerationHistory(window.appState.getExternalHistory());
+                }
             }
 
-            // 🔥 ИСПРАВЛЕНИЕ: Мержим серверные данные с локальными свежими генерациями
-            // Локальные генерации (которых ещё нет на сервере) должны отображаться ПЕРВЫМИ
-            const serverGenerations = historyData.generations || [];
-            const localGenerations = window.appState?.generationHistory || [];
-
-            // Собираем ID серверных генераций для быстрого поиска
-            const serverIds = new Set(serverGenerations.map(g => g.id || g.taskUUID));
-
-            // Находим локальные генерации, которых нет на сервере (свежие)
-            const localOnly = localGenerations.filter(item => {
-                const itemId = item.id || item.taskUUID;
-                return !serverIds.has(itemId) && item.result && item.result !== 'undefined' && item.result.trim() !== '';
-            });
-
-            // Мержим: сначала локальные свежие, потом серверные
-            const allGenerations = [...localOnly, ...serverGenerations];
-
-            // Сортируем по timestamp DESC (новые сверху)
-            allGenerations.sort((a, b) => {
-                const timeA = new Date(a.timestamp || a.created_at || 0).getTime();
-                const timeB = new Date(b.timestamp || b.created_at || 0).getTime();
-                return timeB - timeA;
-            });
-
-            console.log(`📊 Merged: ${localOnly.length} local + ${serverGenerations.length} server = ${allGenerations.length} total`);
-
-            // Рендерим — используем updateHistoryDisplay для единообразия
+            // Запрашиваем актуальный кэш
             list.innerHTML = '';
-
-            // Ставим мерженные данные в appState для корректной пагинации
-            if (localOnly.length > 0 && window.appState?.setGenerationHistory) {
-                // Обновляем appState объединёнными данными
-                window.appState.setGenerationHistory(allGenerations);
-            }
 
             // Используем unified updateHistoryDisplay для отрисовки
             updateHistoryDisplay(0);
