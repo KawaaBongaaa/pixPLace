@@ -83,7 +83,7 @@ const CONFIG = {
     WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/8f797a7b-df4e-4fd0-881d-408666418195',
     CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6',
     N8N_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/nano_banana',
-    N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/enhance_img_or_removebg',
+    N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/enhance_img_or_removebg',
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
 
 
@@ -459,7 +459,8 @@ class HistoryManager {
 
     static getVisibleItems(limit = 15) {
         // Фильтруем только элементы с валидными результатами (исключаем undefined/null)
-        const validItems = appState.generationHistory.filter(item =>
+        const historyData = appState?.externalHistory || appState?.generationHistory || [];
+        const validItems = historyData.filter(item =>
             item.result &&
             typeof item.result === 'string' &&
             item.result.trim() !== '' &&
@@ -470,7 +471,8 @@ class HistoryManager {
     }
 
     static getValidItemsOnly() {
-        return appState.generationHistory.filter(item =>
+        const historyData = appState?.externalHistory || appState?.generationHistory || [];
+        return historyData.filter(item =>
             item.result &&
             typeof item.result === 'string' &&
             item.result.trim() !== '' &&
@@ -501,7 +503,8 @@ class HistoryManager {
     }
 
     static getTotalCount() {
-        return appState.generationHistory.length;
+        const historyData = appState?.externalHistory || appState?.generationHistory || [];
+        return historyData.length;
     }
 
     static needsShowMore(limit = 15) {
@@ -2161,7 +2164,6 @@ async function generateImage(event) {
     // Если внутренний ID не найден или это число (значит это Telegram ID, а не ID из БД)
     if (!internalUserId || typeof internalUserId !== 'string') {
         console.warn('🛑 Generation blocked: User lacks internal database ID (not fully authenticated with backend)', { rawUserId });
-        showToast('error', appState.translate('error_auth_required') || 'Пожалуйста, дождитесь завершения входа для использования этой функции');
 
         // Открываем модалку входа автоматически
         if (window.openAuthModal) {
@@ -2707,7 +2709,6 @@ function cancelGeneration() {
     if (appState.currentGeneration) {
         appState.currentGeneration.status = 'cancelled';
         appState.currentGeneration.error = 'Cancelled by user';
-        appState.saveHistory();
     }
 
     appState.isGenerating = false;
@@ -3097,36 +3098,7 @@ async function initHistory() {
     if (window.appState && window.appServices && window.appServices.history) {
         log('✅ Services Ready');
         try {
-            // 1. Load local history first (fast)
-            if (window.appState.generationHistory && window.appState.generationHistory.length > 0) {
-                // 🔥 DATA MIGRATION: Fix missing IDs in local storage
-                let fixedCount = 0;
-                window.appState.generationHistory.forEach(item => {
-                    if (!item.id && (item.generation_id || item.row_number)) {
-                        item.id = item.generation_id || item.row_number;
-                        fixedCount++;
-                    }
-                    // Compatibility: Ensure result matches image_url
-                    if (!item.result && item.image_url) {
-                        item.result = item.image_url;
-                    }
-                });
-                if (fixedCount > 0) {
-                    log(`🔧 Fixed ${fixedCount} items with missing IDs`);
-                    window.appState.saveHistory(); // Save fixed data
-                }
-
-                log(`📂 Local History: ${window.appState.generationHistory.length}`);
-                try {
-                    updateHistoryDisplay(0);
-                    updateHistoryCount();
-                    log('✅ Local Display Updated');
-                } catch (e) { log(`❌ Local Update Error: ${e.message}`); }
-            } else {
-                log('📂 Local History Empty');
-            }
-
-            // 2. Fetch latest from server
+            // 1. Fetch latest from server
             try {
                 log('📡 Fetch(0,30)...');
                 const historyService = window.appServices.history;
@@ -3139,22 +3111,15 @@ async function initHistory() {
                     log('🧹 History Cache Cleared');
                 }
 
-                const data = await historyService.loadHistoryPage(userId, 0, 30);
+                const data = await historyService.loadHistoryPage(userId, 0, 30, true);
 
                 if (data && data.generations) {
                     log(`✅ Fetched: ${data.generations.length} items`);
 
-                    // Merge
-                    if (!window.appState.generationHistory) window.appState.generationHistory = [];
-
-                    const existingIds = new Set(window.appState.generationHistory.map(item => item.id || item.generation_id));
-                    const newItems = data.generations.filter(item => !existingIds.has(item.generation_id));
-                    log(`✨ New: ${newItems.length}`);
-
-                    if (newItems.length > 0) {
-                        window.appState.generationHistory.unshift(...newItems);
-                        window.appState.generationHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                        log('⬇️ Merged & Sorted');
+                    if (window.appState.setExternalHistory) {
+                        window.appState.setExternalHistory({ generations: data.generations });
+                    } else if (window.appState.setGenerationHistory) {
+                        window.appState.setGenerationHistory(data.generations);
                     }
                 } else {
                     log('⚠️ Data/Gens missing');
@@ -3163,11 +3128,15 @@ async function initHistory() {
                 log(`⚠️ Fetch Error: ${fetchError.message}`);
             }
 
-            // 3. Update UI (Always run this!)
+            // 2. Update UI (Always run this!)
             log('🔄 Calling updateHistoryDisplay(0)...');
             try {
-                updateHistoryDisplay(0);
-                updateHistoryCount();
+                if (typeof updateHistoryDisplay === 'function') {
+                    updateHistoryDisplay(0);
+                }
+                if (typeof updateHistoryCount === 'function') {
+                    updateHistoryCount();
+                }
                 log('✅ Display Updated');
             } catch (e) {
                 log(`❌ Display Error: ${e.message}`);
