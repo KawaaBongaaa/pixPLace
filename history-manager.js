@@ -499,8 +499,10 @@ function loadNextHistoryPage() {
             const serverPageToLoad = Math.floor(validItems.length / 30);
 
             historyService.loadHistoryPage(userId, serverPageToLoad, 30).then(historyData => {
-                if (historyData?.generations?.length > 0) {
-                    const serverGenerations = historyData.generations;
+                const rawArray = Array.isArray(historyData) ? historyData : (historyData?.generations || []);
+
+                if (rawArray.length > 0) {
+                    const serverGenerations = rawArray;
                     const localGenerations = window.appState?.externalHistory || window.appState?.generationHistory || [];
                     const localIds = new Set(localGenerations.map(g => g.id || g.taskUUID));
 
