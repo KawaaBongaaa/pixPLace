@@ -111,15 +111,22 @@ function createGenerationResultModal(item) {
                             <div class="prompt-label">${window.appState?.translate?.('prompt_label_modal') || 'Prompt:'}</div>
                             <div class="prompt-text">${safeDescription}</div>
                         </div>
-                        <div class="reuse-btn-row">
-                            <button class="reuse-prompt-btn" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="${window.appState?.translate?.('reuse_prompt_title') || 'Repeat generation with this prompt'}">
-                                <span class="reuse-btn-text">${window.appState?.translate?.('reuse_prompt') || 'Повторить'}</span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                                    <polyline points="17,1 21,5 17,9"></polyline>
-                                    <path d="M3,11V9a4,4,0,0,1,4-4h14"></path>
-                                    <polyline points="7,23 3,19 7,15"></polyline>
-                                    <path d="M21,13v2a4,4,0,0,1-4,4H3"></path>
+                        <div class="reuse-btn-row flex gap-2 w-full mt-2">
+                            <button class="reuse-prompt-btn flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-lg transition-all" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="${window.appState?.translate?.('use_prompt_title') || 'Use this text prompt only'}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
                                 </svg>
+                                <span class="reuse-btn-text text-sm font-medium whitespace-nowrap">${window.appState?.translate?.('use_prompt_only') || 'Использовать промпт'}</span>
+                            </button>
+                            <button class="reuse-prompt-btn flex-1 flex items-center justify-center gap-2 bg-blue-600/80 hover:bg-blue-600 text-white py-2 px-3 rounded-lg transition-all" onclick="reusePromptAndImage('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}', '${imageSource}', '${item.id}')" title="${window.appState?.translate?.('repeat_with_image_title') || 'Repeat generation with this image and prompt'}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                    <polyline points="17 1 21 5 17 9"></polyline>
+                                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                                    <polyline points="7 23 3 19 7 15"></polyline>
+                                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                                </svg>
+                                <span class="reuse-btn-text text-sm font-medium whitespace-nowrap">${window.appState?.translate?.('repeat_with_image') || 'Повторить'}</span>
                             </button>
                         </div>
                     </div>
@@ -245,6 +252,23 @@ function reusePrompt(prompt, mode) {
 
         showToast('info', window.appState?.translate?.('prompt_applied') || 'Prompt applied! Scroll down and click Generate');
     }, 300);
+}
+
+// Функция повторения генерации с промптом И картинкой
+async function reusePromptAndImage(prompt, mode, imageUrl, itemId) {
+    // Вызываем функцию использования картинки
+    await useImageForGeneration(imageUrl, itemId);
+
+    // Затем подставляем текстовый промпт с небольшой задержкой (после переходов и загрузки)
+    setTimeout(() => {
+        const promptInput = document.getElementById('promptInput');
+        if (promptInput) {
+            promptInput.value = prompt.replace('...', '').trim();
+            promptInput.focus();
+        }
+
+        showToast('info', window.appState?.translate?.('prompt_and_image_applied') || 'Промпт и изображение готовы к генерации!');
+    }, 800);
 }
 
 // Вспомогательная функция для обновления выбора режима в карусели
@@ -643,6 +667,7 @@ window.createGenerationResultModal = createGenerationResultModal;
 window.downloadResultImage = downloadResultImage;
 window.shareResultImage = shareResultImage;
 window.reusePrompt = reusePrompt;
+window.reusePromptAndImage = reusePromptAndImage;
 window.useImageForGeneration = useImageForGeneration;
 
 // Функция динамической загрузки модуля
