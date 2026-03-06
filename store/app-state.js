@@ -245,8 +245,10 @@ export class AppStateManager {
     // Методы для работы с внешней историей из HistoryService
     setHistoryFromExternal(data) {
         // Преобразование данных из webhook в формат приложения
-        // Данные могут приходить в формате {json: {...}} или напрямую
-        const formattedHistory = (data.generations || []).map(item => {
+        // Данные могут приходить в формате {generations: [...]} или напрямую как массив
+        const rawArray = Array.isArray(data) ? data : (data?.generations || []);
+
+        const formattedHistory = rawArray.map(item => {
             // Извлекаем данные из поля json, если оно есть, иначе используем item напрямую
             const genData = item.json || item;
             return {
