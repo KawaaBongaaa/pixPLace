@@ -144,6 +144,8 @@ class TelegramService {
                                 localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
                                 localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
+                                document.documentElement.classList.add('auth-session-active');
+
                                 // Сообщаем об успехе авторизации приложению если оно уже готово
                                 if (typeof window.updateUserMenuInfo === 'function') {
                                     window.updateUserMenuInfo();
