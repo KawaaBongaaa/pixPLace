@@ -65,6 +65,8 @@ async function handleTelegramLogin() {
                     localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
                     localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
+                    document.documentElement.classList.add('auth-session-active');
+
                     if (typeof window.updateUserMenuInfo === 'function') {
                         window.updateUserMenuInfo();
                     }
@@ -228,6 +230,8 @@ async function completeTelegramAuth(authData) {
     localStorage.setItem('telegram_auth_completed', 'true');
     localStorage.setItem('telegram_auth_token', authData.token);
     localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+    document.documentElement.classList.add('auth-session-active');
 
     if (authData.user) {
         // Добавляем внутренний ID, если он был получен (из appState, куда мы его только что записали)

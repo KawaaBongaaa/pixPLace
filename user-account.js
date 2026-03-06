@@ -294,7 +294,6 @@ function handleLogout() {
     if (menu) menu.classList.remove('show');
 
     updateUserMenuInfo();
-    window.showToast?.('info', window.appState?.translate?.('logged_out') || 'Logged out successfully');
 }
 window.handleLogout = handleLogout;
 
@@ -842,7 +841,6 @@ function loadTelegramWidgetAndAuth() {
 async function onTelegramAuthCallback(userData) {
     console.log('✅ Telegram auth successful:', userData.first_name || userData.username);
     if (typeof closeAuthModal === 'function') closeAuthModal();
-    window.showToast?.('info', 'Telegram Auth submitted. Processing...');
 
     // Блокируем UI на время запроса к серверу
     try {
@@ -869,6 +867,8 @@ async function onTelegramAuthCallback(userData) {
             localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+            document.documentElement.classList.add('auth-session-active');
 
             if (window.appState) {
                 // ВНИМАНИЕ: Записываем возвращенный из базы ID, а не телеграмовский
@@ -996,6 +996,9 @@ async function handleGoogleAuthCallback(response) {
             localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+            // 🔥 Фикс бага с аватаркой: обязательно вешаем auth-session-active на <html>
+            document.documentElement.classList.add('auth-session-active');
 
             // Если функция обновления UI существует, вызываем её
             if (typeof updateUserMenuInfo === 'function') {
