@@ -60,12 +60,6 @@ function createGenerationResultModal(item) {
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
-            <button class="mobile-modal-close" style="display: none;" id="mobileModalClose">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
             
             <div class="generation-result-container">
                 <!-- Left Column: Image -->
@@ -156,13 +150,6 @@ function createGenerationResultModal(item) {
     // Показываем с анимацией
     requestAnimationFrame(() => {
         modal.classList.add('show');
-
-        setTimeout(() => {
-            const mobileCloseBtn = document.getElementById('mobileModalClose');
-            if (mobileCloseBtn && window.innerWidth <= 768) {
-                mobileCloseBtn.style.display = 'flex';
-            }
-        }, 10);
 
         // Обработчик ESC
         const handleEscape = (event) => {
