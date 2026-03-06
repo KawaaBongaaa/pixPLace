@@ -242,24 +242,7 @@
     stroke-width: 2.5;
 }
 
-/* MOBILE CLOSE BUTTON - SPECIFIC DESIGN */
-.mobile-modal-close {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    width: 32px;
-    height: 32px;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    z-index: 10002;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-}
+
 
 .generation-result-container {
     display: flex;
@@ -418,12 +401,13 @@
 .image-overlay {
     position: absolute;
     top: 10px;
-    right: 10px;
+    left: 10px;
     z-index: 20;
     /* High Z-index */
     display: flex;
     flex-direction: column;
     gap: 8px;
+    align-items: flex-start;
 }
 
 .overlay-btn {
