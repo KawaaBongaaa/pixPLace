@@ -61,12 +61,17 @@ class HistoryService {
             const queryUserId = this.testMode ? null : userId;
             console.log(`📡 Loading history page ${page} for user ${userId} (limit: ${limit})`, this.testMode ? '(TEST MODE - sending null)' : '');
 
-            const response = await fetch(`${this.baseUrl}?user_id=${queryUserId}&page=${page}&limit=${limit}`, {
-                method: 'GET',
+            const response = await fetch(this.baseUrl, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    user_id: queryUserId,
+                    page: page,
+                    limit: limit
+                })
             });
 
             if (!response.ok) {
