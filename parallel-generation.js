@@ -162,8 +162,16 @@ class GenerationManager {
                 height: generation.height,
                 // size: generation.size, // Оставляем для обратной совместимости если нужно
 
-                // ВАЖНО: Приоритет отдаем внутреннему ID из базы (строка), если он есть
-                user_id: window.appState?.userId || ((appState && appState.user && appState.user.id) ? appState.user.id : null),
+                // ВАЖНО: Приоритет отдаем внутреннему ID из базы, сохраненному в сессии, затем appState
+                user_id: (() => {
+                    try {
+                        const tgUser = JSON.parse(localStorage.getItem('telegram_user') || '{}');
+                        const storedId = tgUser.internalUserId || sessionStorage.getItem('auth_user_id');
+                        // Если есть сохраненный внутренний ID (и это не числовой Telegram ID), используем его
+                        if (storedId && isNaN(Number(storedId))) return storedId;
+                    } catch (e) { }
+                    return window.appState?.userId || null;
+                })(),
                 user_name: window.appState?.userName || ((appState && appState.user && appState.user.name) ? appState.user.name : null),
                 user_username: window.appState?.userName || ((appState && appState.user && appState.user.username) ? appState.user.username : null),
                 user_language: (appState && appState.language) ? appState.language : 'en',
