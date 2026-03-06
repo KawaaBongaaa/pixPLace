@@ -2156,14 +2156,19 @@ async function generateImage(event) {
 
     // 🔒 USER RE-AUTHENTICATION CHECK
     // Проверка авторизации перед генерацией (СТРОГАЯ - только внутренний ID из БД)
-    // Внутренний ID (от хука) обычно является строкой (UUID/ObjectId), 
-    // в то время как Telegram ID - это число
-    const rawUserId = window.appState?.userId || window.appState?.user?.id;
-    const internalUserId = typeof rawUserId === 'string' ? rawUserId : null;
+    // Внутренний ID (от хука) является UUID/ObjectId (содержит буквы), 
+    // в то время как Telegram ID - это только цифры
+    let internalUserId = null;
+    try {
+        const tgUser = JSON.parse(localStorage.getItem('telegram_user') || '{}');
+        internalUserId = tgUser.internalUserId || sessionStorage.getItem('auth_user_id') || window.appState?.userId || window.appState?.user?.id;
+    } catch (e) {
+        internalUserId = window.appState?.userId || window.appState?.user?.id;
+    }
 
     // Если внутренний ID не найден или это число (значит это Telegram ID, а не ID из БД)
-    if (!internalUserId || typeof internalUserId !== 'string') {
-        console.warn('🛑 Generation blocked: User lacks internal database ID (not fully authenticated with backend)', { rawUserId });
+    if (!internalUserId || typeof internalUserId !== 'string' || !isNaN(Number(internalUserId))) {
+        console.warn('🛑 Generation blocked: User lacks internal database ID (not fully authenticated with backend)', { internalUserId });
 
         // Открываем модалку входа автоматически
         if (window.openAuthModal) {
