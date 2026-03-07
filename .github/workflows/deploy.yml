@@ -16,6 +16,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build CSS
+        run: npm run build:css
+
       # ── Inject all secret webhook URLs into app_modern.js ──────────────────
       - name: Inject webhook secrets
         env:
@@ -25,6 +36,7 @@ jobs:
           N8N_ENHANCE_WEBHOOK_URL: ${{ secrets.N8N_ENHANCE_WEBHOOK_URL }}
           HISTORY_WEBHOOK_URL: ${{ secrets.HISTORY_WEBHOOK_URL }}
           AUTH_WEBHOOK_URL: ${{ secrets.AUTH_WEBHOOK_URL }}
+          GET_USER_PROFILE_WEBHOOK_URL: ${{ secrets.get_user_profile_webhook }}
         run: |
           echo "🔧 Injecting webhook URLs safely with Node.js..."
           
@@ -38,7 +50,8 @@ jobs:
               "PLACEHOLDER_N8N_WEBHOOK_URL": process.env.N8N_WEBHOOK_URL || "",
               "PLACEHOLDER_N8N_ENHANCE_WEBHOOK_URL": process.env.N8N_ENHANCE_WEBHOOK_URL || "",
               "PLACEHOLDER_HISTORY_WEBHOOK_URL": process.env.HISTORY_WEBHOOK_URL || "",
-              "PLACEHOLDER_AUTH_WEBHOOK_URL": process.env.AUTH_WEBHOOK_URL || ""
+              "PLACEHOLDER_AUTH_WEBHOOK_URL": process.env.AUTH_WEBHOOK_URL || "",
+              "PLACEHOLDER_GET_USER_PROFILE_WEBHOOK_URL": process.env.GET_USER_PROFILE_WEBHOOK_URL || ""
             };
             
             function processDirectory(dir) {
