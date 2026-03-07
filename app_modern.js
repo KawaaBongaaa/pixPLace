@@ -2125,6 +2125,47 @@ import('./navigation-manager.js').then(module => {
 
 
 
+
+// ─── Access Guard ─────────────────────────────────────────────────────────────
+// Checks credits before generation. Reads data synced by UserProfileService.
+const GENERATION_COST_MAP = {
+    'nano_banana':        { withImages: 10, noImages: 5  },
+    'nano_banana_pro':    { withImages: 15, noImages: 15 },
+    'pixplace_pro':       { withImages: 4,  noImages: 4  },
+    'print_maker':        { withImages: 3,  noImages: 3  },
+    'upscale_image':      { withImages: 10, noImages: 10 },
+    'fast_generation':    { withImages: 2,  noImages: 2  },
+    'background_removal': { withImages: 0,  noImages: 0  },
+    'dreamshaper_xl':     { withImages: 0,  noImages: 0  }
+};
+
+function checkGenerationAccess(mode, hasImages) {
+    const user = window.appState?.user;
+    if (!user || !user.id) return { ok: false, reason: 'unauthorized' };
+    const costs = GENERATION_COST_MAP[mode];
+    const cost = costs ? (hasImages ? costs.withImages : costs.noImages) : 5;
+    const balance = parseFloat(user.credits) || 0;
+    if (cost > 0 && balance < cost) return { ok: false, reason: 'insufficient_funds', cost, balance };
+    return { ok: true, cost, balance };
+}
+
+async function handleAccessDenied(checkResult) {
+    triggerHaptic('error');
+    try {
+        const { showCreditPurchaseModal, showSubscriptionUpgradeModal } = await import('./js/modules/ui-utils.js');
+        if (checkResult.reason === 'unauthorized') {
+            if (window.openAuthModal) window.openAuthModal();
+        } else if (checkResult.reason === 'insufficient_funds') {
+            showCreditPurchaseModal({ cost: checkResult.cost, balance: checkResult.balance });
+        } else if (checkResult.reason === 'requires_subscription') {
+            showSubscriptionUpgradeModal({ featureName: checkResult.featureName || 'Pro Models' });
+        }
+    } catch (e) {
+        console.error('❌ handleAccessDenied: ui-utils load failed', e);
+        if (window.showToast) window.showToast('error', `Not enough credits (${checkResult.balance} / ${checkResult.cost} needed)`);
+    }
+}
+
 // 🖼️ Image Generation - ОБНОВЛЕНО ДЛЯ ПАРАЛЛЕЛЬНОЙ ГЕНЕРАЦИИ
 async function generateImage(event) {
     if (event) {
@@ -2176,6 +2217,19 @@ async function generateImage(event) {
         }
         return;
     }
+
+    // ─── ACCESS GUARD: check credits before doing anything ────────────────────
+    // mode is grabbed slightly later, but we read it early here for the guard.
+    // We use a lightweight early read; the full mode logic runs below as normal.
+    const _earlyMode = await getSelectedModeFromComponent().catch(() => 'unknown');
+    const _hasImages = window.userImageState?.images?.length > 0;
+    const _accessCheck = checkGenerationAccess(_earlyMode, _hasImages);
+    if (!_accessCheck.ok) {
+        console.warn('🛑 Generation blocked by Access Guard:', _accessCheck);
+        handleAccessDenied(_accessCheck);
+        return;
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Добавляем taskUUID для всего задания генерации
     const taskUUID = generateUUIDv4();
