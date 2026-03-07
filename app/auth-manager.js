@@ -230,6 +230,12 @@ export class AuthManager {
             window.appState.userName = this.userName || user.first_name || user.username;
         }
 
+        // 🔥 Fetch fresh profile (credits, subscription) right after any auth success
+        const resolvedId = user.internalUserId || this.internalUserId;
+        if (resolvedId && window.appServices?.userProfile) {
+            window.appServices.userProfile.fetchProfile(String(resolvedId));
+        }
+
         // Скрыть модал если показан
         this.hideAuthModal();
 
