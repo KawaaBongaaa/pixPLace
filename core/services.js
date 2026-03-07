@@ -356,6 +356,95 @@ class UIService {
     }
 }
 
+// ─── User Profile Service ───────────────────────────────────────────────────
+// Fetches fresh user profile data (credits, subscription) from the backend
+// and syncs it into appState so the Access Guard always has real data.
+class UserProfileService {
+    constructor(appStateManager) {
+        this.appState = appStateManager;
+        this._isFetching = false;
+    }
+
+    /**
+     * Fetch user profile from backend and sync into appState.
+     * @param {string} userId - Internal user ID from database
+     * @returns {Promise<object|null>} Profile data or null on failure
+     */
+    async fetchProfile(userId) {
+        if (!userId) {
+            console.warn('⚠️ UserProfileService: no userId, skipping fetch');
+            return null;
+        }
+        if (this._isFetching) {
+            console.log('⏳ UserProfileService: fetch already in progress, skipping');
+            return null;
+        }
+
+        this._isFetching = true;
+        const webhookUrl = 'PLACEHOLDER_GET_USER_PROFILE_WEBHOOK_URL'; // replaced by CI/CD
+
+        try {
+            console.log('📡 UserProfileService: fetching profile for user:', userId);
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId })
+            });
+
+            if (!response.ok) {
+                console.warn(`⚠️ UserProfileService: HTTP ${response.status}`);
+                return null;
+            }
+
+            // Guard against empty / non-JSON bodies
+            const text = await response.text();
+            if (!text || text.trim() === '') {
+                console.warn('⚠️ UserProfileService: empty response body');
+                return null;
+            }
+
+            const data = JSON.parse(text);
+            console.log('✅ UserProfileService: profile received:', data);
+
+            // Merge fresh data into appState user object
+            const updates = {};
+            if (data.credits !== undefined && data.credits !== null) updates.credits = Number(data.credits);
+            if (data.subscription !== undefined) updates.subscription = data.subscription;
+            if (data.name || data.userName) updates.name = data.name || data.userName;
+            if (data.photo_url || data.userPhotoUrl) updates.photo_url = data.photo_url || data.userPhotoUrl;
+
+            if (Object.keys(updates).length > 0) {
+                this.appState.setUser(updates);
+
+                // Also persist balance to localStorage backup
+                if (updates.credits !== undefined) {
+                    localStorage.setItem('currentBalance', updates.credits);
+                    if (window.updateUserBalance) window.updateUserBalance(updates.credits);
+                }
+
+                console.log('💾 UserProfileService: appState.user updated:', updates);
+            }
+
+            return data;
+        } catch (err) {
+            console.warn('⚠️ UserProfileService: fetch failed:', err.message);
+            return null;
+        } finally {
+            this._isFetching = false;
+        }
+    }
+
+    /**
+     * Called once on app init if user session is already restored.
+     */
+    async syncOnInit() {
+        const userId = this.appState.user?.id || window.appState?.userId;
+        if (userId && isNaN(Number(userId))) {  // only real internal IDs (not Telegram numeric IDs)
+            await this.fetchProfile(userId);
+        }
+    }
+}
+
 // Фабрика сервисов - получает существующий AppStateManager
 export function createAppServices(existingAppState) {
     // 🔥 ИСПРАВЛЕНИЕ: Всегда используем существующий appState, если передан
@@ -373,12 +462,19 @@ export function createAppServices(existingAppState) {
         storage: new StorageService(appState),
         notifications: new NotificationService(evBus),
         ui: new UIService(),
-        history: new HistoryService()
+        history: new HistoryService(),
+        userProfile: new UserProfileService(appState)
     };
 
     // Загружаем сохраненные настройки при старте
     services.storage.loadSettings();
     services.storage.loadHistory();
+
+    // 🔥 Sync fresh user profile (credits, subscription) from backend after a short delay
+    // so that DOM and auth session are guaranteed to be ready first.
+    setTimeout(() => {
+        services.userProfile.syncOnInit();
+    }, 1500);
 
     console.log('✅ App services initialized');
     return services;
