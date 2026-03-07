@@ -381,7 +381,7 @@ class UserProfileService {
         }
 
         this._isFetching = true;
-        const webhookUrl = 'PLACEHOLDER_GET_USER_PROFILE_WEBHOOK_URL'; // replaced by CI/CD
+        const webhookUrl = 'https://alv-n8n.pixplace.space/webhook/get_user_profile'; // replaced by CI/CD
 
         try {
             console.log('📡 UserProfileService: fetching profile for user:', userId);
