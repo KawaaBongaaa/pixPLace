@@ -1577,25 +1577,19 @@
                             </button>
 
                             <!-- 2. Невидимый официальный GSI Wrapper (сверху) -->
-                            <!-- Используем прозрачный контейнер с hover-эффектом -->
-                            <div
-                                class="absolute inset-0 w-full h-full z-10 overflow-hidden rounded-md bg-transparent hover:bg-white/5 group-hover:bg-white/5 transition-all duration-300 cursor-pointer">
-                                <!-- Растягиваем в 2 раза за верхний край, чтобы область клика гарантированно ушла ниже границы кнопки -->
-                                <div id="googleSignInWrapper" class="opacity-0 absolute inset-0 w-full h-full"
-                                    style="transform: scale(2); transform-origin: top center; cursor: pointer;">
-                                </div>
+                            <div id="googleSignInWrapper"
+                                class="absolute inset-0 w-full h-full z-[50] opacity-0 overflow-hidden rounded-md"
+                                style="transform: scale(2); transform-origin: top center; cursor: pointer; pointer-events: auto;">
                             </div>
                         </div>
-
-
-                        <!-- Telegram Auth Button -->
                         <div style="width: 100%;">
                             <button onclick="handleTelegramOAuth()"
                                 class="relative flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer auth-btn-premium hover:opacity-95 active:scale-[0.98]"
                                 style="width: 100%; height: 40px; background-color: #2AABEE; color: white; border: none; overflow: hidden; position: relative;">
 
                                 <!-- Эффект стеклянного блеска (с задержкой) -->
-                                <div class="shine-layer" style="animation-delay: 4s; transform: skewX(-35deg);"></div>
+                                <div class="shine-layer" style="animation-delay: 4s; transform: skewX(-35deg);">
+                                </div>
 
 
                                 <div
@@ -1632,7 +1626,8 @@
                                 style="position: relative; width: 100%; height: 40px; background-color: #272727; color: white; border: 1px solid rgba(255,255,255,0.1); overflow: hidden;">
 
                                 <!-- Эффект стеклянного блеска (с задержкой 8с и другим углом) -->
-                                <div class="shine-layer" style="animation-delay: 8s; transform: skewX(-15deg);"></div>
+                                <div class="shine-layer" style="animation-delay: 8s; transform: skewX(-15deg);">
+                                </div>
 
                                 <span data-i18n="continue" class="text-white"
                                     style="font-size: 14px; font-weight: 600; font-family: 'Roboto', arial, sans-serif;">Continue</span>
@@ -1664,7 +1659,8 @@
 
             <!-- Header -->
             <div class="flex items-center justify-center p-5 border-b border-gray-100 dark:border-gray-700/50 relative">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white" data-i18n="select_language">Language</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white" data-i18n="select_language">Language
+                </h3>
                 <button onclick="closeLanguageModal()"
                     class="absolute right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-all duration-200 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:backdrop-blur-md cursor-pointer">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
