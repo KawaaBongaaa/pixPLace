@@ -1516,153 +1516,112 @@
     <!-- NEW AUTHENTICATION MODAL -->
     <!-- FIX: убраны Tailwind-классы transition-transform/scale-95/opacity-0:
          они конфликтовали с auth.css transition. Теперь анимация только через auth.css + JS class toggle -->
-    <div id="authModal" style="z-index: 999999;"
+    <div id="authModal" style="z-index: 1000001;"
         class="fixed inset-0 hidden flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm px-4"
         aria-modal="true" role="dialog" aria-label="Sign in" onclick="if(event.target === this) closeAuthModal()">
-        <!-- Modal Container -->
-        <div class="bg-white dark:bg-gray-800 w-full max-w-[368px] rounded-[24px] shadow-2xl relative transform transition-all duration-300 scale-95 opacity-0 flex flex-col items-center"
+
+        <!-- Modal Container (Glassmorphism Premium — Styles managed in auth.css) -->
+        <div class="w-full max-w-[368px] relative transform transition-all duration-300 scale-95 opacity-0 flex flex-col items-center p-6 sm:p-8"
             id="authModalContent">
 
             <!-- Close Button -->
             <button onclick="closeAuthModal()"
-                class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors z-10 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full cursor-pointer">
+                class="absolute right-4 top-4 transition-all duration-200 cursor-pointer">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
             </button>
 
-            <div class="p-6 sm:p-6 w-full flex flex-col items-center">
-                <!-- Header -->
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2" style="color: inherit;"
-                        data-i18n="auth_welcome">Welcome
-                    </h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400" style="color: inherit;"
-                        data-i18n="auth_subtitle">
-                        Sign in or create an
-                        account to continue</p>
-                </div>
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-black mb-2 tracking-tight" data-i18n="auth_welcome">Welcome</h2>
+                <p class="text-sm font-medium" data-i18n="auth_subtitle">Sign in to sync your progress</p>
+            </div>
 
-                <div class="w-full flex flex-col items-center">
-                    <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px;">
-                        <!-- Google Sign-In with Custom Overlay -->
-                        <div class="relative w-full group" style="height: 40px; margin-bottom: 4px;">
-                            <!-- 1. Наша кастомная UI-кнопка (под низом) -->
-                            <button type="button"
-                                class="absolute inset-0 w-full h-full flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer z-0 group-hover:bg-[#333333] group-hover:shadow-[0_6px_20px_rgba(255,255,255,0.15)] group-hover:-translate-y-[1px] auth-btn-premium"
-                                style="background-color: #272727; color: white; border: 1px solid rgba(255,255,255,0.1);">
-
-                                <!-- Эффект стеклянного блеска -->
-                                <div class="shine-layer" style="animation-delay: 0s;"></div>
-
-                                <div
-                                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; pointer-events: none;">
-                                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; flex-shrink: 0;">
-                                        <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                                            <path fill="#4285F4"
-                                                d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
-                                            <path fill="#34A853"
-                                                d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
-                                            <path fill="#FBBC05"
-                                                d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
-                                            <path fill="#EA4335"
-                                                d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
-                                        </g>
-                                    </svg>
-                                </div>
-                                <span data-i18n="continue_with_google" class="text-[14px] font-semibold text-center"
-                                    style="font-family: 'Roboto', arial, sans-serif;">Continue with Google</span>
-                            </button>
-
-                            <!-- 2. Невидимый официальный GSI Wrapper (сверху) -->
-                            <div id="googleSignInWrapper"
-                                class="absolute inset-0 w-full h-full z-[50] opacity-0 overflow-hidden rounded-md"
-                                style="transform: scale(2); transform-origin: top center; cursor: pointer; pointer-events: auto;">
-                            </div>
-                        </div>
-                        <div style="width: 100%;">
-                            <button onclick="handleTelegramOAuth()"
-                                class="relative flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer auth-btn-premium hover:opacity-95 active:scale-[0.98]"
-                                style="width: 100%; height: 40px; background-color: #2AABEE; color: white; border: none; overflow: hidden; position: relative;">
-
-                                <!-- Эффект стеклянного блеска (с задержкой) -->
-                                <div class="shine-layer" style="animation-delay: 4s; transform: skewX(-35deg);">
-                                </div>
-
-
-                                <div
-                                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; pointer-events: none;">
-                                    <svg style="width: 18px; height: 18px; flex-shrink: 0;" viewBox="0 0 24 24"
-                                        fill="currentColor">
-                                        <path
-                                            d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.888-.666 3.463-1.509 5.773-2.506 6.931-2.991 3.297-1.378 3.982-1.616 4.425-1.624z" />
-                                    </svg>
-                                </div>
-
-                                <span data-i18n="continue_with_telegram" class="text-[14px] font-semibold text-center"
-                                    style="font-family: 'Roboto', arial, sans-serif; position: relative; z-index: 5;">Continue
-                                    with Telegram</span>
-                            </button>
-                        </div>
-
-                        <div class="relative flex items-center py-1">
-                            <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
-                            <span class="flex-shrink-0 px-3 text-sm text-gray-400 dark:text-gray-500 uppercase"
-                                data-i18n="or">Or</span>
-                            <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
-                        </div>
-
-                        <!-- Email Flow -->
-                        <div class="space-y-2" style="width: 100%;">
-                            <div>
-                                <input type="email" id="authEmailInput"
-                                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500 focus:border-transparent transition-colors placeholder-gray-400 dark:placeholder-gray-500 outline-none"
-                                    placeholder="Email address">
-                            </div>
-                            <button onclick="handleEmailLoginSubmit()"
-                                class="flex items-center justify-center rounded-md font-semibold transition-all duration-300 shadow-sm cursor-pointer auth-btn-premium hover:opacity-95 active:scale-[0.98]"
-                                style="position: relative; width: 100%; height: 40px; background-color: #272727; color: white; border: 1px solid rgba(255,255,255,0.1); overflow: hidden;">
-
-                                <!-- Эффект стеклянного блеска (с задержкой 8с и другим углом) -->
-                                <div class="shine-layer" style="animation-delay: 8s; transform: skewX(-15deg);">
-                                </div>
-
-                                <span data-i18n="continue" class="text-white"
-                                    style="font-size: 14px; font-weight: 600; font-family: 'Roboto', arial, sans-serif;">Continue</span>
-                            </button>
-                        </div>
+            <!-- Social Login Buttons -->
+            <div class="w-full space-y-3 mb-6">
+                <!-- Google Button Wrapper -->
+                <div class="relative group auth-btn-premium rounded-2xl">
+                    <div class="shine-layer"></div>
+                    <button
+                        class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white/5 dark:bg-white/5 border border-white/10 rounded-2xl transition-all duration-300">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4"
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="#34A853"
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="#FBBC05"
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                            <path fill="#EA4335"
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        </svg>
+                        <span class="text-sm font-bold text-gray-200" data-i18n="continue_google">Continue with
+                            Google</span>
+                    </button>
+                    <!-- Google GSI Frame Container -->
+                    <div id="googleSignInWrapper"
+                        style="position: absolute; inset: 0; opacity: 0.01; z-index: 9999; pointer-events: auto; cursor: pointer;">
                     </div>
                 </div>
 
-                <div class="mt-4 text-center text-[11px] text-gray-500 dark:text-gray-400 w-full max-w-[320px] mx-auto">
-                    <span data-i18n="auth_terms_agreement">By continuing, you agree to our</span>
-                    <a href="#" onclick="closeAuthModal(); legalRouter.navigateTo('terms'); return false;"
-                        class="text-blue-600 dark:text-blue-400 hover:underline" data-i18n="footer_terms">Terms of
+                <!-- Telegram Button -->
+                <button onclick="handleTelegramOAuth()" class="auth-btn-premium group">
+                    <div class="shine-layer"></div>
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.36-.49.99-.75 3.88-1.69 6.46-2.8 7.74-3.35 3.68-1.56 4.44-1.83 4.94-1.84.11 0 .35.03.5.16.13.11.17.26.18.37.01.07.01.15 0 .22z" />
+                    </svg>
+                    <span class="text-sm font-bold" data-i18n="continue_telegram">Continue with Telegram</span>
+                </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="w-full flex items-center gap-4 mb-6">
+                <div class="flex-grow border-t"></div>
+                <span class="text-[10px] uppercase tracking-widest font-black" data-i18n="or">or</span>
+                <div class="flex-grow border-t"></div>
+            </div>
+
+            <!-- Email Login -->
+            <div class="w-full space-y-3 mb-6">
+                <input type="email" id="authEmailInput" placeholder="Enter your email"
+                    data-i18n-placeholder="email_placeholder">
+                <button onclick="handleEmailLoginSubmit()" class="auth-btn-premium group">
+                    <div class="shine-layer"></div>
+                    <span data-i18n="continue">Continue</span>
+                </button>
+            </div>
+
+            <!-- Terms -->
+            <div class="text-center">
+                <p class="text-[11px] leading-relaxed font-medium">
+                    <span data-i18n="auth_terms_agreement">By continuing, you agree to our</span> <br class="sm:hidden">
+                    <a href="#" onclick="openTermsOfService(); return false;" data-i18n="footer_terms">Terms of
                         Service</a>
                     <span data-i18n="auth_and">and</span>
-                    <a href="#" onclick="closeAuthModal(); legalRouter.navigateTo('privacy'); return false;"
-                        class="text-blue-600 dark:text-blue-400 hover:underline" data-i18n="footer_privacy">Privacy
-                        Policy</a>.
-                </div>
+                    <a href="#" onclick="openPrivacyPolicy(); return false;" data-i18n="footer_privacy">Privacy
+                        Policy</a>
+                </p>
             </div>
         </div>
     </div>
 
     <!-- LANGUAGE SELECTION MODAL -->
-    <div id="languageModal" style="z-index: 999999;"
-        class="fixed inset-0 hidden items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm transition-opacity duration-300 opacity-0 px-4">
-        <!-- Modal Container -->
-        <div class="bg-white dark:bg-gray-800 w-full max-w-[340px] rounded-[24px] shadow-2xl relative overflow-hidden transform transition-transform duration-300 scale-95 opacity-0 flex flex-col max-h-[85vh]"
-            id="languageModalContent">
+    <div id="languageModal" style="z-index: 1000000;"
+        class="fixed inset-0 hidden items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm transition-opacity duration-300 opacity-0 px-4"
+        onclick="if(event.target === this) closeLanguageModal()">
+        <!-- Modal Container (Glassmorphism Premium — reused auth styles) -->
+        <div class="w-full max-w-[340px] relative overflow-hidden transform transition-transform duration-300 scale-95 opacity-0 flex flex-col max-h-[85vh]"
+            id="languageModalContent"
+            style="background: rgba(18, 22, 42, 0.97); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; backdrop-filter: blur(48px);">
 
             <!-- Header -->
-            <div class="flex items-center justify-center p-5 border-b border-gray-100 dark:border-gray-700/50 relative">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white" data-i18n="select_language">Language
-                </h3>
+            <div class="flex items-center justify-center p-5 border-b border-white/5 relative">
+                <h3 class="text-lg font-black text-white tracking-tight" data-i18n="select_language">Language</h3>
                 <button onclick="closeLanguageModal()"
-                    class="absolute right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-all duration-200 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 hover:backdrop-blur-md cursor-pointer">
+                    class="absolute right-4 p-2 text-gray-400 hover:text-white transition-all duration-200 rounded-full hover:bg-white/5 cursor-pointer">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1675,92 +1634,41 @@
             <div class="overflow-y-auto p-4 custom-scrollbar">
                 <div class="flex flex-col gap-1.5">
                     <button onclick="selectLanguageFromModal('en')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                        class="auth-btn-premium flex items-center justify-start gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all text-sm font-bold text-gray-300"><span
                             class="text-xl">🇬🇧</span> English</button>
                     <button onclick="selectLanguageFromModal('ru')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                        class="auth-btn-premium flex items-center justify-start gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all text-sm font-bold text-gray-300"><span
                             class="text-xl">🇷🇺</span> Русский</button>
                     <button onclick="selectLanguageFromModal('es')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                        class="auth-btn-premium flex items-center justify-start gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all text-sm font-bold text-gray-300"><span
                             class="text-xl">🇪🇸</span> Español</button>
                     <button onclick="selectLanguageFromModal('fr')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                        class="auth-btn-premium flex items-center justify-start gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all text-sm font-bold text-gray-300"><span
                             class="text-xl">🇫🇷</span> Français</button>
                     <button onclick="selectLanguageFromModal('de')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                        class="auth-btn-premium flex items-center justify-start gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all text-sm font-bold text-gray-300"><span
                             class="text-xl">🇩🇪</span> Deutsch</button>
                     <button onclick="selectLanguageFromModal('zh')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                        class="auth-btn-premium flex items-center justify-start gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all text-sm font-bold text-gray-300"><span
                             class="text-xl">🇨🇳</span> 中文</button>
-                    <button onclick="selectLanguageFromModal('pt')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇵🇹</span> Português</button>
-                    <button onclick="selectLanguageFromModal('ar')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇸🇦</span> العربية</button>
-                    <button onclick="selectLanguageFromModal('hi')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇮🇳</span> हिन्दी</button>
-                    <button onclick="selectLanguageFromModal('ja')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇯🇵</span> 日本語</button>
                     <button onclick="selectLanguageFromModal('it')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
+                        class="auth-btn-premium flex items-center justify-start gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all text-sm font-bold text-gray-300"><span
                             class="text-xl">🇮🇹</span> Italiano</button>
-                    <button onclick="selectLanguageFromModal('ko')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇰🇷</span> 한국어</button>
-                    <button onclick="selectLanguageFromModal('tr')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇹🇷</span> Türkçe</button>
-                    <button onclick="selectLanguageFromModal('pl')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇵🇱</span> Polski</button>
-                    <button onclick="selectLanguageFromModal('vi')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇻🇳</span> Tiếng Việt</button>
-                    <button onclick="selectLanguageFromModal('th')"
-                        class="flex items-center justify-start gap-4 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors text-sm font-medium text-gray-700 dark:text-gray-300"><span
-                            class="text-xl">🇹🇭</span> ไทย</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Core Utilities -->
+    <!-- Core App Scripts -->
     <script src="core/legal-router.js"></script>
-
-    <!-- 🔐 FIX ДЖИТТЕРА: резервируем высоту под Google GSI iframe -->
-    <style>
-        #googleSignInWrapper {
-            min-height: 44px;
-        }
-
-        #authModal {
-            will-change: backdrop-filter;
-        }
-    </style>
-
     <script type="module" src="parallel-generation.js"></script>
     <script src="telegram-auth.js"></script>
-
     <script type="module" src="app_modern.js?v=2535"></script>
 
-    <!-- ФИНАЛЬНЫЙ ТЕСТ - КНОПКА В BODY - ВРЕМЕННО ОТКЛЮЧЕНА -->
-    <button onclick="handleTelegramLogin()"
-        style="position: fixed; top: 200px; left: 200px; width: 400px; height: 120px; background: #ff00ff; color: white; font-size: 32px; font-weight: bold; border: 10px solid #000000; border-radius: 20px; z-index: 1000000; cursor: pointer; display: none !important;">
-        🚀 TELEGRAM АВТОРИЗАЦИЯ<br />ФИНАЛЬНЫЙ ТЕСТ
-    </button>
-    <!-- 🎬 ONBOARDING LOADER: Swappable — replace onboarding/ folder to change flow -->
+    <!-- 🎬 ONBOARDING LOADER -->
     <script>
         (function launchOnboarding() {
-            // Only launch for new users
             if (localStorage.getItem('pixplace_onboarding_done')) return;
-
-            function fireOnboardingDone() {
-                document.dispatchEvent(new CustomEvent('pixplace:onboarding:done'));
-            }
-
             function startOnboarding() {
                 // Small delay so app UI settles
                 setTimeout(function () {
@@ -1801,6 +1709,86 @@
             }, 5000);
         })();
     </script>
+
+</body>
+
+</html } }, 5000); })(); </script>
+
+</body>
+
+</html // Fire anyway so cookie banner isn't stuck fireOnboardingDone(); }); }, 600); } // Listen for app:ready event
+    (dispatched by app_modern.js) var handled=false; document.addEventListener('app:ready', function () { if (handled)
+    return; handled=true; startOnboarding(); }, { once: true }); // Safety fallback: if app:ready never fires within 5s,
+    start anyway setTimeout(function () { if (!handled) { handled=true; startOnboarding(); } }, 5000); })(); </script>
+
+</body>
+
+</html }).catch(function (err) { console.warn('[Onboarding] Failed to load module:', err); // Fire anyway so cookie
+    banner isn't stuck fireOnboardingDone(); }); }, 600); } // Listen for app:ready event (dispatched by app_modern.js)
+    var handled=false; document.addEventListener('app:ready', function () { if (handled) return; handled=true;
+    startOnboarding(); }, { once: true }); // Safety fallback: if app:ready never fires within 5s, start anyway
+    setTimeout(function () { if (!handled) { handled=true; startOnboarding(); } }, 5000); })(); </script>
+
+</body>
+
+</html <script type="module" src="app_modern.js?v=2535">
+</script>
+
+<!-- ФИНАЛЬНЫЙ ТЕСТ - КНОПКА В BODY - ВРЕМЕННО ОТКЛЮЧЕНА -->
+<button onclick="handleTelegramLogin()"
+    style="position: fixed; top: 200px; left: 200px; width: 400px; height: 120px; background: #ff00ff; color: white; font-size: 32px; font-weight: bold; border: 10px solid #000000; border-radius: 20px; z-index: 1000000; cursor: pointer; display: none !important;">
+    🚀 TELEGRAM АВТОРИЗАЦИЯ<br />ФИНАЛЬНЫЙ ТЕСТ
+</button>
+<!-- 🎬 ONBOARDING LOADER: Swappable — replace onboarding/ folder to change flow -->
+<script>
+    (function launchOnboarding() {
+        // Only launch for new users
+        if (localStorage.getItem('pixplace_onboarding_done')) return;
+
+        function fireOnboardingDone() {
+            document.dispatchEvent(new CustomEvent('pixplace:onboarding:done'));
+        }
+
+        function startOnboarding() {
+            // Small delay so app UI settles
+            setTimeout(function () {
+                import('./onboarding/onboarding.js').then(function (m) {
+                    var ob = new m.PixPlaceOnboarding();
+
+                    // 🔥 Patch _finish to fire consent event after onboarding ends
+                    var origFinish = ob._finish.bind(ob);
+                    ob._finish = function () {
+                        origFinish();
+                        // Give onboarding fade-out animation ~400ms, then signal done
+                        setTimeout(fireOnboardingDone, 450);
+                    };
+
+                    ob.start();
+                }).catch(function (err) {
+                    console.warn('[Onboarding] Failed to load module:', err);
+                    // Fire anyway so cookie banner isn't stuck
+                    fireOnboardingDone();
+                });
+            }, 600);
+        }
+
+        // Listen for app:ready event (dispatched by app_modern.js)
+        var handled = false;
+        document.addEventListener('app:ready', function () {
+            if (handled) return;
+            handled = true;
+            startOnboarding();
+        }, { once: true });
+
+        // Safety fallback: if app:ready never fires within 5s, start anyway
+        setTimeout(function () {
+            if (!handled) {
+                handled = true;
+                startOnboarding();
+            }
+        }, 5000);
+    })();
+</script>
 
 </body>
 
