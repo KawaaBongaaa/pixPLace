@@ -287,6 +287,13 @@ function handleLogout() {
         window.appState.userName = null;
         window.appState.userAvatar = null;
         window.appState.isAuthenticated = false;
+
+        // 🔥 ОЧИЩАЕМ БАЛАНС ПРИ ВЫХОДЕ (чтобы не было чужого баланса при смене акка)
+        window.appState.userCredits = null;
+        if (window.appState.state && window.appState.state.user) {
+            window.appState.state.user.credits = null;
+        }
+        localStorage.removeItem('currentBalance');
     }
 
     // Закрываем меню
@@ -990,8 +997,7 @@ async function handleGoogleAuthCallback(response) {
 
         // Обновляем глобальное состояние (зависит от ответа бэкенда)
         if (window.appState && data.userId) {
-            window
-            te.userId = data.userId;
+            window.appState.userId = data.userId;
             window.appState.userName = data.userName || data.name || 'User';
             window.appState.userAvatar = data.userPhotoUrl || data.picture || null;
 
