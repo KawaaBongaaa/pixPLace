@@ -2129,14 +2129,14 @@ import('./navigation-manager.js').then(module => {
 // ─── Access Guard ─────────────────────────────────────────────────────────────
 // Checks credits before generation. Reads data synced by UserProfileService.
 const GENERATION_COST_MAP = {
-    'nano_banana':        { withImages: 10, noImages: 5  },
-    'nano_banana_pro':    { withImages: 15, noImages: 15 },
-    'pixplace_pro':       { withImages: 4,  noImages: 4  },
-    'print_maker':        { withImages: 3,  noImages: 3  },
-    'upscale_image':      { withImages: 10, noImages: 10 },
-    'fast_generation':    { withImages: 2,  noImages: 2  },
-    'background_removal': { withImages: 0,  noImages: 0  },
-    'dreamshaper_xl':     { withImages: 0,  noImages: 0  }
+    'nano_banana': { withImages: 10, noImages: 5 },
+    'nano_banana_pro': { withImages: 15, noImages: 15 },
+    'pixplace_pro': { withImages: 4, noImages: 4 },
+    'print_maker': { withImages: 3, noImages: 3 },
+    'upscale_image': { withImages: 10, noImages: 10 },
+    'fast_generation': { withImages: 2, noImages: 2 },
+    'background_removal': { withImages: 0, noImages: 0 },
+    'dreamshaper_xl': { withImages: 0, noImages: 0 }
 };
 
 function checkGenerationAccess(mode, hasImages) {
