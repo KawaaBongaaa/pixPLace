@@ -12,7 +12,7 @@ export class AppStateManager {
             user: {
                 id: null,
                 name: null,
-                credits: null,
+                credits: localStorage.getItem('currentBalance') ? parseFloat(localStorage.getItem('currentBalance')) : null,
                 username: null,
                 photo_url: null,
                 language: 'en',
