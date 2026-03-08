@@ -6390,9 +6390,6 @@ html.auth-session-active #userMenuBtn {
 html:not(.auth-session-active) #userMenuBtn {
   display: none;
 }
-#authModal {
-  will-change: backdrop-filter;
-}
 #authModalContent {
   background: linear-gradient(145deg, rgba(18, 22, 42, 0.97) 0%, rgba(12, 15, 30, 0.98) 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
