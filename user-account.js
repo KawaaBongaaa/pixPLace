@@ -351,7 +351,11 @@ function updateUserMenuInfo() {
 
     // Обновляем кредиты в хедере
     if (creditsElement) {
-        const credits = window.appState?.userCredits || 0;
+        const credits = window.appState?.userCredits !== undefined && window.appState?.userCredits !== null
+            ? window.appState.userCredits
+            : (window.appState?.user?.credits !== undefined && window.appState?.user?.credits !== null
+                ? window.appState.user.credits
+                : '--');
         creditsElement.textContent = credits;
     }
 
@@ -875,6 +879,13 @@ async function onTelegramAuthCallback(userData) {
                 window.appState.userId = data.userId;
                 window.appState.userName = data.userName || userData.first_name || userData.username;
                 window.appState.userAvatar = data.userPhotoUrl || userData.photo_url || null;
+
+                // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА (Telegram)
+                if (data.credits !== undefined && typeof window.updateUserBalance === 'function') {
+                    window.updateUserBalance(data.credits);
+                } else if (data.balance !== undefined && typeof window.updateUserBalance === 'function') {
+                    window.updateUserBalance(data.balance);
+                }
             }
             window.showToast?.('success', `Welcome, ${window.appState.userName}! 🎉`);
             updateUserMenuInfo();
@@ -979,7 +990,8 @@ async function handleGoogleAuthCallback(response) {
 
         // Обновляем глобальное состояние (зависит от ответа бэкенда)
         if (window.appState && data.userId) {
-            window.appState.userId = data.userId;
+            window
+            te.userId = data.userId;
             window.appState.userName = data.userName || data.name || 'User';
             window.appState.userAvatar = data.userPhotoUrl || data.picture || null;
 
@@ -996,6 +1008,13 @@ async function handleGoogleAuthCallback(response) {
             localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+            // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА
+            if (data.credits !== undefined && typeof window.updateUserBalance === 'function') {
+                window.updateUserBalance(data.credits);
+            } else if (data.balance !== undefined && typeof window.updateUserBalance === 'function') {
+                window.updateUserBalance(data.balance);
+            }
 
             // 🔥 Фикс бага с аватаркой: обязательно вешаем auth-session-active на <html>
             document.documentElement.classList.add('auth-session-active');
