@@ -403,9 +403,6 @@
   .z-10001 {
     z-index: 10001;
   }
-  .z-\[50\] {
-    z-index: 50;
-  }
   .z-\[1000\] {
     z-index: 1000;
   }
@@ -2236,6 +2233,9 @@
     -webkit-background-clip: text;
             background-clip: text;
   }
+  .fill-current {
+    fill: currentcolor;
+  }
   .object-cover {
     -o-object-fit: cover;
        object-fit: cover;
@@ -2305,6 +2305,9 @@
   }
   .py-3 {
     padding-block: 0.75rem;
+  }
+  .py-3\.5 {
+    padding-block: 0.875rem;
   }
   .py-4 {
     padding-block: 1rem;
@@ -2482,6 +2485,10 @@
   .tracking-wider {
     --tw-tracking: 0.05em;
     letter-spacing: 0.05em;
+  }
+  .tracking-widest {
+    --tw-tracking: 0.1em;
+    letter-spacing: 0.1em;
   }
   .break-words {
     overflow-wrap: break-word;
@@ -3575,6 +3582,11 @@
       margin-bottom: 1rem;
     }
   }
+  .sm\:hidden {
+    @media (width >= 640px) {
+      display: none;
+    }
+  }
   .sm\:inline {
     @media (width >= 640px) {
       display: inline;
@@ -3688,6 +3700,11 @@
   .sm\:p-6 {
     @media (width >= 640px) {
       padding: 1.5rem;
+    }
+  }
+  .sm\:p-8 {
+    @media (width >= 640px) {
+      padding: 2rem;
     }
   }
   .sm\:p-10 {
