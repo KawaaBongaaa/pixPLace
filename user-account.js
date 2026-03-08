@@ -882,16 +882,27 @@ async function onTelegramAuthCallback(userData) {
             document.documentElement.classList.add('auth-session-active');
 
             if (window.appState) {
+                // 🔥 ОЧИЩАЕМ СТАРЫЙ БАЛАНС ПЕРЕД ПЕРЕКЛЮЧЕНИЕМ (если ID сменился)
+                if (window.appState.userId && window.appState.userId !== data.userId) {
+                    console.log('🔄 User ID changed, clearing old balance...');
+                    window.appState.userCredits = null;
+                    localStorage.removeItem('currentBalance');
+                }
+
                 // ВНИМАНИЕ: Записываем возвращенный из базы ID, а не телеграмовский
                 window.appState.userId = data.userId;
                 window.appState.userName = data.userName || userData.first_name || userData.username;
                 window.appState.userAvatar = data.userPhotoUrl || userData.photo_url || null;
 
-                // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА (Telegram)
+                // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА (если он там есть)
                 if (data.credits !== undefined && typeof window.updateUserBalance === 'function') {
                     window.updateUserBalance(data.credits);
                 } else if (data.balance !== undefined && typeof window.updateUserBalance === 'function') {
                     window.updateUserBalance(data.balance);
+                } else if (window.appServices && window.appServices.userProfile) {
+                    // 🔥 ЗАПРАШИВАЕМ БАЛАНС ИЗ ПРОФИЛЯ МГНОВЕННО!
+                    console.log('📡 Fetching profile balance for telegram user ID:', data.userId);
+                    window.appServices.userProfile.fetchProfile(data.userId);
                 }
             }
             window.showToast?.('success', `Welcome, ${window.appState.userName}! 🎉`);
@@ -982,21 +993,27 @@ async function handleGoogleAuthCallback(response) {
 
     // Отправляем JWT токен на бэкенд (n8n)
     try {
-        const res = await fetch('https://alv-n8n.pixplace.space/webhook/google-auth'
-            , {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    auth_provider: 'google',
-                    token: response.credential,
-                    traffic_source: 'webapp/google_oauth'
-                })
-            });
+        const res = await fetch('https://alv-n8n.pixplace.space/webhook/google-auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                auth_provider: 'google',
+                token: response.credential,
+                traffic_source: 'webapp/google_oauth'
+            })
+        });
         const data = await res.json();
         console.log('📥 n8n google auth response:', data);
 
         // Обновляем глобальное состояние (зависит от ответа бэкенда)
         if (window.appState && data.userId) {
+            // 🔥 ОЧИЩАЕМ СТАРЫЙ БАЛАНС ПЕРЕД ПЕРЕКЛЮЧЕНИЕМ (если ID сменился)
+            if (window.appState.userId && window.appState.userId !== data.userId) {
+                console.log('🔄 User ID changed, clearing old balance...');
+                window.appState.userCredits = null;
+                localStorage.removeItem('currentBalance');
+            }
+
             window.appState.userId = data.userId;
             window.appState.userName = data.userName || data.name || 'User';
             window.appState.userAvatar = data.userPhotoUrl || data.picture || null;
@@ -1015,17 +1032,22 @@ async function handleGoogleAuthCallback(response) {
             localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
-            // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА
+            // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА (если он там есть)
             if (data.credits !== undefined && typeof window.updateUserBalance === 'function') {
                 window.updateUserBalance(data.credits);
             } else if (data.balance !== undefined && typeof window.updateUserBalance === 'function') {
                 window.updateUserBalance(data.balance);
+            } else if (window.appServices && window.appServices.userProfile) {
+                // 🔥 ЕСЛИ БАЛАНСА НЕТ В ОТВЕТЕ РЕГИСТРАЦИИ - ЗАПРАШИВАЕМ ЕГО ИЗ ПРОФИЛЯ МГНОВЕННО!
+                console.log('📡 Fetching profile balance for new user ID:', data.userId);
+                window.appServices.userProfile.fetchProfile(data.userId);
             }
 
             // 🔥 Фикс бага с аватаркой: обязательно вешаем auth-session-active на <html>
             document.documentElement.classList.add('auth-session-active');
 
-            // Если функция обновления UI существует, вызываем её
+            // Вызываем уведомление и обновляем меню
+            window.showToast?.('success', `Welcome, ${window.appState.userName}! 🎉`);
             if (typeof updateUserMenuInfo === 'function') {
                 updateUserMenuInfo();
             }
