@@ -877,6 +877,7 @@ export function updateModeDescription(mode) {
     console.log(`📝 Mode description updated for: ${mode}`);
 }
 
+
 // ФУНКЦИЯ ПОЛУЧЕНИЯ ПЕРЕВЕДЕННОГО НАЗВАНИЯ РЕЖИМА
 function getTranslatedModeName(modeKey) {
     if (!modeKey) return '';

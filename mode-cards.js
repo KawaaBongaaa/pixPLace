@@ -17,7 +17,7 @@ export function getSelectedMode() {
 // ЭКСПОРТИРУЕМ ФУНКЦИЮ ПРОГРАММНОГО ВЫБОРА РЕЖИМА
 export function setSelectedMode(mode) {
     // Определяем к какому табу относится режим
-    const isImageMode = ['nano_banana_pro', 'nano_banana', 'fast_generation', 'pixplace_pro', 'dreamshaper_xl', 'background_removal', 'upscale_image', 'print_maker'].includes(mode);
+    const isImageMode = ['nano_banana_pro', 'nano_banana', 'fast_generation', 'z_image', 'qwen_image', 'qwen_image_edit', 'pixplace_pro', 'dreamshaper_xl', 'background_removal', 'upscale_image', 'print_maker'].includes(mode);
     const isVideoMode = ['video_gen', 'image_to_video', 'video_edit'].includes(mode);
 
     if (isVideoMode) {
@@ -77,10 +77,24 @@ export function selectModeCard(mode) {
                 toggle.classList.add('collapsed');
             }
         }
+
+        // 🔥 ДОБАВЛЕНО: Прокрутка к полю ввода и фокус
+        const promptInput = document.getElementById('promptInput');
+        const promptFormGroup = document.getElementById('promptFormGroup');
+        if (promptInput && promptFormGroup) {
+            // Мягкая прокрутка
+            promptFormGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Задержка фокуса, чтобы анимация прокрутки не дрожала
+            setTimeout(() => {
+                promptInput.focus();
+                console.log('✅ Focus prioritized on prompt input');
+            }, 600);
+        }
     }, 400); // 400ms для комфортного восприятия
 
-    // Диспатчим событие для обновления UI в navigation-manager.js
-    document.dispatchEvent(new CustomEvent('mode:selected', {
+    // Диспатчим событие для обновления UI в navigation-manager.js и app_modern.js
+    document.dispatchEvent(new CustomEvent('mode:changed', {
         detail: { mode: mode }
     }));
 
