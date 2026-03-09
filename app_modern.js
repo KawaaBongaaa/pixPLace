@@ -2460,7 +2460,6 @@ async function generateImage(event) {
                 // НЕ ОБНОВЛЯЕМ дисплей - чтобы позиция и скролл не сбросились!
             }
 
-            // 📍 4. НЕМЕДЛЕННАЯ ПРОКРУТКА К НОВОМУ ПРЕВЬЮ
             setTimeout(() => {
                 const finalElement = document.getElementById(`loading-${gen.id}`);
                 console.log('🎯 Scrolling attempt - element exists:', !!finalElement);
@@ -2474,17 +2473,7 @@ async function generateImage(event) {
                     });
                     console.log('📋 Scrolled to new preview successfully');
                 } else {
-                    console.error('❌ Preview element NOT found for scrolling, generation:', gen.id);
-                    // ☠️ ЭКСТРЕНАЯ МЕРА: Принудительно пересоздаем элемент
-                    const emergencyPreview = createLoadingHistoryItem(gen);
-                    if (emergencyPreview) {
-                        emergencyPreview.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                            inline: 'nearest'
-                        });
-                        console.log('🚨 Emergency scroll to recreated element');
-                    }
+                    console.log('ℹ️ Preview element already processed or removed, skipping scroll');
                 }
             }, 300); // Ждем открытия истории
 
