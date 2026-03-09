@@ -417,7 +417,9 @@ class GenerationManager {
 
         } catch (error) {
             console.error(`❌ Generation error for ${generation.id}:`, error);
-
+            if (window.ScreenManager?.handleGenerationError) {
+                window.ScreenManager.handleGenerationError(generation.id, error);
+            }
             // 🚨 ПОКАЗЫВАЕМ ТОСТ ПРО ПЕРЕГРУЗКУ ТОЛЬКО ДЛЯ СЕТЕВЫХ ОШИБОК ИЛИ ОШИБОК СЕРВЕРА
             // Если это TypeError в нашем коде, не пугаем пользователя перегрузкой
             const isLogicError = error instanceof TypeError || error.message.includes('replaceLoadingWithPreview');

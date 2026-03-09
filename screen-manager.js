@@ -346,7 +346,9 @@ class ScreenManager {
         console.log(`❌ Handling generation error for ID: ${generationId}`);
 
         // Ищем превью элемент
-        const previewItem = document.getElementById(`loading-${generationId}`) || document.getElementById(`history-${generationId}`);
+        const previewItem = document.getElementById(`loading-${generationId}`) ||
+            document.getElementById(`history-${generationId}`);
+
         if (previewItem) {
             // Анимируем исчезновение и удаляем
             previewItem.style.transition = 'all 0.3s ease-out';
@@ -354,9 +356,9 @@ class ScreenManager {
             previewItem.style.transform = 'translateY(-20px)';
 
             setTimeout(() => {
-                if (previewItem.parentNode) {
+                if (previewItem && previewItem.parentNode) {
                     previewItem.parentNode.removeChild(previewItem);
-                    console.log(`🗑️ Removed failed preview for generation ${generationId}`);
+                    console.log(`🗑️ Removed failed preview element for ${generationId}`);
                 }
             }, 300);
         }

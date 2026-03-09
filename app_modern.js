@@ -86,7 +86,7 @@ const CONFIG = {
     N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/enhance_img_or_removebg',
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
     Z_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/Z-Image',
-    QWEN_IMAGE_WEBHOOK_URL: '',
+    QWEN_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/qwen-image',
 
 
     // App Settings
@@ -2460,7 +2460,6 @@ async function generateImage(event) {
                 // НЕ ОБНОВЛЯЕМ дисплей - чтобы позиция и скролл не сбросились!
             }
 
-            // 📍 4. НЕМЕДЛЕННАЯ ПРОКРУТКА К НОВОМУ ПРЕВЬЮ
             setTimeout(() => {
                 const finalElement = document.getElementById(`loading-${gen.id}`);
                 console.log('🎯 Scrolling attempt - element exists:', !!finalElement);
@@ -2474,17 +2473,7 @@ async function generateImage(event) {
                     });
                     console.log('📋 Scrolled to new preview successfully');
                 } else {
-                    console.error('❌ Preview element NOT found for scrolling, generation:', gen.id);
-                    // ☠️ ЭКСТРЕНАЯ МЕРА: Принудительно пересоздаем элемент
-                    const emergencyPreview = createLoadingHistoryItem(gen);
-                    if (emergencyPreview) {
-                        emergencyPreview.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                            inline: 'nearest'
-                        });
-                        console.log('🚨 Emergency scroll to recreated element');
-                    }
+                    console.log('ℹ️ Preview element already processed or removed, skipping scroll');
                 }
             }, 300); // Ждем открытия истории
 
