@@ -817,6 +817,11 @@ export function setVideoCardsCollapsed(collapsed) {
     }
 }
 
+// 🔥 ДОБАВЛЕНО: Слушатель для обновления описания при смене режима
+document.addEventListener('mode:changed', (event) => {
+    updateModeDescription(event.detail.mode);
+});
+
 // ФУНКЦИЯ ОБНОВЛЕНИЯ ОПИСАНИЯ РЕЖИМА
 export function updateModeDescription(mode) {
     const descriptionBlock = document.getElementById('modeDescriptionBlock');
@@ -827,31 +832,46 @@ export function updateModeDescription(mode) {
         return;
     }
 
-    // Получаем описание из атрибута data-description выбранной карточки
-    const selectedCard = document.querySelector(`[data-mode="${mode}"]`);
-    let description = '';
-
-    if (selectedCard) {
-        description = selectedCard.getAttribute('data-description') || '';
+    // Попытка получить перевод через dictionaryManager
+    let translatedDescription = '';
+    const descKey = `mode_${mode}_desc`;
+    if (window.dictionaryManager && window.dictionaryManager.translate) {
+        const translated = window.dictionaryManager.translate(descKey);
+        if (translated && translated !== descKey) {
+            translatedDescription = translated;
+        }
     }
 
-    // Если нет описания в атрибуте, используем дефолтные описания
-    if (!description) {
+    // Если перевода нет, берем из атрибутов карточки
+    if (!translatedDescription) {
+        const selectedCard = document.querySelector(`[data-mode="${mode}"]`);
+        if (selectedCard) {
+            translatedDescription = selectedCard.getAttribute('data-description') || '';
+        }
+    }
+
+    // Крайний случай - дефолтные значения (на англ)
+    if (!translatedDescription) {
         const defaultDescriptions = {
             'nano_banana_pro': 'Professional-grade photo editing! Advanced AI with enhanced precision for complex edits, up to 4 reference images, perfect for professional photo retouching and modifications 💎',
             'nano_banana': 'Ultimate photo editor! Drop up to 4 reference pics and just tell the AI what to change — it handles everything for you 🚀',
             'pixplace_pro': 'Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer',
             'fast_generation': 'Fastest model for quick image generation — works instantly without uploads',
+            'z_image': 'New generation model Z-Image Turbo — creates stunning visuals with unique style and high precision ⚡',
+            'qwen_image': 'The Qwen Image empowers creators, developers, and businesses to generate and edit photorealistic images effortlessly.',
+            'qwen_image_edit': 'Qwen Image-edit supporting semantic and appearance editing with precise, visually coherent results.',
             'print_maker': 'Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond',
             'dreamshaper_xl': 'Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.',
             'background_removal': 'Remove the background and keep the main object. Upload a photo to start',
             'upscale_image': 'Boost image quality and resolution — make your visuals look crisp and detailed',
             'image_to_video': 'Bring static images to life! Upload any photo and transform it into smooth, animated video sequences with AI-powered motion 🌟📹'
         };
-        description = defaultDescriptions[mode] || 'Select a mode to see description';
+        translatedDescription = defaultDescriptions[mode] || 'Select a model to see its description 🚀';
     }
 
-    descriptionText.textContent = description;
+    // Обновляем текст и i18n атрибут для поддержки смены языка "на лету"
+    descriptionText.textContent = translatedDescription;
+    descriptionText.setAttribute('data-i18n', descKey);
     descriptionBlock.style.display = 'block';
 
     console.log(`📝 Mode description updated for: ${mode}`);
@@ -874,6 +894,7 @@ function getTranslatedModeName(modeKey) {
         'nano_banana_pro': 'Nano Banana Pro',
         'nano_banana': 'Nano Banana',
         'pixplace_pro': 'Flux Pro Advanced',
+        'z_image': 'Z-Image Turbo',
         'fast_generation': 'Flux Fast Generation',
         'print_maker': 'Print on Demand SDXL',
         'dreamshaper_xl': 'DreamShaper XL',
@@ -950,6 +971,13 @@ function initTabs() {
     // 🔥 ДОБАВЛЕНО: Автоматически сворачиваем карточки при первой загрузке
     // Инициализируем синхронно для максимальной скорости загрузки
     setModeCardsCollapsed(true);
+
+    // Инициализация описания при загрузке
+    const currentMode = getSelectedMode();
+    const modeSelect = document.getElementById('modeSelect');
+    if (modeSelect) modeSelect.value = currentMode;
+
+    updateModeDescription(currentMode);
 
     // 🔥 ДОБАВЛЕНО: Инициализируем обработчики кликов для карточек режимов
     initModeCardClickHandlers();
@@ -1401,3 +1429,4 @@ export async function openCreditPacks() {
 window.openSubscriptionPlans = openSubscriptionPlans;
 window.openCreditPacks = openCreditPacks;
 window.showSubscriptionNotice = showSubscriptionNotice;
+window.updateModeDescription = updateModeDescription;
