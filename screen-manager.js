@@ -264,12 +264,12 @@ class ScreenManager {
         );
 
         // Получаем данные для отображения
-        const style = (generation.style || 'unknown');
-        const mode = (generation.mode || 'unknown');
+        const style = (generation?.style || generation?.data?.style || 'unknown');
+        const mode = (generation?.mode || generation?.data?.mode || 'unknown');
 
         // 🔥 ПЕРЕВОДИМ названия стиля и режима для корректного отображения в тосте
-        const translatedStyle = style !== 'unknown' ? (window.appState?.translate(`style_${style}`) || style) : style;
-        const translatedMode = mode !== 'unknown' ? (window.appState?.translate(`mode_${mode}`) || mode) : mode;
+        const translatedStyle = style !== 'unknown' ? (window.appState?.translate?.(`style_${style}`) || style) : style;
+        const translatedMode = mode !== 'unknown' ? (window.appState?.translate?.(`mode_${mode}`) || mode) : mode;
 
         toast.innerHTML = `
             <div class="flex p-0">
@@ -278,11 +278,11 @@ class ScreenManager {
                 </div>
                 <div class="flex-1 p-3 flex flex-col justify-between">
                     <div class="flex flex-col gap-1 mb-2">
-                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${translatedStyle}</span>
-                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${translatedMode}</span>
+                        ${translatedStyle && translatedStyle !== 'unknown' ? `<span class="text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${translatedStyle}</span>` : ''}
+                        ${translatedMode && translatedMode !== 'unknown' ? `<span class="text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${translatedMode}</span>` : ''}
                     </div>
-                    <button class="bg-green-500 hover:bg-green-600 text-white border-none rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer transition-all duration-200 self-start">${window.appState?.translate('toast_view_result') || 'View Result'}</button>
-                    <button class="absolute top-1.5 right-1.5 w-5 h-5 bg-black/10 hover:bg-red-100 dark:bg-white/10 dark:hover:bg-red-900/20 border-none rounded-full text-xs font-bold cursor-pointer flex items-center justify-center">×</button>
+                    <button class="toast-view-btn bg-green-500 hover:bg-green-600 text-white border-none rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer transition-all duration-200 self-start">${window.appState?.translate?.('toast_view_result') || 'View Result'}</button>
+                    <button class="toast-close-btn absolute top-1.5 right-1.5 w-5 h-5 bg-black/10 hover:bg-red-100 dark:bg-white/10 dark:hover:bg-red-900/20 border-none rounded-full text-xs font-bold cursor-pointer flex items-center justify-center">×</button>
                 </div>
             </div>
         `;
