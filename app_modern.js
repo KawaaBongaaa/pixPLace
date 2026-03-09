@@ -85,6 +85,8 @@ const CONFIG = {
     N8N_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/nano_banana',
     N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/enhance_img_or_removebg',
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
+    Z_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/Z-Image',
+    QWEN_IMAGE_WEBHOOK_URL: '',
 
 
     // App Settings
@@ -991,7 +993,15 @@ function getImageLimitForMode(mode) {
         case 'nano_banana_pro':
             return 8; // Increased to 8
         case 'fast_generation':
-            return 0; // вообще не допускаются изображения для flux shnel
+            return 0; // вообще не допускаются изображения для этих режимов
+        case 'z_image':
+            return 1; // Z-Image Turbo allows 1 image
+        case 'qwen_image':
+        case 'qwen_image_edit':
+            return 4; // Qwen models allow up to 4 images
+        case 'background_removal':
+        case 'upscale_image':
+            return 1; // Эти режимы требуют ровно 1 изображение
         default:
             return 1; // все остальные режимы - максимум 1 изображение
     }
@@ -1017,9 +1027,22 @@ function updateImageUploadVisibility() {
 
     if (modeSelect) {
         const currentMode = modeSelect.value;
+        const isProcessMode = ['background_removal', 'upscale_image'].includes(currentMode);
         let limit = 1;
         if (typeof getImageLimitForMode === 'function') {
             limit = getImageLimitForMode(currentMode);
+        }
+
+        // Batch Upload Button Logic
+        const batchBtn = document.getElementById('batchUploadBtn');
+        if (batchBtn) {
+            if (isProcessMode) {
+                batchBtn.classList.remove('hidden');
+                batchBtn.style.setProperty('display', 'inline-flex', 'important');
+            } else {
+                batchBtn.classList.add('hidden');
+                batchBtn.style.setProperty('display', 'none', 'important');
+            }
         }
 
         // Logic for Main Upload Button
@@ -1030,9 +1053,8 @@ function updateImageUploadVisibility() {
         if (currentMode === 'fast_generation') {
             shouldShowPreview = false;
             if (hasImages) {
-                console.log('🗑️ Removing images in fast_generation');
+                console.log(`🗑️ Removing images in ${currentMode}`);
                 clearAllImages();
-                // return; // Removed to fix SyntaxError, logic continues safely
             }
         } else {
             // Show preview if we have images
@@ -1124,6 +1146,10 @@ window.updateSizeSelectVisibility = updateSizeSelectVisibility;
 // ===== Функция для обновления видимости поля промпта =====
 async function updatePromptVisibility() {
     const promptFormGroup = document.getElementById('promptFormGroup');
+    const promptInputWrapper = document.getElementById('promptTextareaWrapper');
+    const promptDivider = document.getElementById('promptDivider');
+    const negativePromptSection = document.getElementById('negativePromptSection');
+    const chooseStyleSection = document.getElementById('chooseStyleSection');
 
     if (!promptFormGroup) {
         console.warn('❌ Элемент promptFormGroup не найден');
@@ -1132,22 +1158,44 @@ async function updatePromptVisibility() {
 
     const currentMode = await getCurrentSelectedMode();
 
-    // 🔧 ЛОГИКА: Скрываем поле промпта в режимах background_removal и upscale_image для более чистого UX
-    const shouldHidePrompt = ['background_removal', 'upscale_image'].includes(currentMode);
-    const shouldShowPrompt = !shouldHidePrompt;
+    // 🔧 ЛОГИКА: Скрываем все лишние поля для режимов обработки
+    const isProcessMode = ['background_removal', 'upscale_image'].includes(currentMode);
 
-    if (shouldShowPrompt) {
+    if (isProcessMode) {
+        // Скрываем текстовые поля, выбор стиля и разделитель, но оставляем контейнер (карточку) для работы с изображениями
+        if (promptInputWrapper) promptInputWrapper.classList.add('hidden');
+        if (promptDivider) promptDivider.classList.add('hidden');
+        if (negativePromptSection) negativePromptSection.classList.add('hidden');
+        if (chooseStyleSection) {
+            chooseStyleSection.style.setProperty('display', 'none', 'important');
+            chooseStyleSection.classList.add('hidden');
+        }
+
+        // Убеждаемся что основная группа видна
         promptFormGroup.style.display = 'block';
         promptFormGroup.classList.remove('hidden');
-        console.log(`📝 Prompt field VISIBLE for mode: ${currentMode}`);
+
+        console.log(`📝 Processing mode UI cleanup: Prompt and Style selection HIDDEN`);
     } else {
-        promptFormGroup.style.setProperty('display', 'none', 'important');
-        promptFormGroup.classList.add('hidden');
-        console.log(`🚫 Prompt field HIDDEN for mode: ${currentMode} (no prompt needed)`);
+        // Показываем всё обратно для обычных режимов
+        if (promptInputWrapper) promptInputWrapper.classList.remove('hidden');
+        if (promptDivider) promptDivider.classList.remove('hidden');
+        if (negativePromptSection) negativePromptSection.classList.remove('hidden');
+        if (chooseStyleSection) {
+            chooseStyleSection.style.setProperty('display', 'block', 'important');
+            chooseStyleSection.classList.remove('hidden');
+        }
+
+        promptFormGroup.style.display = 'block';
+        promptFormGroup.classList.remove('hidden');
+
+        console.log(`📝 All prompt area contents and style selection VISIBLE`);
     }
 
-    // Также обновляем видимость negative prompt поля
-    await updateNegativePromptVisibility();
+    // Также обновляем видимость negative prompt поля (если не в режиме обработки)
+    if (!isProcessMode) {
+        await updateNegativePromptVisibility();
+    }
 }
 
 // ===== Функция для обновления видимости поля negative prompt =====
@@ -1161,7 +1209,8 @@ async function updateNegativePromptVisibility() {
 
     // 🔧 ОБНОВЛЕННАЯ ЛОГИКА: Показываем секцию с чекбоксом для ВСЕХ режимов, где есть поле промпта
     // Скрываем только для режимов без промпта: background_removal и upscale_image
-    const shouldShowNegativePromptSection = !['background_removal', 'upscale_image'].includes(currentMode);
+    // 🔥 НОВОЕ: Скрываем также для z_image по требованию
+    const shouldShowNegativePromptSection = !['background_removal', 'upscale_image', 'z_image'].includes(currentMode);
 
     if (shouldShowNegativePromptSection) {
         // 🔥 Refined UI: Toggle Container
@@ -1332,6 +1381,10 @@ function initUserImageUpload() {
         document.addEventListener('mode:changed', (event) => {
             const { mode } = event.detail;
             console.log('📡 Mode changed event received:', mode);
+
+            // 🔥 Синхронизируем скрытый селект для корректной работы updateVisibility функций
+            if (modeSelect) modeSelect.value = mode;
+
             updateImageUploadVisibility();
             updatePromptVisibility();
             updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: обновление видимости negative prompt
@@ -2135,6 +2188,7 @@ const GENERATION_COST_MAP = {
     'print_maker': { withImages: 3, noImages: 3 },
     'upscale_image': { withImages: 10, noImages: 10 },
     'fast_generation': { withImages: 2, noImages: 2 },
+    'z_image': { withImages: 20, noImages: 20 },
     'background_removal': { withImages: 0, noImages: 0 },
     'dreamshaper_xl': { withImages: 0, noImages: 0 }
 };
@@ -2585,11 +2639,19 @@ async function sendToWebhook(data) {
         // Модели улучшения изображений используют отдельный N8N вебхук
         webhookUrl = CONFIG.N8N_ENHANCE_OR_REMBG_WEBHOOK_URL;
         webhookType = 'N8N_ENHANCE_OR_REMBG_WEBHOOK_URL';
+    } else if (data.mode === 'z_image') {
+        // Модель Z-Image использует свой выделенный вебхук
+        webhookUrl = CONFIG.Z_IMAGE_WEBHOOK_URL;
+        webhookType = 'Z_IMAGE_WEBHOOK_URL';
     } else if (data.mode === 'nano_banana_pro' || data.mode === 'nano_banana' ||
         ['video_gen', 'image_to_video', 'video_edit'].includes(data.mode)) {
         // Специальные режимы используют основной N8N вебхук
         webhookUrl = CONFIG.N8N_WEBHOOK_URL;
         webhookType = 'N8N_WEBHOOK_URL';
+    } else if (['qwen_image', 'qwen_image_edit'].includes(data.mode)) {
+        // Модель Qwen использует свой выделенный вебхук
+        webhookUrl = CONFIG.QWEN_IMAGE_WEBHOOK_URL;
+        webhookType = 'QWEN_IMAGE_WEBHOOK_URL';
     } else {
         // Все остальные модели используют основной вебхук
         webhookUrl = CONFIG.WEBHOOK_URL;
