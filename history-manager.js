@@ -48,14 +48,15 @@ function replaceLoadingWithPreview(taskUUID, generationData) {
     // Обновляем подпись с новой информацией
     const caption = animationEl.querySelector('p');
     if (caption) {
-        const safeMode = (generationData.mode && generationData.mode !== 'undefined') ?
-            generationData.mode : 'nano_banana';
-        const styleText = generationData.style ? `${translate('style_' + generationData.style, window.appState) || generationData.style}` : '';
-        const separator1 = generationData.style ? ' | ' : '';
-        const separator2 = ' | ';
+        const safeMode = (generationData.mode && generationData.mode !== 'undefined') ? generationData.mode : 'nano_banana';
+        const styleText = (generationData.style && generationData.style !== 'unknown') ? (translate('style_' + generationData.style, window.appState) || generationData.style) : '';
+        const translatedMode = (translate('mode_' + safeMode, window.appState) || safeMode);
+        const modeText = (translatedMode && translatedMode !== 'unknown') ? translatedMode : '';
+        const finalSeparator = (styleText && modeText) ? ' | ' : '';
+
         caption.innerHTML = `
             <span class="complete-status">✅ Complete</span><br>
-            <small class="history-date">${new Date().toLocaleDateString()}${separator1}${styleText}${separator2}${translate('mode_' + safeMode, window.appState) || safeMode || 'unknown'}</small>
+            <small class="history-date">${new Date().toLocaleDateString()}${styleText ? ' | ' + styleText : ''}${finalSeparator}${modeText}</small>
         `;
 
         // Добавляем анимацию изменения текста
@@ -326,7 +327,11 @@ function updateHistoryDisplay(page = 0) {
                     <div class="broken-image-text">Изображение недоступно</div>
                     <div class="broken-image-subtext">Повторите генерацию</div>
                 </div>
-                <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
+                <p class="history-caption">
+                    ${new Date(item.timestamp).toLocaleDateString()}
+                    ${(item.style && item.style !== 'unknown') ? ' | ' + (translate('style_' + item.style, window.appState) || item.style) : ''}
+                    ${(item.mode && item.mode !== 'unknown') ? ' | ' + (translate('mode_' + item.mode, window.appState) || item.mode) : ''}
+                </p>
 
             <!-- 🔥 ДОБАВЛЕНИЕ: Сохраняем состояние для восстановления! -->
             <script type="application/json" class="generation-state" style="display:none;">
@@ -352,7 +357,11 @@ function updateHistoryDisplay(page = 0) {
                      loading="lazy"
                      decoding="async"
                      />
-                <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
+                <p class="history-caption">
+                    ${new Date(item.timestamp).toLocaleDateString()}
+                    ${(item.style && item.style !== 'unknown') ? ' | ' + (translate('style_' + item.style, window.appState) || item.style) : ''}
+                    ${(item.mode && item.mode !== 'unknown') ? ' | ' + (translate('mode_' + item.mode, window.appState) || item.mode) : ''}
+                </p>
                 <!-- 🔥 FIXED: Added type="button" to prevent form submission -->
                 <button type="button" class="absolute top-2 right-2 p-2 bg-black/40 hover:bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
                         onclick="event.stopPropagation(); window.deleteHistoryItem(${item.id || item.generation_id});"
@@ -613,7 +622,11 @@ function showAllHistory() {
                  loading="lazy"
                  decoding="async"
                  />
-            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
+            <p class="history-caption">
+                ${new Date(item.timestamp).toLocaleDateString()}
+                ${(item.style && item.style !== 'unknown') ? ' | ' + (translate('style_' + item.style, window.appState) || item.style) : ''}
+                ${(item.mode && item.mode !== 'unknown') ? ' | ' + (translate('mode_' + item.mode, window.appState) || item.mode) : ''}
+            </p>
         `;
 
         return element.outerHTML;
@@ -728,7 +741,14 @@ async function toggleHistoryList() {
     if (list.classList.contains('hidden')) {
         // ОТКРЫТИЕ ИСТОРИИ - lazy loading
         console.log('📂 Opening history with lazy loading');
-        list.innerHTML = '<div class="history-loading-indicator">Loading history...</div>';
+        const loadingCards = Array.from(list.children).filter(child => child.id && child.id.startsWith('loading-'));
+        if (loadingCards.length === 0) {
+            list.innerHTML = '<div class="history-loading-indicator">Loading history...</div>';
+        } else {
+            Array.from(list.children).forEach(child => {
+                if (!child.id || !child.id.startsWith('loading-')) child.remove();
+            });
+        }
         list.classList.remove('hidden');
         btn.classList.add('active');
         // Поворот шеврона
@@ -771,7 +791,9 @@ async function toggleHistoryList() {
             }
 
             // Запрашиваем актуальный кэш
-            list.innerHTML = '';
+            Array.from(list.children).forEach(child => {
+                if (!child.id || !child.id.startsWith('loading-')) child.remove();
+            });
 
             // Используем unified updateHistoryDisplay для отрисовки
             updateHistoryDisplay(0);
@@ -912,7 +934,11 @@ async function renderHistoryPage(generations, page = 0) {
                 <div class="broken-image-icon">📷</div>
                 <div class="broken-image-text">Изображение недоступно</div>
             </div>
-            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
+            <p class="history-caption">
+                ${new Date(item.timestamp).toLocaleDateString()}
+                ${(item.style && item.style !== 'unknown') ? ' | ' + (translate('style_' + item.style, window.appState) || item.style) : ''}
+                ${(item.mode && item.mode !== 'unknown') ? ' | ' + (translate('mode_' + item.mode, window.appState) || item.mode) : ''}
+            </p>
         ` : `
             <img src="${imageUrl}"
                  alt="Generated"
@@ -920,7 +946,11 @@ async function renderHistoryPage(generations, page = 0) {
                  loading="lazy"
                  decoding="async"
                  />
-            <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${translate('style_' + item.style, window.appState) || item.style || 'unknown'} | ${translate('mode_' + item.mode, window.appState) || item.mode || 'unknown'}</p>
+            <p class="history-caption">
+                ${new Date(item.timestamp).toLocaleDateString()}
+                ${(item.style && item.style !== 'unknown') ? ' | ' + (translate('style_' + item.style, window.appState) || item.style) : ''}
+                ${(item.mode && item.mode !== 'unknown') ? ' | ' + (translate('mode_' + item.mode, window.appState) || item.mode) : ''}
+            </p>
         `;
 
         historyList.appendChild(element);
