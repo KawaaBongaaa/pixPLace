@@ -155,11 +155,12 @@ class GenerationManager {
             const requestData = {
                 action: 'Image Generation',
                 prompt: generation.prompt,
-                style: generation.style || appState?.selectedStyle,
+                style: generation.style || (typeof appState !== 'undefined' ? appState : window.appState)?.selectedStyle,
                 mode: generation.mode,
                 // 🔥 НОВОЕ: Отправляем конкретные размеры вместо строкового значения
                 width: generation.width,
                 height: generation.height,
+                resolution: generation.resolution,
                 // size: generation.size, // Оставляем для обратной совместимости если нужно
 
                 // ВАЖНО: Приоритет отдаем внутреннему ID из базы, сохраненному в сессии, затем appState
@@ -172,12 +173,12 @@ class GenerationManager {
                     } catch (e) { }
                     return window.appState?.userId || null;
                 })(),
-                user_name: window.appState?.userName || ((appState && appState.user && appState.user.name) ? appState.user.name : null),
-                user_username: window.appState?.userName || ((appState && appState.user && appState.user.username) ? appState.user.username : null),
-                user_language: (appState && appState.language) ? appState.language : 'en',
-                user_is_premium: (appState && appState.user && appState.user.isPremium) ? appState.user.isPremium : false,
-                telegram_platform: appState?.tg?.platform || 'unknown',
-                telegram_version: appState?.tg?.version || 'unknown',
+                user_name: window.appState?.userName || (((typeof appState !== 'undefined' ? appState : window.appState) && (typeof appState !== 'undefined' ? appState : window.appState).user && (typeof appState !== 'undefined' ? appState : window.appState).user.name) ? (typeof appState !== 'undefined' ? appState : window.appState).user.name : null),
+                user_username: window.appState?.userName || (((typeof appState !== 'undefined' ? appState : window.appState) && (typeof appState !== 'undefined' ? appState : window.appState).user && (typeof appState !== 'undefined' ? appState : window.appState).user.username) ? (typeof appState !== 'undefined' ? appState : window.appState).user.username : null),
+                user_language: ((typeof appState !== 'undefined' ? appState : window.appState) && (typeof appState !== 'undefined' ? appState : window.appState).language) ? (typeof appState !== 'undefined' ? appState : window.appState).language : 'en',
+                user_is_premium: ((typeof appState !== 'undefined' ? appState : window.appState) && (typeof appState !== 'undefined' ? appState : window.appState).user && (typeof appState !== 'undefined' ? appState : window.appState).user.isPremium) ? (typeof appState !== 'undefined' ? appState : window.appState).user.isPremium : false,
+                telegram_platform: (typeof appState !== 'undefined' ? appState : window.appState)?.tg?.platform || 'unknown',
+                telegram_version: (typeof appState !== 'undefined' ? appState : window.appState)?.tg?.version || 'unknown',
                 timestamp: generation.timestamp || new Date().toISOString(),
                 generation_id: generation.id,
                 taskUUID: generation.taskUUID,

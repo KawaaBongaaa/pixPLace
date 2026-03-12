@@ -44,7 +44,7 @@ export function updateUserNameDisplay() {
     if (!nameElement) return;
 
     // Получаем appState из window или из local переменной
-    let state = appState || window.appState;
+    let state = (typeof appState !== 'undefined' ? appState : window.appState);
     if (!state) {
         console.warn('❌ updateUserNameDisplay: appState не найден ни в module, ни в window');
         return;
@@ -82,7 +82,7 @@ export function updateUserBalanceDisplay(credits, reason = '') {
     console.log(' Current appState balance:', window.appState?.user?.credits);
 
     // Получаем appState из window или из local переменной
-    let state = appState || window.appState;
+    let state = (typeof appState !== 'undefined' ? appState : window.appState);
     if (!state) {
         console.warn('❌ updateUserBalanceDisplay: appState не найден ни в module, ни в window');
         return;
@@ -227,7 +227,7 @@ export async function showSubscriptionNotice(result, limitType = 'trial') {
 
     console.log('🌍 TRANSLATION DEBUG:', {
         limitType,
-        currentLanguage: appState?.language || window.appState?.language,
+        currentLanguage: (typeof appState !== 'undefined' ? appState : window.appState)?.language,
         titleKey,
         messageKey,
         title,
