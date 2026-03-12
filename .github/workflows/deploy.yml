@@ -32,7 +32,9 @@ jobs:
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           CHAT_WEBHOOK_URL: ${{ secrets.CHAT_WEBHOOK_URL }}
-          N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
+          NANO_BANANA_WEBHOOK: ${{ secrets.NANO_BANANA_WEBHOOK }}
+          NANO_BANANA_2_WEBHOOK: ${{ secrets.NANO_BANANA_2_WEBHOOK }}
+          NANO_BANANA_PRO_WEBHOOK: ${{ secrets.NANO_BANANA_PRO_WEBHOOK }}
           N8N_ENHANCE_WEBHOOK_URL: ${{ secrets.N8N_ENHANCE_WEBHOOK_URL }}
           HISTORY_WEBHOOK_URL: ${{ secrets.HISTORY_WEBHOOK_URL }}
           AUTH_WEBHOOK_URL: ${{ secrets.AUTH_WEBHOOK_URL }}
@@ -49,7 +51,9 @@ jobs:
             const replacements = {
               "PLACEHOLDER_WEBHOOK_URL": process.env.WEBHOOK_URL || "",
               "PLACEHOLDER_CHAT_WEBHOOK_URL": process.env.CHAT_WEBHOOK_URL || "",
-              "PLACEHOLDER_N8N_WEBHOOK_URL": process.env.N8N_WEBHOOK_URL || "",
+              "PLACEHOLDER_NANO_BANANA_WEBHOOK": process.env.NANO_BANANA_WEBHOOK || "",
+              "PLACEHOLDER_NANO_BANANA_2_WEBHOOK": process.env.NANO_BANANA_2_WEBHOOK || "",
+              "PLACEHOLDER_NANO_BANANA_PRO_WEBHOOK": process.env.NANO_BANANA_PRO_WEBHOOK || "",
               "PLACEHOLDER_N8N_ENHANCE_WEBHOOK_URL": process.env.N8N_ENHANCE_WEBHOOK_URL || "",
               "PLACEHOLDER_HISTORY_WEBHOOK_URL": process.env.HISTORY_WEBHOOK_URL || "",
               "PLACEHOLDER_AUTH_WEBHOOK_URL": process.env.AUTH_WEBHOOK_URL || "",
