@@ -768,7 +768,8 @@
                                                             <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
                                                                 data-mode="nano_banana_2"
                                                                 data-description="Nano Banana 2 (Gemini 3.1 Flash Image) is Google’s fast and powerful image model, delivering high-quality visuals, accurate text rendering, strong character consistency, and scalable image generation and editing">
-                                                                <span class="cost-badge absolute -top-3 -right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
+                                                                <span
+                                                                    class="cost-badge absolute top-2 sm:-top-3 right-2 sm:-right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
                                                                     <div>1K: 5 Credits</div>
                                                                     <div>2K: 7 Credits</div>
                                                                     <div>4K: 11 Credits</div>
@@ -789,7 +790,8 @@
                                                             <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
                                                                 data-mode="nano_banana_pro"
                                                                 data-description="Google DeepMind’s Nano Banana Pro delivers sharper 2K images, smart 4K upscaling, improved text rendering, and better character consistency—providing a major boost in visual quality for creative projects">
-                                                                <span class="cost-badge absolute -top-3 -right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
+                                                                <span
+                                                                    class="cost-badge absolute top-2 sm:-top-3 right-2 sm:-right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
                                                                     <div>1K/2K: 12 Credits</div>
                                                                     <div>4K: 16 Credits</div>
                                                                 </span>
@@ -1160,12 +1162,12 @@
 
                                         <!-- Left Tools -->
                                         <div
-                                            class="flex flex-wrap items-center gap-2 w-full sm:w-auto overflow-x-auto scrollbar-hide pb-1 sm:pb-0">
+                                            class="flex flex-wrap items-center gap-2 w-full sm:flex-1 sm:w-auto pb-1 sm:pb-0">
 
                                             <!-- Aspect Ratio Selector -->
-                                            <div class="relative min-w-[120px]" id="sizeGroup">
+                                            <div class="relative flex-1 min-w-[120px] max-w-[200px]" id="sizeGroup">
                                                 <select id="sizeSelect"
-                                                    class="w-full bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-3 pr-2 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors">
+                                                    class="w-full text-ellipsis overflow-hidden bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-3 pr-2 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors">
                                                     <option value="square">Square 1:1 (1024×1024)</option>
                                                     <option value="ultra_wide_landscape">Ultra-Wide Landscape 21:9
                                                         (1536×640)</option>
@@ -1186,9 +1188,9 @@
                                             </div>
 
                                             <!-- Resolution Selector (Nano Banana) -->
-                                            <div class="relative min-w-[120px] hidden" id="resolutionGroup">
+                                            <div class="relative flex-1 min-w-[100px] max-w-[130px] hidden" id="resolutionGroup">
                                                 <select id="resolutionSelect"
-                                                    class="w-full bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-2 pr-2 text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors">
+                                                    class="w-full text-ellipsis overflow-hidden bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-2 pr-2 text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors">
                                                     <option value="1k">Resolution 1K</option>
                                                     <option value="2k">Resolution 2K</option>
                                                     <option value="4k">Resolution 4K</option>
@@ -1773,80 +1775,7 @@
     <script src="telegram-auth.js"></script>
     <script type="module" src="app_modern.js?v=2535"></script>
 
-    <!-- 🎬 ONBOARDING LOADER -->
-    <script>
-        (function launchOnboarding() {
-            if (localStorage.getItem('pixplace_onboarding_done')) return;
-            function startOnboarding() {
-                // Small delay so app UI settles
-                setTimeout(function () {
-                    import('./onboarding/onboarding.js').then(function (m) {
-                        var ob = new m.PixPlaceOnboarding();
 
-                        // 🔥 Patch _finish to fire consent event after onboarding ends
-                        var origFinish = ob._finish.bind(ob);
-                        ob._finish = function () {
-                            origFinish();
-                            // Give onboarding fade-out animation ~400ms, then signal done
-                            setTimeout(fireOnboardingDone, 450);
-                        };
-
-                        ob.start();
-                    }).catch(function (err) {
-                        console.warn('[Onboarding] Failed to load module:', err);
-                        // Fire anyway so cookie banner isn't stuck
-                        fireOnboardingDone();
-                    });
-                }, 600);
-            }
-
-            // Listen for app:ready event (dispatched by app_modern.js)
-            var handled = false;
-            document.addEventListener('app:ready', function () {
-                if (handled) return;
-                handled = true;
-                startOnboarding();
-            }, { once: true });
-
-            // Safety fallback: if app:ready never fires within 5s, start anyway
-            setTimeout(function () {
-                if (!handled) {
-                    handled = true;
-                    startOnboarding();
-                }
-            }, 5000);
-        })();
-    </script>
-
-</body>
-
-</html } }, 5000); })(); </script>
-
-</body>
-
-</html // Fire anyway so cookie banner isn't stuck fireOnboardingDone(); }); }, 600); } // Listen for app:ready event
-    (dispatched by app_modern.js) var handled=false; document.addEventListener('app:ready', function () { if (handled)
-    return; handled=true; startOnboarding(); }, { once: true }); // Safety fallback: if app:ready never fires within 5s,
-    start anyway setTimeout(function () { if (!handled) { handled=true; startOnboarding(); } }, 5000); })(); </script>
-
-</body>
-
-</html }).catch(function (err) { console.warn('[Onboarding] Failed to load module:', err); // Fire anyway so cookie
-    banner isn't stuck fireOnboardingDone(); }); }, 600); } // Listen for app:ready event (dispatched by app_modern.js)
-    var handled=false; document.addEventListener('app:ready', function () { if (handled) return; handled=true;
-    startOnboarding(); }, { once: true }); // Safety fallback: if app:ready never fires within 5s, start anyway
-    setTimeout(function () { if (!handled) { handled=true; startOnboarding(); } }, 5000); })(); </script>
-
-</body>
-
-</html <script type="module" src="app_modern.js?v=2535">
-</script>
-
-<!-- ФИНАЛЬНЫЙ ТЕСТ - КНОПКА В BODY - ВРЕМЕННО ОТКЛЮЧЕНА -->
-<button onclick="handleTelegramLogin()"
-    style="position: fixed; top: 200px; left: 200px; width: 400px; height: 120px; background: #ff00ff; color: white; font-size: 32px; font-weight: bold; border: 10px solid #000000; border-radius: 20px; z-index: 1000000; cursor: pointer; display: none !important;">
-    🚀 TELEGRAM АВТОРИЗАЦИЯ<br />ФИНАЛЬНЫЙ ТЕСТ
-</button>
 <!-- 🎬 ONBOARDING LOADER: Swappable — replace onboarding/ folder to change flow -->
 <script>
     (function launchOnboarding() {
