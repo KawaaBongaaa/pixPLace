@@ -1340,10 +1340,16 @@ function updateSizeOptionsForMode(mode) {
     ];
 
     availableSizes.forEach(size => {
+        let displayLabel = size.label;
+        // Для режимов Nano Banana убираем точные значения пикселей в скобках
+        if (mode && mode.startsWith('nano_banana')) {
+            displayLabel = displayLabel.replace(/\s*\([^)]+\)/, '');
+        }
+
         const option = document.createElement('option');
         option.value = size.value;
         option.className = 'size-text';
-        option.textContent = size.label;
+        option.textContent = displayLabel;
         sizeSelect.appendChild(option);
     });
 
@@ -1368,9 +1374,9 @@ async function updateResolutionSelectVisibility() {
         
         if (currentMode === 'nano_banana_2') {
             const options = [
-                { value: '1k', label: '1K (5 Credits)' },
-                { value: '2k', label: '2K (7 Credits)' },
-                { value: '4k', label: '4K (11 Credits)' }
+                { value: '1k', label: 'Resolution 1K' },
+                { value: '2k', label: 'Resolution 2K' },
+                { value: '4k', label: 'Resolution 4K' }
             ];
             options.forEach(opt => {
                 const el = document.createElement('option');
@@ -1380,9 +1386,9 @@ async function updateResolutionSelectVisibility() {
             });
         } else if (currentMode === 'nano_banana_pro') {
             const options = [
-                { value: '1k', label: '1K (12 Credits)' },
-                { value: '2k', label: '2K (12 Credits)' },
-                { value: '4k', label: '4K (16 Credits)' }
+                { value: '1k', label: 'Resolution 1K' },
+                { value: '2k', label: 'Resolution 2K' },
+                { value: '4k', label: 'Resolution 4K' }
             ];
             options.forEach(opt => {
                 const el = document.createElement('option');
