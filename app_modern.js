@@ -1340,6 +1340,11 @@ function updateSizeOptionsForMode(mode) {
     ];
 
     availableSizes.forEach(size => {
+        // Пропускаем Ultra-Tall Portrait для режимов Nano Banana
+        if (size.value === 'ultra_tall_portrait' && mode && mode.startsWith('nano_banana')) {
+            return;
+        }
+
         let displayLabel = size.label;
         // Для режимов Nano Banana убираем точные значения пикселей в скобках
         if (mode && mode.startsWith('nano_banana')) {
@@ -1365,18 +1370,19 @@ async function updateResolutionSelectVisibility() {
     const currentMode = await getCurrentSelectedMode();
 
     if (currentMode === 'nano_banana_2' || currentMode === 'nano_banana_pro') {
+        resolutionGroup.style.removeProperty('display');
         resolutionGroup.style.display = 'block';
         resolutionGroup.classList.remove('hidden');
 
         // Update options based on mode
         const previousValue = resolutionSelect.value;
         resolutionSelect.innerHTML = '';
-        
+
         if (currentMode === 'nano_banana_2') {
             const options = [
-                { value: '1k', label: 'Resolution 1K' },
-                { value: '2k', label: 'Resolution 2K' },
-                { value: '4k', label: 'Resolution 4K' }
+                { value: '1k', label: 'Res 1K' },
+                { value: '2k', label: 'Res 2K' },
+                { value: '4k', label: 'Res 4K' }
             ];
             options.forEach(opt => {
                 const el = document.createElement('option');
@@ -1386,9 +1392,9 @@ async function updateResolutionSelectVisibility() {
             });
         } else if (currentMode === 'nano_banana_pro') {
             const options = [
-                { value: '1k', label: 'Resolution 1K' },
-                { value: '2k', label: 'Resolution 2K' },
-                { value: '4k', label: 'Resolution 4K' }
+                { value: '1k', label: 'Res 1K' },
+                { value: '2k', label: 'Res 2K' },
+                { value: '4k', label: 'Res 4K' }
             ];
             options.forEach(opt => {
                 const el = document.createElement('option');
@@ -1397,7 +1403,7 @@ async function updateResolutionSelectVisibility() {
                 resolutionSelect.appendChild(el);
             });
         }
-        
+
         // Restore previous value if it still exists
         if (Array.from(resolutionSelect.options).some(opt => opt.value === previousValue)) {
             resolutionSelect.value = previousValue;
@@ -2263,7 +2269,7 @@ const GENERATION_COST_MAP = {
 function checkGenerationAccess(mode, hasImages) {
     const user = window.appState?.user;
     if (!user || !user.id) return { ok: false, reason: 'unauthorized' };
-    
+
     let cost = 5;
     const costs = GENERATION_COST_MAP[mode];
 
@@ -2271,7 +2277,7 @@ function checkGenerationAccess(mode, hasImages) {
     if (mode === 'nano_banana_2' || mode === 'nano_banana_pro') {
         const resolutionSelect = document.getElementById('resolutionSelect');
         const resolution = resolutionSelect ? resolutionSelect.value : '1k';
-        
+
         if (mode === 'nano_banana_2') {
             if (resolution === '1k') cost = 5;
             else if (resolution === '2k') cost = 7;
@@ -2283,7 +2289,7 @@ function checkGenerationAccess(mode, hasImages) {
     } else {
         cost = costs ? (hasImages ? costs.withImages : costs.noImages) : 5;
     }
-    
+
     const balance = parseFloat(user.credits) || 0;
     if (cost > 0 && balance < cost) return { ok: false, reason: 'insufficient_funds', cost, balance };
     return { ok: true, cost, balance };
@@ -2481,8 +2487,8 @@ async function generateImage(event) {
         // 🔥 НОВОЕ: Получаем разрешение, если оно выбрано
         const resolutionGroup = document.getElementById('resolutionGroup');
         const resolutionSelect = document.getElementById('resolutionSelect');
-        const resolution = (resolutionGroup && !resolutionGroup.classList.contains('hidden') && resolutionSelect) 
-            ? resolutionSelect.value 
+        const resolution = (resolutionGroup && !resolutionGroup.classList.contains('hidden') && resolutionSelect)
+            ? resolutionSelect.value
             : null;
 
         const generation = {
