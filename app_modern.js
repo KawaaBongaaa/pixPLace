@@ -82,7 +82,9 @@ const CONFIG = {
     // ⚠️ Do NOT put real URLs here — they are replaced at deploy time
     WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/8f797a7b-df4e-4fd0-881d-408666418195',
     CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6',
-    N8N_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/nano-banana-pro',
+    NANO_BANANA_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook-test/nano-banana',
+    NANO_BANANA_2_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook-test/nano-banana-2',
+    NANO_BANANA_PRO_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook-test/nano-banana-pro',
     N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/enhance_img_or_removebg',
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
     Z_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/Z-Image',
@@ -990,6 +992,8 @@ function getImageLimitForMode(mode) {
     switch (mode) {
         case 'nano_banana':
             return 8; // Increased to 8
+        case 'nano_banana_2':
+            return 8; // Increased to 8
         case 'nano_banana_pro':
             return 8; // Increased to 8
         case 'fast_generation':
@@ -1346,6 +1350,58 @@ function updateSizeOptionsForMode(mode) {
     console.log(`🎨 Available size options loaded for mode: ${mode}`);
 }
 
+// ===== Функция для обновления селектора разрешений (Nano Banana) =====
+async function updateResolutionSelectVisibility() {
+    const resolutionGroup = document.getElementById('resolutionGroup');
+    const resolutionSelect = document.getElementById('resolutionSelect');
+    if (!resolutionGroup || !resolutionSelect) return;
+
+    const currentMode = await getCurrentSelectedMode();
+
+    if (currentMode === 'nano_banana_2' || currentMode === 'nano_banana_pro') {
+        resolutionGroup.style.display = 'block';
+        resolutionGroup.classList.remove('hidden');
+
+        // Update options based on mode
+        const previousValue = resolutionSelect.value;
+        resolutionSelect.innerHTML = '';
+        
+        if (currentMode === 'nano_banana_2') {
+            const options = [
+                { value: '1k', label: '1K (5 Credits)' },
+                { value: '2k', label: '2K (7 Credits)' },
+                { value: '4k', label: '4K (11 Credits)' }
+            ];
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.value;
+                el.textContent = opt.label;
+                resolutionSelect.appendChild(el);
+            });
+        } else if (currentMode === 'nano_banana_pro') {
+            const options = [
+                { value: '1k', label: '1K (12 Credits)' },
+                { value: '2k', label: '2K (12 Credits)' },
+                { value: '4k', label: '4K (16 Credits)' }
+            ];
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.value;
+                el.textContent = opt.label;
+                resolutionSelect.appendChild(el);
+            });
+        }
+        
+        // Restore previous value if it still exists
+        if (Array.from(resolutionSelect.options).some(opt => opt.value === previousValue)) {
+            resolutionSelect.value = previousValue;
+        }
+    } else {
+        resolutionGroup.style.setProperty('display', 'none', 'important');
+        resolutionGroup.classList.add('hidden');
+    }
+}
+
 // ===== Инициализация UI загрузки =====
 function initUserImageUpload() {
     const input = document.getElementById('userImage');
@@ -1364,6 +1420,7 @@ function initUserImageUpload() {
         updatePromptVisibility();
         updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: инициализация видимости negative prompt
         updateSizeSelectVisibility();
+        updateResolutionSelectVisibility(); // 🔥 ДОБАВЛЕНО: инициализация видимости разрешений
 
         // 🔥 ДОБАВЛЕНО: Инициализация селектора размеров со всеми вариантами при загрузке страницы
         updateSizeOptionsForMode('nano_banana_pro'); // Используем дефолтный режим для инициализации
@@ -1375,6 +1432,7 @@ function initUserImageUpload() {
             updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: обновление видимости negative prompt
             // Также обновляем видимость блока размеров при смене режима
             updateSizeSelectVisibility();
+            updateResolutionSelectVisibility();
         });
 
         // 🔥 ДОБАВЛЕНО: Слушатель кастомного события изменения режима от mode-cards компонента
@@ -1389,6 +1447,7 @@ function initUserImageUpload() {
             updatePromptVisibility();
             updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: обновление видимости negative prompt
             updateSizeSelectVisibility();
+            updateResolutionSelectVisibility();
         });
     }
 }
@@ -1737,6 +1796,7 @@ function removeImage(imageId) {
 
     // Обновление видимости выбора размеров
     updateSizeSelectVisibility();
+    updateResolutionSelectVisibility();
 
     // Обновление видимости кнопки и превью согласно логике режима
     updateImageUploadVisibility();
@@ -1790,7 +1850,7 @@ function updateInnerUploadButtonVisibility() {
 
         let shouldShowInnerBtn = false;
 
-        if (currentMode === 'nano_banana' || currentMode === 'nano_banana_pro') {
+        if (currentMode === 'nano_banana' || currentMode === 'nano_banana_2' || currentMode === 'nano_banana_pro') {
             // Для Photo Session и Nano Banana Pro: показываем кнопку пока не достигнут лимит в 4 изображения
             shouldShowInnerBtn = imageCount < 4;
         } else if (['upscale_image', 'background_removal'].includes(currentMode)) {
@@ -2182,7 +2242,8 @@ import('./navigation-manager.js').then(module => {
 // ─── Access Guard ─────────────────────────────────────────────────────────────
 // Checks credits before generation. Reads data synced by UserProfileService.
 const GENERATION_COST_MAP = {
-    'nano_banana': { withImages: 10, noImages: 5 },
+    'nano_banana': { withImages: 3, noImages: 3 },
+    'nano_banana_2': { withImages: 10, noImages: 5 },
     'nano_banana_pro': { withImages: 15, noImages: 15 },
     'pixplace_pro': { withImages: 4, noImages: 4 },
     'print_maker': { withImages: 3, noImages: 3 },
@@ -2196,8 +2257,27 @@ const GENERATION_COST_MAP = {
 function checkGenerationAccess(mode, hasImages) {
     const user = window.appState?.user;
     if (!user || !user.id) return { ok: false, reason: 'unauthorized' };
+    
+    let cost = 5;
     const costs = GENERATION_COST_MAP[mode];
-    const cost = costs ? (hasImages ? costs.withImages : costs.noImages) : 5;
+
+    // 🔥 ДОБАВЛЕНО: Динамический расчет стоимости по выбранному разрешению
+    if (mode === 'nano_banana_2' || mode === 'nano_banana_pro') {
+        const resolutionSelect = document.getElementById('resolutionSelect');
+        const resolution = resolutionSelect ? resolutionSelect.value : '1k';
+        
+        if (mode === 'nano_banana_2') {
+            if (resolution === '1k') cost = 5;
+            else if (resolution === '2k') cost = 7;
+            else if (resolution === '4k') cost = 11;
+        } else if (mode === 'nano_banana_pro') {
+            if (resolution === '1k' || resolution === '2k') cost = 12;
+            else if (resolution === '4k') cost = 16;
+        }
+    } else {
+        cost = costs ? (hasImages ? costs.withImages : costs.noImages) : 5;
+    }
+    
     const balance = parseFloat(user.credits) || 0;
     if (cost > 0 && balance < cost) return { ok: false, reason: 'insufficient_funds', cost, balance };
     return { ok: true, cost, balance };
@@ -2392,6 +2472,13 @@ async function generateImage(event) {
         // 🔥 НОВОЕ: Получаем конкретные размеры вместо строкового значения
         const dimensions = getSizeDimensions(size);
 
+        // 🔥 НОВОЕ: Получаем разрешение, если оно выбрано
+        const resolutionGroup = document.getElementById('resolutionGroup');
+        const resolutionSelect = document.getElementById('resolutionSelect');
+        const resolution = (resolutionGroup && !resolutionGroup.classList.contains('hidden') && resolutionSelect) 
+            ? resolutionSelect.value 
+            : null;
+
         const generation = {
             id: generationIdForCleanup,
             taskUUID: taskUUID,
@@ -2402,6 +2489,7 @@ async function generateImage(event) {
             mode: finalMode,
             width: dimensions.width,
             height: dimensions.height,
+            resolution: resolution, // 🔥 ДОБАВЛЕНО
             // size: size, // Оставляем для обратной совместимости если нужно
             strength: strengthValue, // Add strength if slider is visible
             timestamp: new Date().toISOString(),
@@ -2482,6 +2570,7 @@ async function generateImage(event) {
 
         // Создаем превью СРАЗУ для ВСЕХ режимов КРОМЕ photo_session и nano_banana_pro без изображений
         if (!(mode === 'nano_banana' && userImageState.images.length === 0) &&
+            !(mode === 'nano_banana_2' && userImageState.images.length === 0) &&
             !(mode === 'nano_banana_pro' && userImageState.images.length === 0)) {
             console.log('🎯 Creating preview immediately for mode:', mode);
             window.createPreviewForGeneration(generation);
@@ -2490,7 +2579,7 @@ async function generateImage(event) {
         }
 
         // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session и nano_banana_pro без изображения ===
-        if ((mode === 'nano_banana' || mode === 'nano_banana_pro') && userImageState.images.length === 0) {
+        if ((mode === 'nano_banana' || mode === 'nano_banana_2' || mode === 'nano_banana_pro') && userImageState.images.length === 0) {
             // 🔥 ДОБАВЛЕНО: Проверяем sessionStorage, показываем ли модалку уже в этой сессии
             const modalShownKey = `modal_shown_${mode}`;
             const modalAlreadyShown = sessionStorage.getItem(modalShownKey) === 'true';
@@ -2632,11 +2721,19 @@ async function sendToWebhook(data) {
         // Модель Z-Image использует свой выделенный вебхук
         webhookUrl = CONFIG.Z_IMAGE_WEBHOOK_URL;
         webhookType = 'Z_IMAGE_WEBHOOK_URL';
-    } else if (data.mode === 'nano_banana_pro' || data.mode === 'nano_banana' ||
-        ['video_gen', 'image_to_video', 'video_edit'].includes(data.mode)) {
-        // Специальные режимы используют основной N8N вебхук
-        webhookUrl = CONFIG.N8N_WEBHOOK_URL;
-        webhookType = 'N8N_WEBHOOK_URL';
+    } else if (data.mode === 'nano_banana') {
+        webhookUrl = CONFIG.NANO_BANANA_WEBHOOK;
+        webhookType = 'NANO_BANANA_WEBHOOK';
+    } else if (data.mode === 'nano_banana_2') {
+        webhookUrl = CONFIG.NANO_BANANA_2_WEBHOOK;
+        webhookType = 'NANO_BANANA_2_WEBHOOK';
+    } else if (data.mode === 'nano_banana_pro') {
+        webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
+        webhookType = 'NANO_BANANA_PRO_WEBHOOK';
+    } else if (['video_gen', 'image_to_video', 'video_edit'].includes(data.mode)) {
+        // Специальные видео режимы используют общий вебхук
+        webhookUrl = CONFIG.WEBHOOK_URL;
+        webhookType = 'WEBHOOK_URL';
     } else if (['qwen_image', 'qwen_image_edit'].includes(data.mode)) {
         // Модель Qwen использует свой выделенный вебхук
         webhookUrl = CONFIG.QWEN_IMAGE_WEBHOOK_URL;
