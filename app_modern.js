@@ -1380,9 +1380,9 @@ async function updateResolutionSelectVisibility() {
 
         if (currentMode === 'nano_banana_2') {
             const options = [
-                { value: '1k', label: 'Res 1K' },
-                { value: '2k', label: 'Res 2K' },
-                { value: '4k', label: 'Res 4K' }
+                { value: '1K', label: 'Res 1K' },
+                { value: '2K', label: 'Res 2K' },
+                { value: '4K', label: 'Res 4K' }
             ];
             options.forEach(opt => {
                 const el = document.createElement('option');
@@ -1392,9 +1392,9 @@ async function updateResolutionSelectVisibility() {
             });
         } else if (currentMode === 'nano_banana_pro') {
             const options = [
-                { value: '1k', label: 'Res 1K' },
-                { value: '2k', label: 'Res 2K' },
-                { value: '4k', label: 'Res 4K' }
+                { value: '1K', label: 'Res 1K' },
+                { value: '2K', label: 'Res 2K' },
+                { value: '4K', label: 'Res 4K' }
             ];
             options.forEach(opt => {
                 const el = document.createElement('option');
