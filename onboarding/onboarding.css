@@ -1,7 +1,8 @@
 /* ============================================================
-   pixPLace Onboarding Flow v2.0
-   Cinema Intro + Smart Spotlight Tour (8 steps)
+   pixPLace Onboarding Flow v3.0
+   Cinema Intro + Smart Spotlight Tour (6 steps)
    ✅ Swappable: replace this file + onboarding.js for a new flow
+   NEW: Multi-spotlight, model expand demo, upload pulse demo
    ============================================================ */
 
 /* ─── CINEMA INTRO ──────────────────────────────────────────── */
@@ -297,27 +298,26 @@
 /* ─── SPOTLIGHT TOUR ─────────────────────────────────────────── */
 
 .ob-tour-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 999998;
+    position: fixed; inset: 0; z-index: 999997;
     pointer-events: none;
 }
-
 .ob-spotlight-svg {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: all;
-    cursor: default;
+    position: absolute; inset: 0; width: 100%; height: 100%;
 }
 
 .ob-spotlight-mask {
     fill: rgba(4, 4, 8, 0.78);
 }
 
-/* Highlight ring around target element */
-.ob-spotlight-ring {
+#ob-spotlight-hole,
+#ob-spotlight-hole2,
+#ob-spotlight-hole3 {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ob-spotlight-ring,
+.ob-spotlight-ring2,
+.ob-spotlight-ring3 {
     position: fixed;
     border-radius: 12px;
     pointer-events: none;
@@ -327,6 +327,29 @@
         0 0 16px rgba(200, 200, 240, 0.12);
     animation: ob-ring-pulse 2.2s ease-in-out infinite;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: none;
+    z-index: 999998;
+}
+
+/* Modifier class for purple ring (used in tabs step) */
+.ob-spotlight-ring-purple {
+    box-shadow: 
+        0 0 0 2px rgba(168, 85, 247, 0.6),
+        0 0 0 4px rgba(168, 85, 247, 0.1),
+        0 0 16px rgba(168, 85, 247, 0.2) !important;
+    animation: none;
+}
+
+/* ============================================================
+   v3.0 Demo Effects
+   ============================================================ */
+
+/* 1. Model cards expand demo fix: elevate cards over mask */
+#modeCardsWrapper.expanded.ob-demo-active {
+    position: relative;
+    z-index: 999999 !important; /* Keep above mask */
+    background: rgba(14, 16, 20, 0.96); /* Ensure background is solid enough */
+    border-radius: 12px;
 }
 
 @keyframes ob-ring-pulse {
@@ -394,6 +417,18 @@
     border-top: none;
 }
 
+.ob-tooltip-arrow.ob-arrow-left {
+    left: -6px;
+    border-top: none;
+    border-right: none;
+}
+
+.ob-tooltip-arrow.ob-arrow-right {
+    right: -6px;
+    border-bottom: none;
+    border-left: none;
+}
+
 /* Step counter */
 .ob-tooltip-step {
     font-family: 'Inter', system-ui, sans-serif;
@@ -411,22 +446,22 @@
 .ob-tooltip-step::before {
     content: '';
     display: inline-block;
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: rgba(200, 200, 220, 0.6);
-    animation: ob-dot-blink 1.8s ease-in-out infinite;
+    background: #00ff41; /* Matrix green */
+    box-shadow: 0 0 8px #00ff41;
+    animation: ob-dot-blink 1.5s ease-in-out infinite;
 }
 
 @keyframes ob-dot-blink {
-
-    0%,
-    100% {
+    0%, 100% {
         opacity: 1;
+        box-shadow: 0 0 10px #00ff41;
     }
-
     50% {
-        opacity: 0.2;
+        opacity: 0.3;
+        box-shadow: 0 0 4px #00ff41;
     }
 }
 
@@ -610,4 +645,171 @@
 
 [data-theme="light"] .ob-spotlight-mask {
     fill: rgba(6, 8, 16, 0.76);
+}
+
+/* ─── v3.0: SECOND SPOTLIGHT RING (dual highlight) ─────────── */
+
+.ob-spotlight-ring2 {
+    position: fixed;
+    border-radius: 12px;
+    pointer-events: none;
+    /* Different accent — soft violet for the second target */
+    box-shadow:
+        0 0 0 2px rgba(160, 180, 255, 0.55),
+        0 0 0 4px rgba(160, 180, 255, 0.10),
+        0 0 18px rgba(140, 160, 255, 0.16);
+    animation: ob-ring2-pulse 2.6s ease-in-out infinite 0.4s;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 999998;
+}
+
+@keyframes ob-ring2-pulse {
+    0%, 100% {
+        box-shadow:
+            0 0 0 2px rgba(160, 180, 255, 0.55),
+            0 0 0 4px rgba(160, 180, 255, 0.10),
+            0 0 18px rgba(140, 160, 255, 0.16);
+    }
+    50% {
+        box-shadow:
+            0 0 0 2px rgba(180, 200, 255, 0.80),
+            0 0 0 8px rgba(160, 180, 255, 0.07),
+            0 0 30px rgba(140, 160, 255, 0.24);
+    }
+}
+
+/* ─── v3.0: MODEL CARD DEMO — hover + ripple ────────────────── */
+
+[data-mode].ob-demo-hover {
+    outline: 2px solid rgba(120, 160, 255, 0.70) !important;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(100, 140, 255, 0.12), 0 6px 24px rgba(80, 120, 255, 0.20) !important;
+    transform: scale(1.02) !important;
+    transition: all 0.25s ease !important;
+    z-index: 3;
+}
+
+/* Ripple effect injected into Z-Image card */
+.ob-demo-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(100, 160, 255, 0.35) 0%, transparent 70%);
+    transform: scale(0);
+    animation: ob-ripple-expand 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    pointer-events: none;
+}
+
+@keyframes ob-ripple-expand {
+    0%   { transform: scale(0);   opacity: 1; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* ─── v3.0: UPLOAD BUTTON DEMO PULSE ─────────────────────────── */
+
+#urlInputContainer.ob-demo-pulse {
+    animation: ob-upload-pulse 1.2s ease-in-out infinite !important;
+    outline: 2px solid rgba(99, 179, 237, 0.65) !important;
+    outline-offset: 3px;
+}
+
+@keyframes ob-upload-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(99, 179, 237, 0.45),
+                    0 0 0 0 rgba(99, 179, 237, 0.25);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(99, 179, 237, 0.0),
+                    0 0 0 16px rgba(99, 179, 237, 0.0);
+    }
+}
+
+/* ─── v3.0: GLASS SHINE DEMO (For tabs) ───────────────────────── */
+.ob-demo-glass-shine {
+    position: relative;
+    overflow: hidden;
+    /* Soft elevation */
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="dark"] .ob-demo-glass-shine {
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.08) !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.ob-demo-glass-shine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.8) 50%, transparent 80%);
+    transform: translateX(-100%);
+    animation: ob-shine-glass 3.5s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes ob-shine-glass {
+    0% { transform: translateX(-100%); }
+    25%, 100% { transform: translateX(100%); }
+}
+
+/* Ghost upload icon that floats over the button */
+.ob-upload-ghost {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(99, 179, 237, 0.15);
+    border: 1.5px solid rgba(99, 179, 237, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 999999;
+    backdrop-filter: blur(4px);
+}
+
+.ob-upload-ghost svg {
+    width: 16px;
+    height: 16px;
+    color: rgba(99, 179, 237, 0.9);
+}
+
+@keyframes ob-ghost-bounce {
+    0%   { transform: translateY(0);    opacity: 0; }
+    15%  { opacity: 1; }
+    50%  { transform: translateY(-10px); opacity: 1; }
+    85%  { opacity: 1; }
+    100% { transform: translateY(0);    opacity: 0; }
+}
+
+/* ─── v3.0: DEMO BADGE in tooltip ───────────────────────────── */
+
+.ob-demo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(99, 179, 237, 0.10);
+    border: 1px solid rgba(99, 179, 237, 0.22);
+    border-radius: 8px;
+    padding: 4px 10px;
+    margin-bottom: 12px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(99, 179, 237, 0.85);
+    letter-spacing: 0.2px;
+    animation: ob-badge-glow 2s ease-in-out infinite;
+}
+
+.ob-demo-badge svg {
+    flex-shrink: 0;
+    color: rgba(99, 179, 237, 0.75);
+}
+
+@keyframes ob-badge-glow {
+    0%, 100% { border-color: rgba(99, 179, 237, 0.22); box-shadow: none; }
+    50%       { border-color: rgba(99, 179, 237, 0.45); box-shadow: 0 0 10px rgba(99, 179, 237, 0.10); }
 }
