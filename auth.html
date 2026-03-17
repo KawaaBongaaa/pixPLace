@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            var theme;
+            try {
+                var s = localStorage.getItem('appSettings');
+                theme = s ? JSON.parse(s).theme : 'dark';
+            } catch (e) { theme = 'dark'; }
+            if (theme === 'auto') {
+                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            theme = theme || 'dark';
+            var d = document.documentElement;
+            d.setAttribute('data-theme', theme);
+            if (theme === 'dark') {
+                d.style.backgroundColor = '#09090b';
+                d.style.color = '#fafafa';
+            } else {
+                d.style.backgroundColor = '#ffffff';
+                d.style.color = '#1e293b';
+            }
+        })();
+    </script>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>pixPLace Ai | Sign In</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="stylesheet" href="css/output.css?v=2">
+    <!-- Telegram Web App SDK -->
+    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        if (window.Telegram?.WebApp?.expand) {
+            window.Telegram.WebApp.expand();
+        }
+    </script>
+
+    <!-- Google Auth Script -->
+    <script id="google-gsi-script" src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* Ambient background glows for Premium Look */
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            width: 60vw;
+            height: 60vw;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .glow-1 {
+            top: -20%;
+            left: -10%;
+            background: #3b82f6;
+        }
+
+        .glow-2 {
+            bottom: -20%;
+            right: -10%;
+            background: #ec4899;
+        }
+
+        [data-theme="light"] .ambient-glow {
+            opacity: 0.2;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center relative bg-transparent">
+
+    <!-- Ambient Background -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <!-- Back Button -->
+    <div class="absolute top-6 left-6 z-50">
+        <button onclick="window.location.href='index.html'"
+            class="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer group bg-white/10 dark:bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-gray-200/50 dark:border-white/10 shadow-sm">
+            <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span class="font-medium text-sm">Back to Studio</span>
+        </button>
+    </div>
+
+    <!-- Modal Container Adapted for Standalone Page -->
+    <div
+        class="w-full max-w-[380px] relative flex flex-col items-center p-8 bg-white/60 dark:bg-[#18181b]/60 backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-white/10 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-700">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div
+                class="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600 mb-6">
+                pixPLace
+            </div>
+            <h2 class="text-3xl font-black mb-2 tracking-tight text-gray-900 dark:text-white">Welcome</h2>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Sign in to sync your progress</p>
+        </div>
+
+        <!-- Social Login Buttons -->
+        <div class="w-full space-y-4 mb-8">
+            <!-- Google Button Wrapper -->
+            <div class="relative group rounded-2xl w-full" style="height: 48px;">
+                <button
+                    class="w-full h-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_20px_rgba(255,255,255,0.05)] transform hover:-translate-y-0.5 cursor-pointer">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    <span class="text-sm font-bold text-gray-700 dark:text-gray-200">Continue with Google</span>
+                </button>
+                <!-- Google GSI Frame Container -->
+                <div id="googleSignInWrapper"
+                    style="position: absolute; inset: 0; opacity: 0.01; z-index: 9999; pointer-events: auto; cursor: pointer;">
+                </div>
+            </div>
+
+            <!-- Telegram Button -->
+            <button onclick="handleTelegramOAuth()"
+                class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#2AABEE] hover:bg-[#229ED9] text-white rounded-2xl transition-all duration-300 font-bold text-sm shadow-[0_4px_14px_rgba(42,171,238,0.39)] hover:shadow-[0_6px_20px_rgba(42,171,238,0.5)] transform hover:-translate-y-0.5 cursor-pointer">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.36-.49.99-.75 3.88-1.69 6.46-2.8 7.74-3.35 3.68-1.56 4.44-1.83 4.94-1.84.11 0 .35.03.5.16.13.11.17.26.18.37.01.07.01.15 0 .22z" />
+                </svg>
+                <span>Continue with Telegram</span>
+            </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="w-full flex items-center gap-4 mb-6">
+            <div class="flex-grow border-t border-gray-200 dark:border-gray-800"></div>
+            <span class="text-[10px] uppercase tracking-widest font-black text-gray-400">or</span>
+            <div class="flex-grow border-t border-gray-200 dark:border-gray-800"></div>
+        </div>
+
+        <!-- Email Login -->
+        <div class="w-full space-y-4 mb-8">
+            <input type="email" id="authEmailInput" placeholder="Enter your email"
+                class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors text-sm">
+            <button onclick="handleEmailLoginSubmit()"
+                class="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer">
+                Continue with Email
+            </button>
+        </div>
+
+        <!-- Terms -->
+        <div class="text-center">
+            <p class="text-[11px] leading-relaxed font-medium text-gray-500 dark:text-gray-400">
+                By continuing, you agree to our <br class="sm:hidden">
+                <a href="#" class="text-blue-500 hover:underline">Terms of Service</a>
+                and
+                <a href="#" class="text-blue-500 hover:underline">Privacy Policy</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Inline script for standalone auth logic -->
+    <script type="module">
+        // Dummy showToast to avoid errors if screen-manager is not loaded
+        window.showToast = window.showToast || function (type, msg) {
+            console.log(`[Toast] ${type}: ${msg}`);
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold text-sm shadow-2xl z-[9999] transition-all duration-300 transform scale-95 opacity-0 ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('scale-95', 'opacity-0');
+                toast.classList.add('scale-100', 'opacity-100');
+            });
+            setTimeout(() => {
+                toast.classList.remove('scale-100', 'opacity-100');
+                toast.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        window.appState = window.appState || {};
+        window.closeAuthModal = function () { }; // Dummy function
+
+        import { handleTelegramOAuth, handleGoogleAuthCallback, handleEmailLoginSubmit } from './user-account.js';
+
+        // Expose to window for inline onclick handlers
+        window.handleTelegramOAuth = handleTelegramOAuth;
+        window.handleEmailLoginSubmit = handleEmailLoginSubmit;
+
+        // Render Google Sign-in button
+        function renderGoogleBtn() {
+            const googleWrapper = document.getElementById('googleSignInWrapper');
+            if (!googleWrapper || !window.google) return;
+            try {
+                google.accounts.id.initialize({
+                    client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
+                    callback: handleGoogleAuthCallback
+                });
+                google.accounts.id.renderButton(googleWrapper, {
+                    theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
+                    size: 'large',
+                    type: 'standard',
+                    shape: 'rectangular',
+                    width: document.getElementById('googleSignInWrapper').offsetWidth || 314,
+                });
+            } catch (e) {
+                console.error('Failed to render Google Auth button', e);
+            }
+        }
+
+        // Wait for google script to be ready
+        window.onload = () => {
+            if (window.google) {
+                renderGoogleBtn();
+            } else {
+                document.getElementById('google-gsi-script').onload = renderGoogleBtn;
+            }
+
+            // Check if already authenticated, if yes redirect back to index
+            if (localStorage.getItem('telegram_auth_completed') === 'true' && localStorage.getItem('telegram_user')) {
+                console.log('User already authenticated. Redirecting to studio.');
+                window.location.href = 'index.html';
+            }
+        };
+    </script>
+</body>
+
+</html>
