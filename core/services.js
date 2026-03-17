@@ -383,6 +383,13 @@ class UserProfileService {
         this._isFetching = true;
         const webhookUrl = 'PLACEHOLDER_GET_USER_PROFILE_WEBHOOK_URL'; // replaced by CI/CD
 
+        // Guard: if placeholder was not replaced (local dev or misconfigured CI) — skip silently
+        if (!webhookUrl || webhookUrl.startsWith('PLACEHOLDER_')) {
+            console.warn('⚠️ UserProfileService: webhook URL not configured (placeholder not replaced). Skipping profile fetch.');
+            this._isFetching = false;
+            return null;
+        }
+
         try {
             console.log('📡 UserProfileService: fetching profile for user:', userId);
             const response = await fetch(webhookUrl, {
