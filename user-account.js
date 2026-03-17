@@ -907,6 +907,11 @@ async function onTelegramAuthCallback(userData) {
             }
             window.showToast?.('success', `Welcome, ${window.appState.userName}! 🎉`);
             updateUserMenuInfo();
+
+            // Auto-redirect if on standalone auth page
+            if (window.location.pathname.includes('auth.html')) {
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            }
         } else {
             console.warn('⚠️ Server did not return a valid userId');
             window.showToast?.('error', 'Login failed: Invalid server response');
@@ -917,60 +922,13 @@ async function onTelegramAuthCallback(userData) {
     }
 }
 
-// ==================== AUTHENTICATION MODAL ====================
-
 function openAuthModal() {
-    const modal = document.getElementById('authModal');
-    const content = document.getElementById('authModalContent');
-    if (!modal || !content) return;
+    // 📱 If inside Telegram Mini App — auth is handled silently by TelegramService (core/services.js).
+    // DO NOT redirect to auth.html. Just bail out — the SDK data will complete auth automatically.
+    if (window.Telegram?.WebApp?.initData) return;
 
-    // Гарантируем начальное состояние анимации ДО показа (независимо от предыдущего состояния)
-    content.classList.add('scale-95', 'opacity-0');
-
-    modal.classList.remove('hidden');
-    // Один rAF: браузер уже отрисовал начальное состояние → запускаем анимацию
-    requestAnimationFrame(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.remove('scale-95', 'opacity-0');
-    });
-
-    const currentLang = localStorage.getItem('app_language') || 'en';
-    const isDark = document.documentElement.classList.contains('dark');
-
-    const renderGoogleBtn = () => {
-        const googleWrapper = document.getElementById('googleSignInWrapper');
-        if (!googleWrapper || !window.google) return;
-        if (googleWrapper.querySelector('.g_id_signin, iframe')) return;
-        try {
-            google.accounts.id.initialize({
-                client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
-                callback: handleGoogleAuthCallback
-            });
-            google.accounts.id.renderButton(googleWrapper, {
-                theme: 'outline', // Изменили на outline для лучшего совпадения по высоте
-                size: 'large',
-                type: 'standard',
-                shape: 'rectangular',
-                text: 'continue_with',
-                width: 320, // Сделали 320px ровно под ширину контейнера
-                locale: currentLang
-            });
-        } catch (e) {
-            console.error('Failed to render Google Auth button', e);
-        }
-    };
-
-    const existingScript = document.getElementById('google-gsi-script');
-    if (!existingScript) {
-        const script = document.createElement('script');
-        script.id = 'google-gsi-script';
-        script.src = `https://accounts.google.com/gsi/client?hl=${currentLang}`;
-        script.async = true;
-        script.onload = renderGoogleBtn;
-        document.head.appendChild(script);
-    } else if (window.google) {
-        renderGoogleBtn();
-    }
+    // Regular browser: go to standalone auth page
+    window.location.href = 'auth.html';
 }
 
 function closeAuthModal() {
@@ -1050,6 +1008,11 @@ async function handleGoogleAuthCallback(response) {
             window.showToast?.('success', `Welcome, ${window.appState.userName}! 🎉`);
             if (typeof updateUserMenuInfo === 'function') {
                 updateUserMenuInfo();
+            }
+
+            // Auto-redirect if on standalone auth page
+            if (window.location.pathname.includes('auth.html')) {
+                setTimeout(() => window.location.href = 'index.html', 1500);
             }
         } else {
             console.warn('Google Auth: n8n returned success, but no userId in response data:', data);
@@ -1153,7 +1116,10 @@ export {
     closeFinancialHistoryModal,
     showCreditPacksModal,
     closeCreditPacksModal,
-    buyCreditPack
+    buyCreditPack,
+    handleTelegramOAuth,
+    handleGoogleAuthCallback,
+    handleEmailLoginSubmit,
 };
 
 console.log('🎯 User Account module loaded and ready');

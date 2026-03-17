@@ -48,22 +48,31 @@ function hideCoachTooltip(tooltip) {
 
 export async function initAICoach() {
     try {
-        // Проверить, что AICoach доступен (уже загружен из HTML)
-        if (!window.AICoach) {
-            console.warn('AI Coach not loaded from HTML');
-            return;
+        if (window.AI_CHAT_STANDALONE_MODE) {
+            if (window.AICoach) window.AICoach.show();
+        } else {
+            // Проверить, что AICoach доступен (уже загружен из HTML)
+            if (!window.AICoach) {
+                console.warn('AI Coach not loaded from HTML');
+                return;
+            }
+
+            // Disabled creating the legacy ugly button
+            // createCoachButton(); 
+
+            // window.addEventListener('ai-coach-ready', createCoachButton);
         }
-
-        // Disabled creating the legacy ugly button
-        // createCoachButton(); 
-
-        // window.addEventListener('ai-coach-ready', createCoachButton);
     } catch (error) {
         console.error('Failed to init AI Coach:', error);
     }
 }
 
 export function createChatButton() {
+    if (window.AI_CHAT_STANDALONE_MODE) {
+        console.log('🧠 AI Chat floating button disabled in standalone chat mode');
+        return;
+    }
+
     // Инжектим надежную CSS-анимацию "из ниоткуда"
     if (!document.getElementById('ai-chat-btn-anim')) {
         const style = document.createElement('style');
@@ -116,7 +125,7 @@ export function createChatButton() {
 
     chatBtn.classList.add(
         'group',
-        'fixed', 'bottom-5', 'right-5', 'z-10',
+        'fixed', 'bottom-5', 'right-5', 'z-[100]',
         // Делаем цвета чуть более приглушенными/полупрозрачными, чтобы не кричать на фоне главной кнопки
         'bg-gray-800/90', 'backdrop-blur-sm',
         'border', 'border-indigo-500/30',
@@ -132,30 +141,14 @@ export function createChatButton() {
     document.body.appendChild(chatBtn);
 
     chatBtn.onclick = () => {
-        // 0. Load CSS Dynamically if not present (Fix for AI Chat button)
-        if (!document.getElementById('gpt-chat-styles')) {
-            console.log('🎨 Loading AI Coach CSS dynamically...');
-            const link = document.createElement('link');
-            link.id = 'gpt-chat-styles';
-            link.rel = 'stylesheet';
-            link.href = 'css/gpt-chat.css';
-            document.head.appendChild(link);
-        }
-
-        // ✅ ENABLED: Show AI Coach modal
-        if (window.AICoach) {
-            window.AICoach.show();
-            // Trigger haptic if available
-            if (typeof triggerHaptic === 'function') triggerHaptic('light');
-        } else {
-            console.warn('⚠️ AICoach not loaded yet');
-            // Try to load it if missing (fallback)
-            if (typeof createCoachButton === 'function') createCoachButton();
-        }
+        // Trigger haptic if available
+        if (typeof triggerHaptic === 'function') triggerHaptic('light');
+        
+        // Redirect to standalone chat page
+        window.location.href = 'chat.html';
     };
 
-    document.body.appendChild(chatBtn);
-    console.log('🧠 AI Chat floating button created');
+    console.log('🧠 AI Chat floating button created (Redirect Mode)');
 }
 
 (function () {
@@ -266,8 +259,13 @@ export function createChatButton() {
         // Extended context: Last 20 messages
         const trimmedHistory = fullHistory.slice(-20);
 
+        // Get selected model if available in UI
+        const modelSelector = document.getElementById('chatModelSelector');
+        const selectedModel = modelSelector ? modelSelector.value : 'chatgpt';
+
         const payload = {
             message: message,
+            model: selectedModel,
             history: trimmedHistory, // Includes {role: 'user'|'assistant', content: string}
             timestamp: new Date().toISOString()
         };
@@ -398,17 +396,23 @@ export function createChatButton() {
     function createModal() {
         if (state.modal) return state.modal;
 
-        // Overlay
-        const overlay = createElement('div', {
-            id: 'ai-coach-overlay',
-            onclick: (e) => {
-                if (e.target === e.currentTarget) hideCognitiveAssistant();
-            }
-        });
+        const isStandalone = window.AI_CHAT_STANDALONE_MODE === true;
+        let overlay;
+
+        if (!isStandalone) {
+            // Overlay
+            overlay = createElement('div', {
+                id: 'ai-coach-overlay',
+                onclick: (e) => {
+                    if (e.target === e.currentTarget) hideCognitiveAssistant();
+                }
+            });
+        }
 
         // Main modal container - Styles handled by #ai-coach-modal in css/ai-coach.css
         const modal = createElement('div', {
-            id: 'ai-coach-modal'
+            id: 'ai-coach-modal',
+            className: isStandalone ? 'standalone-mode' : ''
         });
 
         // ============ MOBILE DRAWER OVERLAY ============
@@ -471,7 +475,7 @@ export function createChatButton() {
         });
         leftControls.appendChild(menuBtn);
 
-        const titleText = createElement('h3', { className: 'ai-coach-sidebar-title', style: 'font-size: 1.1rem;' }, 'pixPlace AI');
+        const titleText = createElement('h3', { className: 'ai-coach-sidebar-title', style: 'font-size: 1.1rem;' }, 'Chat GPT');
         leftControls.appendChild(titleText);
 
         const rightControls = createElement('div', { className: 'flex items-center gap-1' });
@@ -517,18 +521,40 @@ export function createChatButton() {
         mainContent.appendChild(inputArea);
 
         modal.appendChild(mainContent);
-        overlay.appendChild(modal);
+        if (isStandalone) {
+            const container = document.getElementById('chat-workspace-container');
+            if (container) {
+                // Adjust styles inline for standalone to fill container
+                modal.style.position = 'relative';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.top = '0';
+                modal.style.bottom = '0';
+                modal.style.left = '0';
+                modal.style.right = '0';
+                modal.style.border = 'none';
+                modal.style.transform = 'none';
+                modal.style.borderRadius = '0';
+                modal.style.maxHeight = 'none';
+                modal.style.maxWidth = 'none';
+                
+                container.appendChild(modal);
+                state.modal = modal;
+                modal.classList.add('visible', 'opacity-100');
+            }
+        } else {
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            state.modal = overlay;
 
-        document.body.appendChild(overlay);
-        state.modal = overlay;
+            // Trigger visibility for CSS transition
+            requestAnimationFrame(() => {
+                overlay.classList.add('visible');
+                modal.classList.add('visible');
+            });
+        }
 
-        // Trigger visibility for CSS transition
-        requestAnimationFrame(() => {
-            overlay.classList.add('visible');
-            modal.classList.add('visible');
-        });
-
-        return overlay;
+        return state.modal;
     }
 
     function renderCoachInterface() {
@@ -544,8 +570,8 @@ export function createChatButton() {
         if (state.history.length === 0 && chatContainer && chatContainer.children.length === 0) {
             // FIX: Robust translation check
             const welcomeText = (typeof appState !== 'undefined' && typeof appState.translate === 'function')
-                ? appState.translate('ai_coach_welcome', '👋 Hi! I can help you improve your prompts. Just type your idea below!')
-                : '👋 Hi! I can help you improve your prompts. Just type your idea below!';
+                ? appState.translate('chat_gpt_welcome', '👋 Hi! I am here to help you. Just type your request below!')
+                : '👋 Hi! I am here to help you. Just type your request below!';
 
             addMessageToChat(welcomeText, 'bot');
         }
@@ -554,22 +580,24 @@ export function createChatButton() {
         renderHistorySidebar();
 
         state.isOpen = true;
-        const modal = state.modal; // This is the overlay
+        const modal = state.modal; // This is the overlay (or modal in standalone)
 
-        // Ensure it's in DOM
-        if (!document.body.contains(modal)) {
-            document.body.appendChild(modal);
-        }
+        if (!window.AI_CHAT_STANDALONE_MODE) {
+            // Ensure it's in DOM
+            if (!document.body.contains(modal)) {
+                document.body.appendChild(modal);
+            }
 
-        document.body.style.overflow = 'hidden';
-        modal.classList.remove('invisible', 'opacity-0');
-        modal.classList.add('opacity-100', 'visible');
+            document.body.style.overflow = 'hidden';
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.classList.add('opacity-100', 'visible');
 
-        // Show inner modal explicitly
-        const innerModal = document.getElementById('ai-coach-modal');
-        if (innerModal) {
-            innerModal.classList.remove('invisible', 'opacity-0');
-            innerModal.classList.add('opacity-100', 'visible');
+            // Show inner modal explicitly
+            const innerModal = document.getElementById('ai-coach-modal');
+            if (innerModal) {
+                innerModal.classList.remove('invisible', 'opacity-0');
+                innerModal.classList.add('opacity-100', 'visible');
+            }
         }
     }
 
@@ -859,6 +887,7 @@ export function createChatButton() {
     }
 
     function hideCognitiveAssistant() {
+        if (window.AI_CHAT_STANDALONE_MODE) return;
         if (state.modal) {
             // Hide overlay
             state.modal.classList.remove('visible', 'opacity-100');

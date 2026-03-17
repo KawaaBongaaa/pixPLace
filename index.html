@@ -692,7 +692,7 @@
                                 <!-- Вкладки выбора типа генерации с сеткой карточек -->
                                 <div class="mb-4">
                                     <!-- Панель выбора режимов -->
-                                    <div
+                                    <div id="ob-tabs-row"
                                         class="flex justify-center items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 px-2 sm:px-4">
                                         <button type="button"
                                             class="generation-tab active group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-300 hover:bg-white/60 dark:hover:bg-white/10 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]"
@@ -730,369 +730,372 @@
                                     <div class="tabs-content">
                                         <!-- Images Tab -->
                                         <div class="tab-pane active" data-tab="image">
-                                            <!-- Toggle for mode cards -->
-                                            <button type="button" id="modeCardsToggle"
-                                                class="mode-cards-toggle collapsed">
-                                                <span class="toggle-text" id="modeCardsToggleText">Nano Banana
-                                                    Pro</span>
-                                            </button>
-                                            <div id="modeCardsWrapper" class="mode-cards-wrapper collapsed mt-2"
-                                                style="display:none">
-                                                <div
-                                                    class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 p-1 sm:gap-4 sm:p-4">
-                                                    <div class="mode-group mb-6">
-                                                        <h4
-                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                            Google Gemini</h4>
-                                                        <div class="mode-group-cards">
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="nano_banana"
-                                                                data-description="Gemini 3 Image Preview (Nano Banana) is an advanced AI model for natural language-driven image generation, producing hyper-realistic visuals and accurate text in images such as logos, banners, and infographics.">
-                                                                <span class="cost-badge absolute -top-2 -right-2">
-                                                                    <div>3 Credits</div>
-                                                                </span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Nano Banana</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                            <!-- Group for onboarding -->
+                                            <div id="ob-model-selector-row">
+                                                <!-- Toggle for mode cards -->
+                                                <button type="button" id="modeCardsToggle"
+                                                    class="mode-cards-toggle collapsed">
+                                                    <span class="toggle-text" id="modeCardsToggleText">Nano Banana
+                                                        Pro</span>
+                                                </button>
+                                                <div id="modeCardsWrapper" class="mode-cards-wrapper collapsed mt-2"
+                                                    style="display:none">
+                                                    <div
+                                                        class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 p-1 sm:gap-4 sm:p-4">
+                                                        <div class="mode-group mb-6">
+                                                            <h4
+                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                                Google Gemini</h4>
+                                                            <div class="mode-group-cards">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="nano_banana"
+                                                                    data-description="Gemini 3 Image Preview (Nano Banana) is an advanced AI model for natural language-driven image generation, producing hyper-realistic visuals and accurate text in images such as logos, banners, and infographics.">
+                                                                    <span class="cost-badge absolute -top-2 -right-2">
+                                                                        <div>3 Credits</div>
+                                                                    </span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Nano Banana</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">Logo
+                                                                            | Banner | Infografic</span>
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    </div>
                                                                     <span
-                                                                        class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">Logo
-                                                                        | Banner | Infografic</span>
-                                                                    <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                                 </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                            </div>
 
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="nano_banana_2"
-                                                                data-description="Nano Banana 2 (Gemini 3.1 Flash Image) is Google’s fast and powerful image model, delivering high-quality visuals, accurate text rendering, strong character consistency, and scalable image generation and editing">
-                                                                <span
-                                                                    class="cost-badge absolute top-2 sm:-top-3 right-2 sm:-right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
-                                                                    <div>1K: 5 Credits</div>
-                                                                    <div>2K: 7 Credits</div>
-                                                                    <div>4K: 11 Credits</div>
-                                                                </span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Nano Banana 2</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="nano_banana_2"
+                                                                    data-description="Nano Banana 2 (Gemini 3.1 Flash Image) is Google’s fast and powerful image model, delivering high-quality visuals, accurate text rendering, strong character consistency, and scalable image generation and editing">
                                                                     <span
-                                                                        class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
+                                                                        class="cost-badge absolute top-2 sm:-top-3 right-2 sm:-right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
+                                                                        <div>1K: 5 Credits</div>
+                                                                        <div>2K: 7 Credits</div>
+                                                                        <div>4K: 11 Credits</div>
+                                                                    </span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Nano Banana 2</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    </div>
                                                                     <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                                 </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                            </div>
 
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="nano_banana_pro"
-                                                                data-description="Google DeepMind’s Nano Banana Pro delivers sharper 2K images, smart 4K upscaling, improved text rendering, and better character consistency—providing a major boost in visual quality for creative projects">
-                                                                <span
-                                                                    class="cost-badge absolute top-2 sm:-top-3 right-2 sm:-right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
-                                                                    <div>1K/2K: 12 Credits</div>
-                                                                    <div>4K: 16 Credits</div>
-                                                                </span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Nano Banana Pro</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="nano_banana_pro"
+                                                                    data-description="Google DeepMind’s Nano Banana Pro delivers sharper 2K images, smart 4K upscaling, improved text rendering, and better character consistency—providing a major boost in visual quality for creative projects">
                                                                     <span
-                                                                        class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
+                                                                        class="cost-badge absolute top-2 sm:-top-3 right-2 sm:-right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
+                                                                        <div>1K/2K: 12 Credits</div>
+                                                                        <div>4K: 16 Credits</div>
+                                                                    </span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Nano Banana Pro</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    </div>
                                                                     <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                                 </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mode-group mb-6">
-                                                        <h4
-                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                            Z-Image</h4>
-                                                        <div class="mode-group-cards">
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="z_image"
-                                                                data-description="New generation model Z-Image Turbo — creates stunning visuals with unique style and high precision ⚡">
-                                                                <span class="cost-badge absolute -top-2 -right-2">3
-                                                                    Credits</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Z-Image Turbo</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
-                                                                    <span
-                                                                        class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
-                                                                    <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div class="mode-group mb-6">
-                                                        <h4
-                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                            Qwen</h4>
-                                                        <div class="mode-group-cards">
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="qwen_image"
-                                                                data-description="The Qwen Image empowers creators, developers, and businesses to generate and edit photorealistic images effortlessly. Whether you're crafting intricate designs or refining existing visuals, delivering multilingual text rendering and advanced editing capabilities that rival top models.">
-                                                                <span class="cost-badge absolute -top-2 -right-2">4
-                                                                    Credits</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Qwen Image</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                        <div class="mode-group mb-6">
+                                                            <h4
+                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                                Z-Image</h4>
+                                                            <div class="mode-group-cards">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="z_image"
+                                                                    data-description="New generation model Z-Image Turbo — creates stunning visuals with unique style and high precision ⚡">
+                                                                    <span class="cost-badge absolute -top-2 -right-2">3
+                                                                        Credits</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Z-Image Turbo</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    </div>
                                                                     <span
-                                                                        class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
-                                                                    <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                                 </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                            </div>
-
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="qwen_image_edit"
-                                                                data-description="Qwen Image-edit supporting semantic and appearance editing with precise, visually coherent results. It also handles bilingual (Chinese and English) text editing while preserving font, size, and style, making it a versatile tool for advanced visual content manipulation.">
-                                                                <span class="cost-badge absolute -top-2 -right-2">4
-                                                                    credits</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Qwen Image Edit</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
-                                                                    <span
-                                                                        class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
-                                                                    <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div class="mode-group mb-6">
-                                                        <h4
-                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                            Flux</h4>
-                                                        <div class="mode-group-cards">
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="pixplace_pro"
-                                                                data-description="Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer">
-                                                                <span class="cost-badge absolute -top-2 -right-2">4
-                                                                    Credits</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Flux Pro</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                        <div class="mode-group mb-6">
+                                                            <h4
+                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                                Qwen</h4>
+                                                            <div class="mode-group-cards">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="qwen_image"
+                                                                    data-description="The Qwen Image empowers creators, developers, and businesses to generate and edit photorealistic images effortlessly. Whether you're crafting intricate designs or refining existing visuals, delivering multilingual text rendering and advanced editing capabilities that rival top models.">
+                                                                    <span class="cost-badge absolute -top-2 -right-2">4
+                                                                        Credits</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Qwen Image</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    </div>
                                                                     <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    <span
-                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                                 </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                            </div>
 
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="fast_generation"
-                                                                data-description="Fastest model for quick image generation — works instantly without uploads">
-                                                                <span class="cost-badge absolute -top-2 -right-2">3
-                                                                    Credits</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Flux Fast</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="qwen_image_edit"
+                                                                    data-description="Qwen Image-edit supporting semantic and appearance editing with precise, visually coherent results. It also handles bilingual (Chinese and English) text editing while preserving font, size, and style, making it a versatile tool for advanced visual content manipulation.">
+                                                                    <span class="cost-badge absolute -top-2 -right-2">4
+                                                                        credits</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Qwen Image Edit</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    </div>
                                                                     <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                                 </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mode-group mb-6">
-                                                        <h4
-                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                            SDXL</h4>
-                                                        <div class="mode-group-cards">
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="print_maker"
-                                                                data-description="Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond">
-                                                                <span class="cost-badge absolute -top-2 -right-2">5
-                                                                    Credits</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Print on Demand</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
-                                                                    <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    <span
-                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
-                                                                </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                            </div>
-
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="dreamshaper_xl"
-                                                                data-description="Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.">
-                                                                <span
-                                                                    class="cost-badge absolute -top-2 -right-2">Free</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Dreamshaper XL</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
-                                                                    <span
-                                                                        class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    <span
-                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
-                                                                </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div class="mode-group">
-                                                        <h4
-                                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                            Other</h4>
-                                                        <div class="mode-group-cards">
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="upscale_image"
-                                                                data-description="Boost image quality and resolution — make your visuals look crisp and detailed">
-                                                                <span class="cost-badge absolute -top-2 -right-2">5
-                                                                    Credits</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Enhance Image</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                        <div class="mode-group mb-6">
+                                                            <h4
+                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                                Flux</h4>
+                                                            <div class="mode-group-cards">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="pixplace_pro"
+                                                                    data-description="Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer">
+                                                                    <span class="cost-badge absolute -top-2 -right-2">4
+                                                                        Credits</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Flux Pro</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                        <span
+                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                    </div>
                                                                     <span
-                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                                 </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="fast_generation"
+                                                                    data-description="Fastest model for quick image generation — works instantly without uploads">
+                                                                    <span class="cost-badge absolute -top-2 -right-2">3
+                                                                        Credits</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Flux Fast</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                    </div>
+                                                                    <span
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                                </div>
                                                             </div>
+                                                        </div>
 
-                                                            <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                data-mode="background_removal"
-                                                                data-description="Remove the background and keep the main object. Upload a photo to start">
-                                                                <span
-                                                                    class="cost-badge absolute -top-2 -right-2">Free</span>
-                                                                <h4
-                                                                    class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                    Remove Background</h4>
-                                                                <div class="flex flex-wrap gap-2 mb-2">
+                                                        <div class="mode-group mb-6">
+                                                            <h4
+                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                                SDXL</h4>
+                                                            <div class="mode-group-cards">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="print_maker"
+                                                                    data-description="Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond">
+                                                                    <span class="cost-badge absolute -top-2 -right-2">5
+                                                                        Credits</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Print on Demand</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                        <span
+                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                    </div>
                                                                     <span
-                                                                        class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
                                                                 </div>
-                                                                <span
-                                                                    class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="dreamshaper_xl"
+                                                                    data-description="Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.">
+                                                                    <span
+                                                                        class="cost-badge absolute -top-2 -right-2">Free</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Dreamshaper XL</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
+                                                                        <span
+                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                    </div>
+                                                                    <span
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mode-group">
+                                                            <h4
+                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                                                                Other</h4>
+                                                            <div class="mode-group-cards">
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="upscale_image"
+                                                                    data-description="Boost image quality and resolution — make your visuals look crisp and detailed">
+                                                                    <span class="cost-badge absolute -top-2 -right-2">5
+                                                                        Credits</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Enhance Image</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                    </div>
+                                                                    <span
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                                </div>
+
+                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
+                                                                    data-mode="background_removal"
+                                                                    data-description="Remove the background and keep the main object. Upload a photo to start">
+                                                                    <span
+                                                                        class="cost-badge absolute -top-2 -right-2">Free</span>
+                                                                    <h4
+                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                        Remove Background</h4>
+                                                                    <div class="flex flex-wrap gap-2 mb-2">
+                                                                        <span
+                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
+                                                                    </div>
+                                                                    <span
+                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Videos Tab -->
-                                        <div class="tab-pane" data-tab="video" style="display:none">
-                                            <!-- Toggle for video mode cards -->
-                                            <button type="button" id="videoCardsToggle" class="mode-cards-toggle">
-                                                <span class="toggle-text" id="videoCardsToggleText"></span>
-                                                <span class="toggle-icon"></span>
-                                            </button>
-                                            <div id="videoCardsWrapper" class="mode-cards-wrapper collapsed mt-2">
-                                                <div
-                                                    class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 p-1 sm:gap-4 sm:p-4">
-                                                    <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
-                                                        data-mode="video_gen"
-                                                        data-description="Transform your ideas into dynamic videos! Describe any scene or concept, and watch AI create engaging video content from scratch 🎬✨">
-                                                        <span
-                                                            class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
-                                                            Soon</span>
-                                                        <h4
-                                                            class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                            Video Generation</h4>
-                                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <!-- Videos Tab -->
+                                            <div class="tab-pane" data-tab="video" style="display:none">
+                                                <!-- Toggle for video mode cards -->
+                                                <button type="button" id="videoCardsToggle" class="mode-cards-toggle">
+                                                    <span class="toggle-text" id="videoCardsToggleText"></span>
+                                                    <span class="toggle-icon"></span>
+                                                </button>
+                                                <div id="videoCardsWrapper" class="mode-cards-wrapper collapsed mt-2">
+                                                    <div
+                                                        class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 p-1 sm:gap-4 sm:p-4">
+                                                        <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
+                                                            data-mode="video_gen"
+                                                            data-description="Transform your ideas into dynamic videos! Describe any scene or concept, and watch AI create engaging video content from scratch 🎬✨">
                                                             <span
-                                                                class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded-md text-xs font-medium">text-to-video</span>
+                                                                class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
+                                                                Soon</span>
+                                                            <h4
+                                                                class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                Video Generation</h4>
+                                                            <div class="flex flex-wrap gap-2 mb-2">
+                                                                <span
+                                                                    class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded-md text-xs font-medium">text-to-video</span>
+                                                            </div>
+                                                            <span
+                                                                class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
                                                         </div>
-                                                        <span
-                                                            class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
-                                                    </div>
 
-                                                    <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
-                                                        data-mode="image_to_video"
-                                                        data-description="Bring static images to life! Upload any photo and transform it into smooth, animated video sequences with AI-powered motion 🌟📹">
-                                                        <span
-                                                            class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
-                                                            Soon</span>
-                                                        <h4
-                                                            class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                            Image to Video</h4>
-                                                        <div class="flex flex-wrap gap-2 mb-2">
+                                                        <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
+                                                            data-mode="image_to_video"
+                                                            data-description="Bring static images to life! Upload any photo and transform it into smooth, animated video sequences with AI-powered motion 🌟📹">
                                                             <span
-                                                                class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">img-to-video</span>
+                                                                class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
+                                                                Soon</span>
+                                                            <h4
+                                                                class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                Image to Video</h4>
+                                                            <div class="flex flex-wrap gap-2 mb-2">
+                                                                <span
+                                                                    class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">img-to-video</span>
+                                                            </div>
+                                                            <span
+                                                                class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
                                                         </div>
-                                                        <span
-                                                            class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
-                                                    </div>
 
-                                                    <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
-                                                        data-mode="video_edit"
-                                                        data-description="Professional video editing tools powered by AI. Enhance, modify, and perfect your video content with intelligent editing features 🎯🔧">
-                                                        <span
-                                                            class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
-                                                            Soon</span>
-                                                        <h4
-                                                            class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                            Video Edit</h4>
-                                                        <div class="flex flex-wrap gap-2 mb-2">
+                                                        <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
+                                                            data-mode="video_edit"
+                                                            data-description="Professional video editing tools powered by AI. Enhance, modify, and perfect your video content with intelligent editing features 🎯🔧">
                                                             <span
-                                                                class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">video-tools</span>
+                                                                class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
+                                                                Soon</span>
+                                                            <h4
+                                                                class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
+                                                                Video Edit</h4>
+                                                            <div class="flex flex-wrap gap-2 mb-2">
+                                                                <span
+                                                                    class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">video-tools</span>
+                                                            </div>
+                                                            <span
+                                                                class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
                                                         </div>
-                                                        <span
-                                                            class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <select id="modeSelect" style="display: none;">
-                                    <option value="nano_banana">Nano Banana</option>
-                                    <option value="nano_banana_2">Nano Banana 2</option>
-                                    <option value="nano_banana_pro" selected>Nano Banana Pro</option>
-                                    <option value="fast_generation">Flux Fast Generation</option>
-                                    <option value="z_image">Z-Image Turbo</option>
-                                    <option value="qwen_image">Qwen Image</option>
-                                    <option value="qwen_image_edit">Qwen Image Edit</option>
-                                    <option value="pixplace_pro">Flux Pro Advanced</option>
-                                    <option value="print_maker">Print on Demand</option>
-                                    <option value="background_removal">Remove Background</option>
-                                    <option value="upscale_image">Upscale Image</option>
-                                </select>
+                                    <select id="modeSelect" style="display: none;">
+                                        <option value="nano_banana">Nano Banana</option>
+                                        <option value="nano_banana_2">Nano Banana 2</option>
+                                        <option value="nano_banana_pro" selected>Nano Banana Pro</option>
+                                        <option value="fast_generation">Flux Fast Generation</option>
+                                        <option value="z_image">Z-Image Turbo</option>
+                                        <option value="qwen_image">Qwen Image</option>
+                                        <option value="qwen_image_edit">Qwen Image Edit</option>
+                                        <option value="pixplace_pro">Flux Pro Advanced</option>
+                                        <option value="print_maker">Print on Demand</option>
+                                        <option value="background_removal">Remove Background</option>
+                                        <option value="upscale_image">Upscale Image</option>
+                                    </select>
 
-                                <!-- Mode Description Block - SEPARATED: Now in independent form-group to avoid affecting card layout -->
-                                <div class="form-group" id="modeDescriptionGroup">
-                                    <div id="modeDescriptionBlock" class="mode-description-block"
-                                        style="display: block;">
-                                        <div class="mode-description-content">
-                                            <div class="mode-description-text">
-                                                <p id="modeDescriptionText"
-                                                    class="text-[10px] sm:text-xs leading-relaxed opacity-50 text-gray-500 dark:text-gray-400 m-0 py-1 px-1">
-                                                    Select a model to see its description 🚀</p>
+                                    <!-- Mode Description Block - SEPARATED: Now in independent form-group to avoid affecting card layout -->
+                                    <div class="form-group" id="modeDescriptionGroup">
+                                        <div id="modeDescriptionBlock" class="mode-description-block"
+                                            style="display: block;">
+                                            <div class="mode-description-content">
+                                                <div class="mode-description-text">
+                                                    <p id="modeDescriptionText"
+                                                        class="text-[10px] sm:text-xs leading-relaxed opacity-50 text-gray-500 dark:text-gray-400 m-0 py-1 px-1">
+                                                        Select a model to see its description 🚀</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1100,8 +1103,23 @@
                             </div>
                             <!-- ⚡ MODERN PROMPT INPUT CARD -->
                             <div class="layout-section-prompt" id="promptFormGroup">
-                                <div
-                                    class="relative w-full rounded-2xl bg-white/90 dark:bg-[#0f172a] backdrop-blur-xl border border-white/20 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:bg-white dark:hover:bg-[#0f172a] focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50 group z-10">
+                                <div id="dropzoneOverlay"
+                                    class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-[#0f172a]/90 backdrop-blur-sm border-2 border-dashed border-blue-500 rounded-2xl opacity-0 pointer-events-none transition-opacity duration-200 hidden">
+                                    <div
+                                        class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-full mb-3 text-blue-500 dark:text-blue-400">
+                                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                            stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-1">Drop image here
+                                    </h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center px-4">Drag and drop
+                                        any image to use it for generation</p>
+                                </div>
+                                <div class="relative w-full rounded-2xl bg-white/90 dark:bg-[#0f172a] backdrop-blur-xl border border-white/20 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:bg-white dark:hover:bg-[#0f172a] focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50 group z-10"
+                                    id="promptCardInner">
                                     <!-- Positive Prompt Area -->
                                     <div class="relative w-full" id="promptTextareaWrapper">
                                         <textarea id="promptInput"
@@ -1123,7 +1141,51 @@
                                     </div>
 
                                     <div id="promptDivider"
-                                        class="relative h-px w-full bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent opacity-30 my-0">
+                                        class="relative w-full my-0"
+                                        style="height:1px; background: linear-gradient(to right, transparent, rgba(99,102,241,0.35), transparent)">
+                                    </div>
+
+                                    <!-- Universal Media Input Section (Hidden by default based on mode) -->
+                                    <div id="urlInputContainer"
+                                        class="relative px-4 pt-1.5 pb-0 transition-all">
+                                        <div class="flex items-center gap-3">
+
+                                            <!-- Click to Browse File Input Label -->
+                                            <label for="userImage"
+                                                class="shrink-0 flex items-center justify-center bg-white dark:bg-[#0f172a] hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 cursor-pointer transition-colors shadow-sm text-gray-700 dark:text-gray-300 group/upload">
+                                                <svg class="w-5 h-5 mr-2 text-gray-400 group-hover/upload:text-blue-500 transition-colors"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                                    stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                <span class="text-sm font-semibold">Upload</span>
+                                            </label>
+
+                                            <!-- Text URL Input -->
+                                            <div class="relative flex-1 group/url">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400 group-focus-within/url:text-indigo-500 transition-colors">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor" stroke-width="2.5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                    </svg>
+                                                </div>
+                                                <input type="url" id="imageUrlInput"
+                                                    class="w-full bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 block pl-10 pr-12 p-2.5 shadow-sm outline-none transition-all placeholder:text-gray-400"
+                                                    placeholder="Paste image URL here... (https://...)">
+
+                                                <!-- Add Button Inside Input -->
+                                                <button type="button" id="addUrlSubmitBtn"
+                                                    class="absolute inset-y-1 right-1 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors shadow-sm hover:shadow active:scale-95">
+                                                    Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="urlInputError"
+                                            class="hidden text-red-500 text-[11px] mt-1 ml-1 font-medium bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded inline-block">
+                                            Invalid or unreachable URL</div>
                                     </div>
 
                                     <!-- Negative Prompt Section (Collapsible) -->
@@ -1161,12 +1223,13 @@
                                         class="flex flex-wrap items-center justify-between p-2 sm:p-3 bg-white/30 dark:bg-black/20 backdrop-blur-md border-t border-white/5 gap-3">
 
                                         <!-- Left Tools -->
-                                        <div
+                                        <div id="ob-tools-row"
                                             class="flex flex-wrap items-center gap-2 w-full sm:flex-1 sm:w-auto pb-1 sm:pb-0">
 
                                             <!-- Aspect Ratio Selector -->
                                             <div class="relative flex-1 min-w-[120px] max-w-[200px]" id="sizeGroup">
-                                                <span class="absolute -top-2 left-2 text-[9px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] px-1 z-10 pointer-events-none rounded-sm">Size</span>
+                                                <span
+                                                    class="absolute -top-2 left-2 text-[9px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] px-1 z-10 pointer-events-none rounded-sm">Size</span>
                                                 <select id="sizeSelect"
                                                     class="w-full text-ellipsis overflow-hidden bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-3 pr-2 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors pt-2.5">
                                                     <option value="square">Square 1:1 (1024×1024)</option>
@@ -1174,23 +1237,29 @@
                                                         (1536×640)</option>
                                                     <option value="wide_landscape">Wide Landscape 16:9 (1344×768)
                                                     </option>
-                                                    <option value="standard_landscape">Standard Landscape 4:3 (1152×896)
+                                                    <option value="standard_landscape">Standard Landscape 4:3
+                                                        (1152×896)
                                                     </option>
-                                                    <option value="classic_landscape">Classic Landscape 3:2 (1280×832)
+                                                    <option value="classic_landscape">Classic Landscape 3:2
+                                                        (1280×832)
                                                     </option>
                                                     <option value="classic_portrait">Classic Portrait 2:3 (832×1280)
                                                     </option>
-                                                    <option value="standard_portrait">Standard Portrait 3:4 (896×1152)
+                                                    <option value="standard_portrait">Standard Portrait 3:4
+                                                        (896×1152)
                                                     </option>
-                                                    <option value="tall_portrait">Tall Portrait 9:16 (768×1344)</option>
+                                                    <option value="tall_portrait">Tall Portrait 9:16 (768×1344)
+                                                    </option>
                                                     <option value="ultra_tall_portrait">Ultra-Tall Portrait 9:21
                                                         (640×1536)</option>
                                                 </select>
                                             </div>
 
                                             <!-- Resolution Selector (Nano Banana) -->
-                                            <div class="relative flex-1 min-w-[100px] max-w-[130px] hidden" id="resolutionGroup">
-                                                <span class="absolute -top-2 left-2 text-[9px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] px-1 z-10 pointer-events-none rounded-sm">Resolution</span>
+                                            <div class="relative flex-1 min-w-[100px] max-w-[130px] hidden"
+                                                id="resolutionGroup">
+                                                <span
+                                                    class="absolute -top-2 left-2 text-[9px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] px-1 z-10 pointer-events-none rounded-sm">Resolution</span>
                                                 <select id="resolutionSelect"
                                                     class="w-full text-ellipsis overflow-hidden bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-2 pr-2 text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors pt-2.5">
                                                     <option value="1K">1K</option>
@@ -1199,19 +1268,9 @@
                                                 </select>
                                             </div>
 
-                                            <!-- Upload Button -->
+                                            <!-- Upload File Input (Used by label and inline buttons) -->
                                             <input type="file" id="userImage" class="hidden" multiple
                                                 accept="image/png,image/jpeg,image/webp,image/gif" />
-                                            <button type="button" id="chooseUserImage"
-                                                class="flex items-center gap-1.5 bg-white/50 dark:bg-slate-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg py-1.5 px-3 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all whitespace-nowrap min-w-0 h-[34px]">
-                                                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                    <polyline points="17 8 12 3 7 8" />
-                                                    <line x1="12" y1="3" x2="12" y2="15" />
-                                                </svg>
-                                                <span data-i18n="upload_image">Image</span>
-                                            </button>
 
                                             <!-- Batch Upload Button (Coming Soon) -->
                                             <button type="button" id="batchUploadBtn"
@@ -1435,7 +1494,6 @@
                                     </svg>
                                 </button>
                                 <div id="historyList" class="history-list hidden"></div>
-                            </div>
                         </form>
                     </div>
                 </div>
@@ -1624,101 +1682,6 @@
             </div>
         </div>
     </footer>
-
-    <!-- NEW AUTHENTICATION MODAL -->
-    <!-- FIX: убраны Tailwind-классы transition-transform/scale-95/opacity-0:
-         они конфликтовали с auth.css transition. Теперь анимация только через auth.css + JS class toggle -->
-    <div id="authModal" style="z-index: 1000001;"
-        class="fixed inset-0 hidden flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm px-4"
-        aria-modal="true" role="dialog" aria-label="Sign in" onclick="if(event.target === this) closeAuthModal()">
-
-        <!-- Modal Container (Glassmorphism Premium — Styles managed in auth.css) -->
-        <div class="w-full max-w-[368px] relative transform transition-all duration-300 scale-95 opacity-0 flex flex-col items-center p-6 sm:p-8"
-            id="authModalContent">
-
-            <!-- Close Button -->
-            <button onclick="closeAuthModal()"
-                class="absolute right-4 top-4 transition-all duration-200 cursor-pointer">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-            </button>
-
-            <!-- Header -->
-            <div class="text-center mb-8">
-                <h2 class="text-2xl font-black mb-2 tracking-tight" data-i18n="auth_welcome">Welcome</h2>
-                <p class="text-sm font-medium" data-i18n="auth_subtitle">Sign in to sync your progress</p>
-            </div>
-
-            <!-- Social Login Buttons -->
-            <div class="w-full space-y-3 mb-6">
-                <!-- Google Button Wrapper -->
-                <div class="relative group auth-btn-premium rounded-2xl">
-                    <div class="shine-layer"></div>
-                    <button
-                        class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white/5 dark:bg-white/5 border border-white/10 rounded-2xl transition-all duration-300">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24">
-                            <path fill="#4285F4"
-                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                            <path fill="#34A853"
-                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                            <path fill="#FBBC05"
-                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                            <path fill="#EA4335"
-                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                        </svg>
-                        <span class="text-sm font-bold text-gray-200" data-i18n="continue_with_google">Continue with
-                            Google</span>
-                    </button>
-                    <!-- Google GSI Frame Container -->
-                    <div id="googleSignInWrapper"
-                        style="position: absolute; inset: 0; opacity: 0.01; z-index: 9999; pointer-events: auto; cursor: pointer;">
-                    </div>
-                </div>
-
-                <!-- Telegram Button -->
-                <button onclick="handleTelegramOAuth()" class="auth-btn-premium group">
-                    <div class="shine-layer"></div>
-                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                        <path
-                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.36-.49.99-.75 3.88-1.69 6.46-2.8 7.74-3.35 3.68-1.56 4.44-1.83 4.94-1.84.11 0 .35.03.5.16.13.11.17.26.18.37.01.07.01.15 0 .22z" />
-                    </svg>
-                    <span class="text-sm font-bold" data-i18n="continue_with_telegram">Continue with Telegram</span>
-                </button>
-            </div>
-
-            <!-- Divider -->
-            <div class="w-full flex items-center gap-4 mb-6">
-                <div class="flex-grow border-t"></div>
-                <span class="text-[10px] uppercase tracking-widest font-black" data-i18n="or">or</span>
-                <div class="flex-grow border-t"></div>
-            </div>
-
-            <!-- Email Login -->
-            <div class="w-full space-y-3 mb-6">
-                <input type="email" id="authEmailInput" placeholder="Enter your email"
-                    data-i18n-placeholder="enter_your_email">
-                <button onclick="handleEmailLoginSubmit()" class="auth-btn-premium group">
-                    <div class="shine-layer"></div>
-                    <span data-i18n="continue">Continue</span>
-                </button>
-            </div>
-
-            <!-- Terms -->
-            <div class="text-center">
-                <p class="text-[11px] leading-relaxed font-medium">
-                    <span data-i18n="auth_terms_agreement">By continuing, you agree to our</span> <br class="sm:hidden">
-                    <a href="#" onclick="openTermsOfService(); return false;" data-i18n="footer_terms">Terms of
-                        Service</a>
-                    <span data-i18n="auth_and">and</span>
-                    <a href="#" onclick="openPrivacyPolicy(); return false;" data-i18n="footer_privacy">Privacy
-                        Policy</a>
-                </p>
-            </div>
-        </div>
-    </div>
 
     <!-- LANGUAGE SELECTION MODAL -->
     <div id="languageModal" style="z-index: 1000000;"

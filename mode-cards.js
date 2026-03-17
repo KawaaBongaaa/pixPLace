@@ -16,8 +16,7 @@ export function getSelectedMode() {
 
 // ЭКСПОРТИРУЕМ ФУНКЦИЮ ПРОГРАММНОГО ВЫБОРА РЕЖИМА
 export function setSelectedMode(mode) {
-    // Определяем к какому табу относится режим
-    const isImageMode = ['nano_banana_pro', 'nano_banana', 'fast_generation', 'z_image', 'qwen_image', 'qwen_image_edit', 'pixplace_pro', 'dreamshaper_xl', 'background_removal', 'upscale_image', 'print_maker'].includes(mode);
+    const isImageMode = ['nano_banana_pro', 'nano_banana', 'nano_banana_2', 'fast_generation', 'z_image', 'qwen_image', 'qwen_image_edit', 'pixplace_pro', 'dreamshaper_xl', 'background_removal', 'upscale_image', 'print_maker'].includes(mode);
     const isVideoMode = ['video_gen', 'image_to_video', 'video_edit'].includes(mode);
 
     if (isVideoMode) {
