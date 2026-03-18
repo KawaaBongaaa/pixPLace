@@ -1,14 +1,15 @@
 /**
- * pixPLace Onboarding Flow v3.0
+ * pixPLace Onboarding Flow v2.0
  *
- * STEP 0 — Cinema Intro (full-screen cinematic reveal)
- * STEPS 1–6 — Smart Spotlight Tour:
- *   1. Image + Video tabs  (highlights BOTH simultaneously)
- *   2. AI Model selector   (expands list + animated click on Z-Image card)
- *   3. Prompt input        (+ Nano Banana Pro typewriter demo)
- *   4. Upload + Size + Resolution (merged into one step with upload demo)
- *   5. GPT Chat button
- *   6. Generate button
+ * STEP 0 — Cinema Intro (full-Screen cinematic reveal)
+ * STEPS 1–8 — Smart Spotlight Tour:
+ *   1. Image / Video tabs
+ *   2. AI Model selector (modeCardsToggle)
+ *   3. Prompt input (+ Nano Banana Pro typewriter demo)
+ *   4. Upload image button
+ *   5. Resolution / aspect ratio selector
+ *   6. GPT Chat button
+ *   7. Generate button
  *
  * ✅ SWAPPABLE: Replace onboarding.js + onboarding.css for a new flow
  * ✅ MULTILINGUAL: window.dictionaryManager.translate(key)
@@ -37,82 +38,71 @@ export class PixPlaceOnboarding {
         this._scrollLocked = false;
         this._resizeHandler = this._onResize.bind(this);
         this._typewriterTimer = null;
-        this._demoCleanups = []; // fns to call when step changes
 
-        // ── Tour step definitions ──────────────────────────────────────────
+        // ── Tour step definitions (1 step = 1 DOM element to spotlight) ───
         this.tourSteps = [
-
-            // ① Image + Video tabs — spotlight BOTH at once
+            // ① Image / Video content-type tabs
             {
-                selector: 'MULTI',
-                selectors: [
-                    '#imageTabBtn, [data-tab="image"], .generation-tab[data-tab="image"]',
-                    '#videoTabBtn, [data-tab="video"], .generation-tab[data-tab="video"]',
-                    // wide fallbacks
-                    '.tabs button:first-child, nav button:first-child',
-                    '.tabs button:last-child,  nav button:last-child',
-                ],
+                selector: '.generation-tab[data-tab="image"], [data-tab="image"], .tab-btn:first-child, .generation-tabs button:first-child',
+                fallback: '.tabs button, nav[data-tabs] a',
                 titleKey: 'ob_tour_tabs_title',
-                descKey:  'ob_tour_tabs_desc',
+                descKey: 'ob_tour_tabs_desc',
                 typewriter: null,
-                demo: null,
             },
-
-            // ② AI Model selector — expand list + click Z-Image
+            // ② AI Model selector toggle
             {
-                selector: '#ob-model-selector-row, #modeCardsToggle',
-                fallback:  '#modeCardsToggle',
+                selector: '#modeCardsToggle, #videoCardsToggle, .mode-cards-toggle',
+                fallback: '.mode-cards-toggle',
                 titleKey: 'ob_tour_model_title',
-                descKey:  'ob_tour_model_desc',
+                descKey: 'ob_tour_model_desc',
                 typewriter: null,
-                demo: 'modelExpand',   // expand + click Z-Image card
             },
-
-            // ③ Prompt input — with typewriter
+            // ③ Prompt input — with typewriter demo of Nano Banana Pro!
             {
-                selector:  '#promptInput',
-                fallback:  'textarea[maxlength="2000"]',
-                titleKey:  'ob_tour_prompt_title',
-                descKey:   'ob_tour_prompt_desc',
-                typewriter: true,
-                demo: null,
+                selector: '#promptInput',
+                fallback: 'textarea[maxlength="2000"]',
+                titleKey: 'ob_tour_prompt_title',
+                descKey: 'ob_tour_prompt_desc',
+                typewriter: true,   // special: show animated typing demo
             },
-
-            // ④ GPT Chat Button
+            // ④ Upload reference image button
+            {
+                selector: '#chooseUserImage',
+                fallback: 'button[type="button"]',
+                titleKey: 'ob_tour_upload_title',
+                descKey: 'ob_tour_upload_desc',
+                typewriter: null,
+            },
+            // ⑤ Resolution / aspect-ratio selector
+            {
+                selector: '#sizeGroup, #sizeSelect',
+                fallback: 'select[id*="size"]',
+                titleKey: 'ob_tour_size_title',
+                descKey: 'ob_tour_size_desc',
+                typewriter: null,
+            },
+            // ⑥ GPT Chat floating button
             {
                 selector: '#ai-chat-float-btn',
                 fallback: '.ai-chat-btn-entrance',
                 titleKey: 'ob_tour_gpt_title',
-                descKey:  'ob_tour_gpt_desc',
+                descKey: 'ob_tour_gpt_desc',
                 typewriter: null,
-                demo: 'gptPulse',
             },
-
-            // ④ Upload + Size + Resolution (merged target)
-            {
-                selector: '#ob-tools-row',
-                fallback: '#sizeGroup',
-                titleKey: 'ob_tour_tools_title',
-                descKey:  'ob_tour_tools_desc',
-                typewriter: null,
-                demo: 'uploadPulse',  // pulse upload button
-            },
-
-            // ⑥ Generate!
+            // ⑦ Generate!
             {
                 selector: '#generateBtn',
-                fallback:  'button[type="submit"]',
+                fallback: 'button[type="submit"]',
                 titleKey: 'ob_tour_generate_title',
-                descKey:  'ob_tour_generate_desc',
+                descKey: 'ob_tour_generate_desc',
                 typewriter: null,
-                demo: null,
             },
         ];
 
-        this.totalSteps = this.tourSteps.length; // tour steps only
+        this.totalSteps = 1 + this.tourSteps.length; // 8
     }
 
-    /* ── i18n ────────────────────────────────────────────────── */
+    /* ── i18n ─────────────────────────────────────────────────── */
     t(key, vars = {}) {
         let text = window.dictionaryManager?.translate?.(key) || '';
         if (!text || text === key) text = FALLBACK_EN[key] || key;
@@ -122,7 +112,7 @@ export class PixPlaceOnboarding {
         return text;
     }
 
-    /* ── Entry ───────────────────────────────────────────────── */
+    /* ── Entry ────────────────────────────────────────────────── */
     async start() {
         this._lockScroll();
         this._renderCinema();
@@ -209,9 +199,10 @@ export class PixPlaceOnboarding {
     }
 
     /* ─────────────────────────────────────────────────────────────
-       STEPS 1–6 — SPOTLIGHT TOUR
+       STEPS 1–7 — SPOTLIGHT TOUR
     ───────────────────────────────────────────────────────────── */
     _renderTour() {
+        // SVG overlay layer
         const tourEl = document.createElement('div');
         tourEl.className = 'ob-tour-layer';
         tourEl.innerHTML = `
@@ -219,9 +210,7 @@ export class PixPlaceOnboarding {
                 <defs>
                     <mask id="ob-spotlight-mask">
                         <rect width="100%" height="100%" fill="white"/>
-                        <rect id="ob-spotlight-hole"  rx="0" fill="black"/>
-                        <rect id="ob-spotlight-hole2" rx="0" fill="black"/>
-                        <rect id="ob-spotlight-hole3" rx="0" fill="black"/>
+                        <rect id="ob-spotlight-hole" rx="0" fill="black"/>
                     </mask>
                 </defs>
                 <rect class="ob-spotlight-mask" width="100%" height="100%"
@@ -230,25 +219,11 @@ export class PixPlaceOnboarding {
         document.body.appendChild(tourEl);
         this.tourEl = tourEl;
 
-        // Primary highlight ring
+        // Highlight ring
         const ring = document.createElement('div');
         ring.className = 'ob-spotlight-ring';
         document.body.appendChild(ring);
         this.ringEl = ring;
-
-        // Secondary ring
-        const ring2 = document.createElement('div');
-        ring2.className = 'ob-spotlight-ring ob-spotlight-ring2';
-        ring2.style.display = 'none';
-        document.body.appendChild(ring2);
-        this.ringEl2 = ring2;
-
-        // Third ring
-        const ring3 = document.createElement('div');
-        ring3.className = 'ob-spotlight-ring ob-spotlight-ring3';
-        ring3.style.display = 'none';
-        document.body.appendChild(ring3);
-        this.ringEl3 = ring3;
 
         // Tooltip
         const tooltip = document.createElement('div');
@@ -261,343 +236,41 @@ export class PixPlaceOnboarding {
         tourEl.querySelector('.ob-spotlight-svg rect.ob-spotlight-mask')
             .addEventListener('click', () => this._nextTourStep());
 
-        // Bind scroll in capture phase to reliably track any scrolling containers
-        window.addEventListener('resize', this._resizeHandler, { passive: true });
-        window.addEventListener('scroll', this._resizeHandler, true);
+        window.addEventListener('resize', this._resizeHandler);
     }
 
     _goToTourStep(tourIdx) {
-        // Run any cleanup from previous step
-        this._runDemoCleanups();
-
         const step = this.tourSteps[tourIdx];
-        this._currentTourIndex = tourIdx;
+        const target = this._findTarget(step);
 
-        clearTimeout(this._typewriterTimer);
-
-        if (step.selector === 'MULTI') {
-            this._goToMultiStep(tourIdx, step);
-        } else {
-            const target = this._findTarget(step);
-            if (!target) {
-                console.warn(`[Onboarding] No target for step ${tourIdx + 1}, skipping`);
-                const next = tourIdx + 1;
-                if (next < this.tourSteps.length) this._goToTourStep(next);
-                else this._finish();
-                return;
-            }
-            this._currentTarget = target;
-            this._currentTarget2 = null;
-
-            this.ringEl2.style.display = 'none';
-            this.ringEl3.style.display = 'none';
-            const hole2 = this.tourEl.querySelector('#ob-spotlight-hole2');
-            const hole3 = this.tourEl.querySelector('#ob-spotlight-hole3');
-            if (hole2) { hole2.setAttribute('width', '0'); hole2.setAttribute('height', '0'); }
-            if (hole3) { hole3.setAttribute('width', '0'); hole3.setAttribute('height', '0'); }
-
-            // Initiate continuous tracking during the scroll/transition period
-            let trackingFrames = 0;
-            const trackTick = () => {
-                if (trackingFrames++ < 30) {
-                    this._onResize();
-                    requestAnimationFrame(trackTick);
-                }
-            };
-            requestAnimationFrame(trackTick);
-
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
-                this._positionSpotlight(target);
-                this._renderTooltip(step, tourIdx);
-                this._runStepDemo(step, tourIdx);
-            }, 380);
-        }
-    }
-
-    /* ── MULTI-TARGET (tabs step, tools step) ─────────────────── */
-    _goToMultiStep(tourIdx, step) {
-        const targets = this._findMultiTargets(step.selectors);
-
-        if (targets.length === 0) {
-            console.warn(`[Onboarding] No targets for multi-step ${tourIdx + 1}, skipping`);
+        if (!target) {
+            console.warn(`[Onboarding] No target for step ${tourIdx + 1}, skipping`);
             const next = tourIdx + 1;
             if (next < this.tourSteps.length) this._goToTourStep(next);
             else this._finish();
             return;
         }
 
-        this._currentTarget  = targets[0] || null;
-        this._currentTarget2 = targets[1] || null;
+        this._currentTourIndex = tourIdx;
+        this._currentTarget = target;
 
-        // Scroll to first target
-        if (this._currentTarget) {
-            let trackingFrames = 0;
-            const trackTick = () => {
-                if (trackingFrames++ < 30) {
-                    this._onResize();
-                    requestAnimationFrame(trackTick);
-                }
-            };
-            requestAnimationFrame(trackTick);
-            this._currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        // Kill any running typewriter
+        clearTimeout(this._typewriterTimer);
 
+        // Scroll into view, then position
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         setTimeout(() => {
-            // Apply glass shine class
-            if (step.titleKey === 'ob_tour_tabs_title') {
-                targets.forEach(t => t.classList.add('ob-demo-glass-shine'));
-                this._demoCleanups.push(() => {
-                    targets.forEach(t => t.classList.remove('ob-demo-glass-shine'));
-                });
-            }
-
-            this._positionMultiSpotlight(targets);
+            this._positionSpotlight(target);
             this._renderTooltip(step, tourIdx);
-            this._runStepDemo(step, tourIdx);
-        }, 380);
+        }, 320);
     }
 
-    _findMultiTargets(selectorGroups) {
-        const found = [];
-        for (const group of selectorGroups) {
-            for (const sel of group.split(',').map(s => s.trim())) {
-                try {
-                    const el = document.querySelector(sel);
-                    if (el && this._isVisible(el)) { found.push(el); break; }
-                } catch { /* bad selector */ }
-            }
-        }
-        return found;
-    }
-
-    _positionMultiSpotlight(targets) {
-        const PAD = 10, R = 12;
-
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        let hasValidTarget = false;
-
-        targets.forEach(target => {
-            if (!target) return;
-            const rect = target.getBoundingClientRect();
-            if (rect.width > 0 && rect.height > 0) {
-                minX = Math.min(minX, rect.left);
-                minY = Math.min(minY, rect.top);
-                maxX = Math.max(maxX, rect.right);
-                maxY = Math.max(maxY, rect.bottom);
-                hasValidTarget = true;
-            }
-        });
-
-        const hole  = this.tourEl.querySelector('#ob-spotlight-hole');
-        const hole2 = this.tourEl.querySelector('#ob-spotlight-hole2');
-        const hole3 = this.tourEl.querySelector('#ob-spotlight-hole3');
-
-        // Hide secondary holes and rings since we use union
-        if (hole2) { hole2.setAttribute('width', '0'); hole2.setAttribute('height', '0'); }
-        if (hole3) { hole3.setAttribute('width', '0'); hole3.setAttribute('height', '0'); }
-        if (this.ringEl2) this.ringEl2.style.display = 'none';
-        if (this.ringEl3) this.ringEl3.style.display = 'none';
-
-        if (hasValidTarget) {
-            const x = minX - PAD;
-            const y = minY - PAD;
-            const w = (maxX - minX) + PAD * 2;
-            const h = (maxY - minY) + PAD * 2;
-
-            hole.setAttribute('x', x); hole.setAttribute('y', y);
-            hole.setAttribute('width', w); hole.setAttribute('height', h);
-            hole.setAttribute('rx', R);
-
-            Object.assign(this.ringEl.style, {
-                display: 'block', left: `${x}px`, top: `${y}px`,
-                width: `${w}px`, height: `${h}px`, borderRadius: `${R + 2}px`,
-            });
-
-            this._targetRect = { x, y, w, h };
-            this._targetRect2 = null;
-        } else {
-            hole.setAttribute('width', '0'); hole.setAttribute('height', '0');
-            this.ringEl.style.display = 'none';
-            this._targetRect = null;
-            this._targetRect2 = null;
-        }
-    }
-
-    /* ── STEP DEMOS ────────────────────────────────────────────── */
-    _runStepDemo(step, tourIdx) {
-        if (!step.demo) return;
-
-        switch (step.demo) {
-            case 'modelExpand': this._demoModelExpand(); break;
-            case 'uploadPulse': this._demoUploadPulse(); break;
-            case 'gptPulse': this._demoGPTPulse(); break;
-        }
-    }
-
-    /** Expand model card list + simulate animated click on Z-Image card */
-    _demoModelExpand() {
-        // 1. Expand the image model cards wrapper
-        let expanded = false;
-        if (window.setModeCardsCollapsed) {
-            window.setModeCardsCollapsed(false);
-            expanded = true;
-        } else {
-            const wrapper = document.getElementById('modeCardsWrapper');
-            const toggle  = document.getElementById('modeCardsToggle');
-            if (wrapper) {
-                wrapper.style.display = 'block';
-                wrapper.style.opacity = '1';
-                wrapper.style.maxHeight = 'none';
-                wrapper.style.overflow = 'visible';
-                wrapper.style.transform = 'scaleY(1)';
-                wrapper.style.transition = 'all 0.3s ease';
-                wrapper.classList.remove('collapsed');
-                wrapper.classList.add('expanded');
-                expanded = true;
-            }
-            if (toggle) { toggle.classList.remove('collapsed'); toggle.classList.add('expanded'); }
-        }
-
-        if (!expanded) return;
-
-        const wrapper = document.getElementById('modeCardsWrapper');
-        if (wrapper) wrapper.classList.add('ob-demo-active');
-
-        // 2. Update spotlight position slightly faster to stay tight
-        setTimeout(() => {
-            const toggle = this._currentTarget;
-            if (toggle) {
-                this._positionSpotlight(toggle);
-                this._positionTooltip();
-            }
-        }, 300);
-
-        // 3. Find Z-Image card and animate a "ghost click" on it
-        const DEMO_DELAY = 900; // ms after expand
-        const zCardTimer = setTimeout(() => {
-            const zCard = document.querySelector('[data-mode="z_image"]');
-            if (!zCard) return;
-
-            // Add visual "hover" class
-            zCard.classList.add('ob-demo-hover');
-
-            // Ripple element
-            const ripple = document.createElement('span');
-            ripple.className = 'ob-demo-ripple';
-            const rect = zCard.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            Object.assign(ripple.style, {
-                width: `${size}px`, height: `${size}px`,
-                top: `${rect.height / 2 - size / 2}px`,
-                left: `${rect.width / 2 - size / 2}px`,
-            });
-            zCard.style.position = 'relative';
-            zCard.style.overflow = 'hidden';
-            zCard.appendChild(ripple);
-
-            // 4. After ripple — remove hover
-            const cleanTimer = setTimeout(() => {
-                zCard.classList.remove('ob-demo-hover');
-                ripple.remove();
-            }, 800);
-
-            this._demoCleanups.push(() => {
-                zCard.classList.remove('ob-demo-hover');
-                ripple.remove();
-                clearTimeout(cleanTimer);
-            });
-        }, DEMO_DELAY);
-
-        // Register cleanup for when user moves to next step
-        this._demoCleanups.push(() => {
-            clearTimeout(zCardTimer);
-            // Collapse cards back
-            if (window.setModeCardsCollapsed) {
-                window.setModeCardsCollapsed(true);
-            } else {
-                const wrapper = document.getElementById('modeCardsWrapper');
-                if (wrapper) { wrapper.style.display = 'none'; wrapper.classList.remove('ob-demo-active'); }
-            }
-            const wrapper = document.getElementById('modeCardsWrapper');
-            if (wrapper) wrapper.classList.remove('ob-demo-active');
-            
-            const zCard = document.querySelector('[data-mode="z_image"]');
-            if (zCard) { zCard.classList.remove('ob-demo-hover'); }
-        });
-    }
-
-    _demoGPTPulse() {
-        const btn = document.getElementById('ai-chat-float-btn');
-        if (!btn) return;
-
-        // Add a pulsing effect
-        btn.classList.add('ob-demo-pulse-gpt');
-
-        // Create a floating hint badge next to it
-        const hint = document.createElement('div');
-        hint.className = 'ob-demo-gpt-hint';
-        hint.innerHTML = '✨ <span>Pro Prompt Magic</span>';
-        
-        // Position it relative to the page
-        const rect = btn.getBoundingClientRect();
-        hint.style.position = 'fixed';
-        // Position to the left of the button
-        hint.style.left = `${rect.left - 180}px`;
-        hint.style.top = `${rect.top + (rect.height / 2) - 15}px`;
-        hint.style.zIndex = '9999999';
-
-        document.body.appendChild(hint);
-
-        // Animate floating hint
-        setTimeout(() => hint.classList.add('visible'), 50);
-
-        this._demoCleanups.push(() => {
-            btn.classList.remove('ob-demo-pulse-gpt');
-            hint.classList.remove('visible');
-            setTimeout(() => hint.remove(), 300);
-        });
-    }
-
-    /** Pulse the upload button to show where it is */
-    _demoUploadPulse() {
-        const uploadBtn = document.getElementById('urlInputContainer');
-        if (!uploadBtn) return;
-
-        // Add animated pulse ring
-        uploadBtn.classList.add('ob-demo-pulse');
-
-        // Force resolution group to show during this step if it was dynamically hidden
-        const resGrp = document.getElementById('resolutionGroup');
-        if (resGrp && resGrp.classList.contains('hidden')) {
-            resGrp.dataset.obHiddenBefore = 'true';
-            resGrp.classList.remove('hidden');
-            
-            this._demoCleanups.push(() => {
-                if (resGrp.dataset.obHiddenBefore === 'true') {
-                    resGrp.classList.add('hidden');
-                    delete resGrp.dataset.obHiddenBefore;
-                }
-            });
-        }
-
-        this._demoCleanups.push(() => {
-            uploadBtn.classList.remove('ob-demo-pulse');
-        });
-    }
-
-    _runDemoCleanups() {
-        this._demoCleanups.forEach(fn => { try { fn(); } catch { } });
-        this._demoCleanups = [];
-    }
-
-    /* ── Single-target spotlight ────────────────────────────────── */
     _findTarget({ selector, fallback }) {
         for (const sel of selector.split(',').map(s => s.trim())) {
             try {
                 const el = document.querySelector(sel);
                 if (el && this._isVisible(el)) return el;
-            } catch { }
+            } catch {/* bad selector */ }
         }
         if (fallback) {
             for (const sel of fallback.split(',').map(s => s.trim())) {
@@ -620,64 +293,51 @@ export class PixPlaceOnboarding {
     _positionSpotlight(target) {
         const PAD = 10, R = 12;
         const rect = target.getBoundingClientRect();
-        const x = rect.left - PAD, y = rect.top - PAD;
-        const w = rect.width + PAD * 2, h = rect.height + PAD * 2;
+        const x = rect.left - PAD,
+            y = rect.top - PAD,
+            w = rect.width + PAD * 2,
+            h = rect.height + PAD * 2;
 
         const hole = this.tourEl.querySelector('#ob-spotlight-hole');
-        hole.setAttribute('x', x); hole.setAttribute('y', y);
-        hole.setAttribute('width', w); hole.setAttribute('height', h);
+        hole.setAttribute('x', x);
+        hole.setAttribute('y', y);
+        hole.setAttribute('width', w);
+        hole.setAttribute('height', h);
         hole.setAttribute('rx', R);
 
         Object.assign(this.ringEl.style, {
-            left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px`,
+            left: `${x}px`,
+            top: `${y}px`,
+            width: `${w}px`,
+            height: `${h}px`,
             borderRadius: `${R + 2}px`,
         });
 
         this._targetRect = { x, y, w, h };
     }
 
-    /* ── Tooltip ─────────────────────────────────────────────── */
     _renderTooltip(step, tourIdx) {
         const tooltip = this.tooltipEl;
-        const globalStep = tourIdx + 1; // Tour starts from 1
+        const globalStep = tourIdx + 2;               // cinema = step 1
         const isLast = tourIdx === this.tourSteps.length - 1;
         const stepLabel = this.t('ob_step_of', { current: globalStep, total: this.totalSteps });
 
+        // Progress dots for tour
         const dots = this.tourSteps.map((_, i) => {
             const cls = i < tourIdx ? 'ob-done' : i === tourIdx ? 'ob-active' : '';
             return `<span class="ob-tooltip-dot ${cls}"></span>`;
         }).join('');
 
+        // Optional typewriter block (prompt step)
         const twBlock = step.typewriter
             ? `<div class="ob-typewriter-demo" id="ob-tw-demo"><span class="ob-typewriter-cursor"></span></div>`
             : '';
-
-        // Extra badge for demo steps
-        let demoBadge = '';
-        if (step.demo === 'uploadPulse') {
-            demoBadge = `<div class="ob-demo-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7,10 12,15 17,10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                <span>${this.t('ob_demo_upload_badge')}</span>
-            </div>`;
-        } else if (step.demo === 'modelExpand') {
-            demoBadge = `<div class="ob-demo-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
-                </svg>
-                <span>${this.t('ob_demo_model_badge')}</span>
-            </div>`;
-        }
 
         tooltip.innerHTML = `
             <div class="ob-tooltip-step">${stepLabel}</div>
             <span class="ob-tooltip-arrow ob-arrow-top"></span>
             <h3 class="ob-tooltip-title">${this.t(step.titleKey)}</h3>
             <p class="ob-tooltip-desc">${this.t(step.descKey)}</p>
-            ${demoBadge}
             ${twBlock}
             <div class="ob-tooltip-footer">
                 <div class="ob-tooltip-dots">${dots}</div>
@@ -692,25 +352,34 @@ export class PixPlaceOnboarding {
         tooltip.querySelector('.ob-btn-skip').addEventListener('click', () => this._finish());
         tooltip.querySelector('.ob-btn-next').addEventListener('click', () => this._nextTourStep());
 
+        // Animate in
         requestAnimationFrame(() => tooltip.classList.add('ob-visible'));
 
+        // Start typewriter if this step has it
         if (step.typewriter) this._startTypewriter();
     }
 
     _startTypewriter() {
         const demo = document.getElementById('ob-tw-demo');
         if (!demo) return;
+
         const text = this.t('ob_tour_prompt_demo');
         let index = 0;
+
         const cursor = demo.querySelector('.ob-typewriter-cursor');
+
         const type = () => {
-            if (!document.getElementById('ob-tw-demo')) return;
+            if (!document.getElementById('ob-tw-demo')) return; // tooltip gone
             if (index < text.length) {
-                demo.insertBefore(document.createTextNode(text[index]), cursor);
+                // Insert text node before cursor
+                const node = document.createTextNode(text[index]);
+                demo.insertBefore(node, cursor);
                 index++;
                 this._typewriterTimer = setTimeout(type, 42 + Math.random() * 28);
             }
         };
+
+        // Small delay so tooltip is visible first
         this._typewriterTimer = setTimeout(type, 400);
     }
 
@@ -720,63 +389,29 @@ export class PixPlaceOnboarding {
         const VW = window.innerWidth;
         const VH = window.innerHeight;
         const TW = Math.min(300, VW - 32);
-        const TH = 200; // estimated height
+        const TH = 180;
         const GAP = 14;
 
-        let top = y + h + GAP, dir = 'ob-arrow-top';
-        let left = x + (w / 2) - (TW / 2);
-
-        if (top + TH > VH - GAP) { top = y - TH - GAP; dir = 'ob-arrow-bottom'; }
-
-        // Adjust horizontally/vertically if overlapping is severe (like model selection step)
-        if (h > 150) {
-            if (VW > 768) {
-                // Desktop: Put it to the right if there's room, else left
-                if (x + w + TW + GAP < VW) {
-                    left = x + w + GAP;
-                    top = y + (h / 2) - (TH / 2);
-                    dir = 'ob-arrow-left';
-                } else if (x - TW - GAP > 0) {
-                    left = x - TW - GAP;
-                    top = y + (h / 2) - (TH / 2);
-                    dir = 'ob-arrow-right';
-                }
-            } else {
-                // Mobile: Force it below or above the tight bounding box rather than overlapping inside
-                // If the bounding box is huge, we just have to put it somewhere (usually bottom)
-                if (y + h + TH + GAP < VH) {
-                    top = y + h + GAP;
-                    dir = 'ob-arrow-top';
-                } else {
-                    top = Math.max(GAP, y - TH - GAP);
-                    dir = 'ob-arrow-bottom';
-                }
-            }
+        // Prefer below; fall back to above
+        let top = y + h + GAP;
+        let dir = 'ob-arrow-top';
+        if (top + TH > VH - GAP) {
+            top = y - TH - GAP;
+            dir = 'ob-arrow-bottom';
         }
-
         top = Math.max(GAP, Math.min(top, VH - TH - GAP));
+
+        let left = x;
         left = Math.max(GAP, Math.min(left, VW - TW - GAP));
 
-        Object.assign(this.tooltipEl.style, { top: `${top}px`, left: `${left}px`, width: `${TW}px` });
+        Object.assign(this.tooltipEl.style, {
+            top: `${top}px`,
+            left: `${left}px`,
+            width: `${TW}px`,
+        });
 
         const arrow = this.tooltipEl.querySelector('.ob-tooltip-arrow');
-        if (arrow) {
-            arrow.className = `ob-tooltip-arrow ${dir}`;
-            arrow.style.top = ''; arrow.style.bottom = ''; arrow.style.left = ''; arrow.style.right = '';
-
-            if (dir === 'ob-arrow-top' || dir === 'ob-arrow-bottom') {
-                let arrowX = (x + w / 2) - left - 5;
-                arrowX = Math.max(15, Math.min(arrowX, TW - 25));
-                arrow.style.left = `${arrowX}px`;
-                if (dir === 'ob-arrow-bottom') arrow.style.bottom = '-6px';
-            } else if (dir === 'ob-arrow-left' || dir === 'ob-arrow-right') {
-                let arrowY = (y + h / 2) - top - 5;
-                arrowY = Math.max(15, Math.min(arrowY, TH - 25));
-                arrow.style.top = `${arrowY}px`;
-                if (dir === 'ob-arrow-left') arrow.style.left = '-6px';
-                if (dir === 'ob-arrow-right') arrow.style.right = '-6px';
-            }
-        }
+        if (arrow) arrow.className = `ob-tooltip-arrow ${dir}`;
     }
 
     _nextTourStep() {
@@ -791,40 +426,36 @@ export class PixPlaceOnboarding {
     }
 
     _onResize() {
-        if (this._currentTourIndex !== undefined) {
-            const step = this.tourSteps[this._currentTourIndex];
-            if (step?.selector === 'MULTI') {
-                const targets = this._findMultiTargets(step.selectors);
-                this._positionMultiSpotlight(targets);
-            } else if (this._currentTarget) {
-                this._positionSpotlight(this._currentTarget);
-            }
+        if (this._currentTarget) {
+            this._positionSpotlight(this._currentTarget);
             this._positionTooltip();
         }
     }
 
-    /* ── FINISH / CLEANUP ─────────────────────────────────────── */
+    /* ─────────────────────────────────────────────────────────────
+       FINISH / CLEANUP
+    ───────────────────────────────────────────────────────────── */
     _finish() {
         clearTimeout(this._typewriterTimer);
-        this._runDemoCleanups();
         PixPlaceOnboarding.markDone();
         this._unlockScroll();
         this._destroyAll();
     }
 
     _destroyAll() {
-        window.removeEventListener('resize', this._resizeHandler, { passive: true });
-        window.removeEventListener('scroll', this._resizeHandler, true);
-        [this.cinemaEl, this.tourEl, this.tooltipEl, this.ringEl, this.ringEl2, this.ringEl3].forEach(el => {
+        window.removeEventListener('resize', this._resizeHandler);
+        [this.cinemaEl, this.tourEl, this.tooltipEl, this.ringEl].forEach(el => {
             if (!el) return;
             el.style.opacity = '0';
             el.style.transition = 'opacity 0.32s ease';
             setTimeout(() => el?.remove(), 340);
         });
-        this.cinemaEl = this.tourEl = this.tooltipEl = this.ringEl = this.ringEl2 = this.ringEl3 = null;
+        this.cinemaEl = this.tourEl = this.tooltipEl = this.ringEl = null;
     }
 
-    /* ── UTILITIES ───────────────────────────────────────────── */
+    /* ─────────────────────────────────────────────────────────────
+       UTILITIES
+    ───────────────────────────────────────────────────────────── */
     _lockScroll() {
         if (this._scrollLocked) return;
         this._scrollLocked = true;
@@ -889,38 +520,35 @@ export class PixPlaceOnboarding {
 
 /* ─── Fallback English strings ─────────────────────────────── */
 const FALLBACK_EN = {
-    ob_cinema_title:   'Welcome to pixPLace',
+    ob_cinema_title: 'Welcome to pixPLace',
     ob_cinema_tagline: 'Turn your words into stunning visuals with AI',
-    ob_cinema_btn:     "Let's explore",
-    ob_skip:           'Skip',
-    ob_next:           'Next →',
-    ob_finish:         "Let's create! 🚀",
-    ob_step_of:        '{{current}} of {{total}}',
+    ob_cinema_btn: "Let's explore",
+    ob_skip: 'Skip',
+    ob_next: 'Next →',
+    ob_finish: "Let's create! 🚀",
+    ob_step_of: '{{current}} of {{total}}',
 
-    ob_tour_tabs_title:  'Images or Videos?',
-    ob_tour_tabs_desc:   'Switch between Image generation and the upcoming Video tools — each tab unlocks a different set of AI models.',
+    ob_tour_tabs_title: 'Images or Videos?',
+    ob_tour_tabs_desc: 'Switch between Image generation and the upcoming Video tools — each tab unlocks a different set of AI models.',
 
     ob_tour_model_title: 'Choose your AI model',
-    ob_tour_model_desc:  'Pick the engine that fits your task — quick edits, pro retouching, creative generation, or background removal.',
+    ob_tour_model_desc: 'Pick the engine that fits your task — quick edits, pro retouching, creative generation, or background removal.',
 
     ob_tour_prompt_title: 'Describe your idea',
-    ob_tour_prompt_desc:  'Just write what you need in natural language. Try: "edit my photo in Wes Anderson style with warm tones".',
-    ob_tour_prompt_demo:  'Edit my photo in Wes Anderson style...',
+    ob_tour_prompt_desc: 'Just write what you need in natural language. Try: "edit my photo in Wes Anderson style with warm tones".',
+    ob_tour_prompt_demo: 'Edit my photo in Wes Anderson style — warm pastel tones, symmetrical framing...',
 
-    ob_tour_gpt_title: 'Need a Professional Prompt?',
-    ob_tour_gpt_desc:  'Stuck for ideas? Click the GPT button! Our AI will help you craft detailed, midjourney-level prompts for the best results.',
+    ob_tour_upload_title: 'Add reference images',
+    ob_tour_upload_desc: 'Upload your own photos for Nano Banana Pro — the AI uses them as a base for editing, not just as inspiration.',
 
-    ob_tour_tools_title: 'Set size, resolution & upload',
-    ob_tour_tools_desc:  'Choose the aspect ratio, output resolution, and upload your reference photo — all in one place. The glowing button shows where to upload!',
+    ob_tour_size_title: 'Choose output resolution',
+    ob_tour_size_desc: 'Pick Square for social posts, Portrait for Stories and Reels, or Landscape for banners and wallpapers.',
 
-    ob_tour_gpt_title:  'Need help with prompts? ✨',
-    ob_tour_gpt_desc:   'GPT Chat is your AI assistant for crafting perfect prompts — describe your idea and it rewrites it like a pro.',
+    ob_tour_gpt_title: 'Need help with prompts? ✨',
+    ob_tour_gpt_desc: 'GPT Chat is your AI assistant for crafting perfect prompts — describe your idea and it rewrites it like a pro.',
 
     ob_tour_generate_title: 'Ready? Hit Generate!',
-    ob_tour_generate_desc:  'Your image will be ready in seconds. Results appear in the History panel — swipe to see them.',
-
-    ob_demo_upload_badge: 'Watch the upload button glow!',
-    ob_demo_model_badge:  'Watch the model list expand!',
+    ob_tour_generate_desc: 'Your image will be ready in seconds. Results appear in the History panel — swipe to see them.',
 };
 
 /* ─── Auto-init helper ──────────────────────────────────────── */

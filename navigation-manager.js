@@ -498,7 +498,7 @@ export async function showWarningAboutNoImage() {
 
             // Scroll to upload button
             setTimeout(() => {
-                const chooseBtn = document.getElementById('urlInputContainer');
+                const chooseBtn = document.getElementById('chooseUserImage');
                 if (chooseBtn) {
                     chooseBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     // Use blink effect utility if available
@@ -647,7 +647,7 @@ export async function showHistoryWithScroll() {
 
 // Функция из app_modern.js - startUploadButtonBlink
 export function startUploadButtonBlink() {
-    const chooseBtn = document.getElementById('urlInputContainer');
+    const chooseBtn = document.getElementById('chooseUserImage');
     if (!chooseBtn) return;
 
     console.log('🎯 Starting upload button pulse animation');
@@ -1386,7 +1386,7 @@ window.toggleModeDetails = toggleModeDetails;
 // ================================================
 
 export async function openSubscriptionPlans() {
-    console.log('💎 Opening subscription plans... (Redirecting to pricing.html)');
+    console.log('💎 Opening subscription plans... (Debug: Function Start)');
     try {
         // Закрываем меню пользователя если оно открыто
         if (typeof window.toggleUserMenu === 'function') {
@@ -1397,9 +1397,14 @@ export async function openSubscriptionPlans() {
             }
         }
 
-        window.location.href = 'pricing.html';
+        console.log('💎 Calling showSubscriptionNotice...');
+        // Используем существующую функцию showSubscriptionNotice для открытия модального окна планов
+        await showSubscriptionNotice({ payment_urls: {} }, 'premium');
+        console.log('💎 showSubscriptionNotice completed');
     } catch (e) {
-        console.error('❌ Error in openSubscriptionPlans redirection:', e);
+        console.error('❌ Error in openSubscriptionPlans:', e);
+        // Fallback alert if everything fails
+        alert('Could not open plans. Please check console for errors.');
     }
 }
 
