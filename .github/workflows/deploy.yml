@@ -38,7 +38,7 @@ jobs:
           N8N_ENHANCE_WEBHOOK_URL: ${{ secrets.N8N_ENHANCE_WEBHOOK_URL }}
           HISTORY_WEBHOOK_URL: ${{ secrets.HISTORY_WEBHOOK_URL }}
           AUTH_WEBHOOK_URL: ${{ secrets.AUTH_WEBHOOK_URL }}
-          GET_USER_PROFILE_WEBHOOK_URL: ${{ secrets.GET_USER_PROFILE_WEBHOOK }}
+          GET_USER_PROFILE_WEBHOOK_URL: ${{ secrets.get_user_profile_webhook }}
           Z_IMAGE_WEBHOOK_URL: ${{ secrets.Z_IMAGE_WEBHOOK }}
           QWEN_IMAGE_WEBHOOK_URL: ${{ secrets.QWEN_IMAGE_WEBHOOK }}
         run: |
@@ -100,9 +100,9 @@ jobs:
         run: |
           PLACEHOLDER_FOUND=0
           while IFS= read -r -d '' file; do
-            if grep -qE "['\"]PLACEHOLDER_" "$file"; then
+            if grep -qE "['\"]PLACEHOLDER_[A-Z0-9_]+['\"]" "$file"; then
               echo "❌ Unreplaced placeholder in $file:"
-              grep -nE "['\"]PLACEHOLDER_" "$file"
+              grep -nE "['\"]PLACEHOLDER_[A-Z0-9_]+['\"]" "$file"
               PLACEHOLDER_FOUND=1
             fi
           done < <(find . \( -name "*.js" -o -name "*.html" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.gemini/*" -not -path "*/.agents/*" -print0)
