@@ -87,15 +87,13 @@ const LegalRouter = {
         localStorage.setItem(this.STORAGE_KEY, region);
     },
 
-    /**
-     * Navigate to a legal document based on region preference.
-     * If no region is set, opens the selection modal.
-     * @param {string} docType 'privacy' or 'terms'
-     */
     navigateTo: function (docType) {
-        // Bypass the region prompt, default to 'usa' (or 'eu' if previously selected)
-        const region = this.getRegion() || 'usa';
-        this._redirect(docType, region);
+        const region = this.getRegion();
+        if (region) {
+            this._redirect(docType, region);
+        } else {
+            this._showModal(docType);
+        }
     },
 
     /**
