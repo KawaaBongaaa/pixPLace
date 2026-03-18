@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci
@@ -73,7 +73,7 @@ jobs:
                   if (!fullPath.includes("node_modules") && !fullPath.includes(".git") && !fullPath.includes(".gemini") && !fullPath.includes(".agents") && !fullPath.includes(".vscode")) {
                     processDirectory(fullPath);
                   }
-                } else if (fullPath.endsWith(".js")) {
+                } else if (fullPath.endsWith(".js") || fullPath.endsWith(".html")) {
                   let content = fs.readFileSync(fullPath, "utf8");
                   let changed = false;
                   
@@ -95,24 +95,22 @@ jobs:
             processDirectory(".");
           '
 
-          
       # ── Verify no placeholders remain in ALL JS files ─────────────────────
       - name: Verify replacements
         run: |
           PLACEHOLDER_FOUND=0
           while IFS= read -r -d '' file; do
-            if grep -q "PLACEHOLDER_" "$file"; then
+            if grep -qE "['\"]PLACEHOLDER_" "$file"; then
               echo "❌ Unreplaced placeholder in $file:"
-              grep -n "PLACEHOLDER_" "$file"
+              grep -nE "['\"]PLACEHOLDER_" "$file"
               PLACEHOLDER_FOUND=1
             fi
-          done < <(find . -name "*.js" -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.gemini/*" -print0)
+          done < <(find . \( -name "*.js" -o -name "*.html" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.gemini/*" -not -path "*/.agents/*" -print0)
           if [ $PLACEHOLDER_FOUND -eq 1 ]; then
             exit 1
           else
             echo "✅ All placeholders replaced in all JS files."
           fi
-
       # ── Deploy to gh-pages branch ──────────────────────────────────────────
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
