@@ -991,23 +991,22 @@ console.log('✅ userImageState exported to window scope');
 function getImageLimitForMode(mode) {
     switch (mode) {
         case 'nano_banana':
-            return 8; // Increased to 8
         case 'nano_banana_2':
-            return 8; // Increased to 8
         case 'nano_banana_pro':
-            return 8; // Increased to 8
+            return 4; // Nano Banana models allow up to 4 images
         case 'fast_generation':
-            return 0; // вообще не допускаются изображения для этих режимов
-        case 'z_image':
-            return 1; // Z-Image Turbo allows 1 image
         case 'qwen_image':
+            return 0; // No image uploads allowed
+        case 'z_image':
         case 'qwen_image_edit':
-            return 4; // Qwen models allow up to 4 images
         case 'background_removal':
         case 'upscale_image':
-            return 1; // Эти режимы требуют ровно 1 изображение
+        case 'pixplace_pro':
+        case 'print_maker':
+        case 'dreamshaper_xl':
+            return 1; // Exactly 1 image
         default:
-            return 1; // все остальные режимы - максимум 1 изображение
+            return 1; // All other modes — max 1 image
     }
 }
 
@@ -1016,11 +1015,38 @@ function canUploadMoreImages(mode, currentCount) {
     return currentCount < limit;
 }
 
+/**
+ * Trimming excess images when switching to a mode with a smaller limit.
+ * @param {string} newMode
+ */
+function trimImagesForMode(newMode) {
+    const limit = getImageLimitForMode(newMode);
+    const excess = userImageState.images.length - limit;
+    if (excess <= 0) return;
+
+    // Remove excess images from the end
+    const idsToRemove = userImageState.images.slice(limit).map(img => img.id);
+    idsToRemove.forEach(id => {
+        // Remove from state
+        const idx = userImageState.images.findIndex(img => img.id === id);
+        if (idx !== -1) userImageState.images.splice(idx, 1);
+        // Remove preview element
+        const el = document.querySelector(`[data-image-id="${id}"]`);
+        if (el) el.remove();
+    });
+
+    if (idsToRemove.length > 0) {
+        console.log(`✂️ Trimmed ${idsToRemove.length} images for mode: ${newMode} (limit: ${limit})`);
+        document.dispatchEvent(new CustomEvent('images:updated', {
+            detail: { imageCount: userImageState.images.length }
+        }));
+    }
+}
+
 
 // ===== Глобальная функция для обновления видимости UI загрузки изображений =====
-// ===== Глобальная функция для обновления видимости UI загрузки изображений =====
 function updateImageUploadVisibility() {
-    const chooseBtn = document.getElementById('chooseUserImage');
+    const urlContainer = document.getElementById('urlInputContainer');
     const preview = document.getElementById('userImagePreview');
     const previewContainer = document.getElementById('previewContainer');
     const imageCount = userImageState.images.length;
@@ -1050,9 +1076,8 @@ function updateImageUploadVisibility() {
         }
 
         // Logic for Main Upload Button
-        // Keep visible only if NO images are uploaded.
-        // Subsequent uploads should be done via the inline "+" button.
-        shouldShowUploadButton = !hasImages && (currentMode !== 'fast_generation');
+        let canUploadMore = imageCount < limit;
+        shouldShowUploadButton = canUploadMore && (currentMode !== 'fast_generation');
 
         if (currentMode === 'fast_generation') {
             shouldShowPreview = false;
@@ -1069,7 +1094,7 @@ function updateImageUploadVisibility() {
 
             // If we serve multiple images (nano_banana), we want the inline button
             // Logic: Show if we have at least 1 image AND count < limit
-            if (hasImages && imageCount < limit) {
+            if (hasImages && canUploadMore) {
                 if (!addBtn) {
                     // Create the button
                     const btn = document.createElement('div');
@@ -1101,7 +1126,9 @@ function updateImageUploadVisibility() {
                 }
             } else {
                 // Hide if limit reached or no images (main button handles 0 case)
-                if (addBtn) addBtn.style.display = 'none';
+                if (addBtn) {
+                    addBtn.style.setProperty('display', 'none', 'important');
+                }
             }
         }
     } else {
@@ -1110,15 +1137,13 @@ function updateImageUploadVisibility() {
         shouldShowPreview = hasImages;
     }
 
-    if (chooseBtn) {
+    if (urlContainer) {
         if (shouldShowUploadButton) {
-            chooseBtn.style.setProperty('display', 'inline-flex', 'important');
-            chooseBtn.classList.remove('flux-shnel-hidden');
-            chooseBtn.style.animation = '';
+            urlContainer.style.setProperty('display', 'block', 'important');
+            urlContainer.classList.remove('flux-shnel-hidden', 'hidden');
         } else {
-            chooseBtn.style.setProperty('display', 'none', 'important');
-            chooseBtn.classList.add('flux-shnel-hidden');
-            chooseBtn.style.animation = '';
+            urlContainer.style.setProperty('display', 'none', 'important');
+            urlContainer.classList.add('flux-shnel-hidden', 'hidden');
         }
     }
 
@@ -1380,9 +1405,9 @@ async function updateResolutionSelectVisibility() {
 
         if (currentMode === 'nano_banana_2') {
             const options = [
-                { value: '1k', label: 'Res 1K' },
-                { value: '2k', label: 'Res 2K' },
-                { value: '4k', label: 'Res 4K' }
+                { value: '1K', label: 'Res 1K' },
+                { value: '2K', label: 'Res 2K' },
+                { value: '4K', label: 'Res 4K' }
             ];
             options.forEach(opt => {
                 const el = document.createElement('option');
@@ -1392,9 +1417,9 @@ async function updateResolutionSelectVisibility() {
             });
         } else if (currentMode === 'nano_banana_pro') {
             const options = [
-                { value: '1k', label: 'Res 1K' },
-                { value: '2k', label: 'Res 2K' },
-                { value: '4k', label: 'Res 4K' }
+                { value: '1K', label: 'Res 1K' },
+                { value: '2K', label: 'Res 2K' },
+                { value: '4K', label: 'Res 4K' }
             ];
             options.forEach(opt => {
                 const el = document.createElement('option');
@@ -1417,12 +1442,27 @@ async function updateResolutionSelectVisibility() {
 // ===== Инициализация UI загрузки =====
 function initUserImageUpload() {
     const input = document.getElementById('userImage');
-    const chooseBtn = document.getElementById('chooseUserImage');
     const removeBtn = document.getElementById('removeUserImage');
 
-    chooseBtn?.addEventListener('click', () => input?.click());
     input?.addEventListener('change', onUserImageChange);
     removeBtn?.addEventListener('click', clearUserImage);
+
+    // Setup Drag & Drop
+    setupDragAndDrop();
+
+    // Setup Add URL Button
+    const urlInput = document.getElementById('imageUrlInput');
+    const addUrlSubmitBtn = document.getElementById('addUrlSubmitBtn');
+
+    if (urlInput && addUrlSubmitBtn) {
+        addUrlSubmitBtn.addEventListener('click', () => handleUrlAdd(urlInput.value));
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleUrlAdd(urlInput.value);
+            }
+        });
+    }
 
     // Проверить режим при изменении
     const modeSelect = document.getElementById('modeSelect');
@@ -1439,10 +1479,11 @@ function initUserImageUpload() {
 
         // Слушать изменения режима через DOM select (для совместимости)
         modeSelect.addEventListener('change', () => {
+            const newMode = modeSelect.value;
+            trimImagesForMode(newMode);
             updateImageUploadVisibility();
             updatePromptVisibility();
-            updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: обновление видимости negative prompt
-            // Также обновляем видимость блока размеров при смене режима
+            updateNegativePromptVisibility()
             updateSizeSelectVisibility();
             updateResolutionSelectVisibility();
         });
@@ -1452,15 +1493,149 @@ function initUserImageUpload() {
             const { mode } = event.detail;
             console.log('📡 Mode changed event received:', mode);
 
-            // 🔥 Синхронизируем скрытый селект для корректной работы updateVisibility функций
             if (modeSelect) modeSelect.value = mode;
 
+            trimImagesForMode(mode);
             updateImageUploadVisibility();
             updatePromptVisibility();
             updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: обновление видимости negative prompt
             updateSizeSelectVisibility();
             updateResolutionSelectVisibility();
         });
+    }
+}
+
+// ===== Drag & Drop Logic =====
+function setupDragAndDrop() {
+    const promptContainer = document.getElementById('promptFormGroup');
+    const dropzoneOverlay = document.getElementById('dropzoneOverlay');
+    const promptInput = document.getElementById('promptInput');
+
+    if (!promptContainer || !dropzoneOverlay) return;
+
+    let dragCounter = 0;
+
+    promptContainer.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dragCounter++;
+        dropzoneOverlay.classList.remove('hidden');
+        // small delay to allow display block to apply before transition
+        setTimeout(() => dropzoneOverlay.classList.remove('opacity-0'), 10);
+    });
+
+    promptContainer.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dragCounter--;
+        if (dragCounter <= 0) {
+            dropzoneOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                if (dragCounter <= 0) dropzoneOverlay.classList.add('hidden');
+            }, 200);
+            dragCounter = 0;
+        }
+    });
+
+    promptContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    promptContainer.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dragCounter = 0;
+        dropzoneOverlay.classList.add('opacity-0');
+        setTimeout(() => dropzoneOverlay.classList.add('hidden'), 200);
+
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            handleFiles(Array.from(e.dataTransfer.files));
+        }
+    });
+
+    // Handle Paste on prompt input
+    if (promptInput) {
+        promptInput.addEventListener('paste', (e) => {
+            if (e.clipboardData.files && e.clipboardData.files.length > 0) {
+                handleFiles(Array.from(e.clipboardData.files));
+            }
+        });
+    }
+}
+
+async function handleFiles(files) {
+    // Mimic the logic of onUserImageChange
+    const syntheticEvent = {
+        target: { files: files }
+    };
+    await onUserImageChange(syntheticEvent);
+}
+
+// ===== Handle Adding via URL =====
+async function handleUrlAdd(url) {
+    const container = document.getElementById('urlInputContainer');
+    const errorEl = document.getElementById('urlInputError');
+    const inputEl = document.getElementById('imageUrlInput');
+
+    if (!url || !url.trim()) return;
+
+    try {
+        new URL(url); // very basic validation
+        if (errorEl) errorEl.classList.add('hidden');
+
+        // Check limits
+        const modeSelect = document.getElementById('modeSelect');
+        const currentMode = modeSelect ? modeSelect.value : 'nano_banana';
+        const limit = getImageLimitForMode(currentMode);
+
+        if (userImageState.images.length >= limit) {
+            if (window.showToast) window.showToast('error', `Maximum limit reached.`);
+            return;
+        }
+
+        // We add the URL directly without fetching the file, we will let backend fetch it.
+        // If we want it to display in UI, we just use the URL directly.
+        const imageId = Date.now() + Math.random().toString(36).substr(2, 9);
+        const imageObj = {
+            id: imageId,
+            file: null,
+            blob: null,
+            dataUrl: url,        // For UI preview
+            uploadedUrl: url     // For formData appending
+        };
+
+        userImageState.images.push(imageObj);
+        createPreviewItem(imageId, url, 'URL Image');
+
+        // Hide container and reset
+        if (inputEl) inputEl.value = '';
+        if (container) container.classList.add('hidden');
+
+        // Update UI using identical sequence to onUserImageChange ending
+        const preview = document.getElementById('userImagePreview');
+        if (preview) {
+            preview.classList.remove('hidden', 'flux-shnel-hidden');
+            preview.style.setProperty('display', 'block', 'important');
+        }
+        const wrapper = document.getElementById('userImageWrapper');
+        if (wrapper) {
+            wrapper.classList.add('has-image');
+            wrapper.classList.remove('need-image');
+        }
+
+        updateSizeSelectVisibility();
+        updateImageUploadVisibility();
+
+        document.dispatchEvent(new CustomEvent('images:updated', {
+            detail: { imageCount: userImageState.images.length }
+        }));
+
+    } catch (e) {
+        if (errorEl) {
+            errorEl.classList.remove('hidden');
+            errorEl.textContent = "Invalid URL format.";
+        }
     }
 }
 
@@ -1968,8 +2143,8 @@ async function uploadUserImages() {
             blobSize: image.blob?.size || 0
         });
 
-        if (!image.blob) {
-            console.warn(`⚠️ Image ${index + 1} has no blob, skipping`);
+        if (!image.blob && !image.uploadedUrl) {
+            console.warn(`⚠️ Image ${index + 1} has no blob and no uploadedUrl, skipping`);
             continue;
         }
 
@@ -1980,12 +2155,21 @@ async function uploadUserImages() {
         // Добавляем UUID в массив
         imageUUIDs.push(imageUUID);
 
-        // 🔥 НОВОЕ: Добавляем бинарный файл в FormData с именем image_N
-        const fileName = `image_${index + 1}`;
-        const file = new File([image.blob], `${imageUUID}.jpg`, { type: 'image/jpeg' });
-        formData.append(fileName, file);
+        if (image.blob) {
+            // 🔥 НОВОЕ: Добавляем бинарный файл в FormData с именем image_N
+            const fileName = `image_${index + 1}`;
+            const file = new File([image.blob], `${imageUUID}.jpg`, { type: 'image/jpeg' });
+            formData.append(fileName, file);
 
-        console.log(`✅ Image ${index + 1} added to FormData: ${fileName}, size: ${file.size} bytes`);
+            console.log(`✅ Image ${index + 1} added to FormData: ${fileName}, size: ${file.size} bytes`);
+        } else if (image.uploadedUrl) {
+            // Если изображение добавлено по ссылке, а не как файл
+            const fieldName = `image_url_${index + 1}`;
+            formData.append(fieldName, image.uploadedUrl);
+            console.log(`✅ Image URL ${index + 1} added to FormData: ${fieldName} -> ${image.uploadedUrl}`);
+        } else {
+            console.warn(`⚠️ Image ${index + 1} has neither blob nor uploadedUrl.`);
+        }
     }
 
     console.log('🎯 Binary upload preparation results:', {

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            var theme;
+            try {
+                var s = localStorage.getItem('appSettings');
+                theme = s ? JSON.parse(s).theme : 'dark';
+            } catch (e) { theme = 'dark'; }
+            if (theme === 'auto') {
+                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            theme = theme || 'dark';
+            var d = document.documentElement;
+            d.setAttribute('data-theme', theme);
+            if (theme === 'dark') {
+                d.style.backgroundColor = '#09090b';
+                d.style.color = '#fafafa';
+            } else {
+                d.style.backgroundColor = '#ffffff';
+                d.style.color = '#1e293b';
+            }
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>pixPLace Ai | GPT Chat</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="stylesheet" href="css/output.css">
+    
+    <!-- Telegram Web App SDK -->
+    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        if (window.Telegram?.WebApp?.expand) {
+            window.Telegram.WebApp.expand();
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/gpt-chat.css">
+
+    <style>
+        /* Modern App layout for standard chat */
+        body { font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        .glass-header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        [data-theme="light"] .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col bg-gray-50 dark:bg-[#09090b]">
+
+    <!-- Header -->
+    <header class="flex-shrink-0 z-50 glass-header py-3 px-4 sm:px-6">
+        <div class="flex items-center justify-between w-full mx-auto">
+            <button onclick="window.location.href='index.html'" class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer group">
+                <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span class="font-medium text-sm">Back to Studio</span>
+            </button>
+            
+            <div class="flex items-center gap-2 relative group">
+                <div class="absolute right-3 pointer-events-none transition-transform group-hover:translate-y-0.5">
+                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <select id="chatModelSelector" class="appearance-none bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-bold rounded-xl pl-4 pr-9 py-2 outline-none cursor-pointer focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm hover:shadow">
+                    <option value="chatgpt" class="bg-white dark:bg-gray-800">Chat GPT</option>
+                    <option value="gemini" class="bg-white dark:bg-gray-800">Gemini</option>
+                    <option value="deepseek" class="bg-white dark:bg-gray-800">DeepSeek</option>
+                </select>
+            </div>
+            
+            <div class="w-20"></div> <!-- Spacer for centering -->
+        </div>
+    </header>
+
+    <!-- Main Chat Workspace (Filled dynamically by JS) -->
+    <main id="chat-workspace-container" class="flex-1 w-full flex relative overflow-hidden">
+        <!-- Sidebar and Main content will be rendered here by gpt-chat.js -->
+    </main>
+
+    <script type="module">
+        import { initAICoach } from './gpt-chat.js';
+        
+        // Define configuration if missing
+        window.CONFIG = window.CONFIG || {
+            CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6'
+        };
+
+        // Tell gpt-chat.js that it's running in standalone mode
+        window.AI_CHAT_STANDALONE_MODE = true;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAICoach();
+        });
+    </script>
+</body>
+</html>
