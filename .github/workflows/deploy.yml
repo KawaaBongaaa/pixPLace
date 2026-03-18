@@ -38,7 +38,7 @@ jobs:
           N8N_ENHANCE_WEBHOOK_URL: ${{ secrets.N8N_ENHANCE_WEBHOOK_URL }}
           HISTORY_WEBHOOK_URL: ${{ secrets.HISTORY_WEBHOOK_URL }}
           AUTH_WEBHOOK_URL: ${{ secrets.AUTH_WEBHOOK_URL }}
-          GET_USER_PROFILE_WEBHOOK_URL: ${{ secrets.get_user_profile_webhook }}
+          GET_USER_PROFILE_WEBHOOK_URL: ${{ secrets.GET_USER_PROFILE_WEBHOOK }}
           Z_IMAGE_WEBHOOK_URL: ${{ secrets.Z_IMAGE_WEBHOOK }}
           QWEN_IMAGE_WEBHOOK_URL: ${{ secrets.QWEN_IMAGE_WEBHOOK }}
         run: |
