@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <script>
@@ -24,11 +25,12 @@
             }
         })();
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>pixPLace Ai | Pricing</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
     <link rel="stylesheet" href="css/output.css">
-    
+
     <!-- Telegram Web App SDK -->
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
@@ -36,32 +38,34 @@
             window.Telegram.WebApp.expand();
         }
     </script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
         /* Modern 2026 SaaS Pricing Styles */
-        body { font-family: 'Inter', sans-serif; }
-        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         [data-theme="light"] .glass-panel {
             background: rgba(255, 255, 255, 0.7);
             border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
         .pricing-card {
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
+
         .pricing-card:hover {
             transform: translateY(-8px);
         }
@@ -69,7 +73,7 @@
         .pro-glow {
             position: relative;
         }
-        
+
         .pro-glow::before {
             content: '';
             position: absolute;
@@ -85,7 +89,7 @@
             transition: opacity 0.4s ease;
             pointer-events: none;
         }
-        
+
         .pricing-card:hover .pro-glow::before {
             opacity: 1;
         }
@@ -101,13 +105,58 @@
             opacity: 0.15;
             pointer-events: none;
         }
-        
-        .glow-1 { top: -20%; left: -10%; background: #3b82f6; }
-        .glow-2 { bottom: -20%; right: -10%; background: #8b5cf6; }
-        
-        [data-theme="light"] .ambient-glow { opacity: 0.2; }
+
+        .glow-1 {
+            top: -20%;
+            left: -10%;
+            background: #3b82f6;
+        }
+
+        .glow-2 {
+            bottom: -20%;
+            right: -10%;
+            background: #8b5cf6;
+        }
+
+        [data-theme="light"] .ambient-glow {
+            opacity: 0.2;
+        }
+
+        /* Collapsible Features Styles */
+        .features-content {
+            display: grid;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .show-more-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #3b82f6;
+            font-size: 0.825rem;
+            font-weight: 600;
+            padding: 8px 4px;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: fit-content;
+        }
+
+        .show-more-btn:hover {
+            color: #2563eb;
+            opacity: 0.8;
+        }
+
+        .show-more-btn svg {
+            transition: transform 0.3s ease;
+        }
+
+        .show-more-btn.is-active svg {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col relative overflow-x-hidden">
     <!-- Ambient Background -->
     <div class="ambient-glow glow-1"></div>
@@ -116,14 +165,17 @@
     <!-- Header -->
     <header class="sticky top-0 z-50 glass-panel border-b-0 py-3 px-4 sm:px-6">
         <div class="flex items-center justify-between max-w-6xl mx-auto">
-            <button onclick="window.location.href='index.html'" class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer group">
-                <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <button onclick="window.location.href='index.html'"
+                class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer group">
+                <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 <span class="font-medium text-sm">Back to Studio</span>
             </button>
-            
-            <div class="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">
+
+            <div
+                class="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">
                 pixPLace
             </div>
         </div>
@@ -133,139 +185,556 @@
     <main class="flex-1 px-4 py-12 sm:py-20 max-w-6xl mx-auto w-full flex flex-col items-center z-10">
         <!-- Hero Section -->
         <div class="text-center max-w-3xl mb-12 sm:mb-16 animate-in slide-in-from-bottom-5 fade-in duration-700">
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 leading-tight">
-                Unlock Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">Creative Potential</span>
+            <h1
+                class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 leading-tight">
+                Unlock Your <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">Creative
+                    Potential</span>
             </h1>
             <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 font-medium">
-                Choose the perfect plan to access ultra-fast, uncensored AI image generation. Upgrade today and start creating without limits.
+                Choose the perfect plan to access ultra-fast, uncensored AI image generation. Upgrade today and start
+                creating without limits.
             </p>
         </div>
 
         <!-- Pricing Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full max-w-5xl">
-            
+
             <!-- LITE PLAN -->
-            <div class="pricing-card glass-panel rounded-3xl p-6 sm:p-8 flex flex-col relative animate-in slide-in-from-bottom-8 fade-in duration-700" style="animation-delay: 100ms;">
+            <div class="pricing-card glass-panel rounded-3xl p-6 sm:p-8 flex flex-col relative animate-in slide-in-from-bottom-8 fade-in duration-700"
+                style="animation-delay: 100ms;">
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Lite</h3>
                     <div class="flex items-baseline gap-2">
-                        <span class="text-4xl font-extrabold text-gray-900 dark:text-white">$4.99</span>
+                        <span class="text-4xl font-extrabold text-gray-900 dark:text-white">$11</span>
                         <span class="text-gray-500 dark:text-gray-400 font-medium">/month</span>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-3 h-10">Perfect for casual creators and hobbyists.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-3 h-10">Perfect for casual creators and
+                        hobbyists.</p>
                 </div>
-                
+
                 <div class="mb-8 flex-1">
                     <ul class="space-y-4">
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-700 dark:text-gray-300 text-sm font-medium">500 Credits Included</span>
+                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">500
+                                Credits per month</span>
                         </li>
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Standard Generation Speed</span>
+                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Up to <span
+                                    class="text-gray-800 dark:text-gray-200 text-sm font-medium">400 images</span>
+                                <span class="text-gray-800 dark:text-gray-300 text-xs font-medium">(varies by
+                                    model)</span>
+                            </span>
                         </li>
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Access to Nano Banana</span>
+                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Access to Basic models
+                                only
+                                <span class="text-gray-800 dark:text-gray-100 text-m font-medium">Nano
+                                    Banana | Flux | Z-Image | SDXL </span>
+                            </span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6L18 18M6 18L18 6" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">AI chat + Generation
+                                (ChatGPT, Gemini, DeepSeek)</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">
+                                Production-ready AI tools <span
+                                    class="text-gray-800 dark:text-gray-100 text-sm font-medium">: Image
+                                    Edite, Re-Image, Image
+                                    Enhance, Remove Background</span>
+                            </span>
                         </li>
                     </ul>
+
+                    <div class="features-content"
+                        style="grid-template-rows: 0fr; opacity: 0; transition: all 0.4s ease;">
+                        <div class="overflow-hidden">
+                            <div class="h-5"></div>
+                            <ul class="space-y-4 pb-1">
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6L18 18M6 18L18 6" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Personal
+                                        (non-commercial) use license. Commercial use not
+                                        allowed.</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Watermarked
+                                        Downloads</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">7-day storage for
+                                        all
+                                        creations</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6L18 18M6 18L18 6" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-medium"> Not allowed to
+                                        add
+                                        more credits on Lite Plan</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button class="show-more-btn group" onclick="toggleFeatures(this)">
+                        <span>Show more features</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
                 </div>
-                
-                <button class="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white transition-colors border border-gray-200 dark:border-gray-700 cursor-pointer" onclick="handleSubscribe('lite')">
+
+                <button
+                    class="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white transition-colors border border-gray-200 dark:border-gray-700 cursor-pointer"
+                    onclick="handleSubscribe('lite')">
                     Get Lite
                 </button>
             </div>
 
             <!-- PRO PLAN (HIGHLIGHTED) -->
-            <div class="pricing-card rounded-3xl p-6 sm:p-8 flex flex-col relative pro-glow bg-white dark:bg-gray-900 shadow-2xl animate-in slide-in-from-bottom-12 fade-in duration-700 md:-mt-4 md:mb-4 z-10" style="animation-delay: 200ms;">
+            <div class="pricing-card rounded-3xl p-6 sm:p-8 flex flex-col relative pro-glow bg-white dark:bg-gray-900 shadow-2xl animate-in slide-in-from-bottom-12 fade-in duration-700 md:-mt-4 md:mb-4 z-10"
+                style="animation-delay: 200ms;">
                 <!-- Badge -->
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full shadow-lg">
+                    <div
+                        class="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full shadow-lg">
                         Most Popular
                     </div>
                 </div>
 
                 <div class="mb-6 mt-2">
-                    <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 mb-2">Pro</h3>
+                    <h3
+                        class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 mb-2">
+                        Pro</h3>
                     <div class="flex items-baseline gap-2">
-                        <span class="text-4xl font-extrabold text-gray-900 dark:text-white">$9.99</span>
+                        <span class="text-4xl font-extrabold text-gray-900 dark:text-white">$29</span>
                         <span class="text-gray-500 dark:text-gray-400 font-medium">/month</span>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-3 h-10">Advanced tools for serious creatives.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-3 h-10">Your content machine almost here.
+                        Produce at
+                        scale
+                    </p>
                 </div>
-                
+
                 <div class="mb-8 flex-1">
                     <ul class="space-y-4">
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">1200 Credits Included</span>
+                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">2500 Credits per
+                                month <br><span class="text-gray-800 dark:text-green-200 text-xs font-medium">Up to 47%
+                                    cheaper per credit</span></br></span>
                         </li>
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">Fast Generation Priority</span>
+                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Up to <span
+                                    class="text-gray-800 dark:text-gray-200 text-sm font-semibold">2400 images</span>
+                                <span class="text-gray-800 dark:text-gray-300 text-xs font-medium">(varies by
+                                    model)</span>
+                            </span>
                         </li>
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">All Premium Models (Pro + Z-Image)</span>
+                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">Access to Top Models
+                                <span class="text-gray-800 dark:text-gray-100 text-m font-semibold">Nano
+                                    Banana Pro | Qwen Image |
+                                    Flux 2 | Z-Image ...</span>
+                            </span>
                         </li>
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">ChatGPT, Gemini, DeepSeek Models</span>
+                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">AI chat + Generation
+                                (ChatGPT, Gemini, DeepSeek)</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">
+                                Production-ready AI tools <span
+                                    class="text-gray-800 dark:text-gray-100 text-sm font-semibold">: Image
+                                    Edite, Re-Image, Image
+                                    Enhance, Remove Background</span>
+                            </span>
                         </li>
                     </ul>
+
+                    <div class="features-content"
+                        style="grid-template-rows: 0fr; opacity: 0; transition: all 0.4s ease;">
+                        <div class="overflow-hidden">
+                            <div class="h-5"></div>
+                            <ul class="space-y-4 pb-1">
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">Commercial use
+                                        allowed</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">Watermark-Free
+                                        Downloads</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">30-day storage
+                                        for
+                                        all
+                                        creations</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-semibold">Easily add more
+                                        credits
+                                        anytime</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button class="show-more-btn group" onclick="toggleFeatures(this)">
+                        <span>Show more features</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
                 </div>
-                
-                <button class="w-full py-4 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:shadow-[0_8px_30px_rgba(139,92,246,0.6)] cursor-pointer relative z-20" onclick="handleSubscribe('pro')">
+
+                <button
+                    class="w-full py-4 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:shadow-[0_8px_30px_rgba(139,92,246,0.6)] cursor-pointer relative z-20"
+                    onclick="handleSubscribe('pro')">
                     Upgrade to Pro
                 </button>
             </div>
 
             <!-- STUDIO PLAN -->
-            <div class="pricing-card glass-panel rounded-3xl p-6 sm:p-8 flex flex-col relative animate-in slide-in-from-bottom-8 fade-in duration-700" style="animation-delay: 300ms;">
+            <div class="pricing-card glass-panel rounded-3xl p-6 sm:p-8 flex flex-col relative animate-in slide-in-from-bottom-8 fade-in duration-700"
+                style="animation-delay: 300ms;">
+                <!-- Badge -->
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <div
+                        class="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold uppercase tracking-wider py-1.5 px-4 rounded-full shadow-lg">
+                        Best Value
+                    </div>
+                </div>
                 <div class="mb-6">
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Studio</h3>
                     <div class="flex items-baseline gap-2">
-                        <span class="text-4xl font-extrabold text-gray-900 dark:text-white">$24.99</span>
+                        <span class="text-4xl font-extrabold text-gray-900 dark:text-white">$69</span>
                         <span class="text-gray-500 dark:text-gray-400 font-medium">/month</span>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-3 h-10">Maximum power for high-volume professionals.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-3 h-10">Ultimate power for high-volume
+                        professionals, teams and agencies</p>
                 </div>
-                
+
                 <div class="mb-8 flex-1">
                     <ul class="space-y-4">
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-700 dark:text-gray-300 text-sm font-medium">4000 Credits Included</span>
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">7000 Credits per
+                                month <br><span class="text-gray-800 dark:text-green-200 text-xs font-medium">Up to 55%
+                                    cheaper per credit</span></br>
+                            </span>
                         </li>
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Highest API Priority</span>
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Up to <span
+                                    class="text-gray-800 dark:text-gray-200 text-sm font-medium">6800 images</span>
+                                <span class="text-gray-800 dark:text-gray-300 text-xs font-medium">(varies by
+                                    model)</span>
+                            </span>
                         </li>
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Private Generation Mode</span>
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Access to Top Models
+                                <span class="text-gray-800 dark:text-gray-100 text-m font-medium">Nano
+                                    Banana Pro | Qwen Image |
+                                    Flux 2 | Z-Image ...</span>
+                            </span>
                         </li>
                         <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            <span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Commercial License</span>
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">AI chat + Generation
+                                (ChatGPT, Gemini, DeepSeek)
+                                <br><span class="text-gray-800 dark:text-green-200 text-xs font-medium">Higher quota
+                                    limits</span></br>
+                            </span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">
+                                Production-ready AI tools <span
+                                    class="text-gray-800 dark:text-gray-100 text-sm font-medium">: Image
+                                    Edite, Re-Image, Image
+                                    Enhance, Remove Background
+                                    <br><span class="text-gray-800 dark:text-green-200 text-sm font-semibold">+ Early
+                                        access to new ones</span>
+                                </span>
+                            </span>
                         </li>
                     </ul>
+
+                    <div class="features-content"
+                        style="grid-template-rows: 0fr; opacity: 0; transition: all 0.4s ease;">
+                        <div class="overflow-hidden">
+                            <div class="h-5"></div>
+                            <ul class="space-y-4 pb-1">
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Commercial use
+                                        allowed</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Watermark-Free
+                                        Downloads</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">45-day storage
+                                        for
+                                        all
+                                        creations</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span class="text-gray-800 dark:text-gray-200 text-sm font-medium">Easily add more
+                                        credits
+                                        anytime</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button class="show-more-btn group" onclick="toggleFeatures(this)">
+                        <span>Show more features</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
                 </div>
-                
-                <button class="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white transition-colors border border-gray-200 dark:border-gray-700 cursor-pointer" onclick="handleSubscribe('studio')">
+
+                <button
+                    class="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white transition-colors border border-gray-200 dark:border-gray-700 cursor-pointer"
+                    onclick="handleSubscribe('studio')">
                     Get Studio
                 </button>
             </div>
         </div>
-        
-        <!-- FAQ / Extra Info -->
+
+        <!-- FAQ / Extra Info Enterprise Plan -->
         <div class="mt-16 text-center animate-in fade-in duration-1000 delay-500">
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Need a custom enterprise plan? <a href="#" class="text-blue-500 hover:text-blue-600 underline underline-offset-4">Contact Sales</a>
+                Need a custom enterprise plan? <a href="#"
+                    class="text-blue-500 hover:text-blue-600 underline underline-offset-4">Contact Sales</a>
             </p>
         </div>
+
+
+
+
+
+        <div style="margin-top: 80px; width: 100%; overflow: hidden; background: transparent; user-select: none;">
+            <div style="text-align: center; margin-bottom: 10px;">
+                <p
+                    style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4em; color: #6b7280; opacity: 0.7; margin: 0;">
+                    Trusted by Professionals and Creators from top Brands
+                </p>
+            </div>
+
+            <div
+                style="position: relative; display: flex; overflow: hidden; padding: 20px 0; -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);">
+
+                <div class="marquee-fixed-final"
+                    style="display: flex; white-space: nowrap; align-items: center; animation: scroll-fixed-final 40s linear infinite; width: max-content;">
+
+                    <div style="display: flex; align-items: center; gap: 120px; padding-right: 120px; flex-shrink: 0;">
+                        <img src="https://www.vectorlogo.zone/logos/google/google-ar21.svg"
+                            style="height: 24px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Google">
+                        <img src="https://www.vectorlogo.zone/logos/facebook/facebook-ar21.svg"
+                            style="height: 24px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Meta">
+                        <img src="https://www.vectorlogo.zone/logos/samsung/samsung-ar21.svg"
+                            style="height: 18px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Samsung">
+                        <img src="https://www.vectorlogo.zone/logos/disney/disney-ar21.svg"
+                            style="height: 28px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Disney">
+                        <img src="https://www.vectorlogo.zone/logos/amazon/amazon-ar21.svg"
+                            style="height: 24px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Amazon">
+                        <img src="https://www.vectorlogo.zone/logos/netflix/netflix-ar21.svg"
+                            style="height: 22px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Netflix">
+                        <img src="https://www.vectorlogo.zone/logos/spotify/spotify-ar21.svg"
+                            style="height: 24px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Spotify">
+                        <img src="https://www.vectorlogo.zone/logos/microsoft/microsoft-ar21.svg"
+                            style="height: 20px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Microsoft">
+                        <img src="https://www.vectorlogo.zone/logos/adobe/adobe-ar21.svg"
+                            style="height: 22px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Adobe">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Warner_Bros_logo.svg"
+                            style="height: 26px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Warner Bros">
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 120px; padding-right: 120px; flex-shrink: 0;">
+                        <img src="https://www.vectorlogo.zone/logos/google/google-ar21.svg"
+                            style="height: 24px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Google">
+                        <img src="https://www.vectorlogo.zone/logos/facebook/facebook-ar21.svg"
+                            style="height: 24px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Meta">
+                        <img src="https://www.vectorlogo.zone/logos/samsung/samsung-ar21.svg"
+                            style="height: 18px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Samsung">
+                        <img src="https://www.vectorlogo.zone/logos/disney/disney-ar21.svg"
+                            style="height: 28px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Disney">
+                        <img src="https://www.vectorlogo.zone/logos/amazon/amazon-ar21.svg"
+                            style="height: 24px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Amazon">
+                        <img src="https://www.vectorlogo.zone/logos/netflix/netflix-ar21.svg"
+                            style="height: 22px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Netflix">
+                        <img src="https://www.vectorlogo.zone/logos/spotify/spotify-ar21.svg"
+                            style="height: 24px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Spotify">
+                        <img src="https://www.vectorlogo.zone/logos/microsoft/microsoft-ar21.svg"
+                            style="height: 20px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Microsoft">
+                        <img src="https://www.vectorlogo.zone/logos/adobe/adobe-ar21.svg"
+                            style="height: 22px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Adobe">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Warner_Bros_logo.svg"
+                            style="height: 26px; width: auto; opacity: 0.4; filter: grayscale(100%); flex-shrink: 0;"
+                            alt="Warner Bros">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <style>
+            @keyframes scroll-fixed-final {
+                0% {
+                    transform: translateX(0);
+                }
+
+                100% {
+                    transform: translateX(-50%);
+                }
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .marquee-fixed-final img {
+                    filter: grayscale(100%) invert(1) brightness(1.8) !important;
+                }
+            }
+
+            .marquee-fixed-final:hover {
+                animation-play-state: paused;
+            }
+        </style>
+
+
+
     </main>
+
+
+
+
+
+
+
 
     <!-- Simple Payment Mock Logic -->
     <script>
@@ -274,7 +743,7 @@
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
             }
-            
+
             const btn = event.currentTarget;
             const originalText = btn.innerText;
             btn.innerText = 'Processing...';
@@ -290,5 +759,416 @@
             }, 800);
         }
     </script>
+
+    <div class="mt-24 w-full max-w-4xl mx-auto px-4 sm:px-6 animate-in fade-in duration-1000"
+        style="animation-delay: 400ms;">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">Frequently
+                Asked Questions</h2>
+            <p class="text-gray-500 dark:text-gray-400 font-medium text-lg">Find answers to common questions about
+                pixPLace AI</p>
+        </div>
+
+        <style>
+            .faq-card-glow {
+                position: relative;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .faq-card-glow:hover {
+                border-color: rgba(59, 130, 246, 0.4);
+                box-shadow: 0 0 25px rgba(59, 130, 246, 0.05);
+                transform: translateY(-2px);
+            }
+
+            .faq-item.faq-open {
+                border-color: rgba(139, 92, 246, 0.4);
+                background: rgba(255, 255, 255, 0.02);
+            }
+
+            [data-theme="light"] .faq-item.faq-open {
+                background: rgba(0, 0, 0, 0.01);
+            }
+        </style>
+
+        <div class="space-y-4">
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">What
+                        happens when I run out of credits?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            If you have a subscription, your credit allocation will automatically reset at the beginning
+                            of each billing cycle. If you need more credits before the reset, you can purchase one-time
+                            credit packs.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">How
+                        long are my credits valid?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            Subscription credits reset monthly on your billing date. Credits from credit packs have the
+                            same validity period as your subscription and will expire on the next billing date.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">Can
+                        I get a refund for unused credits?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            For subscriptions, you can cancel at any time, but we do not provide refunds for past usage
+                            or unused credits within the current billing cycle.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">Can
+                        I get a refund if I'm not satisfied with the results?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            We do not offer refunds for our services. However, we are always happy to help you resolve
+                            any issues you encounter via our support team.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">How
+                        do I manage or cancel my subscription?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            You can manage or cancel your subscription in the Billing & Subscription section of your
+                            account.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">How
+                        is NSFW or adult content handled?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            The creation of any form of NSFW or adult content is strictly prohibited across all plans.
+                            We reserve the right to remove such content and take appropriate action.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">What
+                        if my preferred payment method is not supported?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            Please contact our support team, and we will work with you to find an alternative payment
+                            solution that meets your needs.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">What
+                        is included with commercial use?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            All paid plans (subscriptions and credit packs) include commercial use rights, allowing you
+                            to use generated images for commercial purposes.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">Is
+                        the credit price for calling models always fixed?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            No, credit prices may be adjusted based on market conditions and model costs. However, we
+                            typically maintain price stability.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">Why
+                        are some models priced at 0 credits?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            During promotional periods or testing phases, we may offer limited-time free access to
+                            certain models to allow users to experience their capabilities.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="faq-item faq-card-glow glass-panel rounded-2xl border border-white/10 transition-all duration-300">
+                <button
+                    class="w-full flex items-center justify-between p-5 sm:p-6 text-left outline-none cursor-pointer group"
+                    onclick="toggleFaq(this)">
+                    <span
+                        class="font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-500 transition-colors">Why
+                        are some models only available to paid users?</span>
+                    <div class="relative w-5 h-5 flex-shrink-0 transition-all duration-300 faq-icon-container">
+                        <span class="absolute inset-0 m-auto w-4 h-0.5 bg-gray-500 group-hover:bg-blue-500"></span>
+                        <span
+                            class="absolute inset-0 m-auto h-4 w-0.5 bg-gray-500 group-hover:bg-blue-500 faq-v-line transition-transform duration-300"></span>
+                    </div>
+                </button>
+                <div class="faq-content grid transition-all duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr; opacity: 0;">
+                    <div class="overflow-hidden">
+                        <div
+                            class="p-6 pt-0 text-gray-600 dark:text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
+                            To ensure sustainable development, access to certain advanced and cost-intensive models is
+                            restricted to paid users.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="mt-48 mb-40 px-6 text-center animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 dark:text-white mb-4">
+                    Still have questions?
+                </h2>
+
+                <h3 class="text-xl md:text-2xl font-medium text-gray-600 dark:text-gray-300 mb-6">
+                    We’re ready to help you create.
+                </h3>
+
+                <p class="max-w-xl mx-auto text-sm md:text-base text-gray-500 dark:text-gray-400 leading-relaxed mb-10">
+                    Our team is always online to ensure your experience is seamless.
+                    Drop us a message and we’ll get back to you in no time.
+                </p>
+
+                <div class="mt-8">
+                    <a href="https://t.me/pixplacebot?start=support_call" target="_blank" rel="noopener noreferrer"
+                        class="text-xs font-medium uppercase tracking-widest text-gray-400 hover:text-blue-500 transition-colors duration-300">
+                        Contact Support —>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFaq(btn) {
+            const item = btn.parentElement;
+            const content = btn.nextElementSibling;
+            const vLine = btn.querySelector('.faq-v-line');
+            const wrapper = btn.querySelector('.faq-icon-container');
+            const isOpen = item.classList.contains('faq-open');
+
+            // Закрываем другие элементы
+            document.querySelectorAll('.faq-item').forEach(el => {
+                if (el !== item) {
+                    el.classList.remove('faq-open');
+                    el.querySelector('.faq-content').style.gridTemplateRows = "0fr";
+                    el.querySelector('.faq-content').style.opacity = "0";
+                    el.querySelector('.faq-v-line').style.transform = "rotate(0deg)";
+                    el.querySelector('.faq-icon-container').style.transform = "rotate(0deg)";
+                }
+            });
+
+            // Переключаем текущий
+            if (!isOpen) {
+                item.classList.add('faq-open');
+                content.style.gridTemplateRows = "1fr";
+                content.style.opacity = "1";
+                vLine.style.transform = "rotate(90deg)";
+                wrapper.style.transform = "rotate(180deg)";
+            } else {
+                item.classList.remove('faq-open');
+                content.style.gridTemplateRows = "0fr";
+                content.style.opacity = "0";
+                vLine.style.transform = "rotate(0deg)";
+                wrapper.style.transform = "rotate(0deg)";
+            }
+        }
+
+        function toggleFeatures(btn) {
+            const allContainers = document.querySelectorAll('.features-content');
+            const allButtons = document.querySelectorAll('.show-more-btn');
+            const isOpen = btn.classList.contains('is-active');
+
+            allContainers.forEach(container => {
+                if (!isOpen) {
+                    container.style.gridTemplateRows = "1fr";
+                    container.style.opacity = "1";
+                } else {
+                    container.style.gridTemplateRows = "0fr";
+                    container.style.opacity = "0";
+                }
+            });
+
+            allButtons.forEach(b => {
+                const textSpan = b.querySelector('span');
+                if (!isOpen) {
+                    b.classList.add('is-active');
+                    textSpan.innerText = "Show fewer features";
+                } else {
+                    b.classList.remove('is-active');
+                    textSpan.innerText = "Show more features";
+                }
+            });
+        }
+    </script>
+
+
 </body>
+
 </html>
