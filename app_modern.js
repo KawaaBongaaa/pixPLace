@@ -2976,32 +2976,7 @@ async function sendToWebhook(data) {
     let webhookUrl;
     let webhookType;
 
-    if (['background_removal', 'upscale_image'].includes(data.mode)) {
-        // Модели улучшения изображений используют отдельный N8N вебхук
-        webhookUrl = CONFIG.N8N_ENHANCE_OR_REMBG_WEBHOOK_URL;
-        webhookType = 'N8N_ENHANCE_OR_REMBG_WEBHOOK_URL';
-    } else if (data.mode === 'z_image') {
-        // Модель Z-Image использует свой выделенный вебхук
-        webhookUrl = CONFIG.Z_IMAGE_WEBHOOK_URL;
-        webhookType = 'Z_IMAGE_WEBHOOK_URL';
-    } else if (data.mode === 'nano_banana') {
-        webhookUrl = CONFIG.NANO_BANANA_WEBHOOK;
-        webhookType = 'NANO_BANANA_WEBHOOK';
-    } else if (data.mode === 'nano_banana_2') {
-        webhookUrl = CONFIG.NANO_BANANA_2_WEBHOOK;
-        webhookType = 'NANO_BANANA_2_WEBHOOK';
-    } else if (data.mode === 'nano_banana_pro') {
-        webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
-        webhookType = 'NANO_BANANA_PRO_WEBHOOK';
-    } else if (data.mode === 'video_gen' || data.mode === 'image_to_video' || data.mode === 'video_edit') {
-        // Специальные видео режимы используют общий вебхук
-        webhookUrl = CONFIG.WEBHOOK_URL;
-        webhookType = 'WEBHOOK_URL';
-    } else if (['qwen_image', 'qwen_image_edit'].includes(data.mode)) {
-        // Модель Qwen использует свой выделенный вебхук
-        webhookUrl = CONFIG.QWEN_IMAGE_WEBHOOK_URL;
-        webhookType = 'QWEN_IMAGE_WEBHOOK_URL';
-    } else if (window._currentGenerationTab === 'sound') {
+    if (window._currentGenerationTab === 'sound') {
         // ── Sound AI режимы ──────────────────────────────────────
         const soundSubTab = document.querySelector('.sound-sub-tab.active')?.dataset?.soundTab || 'text';
         if (soundSubTab === 'image') {
@@ -3042,6 +3017,31 @@ async function sendToWebhook(data) {
             webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
             webhookType = 'NANO_BANANA_PRO_WEBHOOK';
         }
+    } else if (['background_removal', 'upscale_image'].includes(data.mode)) {
+        // Модели улучшения изображений используют отдельный N8N вебхук
+        webhookUrl = CONFIG.N8N_ENHANCE_OR_REMBG_WEBHOOK_URL;
+        webhookType = 'N8N_ENHANCE_OR_REMBG_WEBHOOK_URL';
+    } else if (data.mode === 'z_image') {
+        // Модель Z-Image использует свой выделенный вебхук
+        webhookUrl = CONFIG.Z_IMAGE_WEBHOOK_URL;
+        webhookType = 'Z_IMAGE_WEBHOOK_URL';
+    } else if (data.mode === 'nano_banana') {
+        webhookUrl = CONFIG.NANO_BANANA_WEBHOOK;
+        webhookType = 'NANO_BANANA_WEBHOOK';
+    } else if (data.mode === 'nano_banana_2') {
+        webhookUrl = CONFIG.NANO_BANANA_2_WEBHOOK;
+        webhookType = 'NANO_BANANA_2_WEBHOOK';
+    } else if (data.mode === 'nano_banana_pro') {
+        webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
+        webhookType = 'NANO_BANANA_PRO_WEBHOOK';
+    } else if (data.mode === 'video_gen' || data.mode === 'image_to_video' || data.mode === 'video_edit') {
+        // Специальные видео режимы используют общий вебхук
+        webhookUrl = CONFIG.WEBHOOK_URL;
+        webhookType = 'WEBHOOK_URL';
+    } else if (['qwen_image', 'qwen_image_edit'].includes(data.mode)) {
+        // Модель Qwen использует свой выделенный вебхук
+        webhookUrl = CONFIG.QWEN_IMAGE_WEBHOOK_URL;
+        webhookType = 'QWEN_IMAGE_WEBHOOK_URL';
     } else {
         // Все остальные модели используют основной вебхук
         webhookUrl = CONFIG.WEBHOOK_URL;
