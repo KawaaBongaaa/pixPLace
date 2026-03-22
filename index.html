@@ -2896,6 +2896,9 @@
         // ============================================================
         let _editImageBlob = null;
         let _editImageUrl = null;
+        // Expose to window for checking state in navigation-manager.js
+        Object.defineProperty(window, '_editImageBlob', { get: () => _editImageBlob, set: (v) => { _editImageBlob = v; } });
+        Object.defineProperty(window, '_editImageUrl', { get: () => _editImageUrl, set: (v) => { _editImageUrl = v; } });
 
         function _showEditStep2(src) {
             const s1 = document.getElementById('editStep1');
@@ -2904,12 +2907,22 @@
             if (s1) s1.classList.add('hidden');
             if (s2) s2.classList.remove('hidden');
             if (preview) preview.src = src;
+
             // Also show and enable the prompt input
             const promptSection = document.getElementById('promptFormGroup');
             if (promptSection) promptSection.style.display = '';
             const divider = document.getElementById('promptDivider');
             if (divider) divider.style.display = '';
+
+            // --- FIXED: Show style chips after image is loaded in Edit mode ---
+            const imageStylesSection = document.getElementById('imageStylesSection');
+            if (imageStylesSection) {
+                imageStylesSection.style.setProperty('display', 'block', 'important');
+                imageStylesSection.classList.remove('hidden');
+            }
         }
+        // Expose to window for state restoration in navigation-manager.js
+        window._showEditStep2 = _showEditStep2;
 
         function handleEditFileSelect(input) {
             const file = input.files[0];
@@ -2953,6 +2966,18 @@
             // Hide prompt area again
             const promptSection = document.getElementById('promptFormGroup');
             if (promptSection) promptSection.style.display = 'none';
+
+            // --- FIXED: Hide style chips when image is cleared ---
+            const imageStylesSection = document.getElementById('imageStylesSection');
+            const videoStylesSection = document.getElementById('videoStylesSection');
+            if (imageStylesSection) {
+                imageStylesSection.style.setProperty('display', 'none', 'important');
+                imageStylesSection.classList.add('hidden');
+            }
+            if (videoStylesSection) {
+                videoStylesSection.style.setProperty('display', 'none', 'important');
+                videoStylesSection.classList.add('hidden');
+            }
         }
 
         function openEditFromHistory() {
