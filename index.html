@@ -2241,7 +2241,6 @@
 
 
                                 <!-- Hidden items for script compatibility -->
-                            </div>
                             <div class="layout-section-extras">
                                 <div id="negativePromptSection" style="display: none;"></div>
                                 <div id="userImageWrapper" style="display: none;"></div>
@@ -2362,6 +2361,9 @@
                                             onclick="toggleVideoMoreStyles()">More styles ▾</button>
                                     </div>
                                 </div>
+                            </div>
+                            <!-- 3rd Column: Generation History -->
+                            <div class="layout-section-history flex flex-col w-full h-full">
                                 <!-- Generation History Toggle Button -->
                                 <button type="button" id="historyToggleBtn" onclick="toggleHistoryList()"
                                     class="w-full flex items-center justify-between mt-4 px-4 py-3 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-white/10 hover:border-blue-400/40 dark:hover:border-blue-400/30 transition-all duration-300 cursor-pointer group shadow-sm">
@@ -2386,9 +2388,10 @@
                                     </svg>
                                 </button>
                                 <div id="historyList" class="history-list hidden"></div>
-                    </form>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
     </div>
 
     <!-- AI Chat Screen - REMOVED: Using modal version instead -->
@@ -2862,6 +2865,7 @@
                 _closeAllDropdowns();
             }
         });
+
 
         // ============================================================
         // SOUND TAB SWITCHER
