@@ -41,6 +41,8 @@ jobs:
           GET_USER_PROFILE_WEBHOOK_URL: ${{ secrets.GET_USER_PROFILE_WEBHOOK }}
           Z_IMAGE_WEBHOOK_URL: ${{ secrets.Z_IMAGE_WEBHOOK }}
           QWEN_IMAGE_WEBHOOK_URL: ${{ secrets.QWEN_IMAGE_WEBHOOK }}
+          SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL: ${{ secrets.SUNO_AUDIO_FROM_TEXT_WEBHOOK }}
+          SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL: ${{ secrets.SUNO_AUDIO_FROM_IMAGE_WEBHOOK }}
         run: |
           echo "🔧 Injecting webhook URLs safely with Node.js..."
           
@@ -59,7 +61,9 @@ jobs:
               "PLACEHOLDER_AUTH_WEBHOOK_URL": process.env.AUTH_WEBHOOK_URL || "",
               "PLACEHOLDER_GET_USER_PROFILE_WEBHOOK_URL": process.env.GET_USER_PROFILE_WEBHOOK_URL || "",
               "PLACEHOLDER_Z_IMAGE_WEBHOOK_URL": process.env.Z_IMAGE_WEBHOOK_URL || "",
-              "PLACEHOLDER_QWEN_IMAGE_WEBHOOK_URL": process.env.QWEN_IMAGE_WEBHOOK_URL || ""
+              "PLACEHOLDER_QWEN_IMAGE_WEBHOOK_URL": process.env.QWEN_IMAGE_WEBHOOK_URL || "",
+              "PLACEHOLDER_SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL": process.env.SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL || "",
+              "PLACEHOLDER_SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL": process.env.SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL || ""
             };
             
             function processDirectory(dir) {
