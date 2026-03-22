@@ -2829,7 +2829,10 @@ async function generateImage(event) {
         };
 
         // Создаем превью СРАЗУ для ВСЕХ режимов КРОМЕ photo_session и nano_banana_pro без изображений
-        if (!(mode === 'nano_banana' && userImageState.images.length === 0) &&
+        // Sound/Edit вкладки всегда создают превью сразу, не показывая модалку
+        const isSoundOrEditTab = window._currentGenerationTab === 'sound' || window._currentGenerationTab === 'edit';
+        if (isSoundOrEditTab ||
+            !(mode === 'nano_banana' && userImageState.images.length === 0) &&
             !(mode === 'nano_banana_2' && userImageState.images.length === 0) &&
             !(mode === 'nano_banana_pro' && userImageState.images.length === 0)) {
             console.log('🎯 Creating preview immediately for mode:', mode);
@@ -2839,7 +2842,8 @@ async function generateImage(event) {
         }
 
         // === ПРЕДПАРОДНАЯ ПРОВЕРКА для photo_session и nano_banana_pro без изображения ===
-        if ((mode === 'nano_banana' || mode === 'nano_banana_2' || mode === 'nano_banana_pro') && userImageState.images.length === 0) {
+        // Пропускаем модалку для Sound/Edit вкладок — там нет смысла в изображении
+        if (!isSoundOrEditTab && (mode === 'nano_banana' || mode === 'nano_banana_2' || mode === 'nano_banana_pro') && userImageState.images.length === 0) {
             // 🔥 ДОБАВЛЕНО: Проверяем sessionStorage, показываем ли модалку уже в этой сессии
             const modalShownKey = `modal_shown_${mode}`;
             const modalAlreadyShown = sessionStorage.getItem(modalShownKey) === 'true';
@@ -2979,11 +2983,13 @@ async function sendToWebhook(data) {
     if (window._currentGenerationTab === 'sound') {
         // ── Sound AI режимы ──────────────────────────────────────
         const soundSubTab = document.querySelector('.sound-sub-tab.active')?.dataset?.soundTab || 'text';
+        data.action = 'Sound Generation';
         if (soundSubTab === 'image') {
             // Audio from Image: Suno AI analyze image
             webhookUrl = CONFIG.SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL;
             webhookType = 'SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL';
             data.soundMode = 'audio_from_image';
+            data.mode = 'sound_from_image';
             data.soundImageBlob = window._soundImageBlob || null;
             data.soundImageUrl = window._soundImageUrl || null;
         } else {
@@ -2991,6 +2997,7 @@ async function sendToWebhook(data) {
             webhookUrl = CONFIG.SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL;
             webhookType = 'SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL';
             data.soundMode = 'audio_from_text';
+            data.mode = 'sound_from_text';
         }
         data.soundModel = document.getElementById('soundModelLabel')?.textContent?.trim() || 'Suno AI';
     } else if (window._currentGenerationTab === 'edit') {
@@ -2998,6 +3005,8 @@ async function sendToWebhook(data) {
         const editModelMode = window._editModel || 'nano_banana_pro';
         data.editMode = true;
         data.type = 'edit';
+        data.mode = editModelMode;
+        data.action = 'Image Edit';
         data.editImageBlob = window._editImageBlob || null;
         data.editImageUrl = window._editImageUrl || null;
         data.editResolution = document.getElementById('editResolutionSelect')?.value || '1K';
@@ -3056,6 +3065,15 @@ async function sendToWebhook(data) {
 
     // 🔥 НОВОЕ: Определяем тип данных - JSON или FormData с бинарными файлами
     const isFormData = data.formData instanceof FormData;
+
+    // 🔥 СИНХРОНИЗАЦИЯ: Если есть FormData, обновляем в ней поля mode и action
+    if (isFormData) {
+        if (data.mode) data.formData.set('mode', data.mode);
+        if (data.action) data.formData.set('action', data.action);
+        if (data.soundMode) data.formData.set('soundMode', data.soundMode);
+        if (data.editMode) data.formData.set('editMode', String(data.editMode));
+    }
+
     console.log('🔍 Data type detection:', {
         isFormData,
         hasFormData: !!data.formData,
