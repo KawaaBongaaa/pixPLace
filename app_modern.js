@@ -8,7 +8,6 @@ import { initializeGlobalServices } from './core/services.js';
 import { AppStateManager } from './store/app-state.js';
 import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
 import { dictionaryManager } from './dictionary-manager.js';
-import './style-manager.js'; // 🔥 Import Style Manager to ensure window.styleManager is initialized
 
 // Импорт ScreenManager для работы с авторизацией
 import { updateUserNameDisplay, updateUserBalanceDisplay, showSubscriptionNotice, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js';
@@ -89,6 +88,8 @@ const CONFIG = {
     HISTORY_WEBHOOK_URL: 'PLACEHOLDER_HISTORY_WEBHOOK_URL',
     Z_IMAGE_WEBHOOK_URL: 'PLACEHOLDER_Z_IMAGE_WEBHOOK_URL',
     QWEN_IMAGE_WEBHOOK_URL: 'PLACEHOLDER_QWEN_IMAGE_WEBHOOK_URL',
+    SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL: 'PLACEHOLDER_SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL',
+    SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL: 'PLACEHOLDER_SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL',
 
 
     // App Settings
@@ -959,6 +960,9 @@ async function initializeUI() {
         if (window.updateStyleVisibilityForMode) {
             window.updateStyleVisibilityForMode(currentMode);
         }
+
+        // 📝 Refresh prompt visibility (important for Edit tab show/hide logic)
+        await updatePromptVisibility();
     });
 
     document.addEventListener('mode:changed', async (event) => {
@@ -1122,12 +1126,14 @@ function updateImageUploadVisibility() {
                     if (previewContainer.lastElementChild !== addBtn) {
                         previewContainer.appendChild(addBtn);
                     }
-                    addBtn.style.display = 'inline-flex';
+                    addBtn.style.setProperty('display', 'inline-flex', 'important');
+                    addBtn.classList.remove('hidden');
                 }
             } else {
                 // Hide if limit reached or no images (main button handles 0 case)
                 if (addBtn) {
                     addBtn.style.setProperty('display', 'none', 'important');
+                    addBtn.classList.add('hidden');
                 }
             }
         }
@@ -1190,42 +1196,101 @@ async function updatePromptVisibility() {
     // 🔧 ЛОГИКА: Скрываем все лишние поля для режимов обработки
     const isProcessMode = ['background_removal', 'upscale_image'].includes(currentMode);
 
+    // Получаем текущую активную вкладку
+    const activeTab = document.querySelector('.tab-pane.active')?.dataset.tab || 'image';
+    const isSoundOrVideoTab = ['sound', 'video'].includes(activeTab);
+
+    // ─── EDIT TAB: полностью пропускаем — UI управляется _showEditStep2 / clearEditImage в index.html ───
+    if (activeTab === 'edit') {
+        console.log('📝 Edit tab: prompt visibility managed by index.html, skipping');
+        return;
+    }
+
+    // ─── SOUND TAB: скрываем size / resolution / negativePrompt / styleChips — они не нужны для звука ───
+    if (activeTab === 'sound') {
+        const sizeGroup = document.getElementById('sizeGroup');
+        const resolutionGroup = document.getElementById('resolutionGroup');
+        const negPromptSec = document.getElementById('negativePromptSection');
+        const imageStylesSection = document.getElementById('imageStylesSection');
+        const videoStylesSection = document.getElementById('videoStylesSection');
+        if (sizeGroup) sizeGroup.style.setProperty('display', 'none', 'important');
+        if (resolutionGroup) resolutionGroup.style.setProperty('display', 'none', 'important');
+        if (negPromptSec) negPromptSec.style.setProperty('display', 'none', 'important');
+        if (imageStylesSection) { imageStylesSection.style.setProperty('display', 'none', 'important'); imageStylesSection.classList.add('hidden'); }
+        if (videoStylesSection) { videoStylesSection.style.setProperty('display', 'none', 'important'); videoStylesSection.classList.add('hidden'); }
+        console.log('📝 Sound tab: hiding size/resolution/negativePrompt/styleChips');
+        return;
+    }
+
     if (isProcessMode) {
-        // Скрываем текстовые поля, выбор стиля и разделитель, но оставляем контейнер (карточку) для работы с изображениями
+        // Скрываем текстовые поля, выбор стиля и разделитель
         if (promptInputWrapper) promptInputWrapper.classList.add('hidden');
         if (promptDivider) promptDivider.classList.add('hidden');
         if (negativePromptSection) negativePromptSection.classList.add('hidden');
-        if (chooseStyleSection) {
-            chooseStyleSection.style.setProperty('display', 'none', 'important');
-            chooseStyleSection.classList.add('hidden');
-        }
+        const imageStylesSection = document.getElementById('imageStylesSection');
+        const videoStylesSection = document.getElementById('videoStylesSection');
+        if (imageStylesSection) { imageStylesSection.style.setProperty('display', 'none', 'important'); imageStylesSection.classList.add('hidden'); }
+        if (videoStylesSection) { videoStylesSection.style.setProperty('display', 'none', 'important'); videoStylesSection.classList.add('hidden'); }
 
-        // Убеждаемся что основная группа видна
         promptFormGroup.style.display = 'block';
         promptFormGroup.classList.remove('hidden');
+        console.log(`📝 Processing mode: Prompt HIDDEN, card visible`);
 
-        console.log(`📝 Processing mode UI cleanup: Prompt and Style selection HIDDEN`);
     } else {
-        // Показываем всё обратно для обычных режимов
+        // Обычный режим (image / video)
         if (promptInputWrapper) promptInputWrapper.classList.remove('hidden');
         if (promptDivider) promptDivider.classList.remove('hidden');
         if (negativePromptSection) negativePromptSection.classList.remove('hidden');
-        if (chooseStyleSection) {
-            chooseStyleSection.style.setProperty('display', 'block', 'important');
-            chooseStyleSection.classList.remove('hidden');
+
+        const imageStylesSection = document.getElementById('imageStylesSection');
+        const videoStylesSection = document.getElementById('videoStylesSection');
+
+        if (imageStylesSection) {
+            if (activeTab === 'image') {
+                imageStylesSection.style.setProperty('display', 'block', 'important');
+                imageStylesSection.classList.remove('hidden');
+            } else {
+                imageStylesSection.style.setProperty('display', 'none', 'important');
+                imageStylesSection.classList.add('hidden');
+            }
         }
+
+        if (videoStylesSection) {
+            if (activeTab === 'video') {
+                videoStylesSection.style.setProperty('display', 'block', 'important');
+                videoStylesSection.classList.remove('hidden');
+            } else {
+                videoStylesSection.style.setProperty('display', 'none', 'important');
+                videoStylesSection.classList.add('hidden');
+            }
+        }
+
+        // NOTE: For the Edit tab, imageStylesSection show/hide is handled directly
+        // by _showEditStep2() and clearEditImage() in index.html
 
         promptFormGroup.style.display = 'block';
         promptFormGroup.classList.remove('hidden');
-
-        console.log(`📝 All prompt area contents and style selection VISIBLE`);
+        console.log(`📝 Normal mode: all prompt UI VISIBLE`);
     }
 
-    // Также обновляем видимость negative prompt поля (если не в режиме обработки)
+    // Обновляем видимость negative prompt (если не в режиме обработки)
     if (!isProcessMode) {
         await updateNegativePromptVisibility();
     }
 }
+
+// Обновляем видимость интерфейса при переключении таба
+document.addEventListener('tab:changed', (e) => {
+    const newTab = e?.detail?.tab || document.querySelector('.tab-pane.active')?.dataset.tab;
+    // При переходе на Edit — скрываем promptFormGroup пока пользователь не загрузит изображение
+    if (newTab === 'edit') {
+        const promptSection = document.getElementById('promptFormGroup');
+        const imageStylesSection = document.getElementById('imageStylesSection');
+        if (promptSection) promptSection.style.display = 'none';
+        if (imageStylesSection) { imageStylesSection.style.setProperty('display', 'none', 'important'); imageStylesSection.classList.add('hidden'); }
+    }
+    updatePromptVisibility();
+});
 
 // ===== Функция для обновления видимости поля negative prompt =====
 async function updateNegativePromptVisibility() {
@@ -1306,9 +1371,18 @@ async function updateSizeSelectVisibility() {
 
     const currentMode = await getCurrentSelectedMode();
 
-    // 🔧 ЛОГИКА: Скрываем селектор размеров в режимах background_removal и upscale_image
-    // В dreamshaper_xl показываем только специфические размеры
-    // Для остальных режимов селектор показывается всегда (независимо от наличия изображений)
+    // Скрываем размеры для Sound и Edit вкладок
+    const activeTabForSize = document.querySelector('.tab-pane.active')?.dataset.tab || 'image';
+    if (activeTabForSize === 'sound' || activeTabForSize === 'edit') {
+        sizeGroup.style.setProperty('display', 'none', 'important');
+        sizeGroup.classList.add('hidden');
+        // Also hide the shared resolutionGroup — Edit tab uses its own editResolutionRow
+        const resGroupShared = document.getElementById('resolutionGroup');
+        if (resGroupShared) resGroupShared.style.setProperty('display', 'none', 'important');
+        return;
+    }
+
+    // Скрываем в режимах background_removal и upscale_image
     const shouldHideSizeSelect = ['background_removal', 'upscale_image'].includes(currentMode) && currentMode !== 'dreamshaper_xl';
 
     if (!shouldHideSizeSelect) {
@@ -2832,21 +2906,24 @@ async function generateImage(event) {
                     // Используем обновленную функцию uploadUserImages (теперь с UUID + base64)
                     const imageResult = await uploadUserImages(); // Возвращает { imageUUIDs: [...], imageData: {...} }
 
-                    if (imageResult && imageResult.imageUUIDs && imageResult.imageUUIDs.length > 0) {
+                    if (imageResult && (
+                        (imageResult.imageUUIDs && imageResult.imageUUIDs.length > 0) ||
+                        (imageResult.formData && Array.from(imageResult.formData.keys()).some(k => k.startsWith('image_')))
+                    )) {
                         // 🔥 НОВЫЙ МЕХАНИЗМ: Сохраняем UUIDs в generation
-                        generation.imageUUIDs = imageResult.imageUUIDs;
+                        generation.imageUUIDs = imageResult.imageUUIDs || [];
 
                         // 🔥 НОВЫЙ МЕХАНИЗМ: Сохраняем FormData для бинарной передачи
                         generation.formData = imageResult.formData;
 
                         console.log('✅ Image upload successful, UUIDs and FormData ready for webhook:', {
-                            uuidsCount: imageResult.imageUUIDs.length,
+                            uuidsCount: imageResult.imageUUIDs?.length || 0,
                             formDataFields: Array.from(imageResult.formData.keys())
                         });
 
                         return true; // 🔒 УСПЕШНАЯ ЗАГРУЗКА
                     } else {
-                        console.warn('⚠️ No images uploaded successfully');
+                        console.warn('⚠️ No images processed successfully (no blob and no URL found in any image)');
                         return false;
                     }
                 } catch (err) {
@@ -2926,7 +3003,7 @@ async function sendToWebhook(data) {
     } else if (data.mode === 'nano_banana_pro') {
         webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
         webhookType = 'NANO_BANANA_PRO_WEBHOOK';
-    } else if (['video_gen', 'image_to_video', 'video_edit'].includes(data.mode)) {
+    } else if (data.mode === 'video_gen' || data.mode === 'image_to_video' || data.mode === 'video_edit') {
         // Специальные видео режимы используют общий вебхук
         webhookUrl = CONFIG.WEBHOOK_URL;
         webhookType = 'WEBHOOK_URL';
@@ -2934,6 +3011,47 @@ async function sendToWebhook(data) {
         // Модель Qwen использует свой выделенный вебхук
         webhookUrl = CONFIG.QWEN_IMAGE_WEBHOOK_URL;
         webhookType = 'QWEN_IMAGE_WEBHOOK_URL';
+    } else if (window._currentGenerationTab === 'sound') {
+        // ── Sound AI режимы ──────────────────────────────────────
+        const soundSubTab = document.querySelector('.sound-sub-tab.active')?.dataset?.soundTab || 'text';
+        if (soundSubTab === 'image') {
+            // Audio from Image: Suno AI analyze image
+            webhookUrl = CONFIG.SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL;
+            webhookType = 'SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL';
+            data.soundMode = 'audio_from_image';
+            data.soundImageBlob = window._soundImageBlob || null;
+            data.soundImageUrl = window._soundImageUrl || null;
+        } else {
+            // Audio from Text: Suno AI generate from prompt
+            webhookUrl = CONFIG.SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL;
+            webhookType = 'SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL';
+            data.soundMode = 'audio_from_text';
+        }
+        data.soundModel = document.getElementById('soundModelLabel')?.textContent?.trim() || 'Suno AI';
+    } else if (window._currentGenerationTab === 'edit') {
+        // ── Edit Image режимы ─────────────────────────────────────
+        const editModelMode = window._editModel || 'nano_banana_pro';
+        data.editMode = true;
+        data.type = 'edit';
+        data.editImageBlob = window._editImageBlob || null;
+        data.editImageUrl = window._editImageUrl || null;
+        data.editResolution = document.getElementById('editResolutionSelect')?.value || '1K';
+        if (editModelMode === 'nano_banana') {
+            webhookUrl = CONFIG.NANO_BANANA_WEBHOOK;
+            webhookType = 'NANO_BANANA_WEBHOOK';
+        } else if (editModelMode === 'nano_banana_2') {
+            webhookUrl = CONFIG.NANO_BANANA_2_WEBHOOK;
+            webhookType = 'NANO_BANANA_2_WEBHOOK';
+        } else if (editModelMode === 'nano_banana_pro') {
+            webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
+            webhookType = 'NANO_BANANA_PRO_WEBHOOK';
+        } else if (editModelMode === 'qwen_image_edit') {
+            webhookUrl = CONFIG.QWEN_IMAGE_WEBHOOK_URL;
+            webhookType = 'QWEN_IMAGE_WEBHOOK_URL';
+        } else {
+            webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
+            webhookType = 'NANO_BANANA_PRO_WEBHOOK';
+        }
     } else {
         // Все остальные модели используют основной вебхук
         webhookUrl = CONFIG.WEBHOOK_URL;
@@ -3563,3 +3681,69 @@ async function initHistory() {
         setTimeout(initHistory, 500);
     }
 }
+
+// ============================================================
+// IMAGE & VIDEO STYLE CHIPS
+// ============================================================
+const _selectedImageStyles = new Set();
+window.addImageStyle = function (btn) {
+    const style = btn.dataset.style;
+    const allButtonsWithStyle = document.querySelectorAll('button.style-chip[data-style="' + style + '"]');
+
+    if (_selectedImageStyles.has(style)) {
+        _selectedImageStyles.delete(style);
+        allButtonsWithStyle.forEach(b => b.classList.remove('active'));
+    } else {
+        _selectedImageStyles.add(style);
+        allButtonsWithStyle.forEach(b => b.classList.add('active'));
+    }
+    const ta = document.getElementById('promptInput');
+    if (ta && style) {
+        const current = ta.value.trim();
+        if (!current.includes(style)) {
+            ta.value = current ? current + ', ' + style + ' style' : style + ' style';
+            ta.dispatchEvent(new Event('input'));
+        }
+    }
+};
+
+window.toggleImageMoreStyles = function () {
+    const container = document.getElementById('imageMoreStyles');
+    const btn = document.getElementById('imageMoreBtn');
+    if (!container) return;
+    const isHidden = container.classList.contains('hidden');
+    container.classList.toggle('hidden', !isHidden);
+    if (btn) btn.textContent = isHidden ? 'Less ▴' : 'More ▾';
+};
+
+const _selectedVideoStyles = new Set();
+window.addVideoStyle = function (btn) {
+    const style = btn.dataset.style;
+    const allButtonsWithStyle = document.querySelectorAll('button.style-chip[data-style="' + style + '"]');
+
+    if (_selectedVideoStyles.has(style)) {
+        _selectedVideoStyles.delete(style);
+        allButtonsWithStyle.forEach(b => b.classList.remove('active'));
+    } else {
+        _selectedVideoStyles.add(style);
+        allButtonsWithStyle.forEach(b => b.classList.add('active'));
+    }
+    const ta = document.getElementById('promptInput');
+    if (ta && style) {
+        const current = ta.value.trim();
+        if (!current.includes(style)) {
+            ta.value = current ? current + ', ' + style + ' style' : style + ' style';
+            ta.dispatchEvent(new Event('input'));
+        }
+    }
+};
+
+window.toggleVideoMoreStyles = function () {
+    const container = document.getElementById('videoMoreStyles');
+    const btn = document.getElementById('videoMoreBtn');
+    if (!container) return;
+    const isHidden = container.classList.contains('hidden');
+    container.classList.toggle('hidden', !isHidden);
+    if (btn) btn.textContent = isHidden ? 'Less ▴' : 'More ▾';
+};
+

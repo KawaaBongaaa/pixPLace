@@ -44,23 +44,7 @@ function getCurrentModeFromSources() {
         }
     }
 
-    // Priority 4: Try any selected style from carousel
-    const selectedStyle = window.getSelectedStyle?.();
-    if (selectedStyle) {
-        // Map style to mode if possible (dreamshaper maps to dreamshaper_xl)
-        const modeMap = {
-            'dreamshaper': 'dreamshaper_xl',
-            'flux_pro': 'pixplace_pro',
-            'print_maker': 'print_maker'
-        };
-        const mappedMode = modeMap[selectedStyle];
-        if (mappedMode) {
-            console.log(`🎯 Mode mapped from style: ${selectedStyle} -> ${mappedMode}`);
-            return mappedMode;
-        }
-        console.log(`🎯 Style fallback: ${selectedStyle}`);
-        return selectedStyle;
-    }
+    // Priority 4 removed
 
     console.warn('🔍 No mode found from any source, returning empty string');
     return '';
@@ -321,23 +305,7 @@ class StrengthSliderController {
             }
         }
 
-        // Priority 4: Try any selected style from carousel
-        const selectedStyle = window.getSelectedStyle?.();
-        if (selectedStyle) {
-            // Map style to mode if possible (dreamshaper maps to dreamshaper_xl)
-            const modeMap = {
-                'dreamshaper': 'dreamshaper_xl',
-                'flux_pro': 'pixplace_pro',
-                'print_maker': 'print_maker'
-            };
-            const mappedMode = modeMap[selectedStyle];
-            if (mappedMode) {
-                console.log(`🎯 Mode mapped from style: ${selectedStyle} -> ${mappedMode}`);
-                return mappedMode;
-            }
-            console.log(`🎯 Style fallback: ${selectedStyle}`);
-            return selectedStyle;
-        }
+        // Priority 4 removed
 
         console.warn('🔍 No mode found from any source, returning empty string');
         return '';
@@ -418,9 +386,7 @@ class StrengthSliderController {
             console.log('  - active card:', activeCard?.dataset?.mode || activeCard?.dataset?.style);
         } catch (e) { console.log('  - active card error:', e.message); }
 
-        try {
-            console.log('  - selected style:', window.getSelectedStyle?.());
-        } catch (e) { console.log('  - selected style error:', e.message); }
+        // selected style removed
 
         console.log('- Images state:', window.userImageState?.images?.length || 0);
 
