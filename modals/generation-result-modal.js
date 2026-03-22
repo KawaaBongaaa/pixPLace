@@ -111,22 +111,21 @@ function createGenerationResultModal(item) {
                             <div class="prompt-label">${window.appState?.translate?.('prompt_label_modal') || 'Prompt:'}</div>
                             <div class="prompt-text">${safeDescription}</div>
                         </div>
-                        <div class="reuse-btn-row flex gap-2 w-full mt-2">
-                            <button class="reuse-prompt-btn flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-lg transition-all" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="${window.appState?.translate?.('use_prompt_title') || 'Use this text prompt only'}">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <div class="reuse-btn-row flex gap-1.5 w-full mt-2">
+                            <button class="reuse-prompt-btn flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white py-1.5 px-2.5 rounded-lg transition-all text-xs font-medium whitespace-nowrap" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="Use prompt only">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                     <polyline points="14 2 14 8 20 8"></polyline>
                                 </svg>
-                                <span class="reuse-btn-text text-sm font-medium whitespace-nowrap">${window.appState?.translate?.('use_prompt_only') || 'Использовать промпт'}</span>
+                                Use Prompt Only
                             </button>
-                            <button class="reuse-prompt-btn flex-1 flex items-center justify-center gap-2 bg-blue-600/80 hover:bg-blue-600 text-white py-2 px-3 rounded-lg transition-all" onclick="reusePromptAndImage('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}', '${imageSource}', '${item.id}')" title="${window.appState?.translate?.('repeat_with_image_title') || 'Repeat generation with this image and prompt'}">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                                    <polyline points="17 1 21 5 17 9"></polyline>
-                                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-                                    <polyline points="7 23 3 19 7 15"></polyline>
-                                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                            <button class="reuse-prompt-btn flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-600 text-white py-1.5 px-2.5 rounded-lg transition-all text-xs font-medium whitespace-nowrap" onclick="reusePromptAndImage('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}', '${imageSource}', '${item.id}')" title="Use prompt and image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
                                 </svg>
-                                <span class="reuse-btn-text text-sm font-medium whitespace-nowrap">${window.appState?.translate?.('repeat_with_image') || 'Повторить'}</span>
+                                Use Prompt &amp; Image
                             </button>
                         </div>
                     </div>
@@ -337,32 +336,68 @@ async function useImageForGeneration(imageUrl, itemId) {
         clearAllImages();
         console.log('✅ Cleared existing images');
 
-        // 2. Конвертируем изображение в dataURL если оно еще не таковое
+        // 2. Конвертируем изображение в blob для надёжной отправки
         let processedImageUrl = imageUrl;
-        if (!imageUrl.startsWith?.('data:')) {
-            console.log('🔄 Converting external URL to dataURL for reliability');
+        let imageBlob = null;
+        const isExternalUrl = imageUrl && !imageUrl.startsWith('data:') && !imageUrl.startsWith('blob:');
+
+        if (imageUrl.startsWith?.('data:')) {
+            // dataURL → blob напрямую
+            console.log('🔄 Converting dataURL to Blob...');
             try {
-                const imageBlob = await downloadAndConvertImage(imageUrl);
-                // 🔥 ИСПРАВЛЕНИЕ: Создаем Object URL из Blob для использования в createPreviewItem
-                processedImageUrl = URL.createObjectURL(imageBlob);
-                console.log('✅ Image successfully converted to Object URL from Blob');
-            } catch (conversionError) {
-                console.warn('⚠️ Failed to convert image to dataURL, using original URL:', conversionError.message);
-                // Продолжаем с оригинальным URL если конверсия не удалась
-                processedImageUrl = imageUrl;
+                const res = await fetch(imageUrl);
+                imageBlob = await res.blob();
+                console.log('✅ Blob created from dataURL, size:', imageBlob.size);
+            } catch (e) {
+                console.warn('⚠️ Could not create blob from dataURL:', e);
             }
-        } else {
-            console.log('✅ Image is already a dataURL, no conversion needed');
+        } else if (isExternalUrl) {
+            // Внешний URL (Runware CDN и др.) — пробуем скачать как blob
+            console.log('🔄 Trying to download external URL as Blob via CORS...');
+            try {
+                const rawBlob = await downloadAndConvertImage(imageUrl);
+                imageBlob = rawBlob;
+                processedImageUrl = URL.createObjectURL(imageBlob);
+                console.log('✅ External image successfully downloaded as Blob, size:', imageBlob.size);
+            } catch (conversionError) {
+                // CORS заблокировал — используем оригинальный URL через uploadedUrl
+                console.warn('⚠️ CORS blocked blob download, will send as URL:', conversionError.message);
+                imageBlob = null;
+                processedImageUrl = imageUrl; // оставляем оригинальный URL для превью
+            }
+        } else if (imageUrl.startsWith?.('blob:')) {
+            // blob: URL — достаём blob напрямую
+            try {
+                const res = await fetch(imageUrl);
+                imageBlob = await res.blob();
+                console.log('✅ Blob fetched from blob URL, size:', imageBlob.size);
+            } catch(e) {
+                console.warn('⚠️ Could not fetch blob URL:', e);
+            }
         }
 
-        // 3. Создаем объект изображения напрямую
+        // 3. Создаем объект изображения
+        // ВАЖНО: uploadedUrl заполняется ВСЕГДА при CORS-фейле, чтобы uploadUserImages() не пропустил изображение
         const imageId = 'history_' + Date.now();
         const imageObj = {
             id: imageId,
-            file: null, // файл не нужен для существующих изображений из истории
-            dataUrl: processedImageUrl, // используем обработанный URL
-            uploadedUrl: null
+            file: null,
+            blob: imageBlob,
+            dataUrl: processedImageUrl,
+            // Fallback: если blob не получился — передаём оригинальный URL напрямую в вебхук
+            uploadedUrl: (!imageBlob && isExternalUrl) ? imageUrl : null
         };
+
+        console.log('📦 imageObj created:', {
+            hasBlob: !!imageObj.blob,
+            blobSize: imageObj.blob?.size || 0,
+            uploadedUrl: imageObj.uploadedUrl?.substring(0, 60) || null
+        });
+
+        // Проверяем что хотя бы один источник доступен
+        if (!imageObj.blob && !imageObj.uploadedUrl) {
+            throw new Error('Could not prepare image: no blob and no uploadedUrl available. CORS may have blocked the download.');
+        }
 
         // 4. Добавляем в глобальное состояние
         window.userImageState.images.push(imageObj);
