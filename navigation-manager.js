@@ -698,265 +698,7 @@ import { selectModeCard, getSelectedMode } from './mode-cards.js';
 
 // 🔥 НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С КАРТОЧКАМИ РЕЖИМОВ
 
-// ФУНКЦИЯ СВОРАЧИВАНИЯ КАРТОЧЕК РЕЖИМОВ
-export function setModeCardsCollapsed(collapsed) {
-    const wrapper = document.getElementById('modeCardsWrapper');
-    if (!wrapper) {
-        console.warn('❌ modeCardsWrapper not found for collapse toggle');
-        return;
-    }
 
-    const toggleBtn = document.getElementById('modeCardsToggle');
-    const toggleText = document.getElementById('modeCardsToggleText');
-
-    console.log(`🔄 setModeCardsCollapsed called with: ${collapsed}, current classes: ${wrapper.className}`);
-
-    if (collapsed) {
-        // Применяем inline стили для сворачивания
-        wrapper.style.display = 'none';
-        wrapper.style.opacity = '0';
-        wrapper.style.maxHeight = '0';
-        wrapper.style.overflow = 'hidden';
-        wrapper.style.transform = 'scaleY(0)';
-        wrapper.style.transformOrigin = 'top';
-        wrapper.style.transition = 'all 0.3s ease';
-
-        wrapper.classList.add('collapsed');
-        wrapper.classList.remove('expanded');
-
-        if (toggleBtn) {
-            toggleBtn.classList.remove('expanded');
-            toggleBtn.classList.add('collapsed');
-        }
-        if (toggleText) {
-            // 🔥 ВСЕГДА показываем название выбранной модели для свернутого состояния
-            const selectedMode = getSelectedMode();
-            const translatedName = getTranslatedModeName(selectedMode);
-            toggleText.textContent = translatedName || selectedMode || 'Nano Banana Pro';
-            console.log(`📝 Toggle text set to: ${toggleText.textContent} (selected: ${selectedMode})`);
-        }
-        console.log('📦 Mode cards collapsed');
-    } else {
-        // Применяем inline стили для разворачивания
-        wrapper.style.display = 'block';
-        wrapper.style.opacity = '1';
-        wrapper.style.maxHeight = 'none'; // Allow full height
-        wrapper.style.height = 'auto';    // Ensure it pushes content
-        wrapper.style.overflow = 'visible';
-        wrapper.style.transform = 'scaleY(1)';
-        wrapper.style.transition = 'all 0.3s ease';
-        wrapper.style.position = 'relative'; // Ensure flow
-        wrapper.style.marginBottom = '20px'; // Add spacing
-
-        wrapper.classList.remove('collapsed');
-        wrapper.classList.add('expanded');
-
-        if (toggleBtn) {
-            toggleBtn.classList.remove('collapsed');
-            toggleBtn.classList.add('expanded');
-        }
-        if (toggleText) {
-            toggleText.textContent = 'Close Modes';
-        }
-        console.log('📦 Mode cards expanded');
-    }
-}
-
-// ФУНКЦИЯ СВОРАЧИВАНИЯ ВИДЕО КАРТОЧЕК
-export function setVideoCardsCollapsed(collapsed) {
-    const wrapper = document.getElementById('videoCardsWrapper');
-    if (!wrapper) {
-        console.warn('❌ videoCardsWrapper not found for collapse toggle');
-        return;
-    }
-
-    const toggleBtn = document.getElementById('videoCardsToggle');
-    const toggleText = document.getElementById('videoCardsToggleText');
-
-    if (collapsed) {
-        // Применяем inline стили для сворачивания
-        wrapper.style.display = 'none';
-        wrapper.style.opacity = '0';
-        wrapper.style.maxHeight = '0';
-        wrapper.style.overflow = 'hidden';
-        wrapper.style.transform = 'scaleY(0)';
-        wrapper.style.transformOrigin = 'top';
-        wrapper.style.transition = 'all 0.3s ease';
-
-        wrapper.classList.add('collapsed');
-        wrapper.classList.remove('expanded');
-
-        if (toggleBtn) {
-            toggleBtn.classList.remove('expanded');
-            toggleBtn.classList.add('collapsed');
-        }
-        if (toggleText) {
-            toggleText.textContent = getSelectedMode() || 'Image to Video';
-        }
-        console.log('🎬 Video cards collapsed');
-    } else {
-        // Применяем inline стили для разворачивания
-        wrapper.style.display = 'block';
-        wrapper.style.opacity = '1';
-        wrapper.style.maxHeight = '1000px';
-        wrapper.style.overflow = 'visible';
-        wrapper.style.transform = 'scaleY(1)';
-        wrapper.style.transition = 'all 0.3s ease';
-
-        wrapper.classList.remove('collapsed');
-        wrapper.classList.add('expanded');
-
-        if (toggleBtn) {
-            toggleBtn.classList.remove('collapsed');
-            toggleBtn.classList.add('expanded');
-        }
-        if (toggleText) {
-            toggleText.textContent = 'Close Modes';
-        }
-        console.log('🎬 Video cards expanded');
-    }
-}
-
-// 🔥 ДОБАВЛЕНО: Слушатель для обновления описания при смене режима
-document.addEventListener('mode:changed', (event) => {
-    updateModeDescription(event.detail.mode);
-});
-
-// ФУНКЦИЯ ОБНОВЛЕНИЯ ОПИСАНИЯ РЕЖИМА
-export function updateModeDescription(mode) {
-    const descriptionBlock = document.getElementById('modeDescriptionBlock');
-    const descriptionText = document.getElementById('modeDescriptionText');
-
-    if (!descriptionBlock || !descriptionText) {
-        console.warn('❌ Mode description elements not found');
-        return;
-    }
-
-    // Попытка получить перевод через dictionaryManager
-    let translatedDescription = '';
-    const descKey = `mode_${mode}_desc`;
-    if (window.dictionaryManager && window.dictionaryManager.translate) {
-        const translated = window.dictionaryManager.translate(descKey);
-        if (translated && translated !== descKey) {
-            translatedDescription = translated;
-        }
-    }
-
-    // Если перевода нет, берем из атрибутов карточки
-    if (!translatedDescription) {
-        const selectedCard = document.querySelector(`[data-mode="${mode}"]`);
-        if (selectedCard) {
-            translatedDescription = selectedCard.getAttribute('data-description') || '';
-        }
-    }
-
-    // Крайний случай - дефолтные значения (на англ)
-    if (!translatedDescription) {
-        const defaultDescriptions = {
-            'nano_banana_pro': 'Professional-grade photo editing! Advanced AI with enhanced precision for complex edits, up to 4 reference images, perfect for professional photo retouching and modifications 💎',
-            'nano_banana': 'Ultimate photo editor! Drop up to 4 reference pics and just tell the AI what to change — it handles everything for you 🚀',
-            'pixplace_pro': 'Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer',
-            'fast_generation': 'Fastest model for quick image generation — works instantly without uploads',
-            'z_image': 'New generation model Z-Image Turbo — creates stunning visuals with unique style and high precision ⚡',
-            'qwen_image': 'The Qwen Image empowers creators, developers, and businesses to generate and edit photorealistic images effortlessly.',
-            'qwen_image_edit': 'Qwen Image-edit supporting semantic and appearance editing with precise, visually coherent results.',
-            'print_maker': 'Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond',
-            'dreamshaper_xl': 'Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.',
-            'background_removal': 'Remove the background and keep the main object. Upload a photo to start',
-            'upscale_image': 'Boost image quality and resolution — make your visuals look crisp and detailed',
-            'image_to_video': 'Bring static images to life! Upload any photo and transform it into smooth, animated video sequences with AI-powered motion 🌟📹'
-        };
-        translatedDescription = defaultDescriptions[mode] || 'Select a model to see its description 🚀';
-    }
-
-    // Обновляем текст и i18n атрибут для поддержки смены языка "на лету"
-    descriptionText.textContent = translatedDescription;
-    descriptionText.setAttribute('data-i18n', descKey);
-    descriptionBlock.style.display = 'block';
-
-    console.log(`📝 Mode description updated for: ${mode}`);
-}
-
-
-// ФУНКЦИЯ ПОЛУЧЕНИЯ ПЕРЕВЕДЕННОГО НАЗВАНИЯ РЕЖИМА
-function getTranslatedModeName(modeKey) {
-    if (!modeKey) return '';
-
-    // Используем dictionaryManager для перевода
-    if (window.dictionaryManager && window.dictionaryManager.translate) {
-        const translated = window.dictionaryManager.translate(`mode_${modeKey}`);
-        if (translated && translated !== `mode_${modeKey}`) {
-            return translated;
-        }
-    }
-
-    // Fallback на дефолтные значения
-    const defaultNames = {
-        'nano_banana_pro': 'Nano Banana Pro',
-        'nano_banana': 'Nano Banana',
-        'pixplace_pro': 'Flux Pro Advanced',
-        'z_image': 'Z-Image Turbo',
-        'fast_generation': 'Flux Fast Generation',
-        'print_maker': 'Print on Demand SDXL',
-        'dreamshaper_xl': 'DreamShaper XL',
-        'background_removal': 'Remove Background',
-        'upscale_image': 'Enhance Image',
-        'image_to_video': 'Image to Video',
-        'video_gen': 'Video Generation',
-        'video_edit': 'Video Edit'
-    };
-
-    return defaultNames[modeKey] || modeKey;
-}
-
-// ФУНКЦИЯ ОБНОВЛЕНИЯ ТЕКСТА TOGGLE КНОПКИ
-export function updateToggleText() {
-    const activeTab = getActiveTab();
-    const selectedMode = getSelectedMode();
-    const translatedModeName = getTranslatedModeName(selectedMode);
-
-    if (activeTab === 'sound') {
-        // В Sound режиме показываем название из селектора модели, а не image-модель
-        const soundModelLabel = document.getElementById('soundModelLabel');
-        const soundModelText = soundModelLabel ? soundModelLabel.textContent.trim() : 'Suno AI';
-        const toggleText = document.getElementById('modeCardsToggleText');
-        if (toggleText) toggleText.textContent = soundModelText;
-        console.log(`🔄 Toggle text updated for tab: ${activeTab}, sound model: ${soundModelText}`);
-    } else if (activeTab === 'edit') {
-        // В Edit режиме показываем название выбранной edit-модели
-        const editModelName = getTranslatedModeName(window._editModel || 'nano_banana_pro');
-        const toggleText = document.getElementById('modeCardsToggleText');
-        if (toggleText) toggleText.textContent = editModelName;
-        console.log(`🔄 Toggle text updated for tab: ${activeTab}, edit model: ${editModelName}`);
-    } else if (activeTab === 'image') {
-        const toggleText = document.getElementById('modeCardsToggleText');
-        if (toggleText) {
-            toggleText.textContent = translatedModeName || 'Nano Banana Pro';
-        }
-    } else if (activeTab === 'video') {
-        const toggleText = document.getElementById('videoCardsToggleText');
-        if (toggleText) {
-            toggleText.textContent = translatedModeName || 'Image to Video';
-        }
-    }
-
-    console.log(`🔄 Toggle text updated for tab: ${activeTab}, mode: ${selectedMode}, translated: ${translatedModeName}`);
-}
-
-// ФУНКЦИЯ ОБНОВЛЕНИЯ ТЕКСТА TOGGLE КНОПКИ С УЧЕТОМ СОСТОЯНИЯ
-export function updateToggleTextForState() {
-    const activeTab = getActiveTab();
-    const wrapper = activeTab === 'image' ? document.getElementById('modeCardsWrapper') : document.getElementById('videoCardsWrapper');
-    const toggleText = activeTab === 'image' ? document.getElementById('modeCardsToggleText') : document.getElementById('videoCardsToggleText');
-
-    if (wrapper && toggleText) {
-        if (wrapper.classList.contains('expanded')) {
-            toggleText.textContent = 'Close Modes';
-        } else {
-            toggleText.textContent = getSelectedMode() || (activeTab === 'image' ? 'Nano Banana Pro' : 'Image to Video');
-        }
-    }
-}
 
 // ========== TAB MANAGEMENT FUNCTIONS ==========
 
@@ -982,81 +724,14 @@ function initTabs() {
     // Показываем вкладку по умолчанию (Image)
     showTab(activeTab);
 
-    // 🔥 ДОБАВЛЕНО: Автоматически сворачиваем карточки при первой загрузке
-    // Инициализируем синхронно для максимальной скорости загрузки
-    setModeCardsCollapsed(true);
+    // Удалены старые функции работы с карточками режимов
 
     // Инициализация описания при загрузке
     const currentMode = getSelectedMode();
     const modeSelect = document.getElementById('modeSelect');
     if (modeSelect) modeSelect.value = currentMode;
 
-    updateModeDescription(currentMode);
-
-    // 🔥 ДОБАВЛЕНО: Инициализируем обработчики кликов для карточек режимов
-    initModeCardClickHandlers();
-
-    // 🔥 ДОБАВЛЕНО: Инициализируем обработчики кликов для toggle кнопок
-    initModeCardToggleHandlers();
-
-    // 🔥 ДОБАВЛЕНО: Обновляем UI сразу после инициализации
-    updateToggleVisibilityForActiveTab();
-    updateToggleText();
-
-    console.log('✅ Mode cards automatically collapsed on app initialization');
-    console.log('✅ Mode card click handlers initialized');
-    console.log('✅ Mode card toggle handlers initialized');
-    console.log('✅ Toggle UI updated for stable interface');
-
-    // 🔥 НОВАЯ ФУНКЦИЯ: Инициализация обработчиков кликов для карточек режимов
-    function initModeCardClickHandlers() {
-        console.log('🎯 Initializing mode card click handlers');
-
-        // Обработчики кликов для карточек режимов инициализируются в mode-cards.js
-        // Эта функция служит для совместимости и логирования
-        console.log('✅ Mode card click handlers initialized (delegated to mode-cards.js)');
-    }
-
-    // 🔥 НОВАЯ ФУНКЦИЯ: Инициализация обработчиков кликов для toggle кнопок
-    function initModeCardToggleHandlers() {
-        console.log('🎛️ Initializing mode card toggle handlers');
-
-        // Обработчик для toggle кнопки image режимов
-        const modeCardsToggle = document.getElementById('modeCardsToggle');
-        if (modeCardsToggle) {
-            modeCardsToggle.addEventListener('click', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const wrapper = document.getElementById('modeCardsWrapper');
-                if (wrapper) {
-                    const isCollapsed = wrapper.classList.contains('collapsed');
-                    setModeCardsCollapsed(!isCollapsed);
-                }
-            });
-            console.log('✅ Image mode cards toggle handler attached');
-        }
-
-        // Обработчик для toggle кнопки video режимов
-        const videoCardsToggle = document.getElementById('videoCardsToggle');
-        if (videoCardsToggle) {
-            videoCardsToggle.addEventListener('click', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const wrapper = document.getElementById('videoCardsWrapper');
-                if (wrapper) {
-                    const isCollapsed = wrapper.classList.contains('collapsed');
-                    setVideoCardsCollapsed(!isCollapsed);
-                }
-            });
-            console.log('✅ Video mode cards toggle handler attached');
-        }
-
-        console.log('✅ Mode card toggle handlers initialized');
-    }
-
-    console.log('✅ Tabs initialized with preventDefault and auto-collapse');
+    console.log('✅ Tabs initialized with preventDefault and clean interface');
 }
 
 // ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ВКЛАДКИ (перенесено из mode-cards.js)
@@ -1082,29 +757,27 @@ function switchTab(tabType) {
     // Показываем содержание вкладки
     showTab(tabType);
 
-    // 🔥 ДОБАВЛЕНО: Обновляем видимость toggle-кнопок при переключении таба
-    updateToggleVisibilityForActiveTab();
-
-    // 🔥 ДОБАВЛЕНО: Гарантируем что карточки collapsed при переключении таба
     if (tabType === 'video') {
-        setVideoCardsCollapsed(true);
         // Синхронно выбираем режим для video таба, чтобы обновить состояние в mode-cards.js
         selectModeCard('image_to_video');
     }
     if (tabType === 'image') {
-        setModeCardsCollapsed(true);
-        // 🔥 ФИКС: Восстанавливаем последний выбранный режим изображения при возврате на вкладку
-        // Это обновит состояние activeTab внутри mode-cards.js
-        // Если selectedImageMode не определен, используем дефолтный
         const currentImageMode = selectedImageMode || 'nano_banana_pro';
         console.log(`🔄 Switching back to image tab, restoring mode: ${currentImageMode}`);
         selectModeCard(currentImageMode);
     }
 
-    // 🔥 Removed: No longer expand cards on tab switch, keep collapsed by default
-
-    // 🔥 ДОБАВЛЕНО: Обновляем текст toggle при переключении таба
-    updateToggleText();
+    // --- FIXED: Restore Edit tab state (Step 2 if image exists) ---
+    if (tabType === 'edit') {
+        const hasImage = window._editImageBlob || window._editImageUrl;
+        if (hasImage && typeof window._showEditStep2 === 'function') {
+            const src = window._editImageUrl || (window._editImageBlob ? URL.createObjectURL(window._editImageBlob) : '');
+            if (src) {
+                console.log('🔄 Restoring Edit tab state (Step 2)');
+                window._showEditStep2(src);
+            }
+        }
+    }
 
     // 🔥 ДОБАВЛЕНО: Обновляем текст кнопки generate при переключении таба
     updateGenerateButtonText();
@@ -1113,9 +786,6 @@ function switchTab(tabType) {
     document.dispatchEvent(new CustomEvent('tab:changed', {
         detail: { tab: tabType }
     }));
-
-    // 🔥 ДОБАВИТЬ: Обновляем описание режима при переключении таба
-    updateModeDescription(getSelectedMode());
 
     console.log(`🔄 Switched to tab: ${tabType}`);
 }
@@ -1132,24 +802,6 @@ function showTab(tabType) {
     if (activePane) {
         activePane.classList.add('active');
         activePane.style.display = 'block'; // 🔥 Explicitly show active pane
-    }
-
-    // 🔥 ДОБАВЛЕНО: Прячем все mode-cards-wrapper кроме активного таба
-    const modeCardsWrapper = document.getElementById('modeCardsWrapper');
-    const videoCardsWrapper = document.getElementById('videoCardsWrapper');
-
-    if (tabType === 'image') {
-        // Показываем image карточки (только если expanded), прячем video
-        if (modeCardsWrapper && modeCardsWrapper.classList.contains('expanded')) {
-            modeCardsWrapper.style.display = 'block';
-        }
-        if (videoCardsWrapper) videoCardsWrapper.style.display = 'none';
-    } else if (tabType === 'video') {
-        // Показываем video карточки (только если expanded), прячем image
-        if (modeCardsWrapper) modeCardsWrapper.style.display = 'none';
-        if (videoCardsWrapper && videoCardsWrapper.classList.contains('expanded')) {
-            videoCardsWrapper.style.display = 'block';
-        }
     }
 
     console.log(`📋 Showing tab content: ${tabType}`);
@@ -1190,28 +842,10 @@ function getActiveTab() {
     return activePane ? activePane.dataset.tab : 'image';
 }
 
-// ФУНКЦИЯ ОБНОВЛЕНИЯ ВИДИМОСТИ TOGGLE ДЛЯ АКТИВНОГО ТАБА (перенесено из mode-cards.js)
-function updateToggleVisibilityForActiveTab() {
-    const activeTabType = getActiveTab();
-    const toggleBtn = document.getElementById('modeCardsToggle');
-    const videoToggleBtn = document.getElementById('videoCardsToggle');
-
-    // Hide both toggles first
-    if (toggleBtn) toggleBtn.style.display = 'none';
-    if (videoToggleBtn) videoToggleBtn.style.display = 'none';
-
-    // Show only the active tab's toggle
-    if (activeTabType === 'image' && toggleBtn) {
-        toggleBtn.style.display = 'flex';
-        console.log('✅ Image mode cards toggle shown for active tab');
-    } else if (activeTabType === 'video' && videoToggleBtn) {
-        videoToggleBtn.style.display = 'flex';
-        console.log('✅ Video mode cards toggle shown for active tab');
-    }
-}
+// Удалена функция обновления видимости toggle
 
 // Экспортируем функции вкладок для использования в других модулях
-export { initTabs, switchTab, showTab, getActiveTab, updateGenerateButtonText, updateToggleVisibilityForActiveTab };
+export { initTabs, switchTab, showTab, getActiveTab, updateGenerateButtonText };
 
 // ========== END TAB MANAGEMENT ==========
 
@@ -1438,4 +1072,3 @@ export async function openCreditPacks() {
 window.openSubscriptionPlans = openSubscriptionPlans;
 window.openCreditPacks = openCreditPacks;
 window.showSubscriptionNotice = showSubscriptionNotice;
-window.updateModeDescription = updateModeDescription;

@@ -1272,12 +1272,29 @@ async function updatePromptVisibility() {
 // Обновляем видимость интерфейса при переключении таба
 document.addEventListener('tab:changed', (e) => {
     const newTab = e?.detail?.tab || document.querySelector('.tab-pane.active')?.dataset.tab;
-    // При переходе на Edit — скрываем promptFormGroup пока пользователь не загрузит изображение
+    
+    // При переходе на Edit — скрываем системные секции, если изображение еще не загружено
     if (newTab === 'edit') {
         const promptSection = document.getElementById('promptFormGroup');
         const imageStylesSection = document.getElementById('imageStylesSection');
-        if (promptSection) promptSection.style.display = 'none';
-        if (imageStylesSection) { imageStylesSection.style.setProperty('display', 'none', 'important'); imageStylesSection.classList.add('hidden'); }
+        const videoStylesSection = document.getElementById('videoStylesSection');
+        
+        const hasEditImage = window._editImageBlob || window._editImageUrl;
+        
+        // Скрываем промпт и стили изображений только если НЕТ загруженного изображения
+        if (!hasEditImage) {
+            if (promptSection) promptSection.style.display = 'none';
+            if (imageStylesSection) {
+                imageStylesSection.style.setProperty('display', 'none', 'important');
+                imageStylesSection.classList.add('hidden');
+            }
+        }
+        
+        // Секцию видео-стилей в режиме Edit скрываем всегда
+        if (videoStylesSection) {
+            videoStylesSection.style.setProperty('display', 'none', 'important');
+            videoStylesSection.classList.add('hidden');
+        }
     }
     updatePromptVisibility();
 });
