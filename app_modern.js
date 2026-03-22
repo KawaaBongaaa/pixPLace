@@ -88,8 +88,8 @@ const CONFIG = {
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
     Z_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/Z-Image',
     QWEN_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/qwen-image',
-    SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL: '',
-    SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL: '',
+    SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/suno_audio_from_text',
+    SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/suno_audio_from_image',
 
 
     // App Settings
