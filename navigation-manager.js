@@ -915,7 +915,20 @@ export function updateToggleText() {
     const selectedMode = getSelectedMode();
     const translatedModeName = getTranslatedModeName(selectedMode);
 
-    if (activeTab === 'image') {
+    if (activeTab === 'sound') {
+        // В Sound режиме показываем название из селектора модели, а не image-модель
+        const soundModelLabel = document.getElementById('soundModelLabel');
+        const soundModelText = soundModelLabel ? soundModelLabel.textContent.trim() : 'Suno AI';
+        const toggleText = document.getElementById('modeCardsToggleText');
+        if (toggleText) toggleText.textContent = soundModelText;
+        console.log(`🔄 Toggle text updated for tab: ${activeTab}, sound model: ${soundModelText}`);
+    } else if (activeTab === 'edit') {
+        // В Edit режиме показываем название выбранной edit-модели
+        const editModelName = getTranslatedModeName(window._editModel || 'nano_banana_pro');
+        const toggleText = document.getElementById('modeCardsToggleText');
+        if (toggleText) toggleText.textContent = editModelName;
+        console.log(`🔄 Toggle text updated for tab: ${activeTab}, edit model: ${editModelName}`);
+    } else if (activeTab === 'image') {
         const toggleText = document.getElementById('modeCardsToggleText');
         if (toggleText) {
             toggleText.textContent = translatedModeName || 'Nano Banana Pro';
