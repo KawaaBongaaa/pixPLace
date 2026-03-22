@@ -616,7 +616,471 @@
             main {
                 padding-top: 112px;
             }
+
+            /* ===== MODEL PICKER ===== */
+            .model-dropdown {
+                backdrop-filter: none;
+            }
+
+            /* Fix dark mode backgrounds — project uses data-theme="dark" not .dark class */
+            [data-theme="dark"] .model-dropdown,
+            [data-theme="dark"] #modelDropdown,
+            [data-theme="dark"] #editModelDropdown,
+            [data-theme="dark"] #soundModelDropdown,
+            [data-theme="dark"] #soundModelDropdown2 {
+                background: rgba(15, 23, 42, 0.98) !important;
+                border-color: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            [data-theme="dark"] .model-item:hover {
+                background: rgba(99, 102, 241, 0.15) !important;
+            }
+
+            .model-group {
+                padding: 0;
+            }
+
+            .model-group+.model-group {
+                border-top: 1px solid rgba(0, 0, 0, 0.06);
+            }
+
+            .dark .model-group+.model-group,
+            [data-theme="dark"] .model-group+.model-group {
+                border-color: rgba(255, 255, 255, 0.06);
+            }
+
+            .model-group-label {
+                padding: 7px 12px 4px;
+                font-size: 9px;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                opacity: 0.45;
+                color: currentColor;
+            }
+
+            .model-item {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                padding: 7px 12px;
+                cursor: pointer;
+                transition: background 0.12s;
+            }
+
+            .model-item:hover {
+                background: rgba(99, 102, 241, 0.08);
+            }
+
+            .model-item-icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 7px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                padding: 5px;
+            }
+
+            .model-icon-gemini {
+                background: rgba(66, 133, 244, 0.12);
+                color: #4285f4;
+            }
+
+            .model-icon-zimage {
+                background: rgba(239, 68, 68, 0.12);
+                color: #ef4444;
+            }
+
+            .model-icon-qwen {
+                background: rgba(139, 92, 246, 0.12);
+                color: #8b5cf6;
+            }
+
+            .model-icon-flux {
+                background: rgba(245, 158, 11, 0.12);
+                color: #f59e0b;
+            }
+
+            .model-icon-sdxl {
+                background: rgba(16, 185, 129, 0.12);
+                color: #10b981;
+            }
+
+            .model-icon-other {
+                background: rgba(107, 114, 128, 0.12);
+                color: #6b7280;
+            }
+
+            .model-icon-video {
+                background: rgba(236, 72, 153, 0.12);
+                color: #ec4899;
+            }
+
+            .model-item-icon svg {
+                width: 100%;
+                height: 100%;
+            }
+
+            .model-item-info {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .model-item-name {
+                font-size: 11px;
+                font-weight: 600;
+                display: block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .model-item-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 3px;
+                margin-top: 2px;
+            }
+
+            .tag {
+                padding: 1px 5px;
+                border-radius: 4px;
+                font-size: 9px;
+                font-weight: 700;
+            }
+
+            .tag-blue {
+                background: rgba(59, 130, 246, 0.12);
+                color: #3b82f6;
+            }
+
+            .tag-green {
+                background: rgba(16, 185, 129, 0.12);
+                color: #10b981;
+            }
+
+            .tag-purple {
+                background: rgba(139, 92, 246, 0.12);
+                color: #8b5cf6;
+            }
+
+            .tag-orange {
+                background: rgba(245, 158, 11, 0.12);
+                color: #f59e0b;
+            }
+
+            .model-item-badge {
+                font-size: 9px;
+                font-weight: 700;
+                padding: 2px 6px;
+                border-radius: 5px;
+                background: rgba(0, 0, 0, 0.05);
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .free-badge {
+                background: rgba(16, 185, 129, 0.12);
+                color: #10b981;
+            }
+
+            .model-picker-btn {
+                transition: all 0.18s;
+            }
+
+            /* ===== EDIT IMAGE PANEL ===== */
+            .edit-step-panel {
+                padding: 2px 2px;
+            }
+
+            .edit-step-panel.hidden {
+                display: none;
+            }
+
+            .edit-info-block {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 8px 10px;
+                border-radius: 10px;
+                background: rgba(99, 102, 241, 0.06);
+                margin-bottom: 10px;
+            }
+
+            .edit-info-icon {
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(99, 102, 241, 0.12);
+                border-radius: 8px;
+                color: #6366f1;
+            }
+
+            .edit-info-title {
+                font-size: 11px;
+                font-weight: 700;
+                margin: 0 0 2px;
+            }
+
+            .edit-info-desc {
+                font-size: 10px;
+                opacity: 0.6;
+                margin: 0;
+                line-height: 1.4;
+            }
+
+            .edit-capabilities {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                margin-bottom: 10px;
+            }
+
+            .cap-chip {
+                padding: 2px 7px;
+                border-radius: 6px;
+                font-size: 10px;
+                font-weight: 600;
+                background: rgba(0, 0, 0, 0.06);
+                cursor: default;
+            }
+
+            .dark .cap-chip,
+            [data-theme="dark"] .cap-chip {
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            .edit-dropzone {
+                border: 1.5px dashed rgba(99, 102, 241, 0.35);
+                border-radius: 14px;
+                padding: 16px 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+                transition: border-color 0.2s, background 0.2s;
+                background: rgba(99, 102, 241, 0.025);
+            }
+
+            .edit-dropzone:hover {
+                border-color: rgba(99, 102, 241, 0.6);
+                background: rgba(99, 102, 241, 0.06);
+            }
+
+            .edit-dropzone-icon {
+                opacity: 0.4;
+            }
+
+            .edit-dropzone-title {
+                font-size: 12px;
+                font-weight: 700;
+                margin: 0;
+            }
+
+            .edit-dropzone-sub {
+                font-size: 10px;
+                opacity: 0.5;
+                margin: 0;
+            }
+
+            .edit-url-input {
+                flex: 1;
+                padding: 5px 10px;
+                border-radius: 8px;
+                font-size: 11px;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                outline: none;
+                background: rgba(255, 255, 255, 0.7);
+            }
+
+            .dark .edit-url-input,
+            [data-theme="dark"] .edit-url-input {
+                background: rgba(255, 255, 255, 0.06);
+                border-color: rgba(255, 255, 255, 0.12);
+                color: #e2e8f0;
+            }
+
+            .edit-url-btn {
+                padding: 5px 12px;
+                border-radius: 8px;
+                font-size: 11px;
+                font-weight: 700;
+                background: #6366f1;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                transition: background 0.15s;
+            }
+
+            .edit-url-btn:hover {
+                background: #4f46e5;
+            }
+
+            .edit-history-btn {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                padding: 5px 12px;
+                border-radius: 8px;
+                font-size: 10px;
+                font-weight: 600;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                background: transparent;
+                cursor: pointer;
+                opacity: 0.7;
+                transition: opacity 0.15s;
+            }
+
+            .edit-history-btn:hover {
+                opacity: 1;
+            }
+
+            .edit-preview-row {
+                display: flex;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .edit-thumb-wrap {
+                position: relative;
+                flex-shrink: 0;
+                width: 76px;
+                height: 76px;
+            }
+
+            .edit-thumb-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 10px;
+                border: 1.5px solid rgba(99, 102, 241, 0.25);
+            }
+
+            .edit-thumb-remove {
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: #ef4444;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            /* ===== SOUND AI PANEL ===== */
+            .sound-sub-tabs {
+                display: flex;
+                gap: 4px;
+                margin-bottom: 10px;
+            }
+
+            .sound-sub-tab {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                padding: 5px 12px;
+                border-radius: 8px;
+                font-size: 10px;
+                font-weight: 700;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                background: transparent;
+                cursor: pointer;
+                opacity: 0.6;
+                transition: all 0.15s;
+            }
+
+            .sound-sub-tab.active {
+                background: rgba(99, 102, 241, 0.1);
+                border-color: rgba(99, 102, 241, 0.3);
+                opacity: 1;
+                color: #6366f1;
+            }
+
+            .sound-info-text {
+                font-size: 11px;
+                opacity: 0.6;
+                margin: 0 0 10px;
+                line-height: 1.5;
+            }
+
+            .sound-panel.hidden {
+                display: none;
+            }
+
+            .sound-img-preview-wrap {
+                position: relative;
+                width: 100%;
+                aspect-ratio: 16/7;
+                margin-bottom: 10px;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            .sound-preview-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .sound-preview-remove {
+                top: 4px !important;
+                right: 4px !important;
+            }
+
+            .sound-styles-section {
+                margin-top: 8px;
+            }
+
+            .style-chip {
+                padding: 3px 9px;
+                border-radius: 6px;
+                font-size: 10px;
+                font-weight: 600;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                background: rgba(0, 0, 0, 0.04);
+                cursor: pointer;
+                transition: all 0.15s;
+            }
+
+            .style-chip:hover,
+            .style-chip.active {
+                background: rgba(99, 102, 241, 0.12);
+                border-color: rgba(99, 102, 241, 0.35);
+                color: #6366f1;
+            }
+
+            .dark .style-chip,
+            [data-theme="dark"] .style-chip {
+                background: rgba(255, 255, 255, 0.06);
+                border-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .style-chip-more {
+                padding: 3px 9px;
+                border-radius: 6px;
+                font-size: 10px;
+                font-weight: 600;
+                border: 1px dashed rgba(0, 0, 0, 0.2);
+                background: transparent;
+                cursor: pointer;
+                opacity: 0.6;
+            }
         </style>
+
         <style>
             /* Ensure header is fixed and doesn't affect flow when resizing */
             header.theme-header {
@@ -680,426 +1144,892 @@
                 }, { passive: true });
             })();
         </script>
-        <main class="flex-1 px-3 sm:px-4 lg:px-6 xl:px-8 mx-auto w-full max-w-[1600px] min-h-0"
-            data-current-screen="generation">
-
+        <main class="flex-1 w-full min-h-0 pt-[112px] flex flex-col items-center" data-current-screen="generation">
             <!-- Generation Screen -->
-            <div id="generationScreen" class="screen">
-                <div class="max-w-full">
-                    <div class="max-w-6xl mx-auto">
-                        <form class="generation-form">
-                            <div class="layout-section-modes">
-                                <!-- Вкладки выбора типа генерации с сеткой карточек -->
-                                <div class="mb-4">
-                                    <!-- Панель выбора режимов -->
-                                    <div id="ob-tabs-row"
-                                        class="flex justify-center items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4 px-2 sm:px-4">
-                                        <button type="button"
-                                            class="generation-tab active group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-300 hover:bg-white/60 dark:hover:bg-white/10 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]"
-                                            data-tab="image">
-                                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 group-hover:scale-110"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                                <circle cx="8.5" cy="8.5" r="1.5" />
-                                                <polyline points="21 15 16 10 5 21" />
-                                            </svg>
-                                            <span>Images</span>
-                                        </button>
-                                        <button type="button"
-                                            class="generation-tab group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-300 hover:bg-white/60 dark:hover:bg-white/10 hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]"
-                                            data-tab="video">
-                                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 group-hover:scale-110"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
-                                                <line x1="7" y1="2" x2="7" y2="22" />
-                                                <line x1="17" y1="2" x2="17" y2="22" />
-                                                <line x1="2" y1="12" x2="22" y2="12" />
-                                                <line x1="2" y1="7" x2="7" y2="7" />
-                                                <line x1="2" y1="17" x2="7" y2="17" />
-                                                <line x1="17" y1="7" x2="22" y2="7" />
-                                                <line x1="17" y1="17" x2="22" y2="17" />
-                                            </svg>
-                                            <span>Videos</span>
-                                        </button>
-                                    </div>
-                                    <label class="text-xs px-4 pt-1 font-medium opacity-75 theme-text-secondary block"
-                                        data-i18n="mode_label">Model</label>
-                                    <!-- Контент вкладок -->
-                                    <div class="tabs-content">
-                                        <!-- Images Tab -->
-                                        <div class="tab-pane active" data-tab="image">
-                                            <!-- Group for onboarding -->
-                                            <div id="ob-model-selector-row">
-                                                <!-- Toggle for mode cards -->
-                                                <button type="button" id="modeCardsToggle"
-                                                    class="mode-cards-toggle collapsed">
-                                                    <span class="toggle-text" id="modeCardsToggleText">Nano Banana
-                                                        Pro</span>
-                                                </button>
-                                                <div id="modeCardsWrapper" class="mode-cards-wrapper collapsed mt-2"
-                                                    style="display:none">
-                                                    <div
-                                                        class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 p-1 sm:gap-4 sm:p-4">
-                                                        <div class="mode-group mb-6">
-                                                            <h4
-                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                                Google Gemini</h4>
-                                                            <div class="mode-group-cards">
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="nano_banana"
-                                                                    data-description="Gemini 3 Image Preview (Nano Banana) is an advanced AI model for natural language-driven image generation, producing hyper-realistic visuals and accurate text in images such as logos, banners, and infographics.">
-                                                                    <span class="cost-badge absolute -top-2 -right-2">
-                                                                        <div>3 Credits</div>
-                                                                    </span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Nano Banana</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">Logo
-                                                                            | Banner | Infografic</span>
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="nano_banana_2"
-                                                                    data-description="Nano Banana 2 (Gemini 3.1 Flash Image) is Google’s fast and powerful image model, delivering high-quality visuals, accurate text rendering, strong character consistency, and scalable image generation and editing">
-                                                                    <span
-                                                                        class="cost-badge absolute top-2 sm:-top-3 right-2 sm:-right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
-                                                                        <div>1K: 5 Credits</div>
-                                                                        <div>2K: 7 Credits</div>
-                                                                        <div>4K: 11 Credits</div>
-                                                                    </span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Nano Banana 2</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="nano_banana_pro"
-                                                                    data-description="Google DeepMind’s Nano Banana Pro delivers sharper 2K images, smart 4K upscaling, improved text rendering, and better character consistency—providing a major boost in visual quality for creative projects">
-                                                                    <span
-                                                                        class="cost-badge absolute top-2 sm:-top-3 right-2 sm:-right-2 text-[8px] sm:text-[10px] leading-tight flex flex-col items-end whitespace-nowrap">
-                                                                        <div>1K/2K: 12 Credits</div>
-                                                                        <div>4K: 16 Credits</div>
-                                                                    </span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Nano Banana Pro</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="mode-group mb-6">
-                                                            <h4
-                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                                Z-Image</h4>
-                                                            <div class="mode-group-cards">
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="z_image"
-                                                                    data-description="New generation model Z-Image Turbo — creates stunning visuals with unique style and high precision ⚡">
-                                                                    <span class="cost-badge absolute -top-2 -right-2">3
-                                                                        Credits</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Z-Image Turbo</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="mode-group mb-6">
-                                                            <h4
-                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                                Qwen</h4>
-                                                            <div class="mode-group-cards">
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="qwen_image"
-                                                                    data-description="The Qwen Image empowers creators, developers, and businesses to generate and edit photorealistic images effortlessly. Whether you're crafting intricate designs or refining existing visuals, delivering multilingual text rendering and advanced editing capabilities that rival top models.">
-                                                                    <span class="cost-badge absolute -top-2 -right-2">4
-                                                                        Credits</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Qwen Image</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="qwen_image_edit"
-                                                                    data-description="Qwen Image-edit supporting semantic and appearance editing with precise, visually coherent results. It also handles bilingual (Chinese and English) text editing while preserving font, size, and style, making it a versatile tool for advanced visual content manipulation.">
-                                                                    <span class="cost-badge absolute -top-2 -right-2">4
-                                                                        credits</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Qwen Image Edit</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">edit-image</span>
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="mode-group mb-6">
-                                                            <h4
-                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                                Flux</h4>
-                                                            <div class="mode-group-cards">
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="pixplace_pro"
-                                                                    data-description="Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts, just like a Pro Designer">
-                                                                    <span class="cost-badge absolute -top-2 -right-2">4
-                                                                        Credits</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Flux Pro</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                        <span
-                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="fast_generation"
-                                                                    data-description="Fastest model for quick image generation — works instantly without uploads">
-                                                                    <span class="cost-badge absolute -top-2 -right-2">3
-                                                                        Credits</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Flux Fast</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="mode-group mb-6">
-                                                            <h4
-                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                                SDXL</h4>
-                                                            <div class="mode-group-cards">
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="print_maker"
-                                                                    data-description="Specially crafted for Print-on-Demand creators — make print-ready designs for clothes, bags, and beyond">
-                                                                    <span class="cost-badge absolute -top-2 -right-2">5
-                                                                        Credits</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Print on Demand</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                        <span
-                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="dreamshaper_xl"
-                                                                    data-description="Fast generation model designed as an all-in-one for photos, stylized art, and anime/manga.">
-                                                                    <span
-                                                                        class="cost-badge absolute -top-2 -right-2">Free</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Dreamshaper XL</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">txt2img</span>
-                                                                        <span
-                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="mode-group">
-                                                            <h4
-                                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                                                                Other</h4>
-                                                            <div class="mode-group-cards">
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="upscale_image"
-                                                                    data-description="Boost image quality and resolution — make your visuals look crisp and detailed">
-                                                                    <span class="cost-badge absolute -top-2 -right-2">5
-                                                                        Credits</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Enhance Image</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-
-                                                                <div class="mode-card rounded-xl p-2 sm:p-4 cursor-pointer transition-all duration-300 relative"
-                                                                    data-mode="background_removal"
-                                                                    data-description="Remove the background and keep the main object. Upload a photo to start">
-                                                                    <span
-                                                                        class="cost-badge absolute -top-2 -right-2">Free</span>
-                                                                    <h4
-                                                                        class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                        Remove Background</h4>
-                                                                    <div class="flex flex-wrap gap-2 mb-2">
-                                                                        <span
-                                                                            class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded-md text-xs font-medium">img2img</span>
-                                                                    </div>
-                                                                    <span
-                                                                        class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-help">i</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Videos Tab -->
-                                            <div class="tab-pane" data-tab="video" style="display:none">
-                                                <!-- Toggle for video mode cards -->
-                                                <button type="button" id="videoCardsToggle" class="mode-cards-toggle">
-                                                    <span class="toggle-text" id="videoCardsToggleText"></span>
-                                                    <span class="toggle-icon"></span>
-                                                </button>
-                                                <div id="videoCardsWrapper" class="mode-cards-wrapper collapsed mt-2">
-                                                    <div
-                                                        class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 p-1 sm:gap-4 sm:p-4">
-                                                        <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
-                                                            data-mode="video_gen"
-                                                            data-description="Transform your ideas into dynamic videos! Describe any scene or concept, and watch AI create engaging video content from scratch 🎬✨">
-                                                            <span
-                                                                class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
-                                                                Soon</span>
-                                                            <h4
-                                                                class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                Video Generation</h4>
-                                                            <div class="flex flex-wrap gap-2 mb-2">
-                                                                <span
-                                                                    class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded-md text-xs font-medium">text-to-video</span>
-                                                            </div>
-                                                            <span
-                                                                class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
-                                                        </div>
-
-                                                        <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
-                                                            data-mode="image_to_video"
-                                                            data-description="Bring static images to life! Upload any photo and transform it into smooth, animated video sequences with AI-powered motion 🌟📹">
-                                                            <span
-                                                                class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
-                                                                Soon</span>
-                                                            <h4
-                                                                class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                Image to Video</h4>
-                                                            <div class="flex flex-wrap gap-2 mb-2">
-                                                                <span
-                                                                    class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium">img-to-video</span>
-                                                            </div>
-                                                            <span
-                                                                class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
-                                                        </div>
-
-                                                        <div class="mode-card rounded-xl p-4 cursor-not-allowed relative grayscale opacity-80 hover:opacity-100 transition-all duration-300"
-                                                            data-mode="video_edit"
-                                                            data-description="Professional video editing tools powered by AI. Enhance, modify, and perfect your video content with intelligent editing features 🎯🔧">
-                                                            <span
-                                                                class="absolute -top-2 -right-2 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-md text-xs font-medium">Coming
-                                                                Soon</span>
-                                                            <h4
-                                                                class="text-sm sm:text-lg font-semibold text-[var(--text-primary)] mb-1.5 sm:mb-3">
-                                                                Video Edit</h4>
-                                                            <div class="flex flex-wrap gap-2 mb-2">
-                                                                <span
-                                                                    class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded-md text-xs font-medium">video-tools</span>
-                                                            </div>
-                                                            <span
-                                                                class="absolute top-2 right-2 w-5 h-5 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs text-gray-600 dark:text-gray-300">i</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <select id="modeSelect" style="display: none;">
-                                        <option value="nano_banana">Nano Banana</option>
-                                        <option value="nano_banana_2">Nano Banana 2</option>
-                                        <option value="nano_banana_pro" selected>Nano Banana Pro</option>
-                                        <option value="fast_generation">Flux Fast Generation</option>
-                                        <option value="z_image">Z-Image Turbo</option>
-                                        <option value="qwen_image">Qwen Image</option>
-                                        <option value="qwen_image_edit">Qwen Image Edit</option>
-                                        <option value="pixplace_pro">Flux Pro Advanced</option>
-                                        <option value="print_maker">Print on Demand</option>
-                                        <option value="background_removal">Remove Background</option>
-                                        <option value="upscale_image">Upscale Image</option>
-                                    </select>
-
-                                    <!-- Mode Description Block - SEPARATED: Now in independent form-group to avoid affecting card layout -->
-                                    <div class="form-group" id="modeDescriptionGroup">
-                                        <div id="modeDescriptionBlock" class="mode-description-block"
-                                            style="display: block;">
-                                            <div class="mode-description-content">
-                                                <div class="mode-description-text">
-                                                    <p id="modeDescriptionText"
-                                                        class="text-[10px] sm:text-xs leading-relaxed opacity-50 text-gray-500 dark:text-gray-400 m-0 py-1 px-1">
-                                                        Select a model to see its description 🚀</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+            <div id="generationScreen" class="screen w-full max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-8">
+                <div class="w-full">
+                    <form
+                        class="generation-form w-full flex flex-col xl:grid xl:grid-cols-[320px_minmax(0,1fr)_300px] gap-6 pb-12">
+                        <div class="layout-section-modes flex flex-col">
+                            <!-- Вкладки выбора типа генерации с сеткой карточек -->
+                            <div class="mb-3">
+                                <!-- ===== 4 TABS ROW ===== -->
+                                <div id="ob-tabs-row"
+                                    class="flex justify-center items-center gap-1 sm:gap-1.5 mb-3 px-1 sm:px-2">
+                                    <button type="button"
+                                        class="generation-tab active group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-200 hover:bg-white/60 dark:hover:bg-white/10 flex-1 sm:flex-none justify-center"
+                                        data-tab="image">
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                            <circle cx="8.5" cy="8.5" r="1.5" />
+                                            <polyline points="21 15 16 10 5 21" />
+                                        </svg>
+                                        <span>Images</span>
+                                    </button>
+                                    <button type="button"
+                                        class="generation-tab group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-200 hover:bg-white/60 dark:hover:bg-white/10 flex-1 sm:flex-none justify-center"
+                                        data-tab="video">
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                                            <line x1="7" y1="2" x2="7" y2="22" />
+                                            <line x1="17" y1="2" x2="17" y2="22" />
+                                            <line x1="2" y1="12" x2="22" y2="12" />
+                                            <line x1="2" y1="7" x2="7" y2="7" />
+                                            <line x1="2" y1="17" x2="7" y2="17" />
+                                            <line x1="17" y1="7" x2="22" y2="7" />
+                                            <line x1="17" y1="17" x2="22" y2="17" />
+                                        </svg>
+                                        <span>Videos</span>
+                                    </button>
+                                    <button type="button"
+                                        class="generation-tab group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-200 hover:bg-white/60 dark:hover:bg-white/10 flex-1 sm:flex-none justify-center"
+                                        data-tab="edit">
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                        </svg>
+                                        <span>Edit</span>
+                                    </button>
+                                    <button type="button"
+                                        class="generation-tab group relative flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/20 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 cursor-pointer transition-all duration-200 hover:bg-white/60 dark:hover:bg-white/10 flex-1 sm:flex-none justify-center"
+                                        data-tab="sound">
+                                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <path d="M9 18V5l12-2v13" />
+                                            <circle cx="6" cy="18" r="3" />
+                                            <circle cx="18" cy="16" r="3" />
+                                        </svg>
+                                        <span>Sound</span>
+                                    </button>
                                 </div>
+
+                                <!-- ===== TAB PANES ===== -->
+                                <div class="tabs-content">
+
+                                    <!-- ── IMAGES TAB ── -->
+                                    <div class="tab-pane active" data-tab="image">
+                                        <div id="ob-model-selector-row">
+                                            <!-- Compact model picker trigger -->
+                                            <div class="relative" id="modelPickerWrapper">
+                                                <button type="button" id="modelPickerBtn"
+                                                    class="model-picker-btn w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold transition-all duration-200 hover:bg-white/60 dark:hover:bg-white/10 cursor-pointer"
+                                                    onclick="toggleModelDropdown()">
+                                                    <span id="modelPickerIcon"
+                                                        class="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                                                        <!-- icon injected by JS -->
+                                                    </span>
+                                                    <span id="modelPickerLabel" class="flex-1 text-left">Nano Banana
+                                                        Pro</span>
+                                                    <span class="opacity-50 ml-auto">
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2.5">
+                                                            <path d="M6 9l6 6 6-6" />
+                                                        </svg>
+                                                    </span>
+                                                </button>
+
+                                                <!-- Model Dropdown -->
+                                                <div id="modelDropdown"
+                                                    class="model-dropdown hidden absolute top-full left-0 right-0 mt-1.5 rounded-2xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-2xl shadow-black/20 overflow-hidden z-50"
+                                                    style="max-height: 420px; overflow-y: auto;">
+
+                                                    <!-- Group: Google Gemini -->
+                                                    <div class="model-group">
+                                                        <div class="model-group-label">Google Gemini</div>
+                                                        <div class="model-item" data-mode="nano_banana"
+                                                            onclick="selectModelFromPicker('nano_banana','Nano Banana','gemini')">
+                                                            <span
+                                                                class="model-item-icon model-icon-gemini"><!-- G --><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
+                                                                        stroke-width="1.5" opacity="0.3" />
+                                                                    <path
+                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Nano Banana</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span><span
+                                                                        class="tag tag-green">logo</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">3 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="nano_banana_2"
+                                                            onclick="selectModelFromPicker('nano_banana_2','Nano Banana 2','gemini')">
+                                                            <span class="model-item-icon model-icon-gemini"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
+                                                                        stroke-width="1.5" opacity="0.3" />
+                                                                    <path
+                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Nano Banana 2</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">5–11 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="nano_banana_pro"
+                                                            onclick="selectModelFromPicker('nano_banana_pro','Nano Banana Pro','gemini')">
+                                                            <span class="model-item-icon model-icon-gemini"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
+                                                                        stroke-width="1.5" opacity="0.3" />
+                                                                    <path
+                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Nano Banana Pro</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">12–16 Cr</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Group: Z-Image -->
+                                                    <div class="model-group">
+                                                        <div class="model-group-label">Z-Image</div>
+                                                        <div class="model-item" data-mode="z_image"
+                                                            onclick="selectModelFromPicker('z_image','Z-Image Turbo','zimage')">
+                                                            <span class="model-item-icon model-icon-zimage"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+                                                                        stroke="currentColor" stroke-width="1.8"
+                                                                        stroke-linejoin="round" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Z-Image Turbo</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">3 Cr</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Group: Qwen -->
+                                                    <div class="model-group">
+                                                        <div class="model-group-label">Qwen</div>
+                                                        <div class="model-item" data-mode="qwen_image"
+                                                            onclick="selectModelFromPicker('qwen_image','Qwen Image','qwen')">
+                                                            <span class="model-item-icon model-icon-qwen"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <rect x="3" y="3" width="18" height="18" rx="4"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        opacity="0.3" />
+                                                                    <path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor"
+                                                                        stroke-width="1.8" stroke-linecap="round" />
+                                                                    <circle cx="12" cy="16" r="1.5"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Qwen Image</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">4 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="qwen_image_edit"
+                                                            onclick="selectModelFromPicker('qwen_image_edit','Qwen Image Edit','qwen')">
+                                                            <span class="model-item-icon model-icon-qwen"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <rect x="3" y="3" width="18" height="18" rx="4"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        opacity="0.3" />
+                                                                    <path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor"
+                                                                        stroke-width="1.8" stroke-linecap="round" />
+                                                                    <circle cx="12" cy="16" r="1.5"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Qwen Image Edit</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">4 Cr</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Group: Flux -->
+                                                    <div class="model-group">
+                                                        <div class="model-group-label">Flux</div>
+                                                        <div class="model-item" data-mode="pixplace_pro"
+                                                            onclick="selectModelFromPicker('pixplace_pro','Flux Pro','flux')">
+                                                            <span class="model-item-icon model-icon-flux"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <path
+                                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linejoin="round" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Flux Pro</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span><span
+                                                                        class="tag tag-purple">img2img</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">4 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="fast_generation"
+                                                            onclick="selectModelFromPicker('fast_generation','Flux Fast','flux')">
+                                                            <span class="model-item-icon model-icon-flux"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <path
+                                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-linejoin="round" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Flux Fast</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">3 Cr</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Group: SDXL -->
+                                                    <div class="model-group">
+                                                        <div class="model-group-label">SDXL</div>
+                                                        <div class="model-item" data-mode="print_maker"
+                                                            onclick="selectModelFromPicker('print_maker','Print on Demand','sdxl')">
+                                                            <span class="model-item-icon model-icon-sdxl"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <rect x="2" y="3" width="20" height="18" rx="2"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        opacity="0.4" />
+                                                                    <path d="M8 10h8M8 14h5" stroke="currentColor"
+                                                                        stroke-width="1.8" stroke-linecap="round" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Print on Demand</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span><span
+                                                                        class="tag tag-purple">img2img</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">5 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="dreamshaper_xl"
+                                                            onclick="selectModelFromPicker('dreamshaper_xl','Dreamshaper XL','sdxl')">
+                                                            <span class="model-item-icon model-icon-sdxl"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <rect x="2" y="3" width="20" height="18" rx="2"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        opacity="0.4" />
+                                                                    <path d="M8 10h8M8 14h5" stroke="currentColor"
+                                                                        stroke-width="1.8" stroke-linecap="round" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Dreamshaper XL</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-blue">txt2img</span><span
+                                                                        class="tag tag-purple">img2img</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge free-badge">Free</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Group: Other -->
+                                                    <div class="model-group">
+                                                        <div class="model-group-label">других</div>
+                                                        <div class="model-item" data-mode="upscale_image"
+                                                            onclick="selectModelFromPicker('upscale_image','Enhance Image','other')">
+                                                            <span class="model-item-icon model-icon-other"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <path d="M21 15l-5-5L7 18" stroke="currentColor"
+                                                                        stroke-width="1.8" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                    <path d="M3 9l4-4 4 4" stroke="currentColor"
+                                                                        stroke-width="1.8" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                    <line x1="7" y1="5" x2="7" y2="14"
+                                                                        stroke="currentColor" stroke-width="1.8"
+                                                                        stroke-linecap="round" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Enhance Image</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-purple">img2img</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">5 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="background_removal"
+                                                            onclick="selectModelFromPicker('background_removal','Remove Background','other')">
+                                                            <span class="model-item-icon model-icon-other"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <rect x="3" y="3" width="18" height="18" rx="2"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        stroke-dasharray="3 2" opacity="0.6" />
+                                                                    <path d="M9 12l2 2 4-4" stroke="currentColor"
+                                                                        stroke-width="1.8" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                </svg></span>
+                                                            <div class="model-item-info">
+                                                                <span class="model-item-name">Remove
+                                                                    Background</span>
+                                                                <span class="model-item-tags"><span
+                                                                        class="tag tag-purple">img2img</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge free-badge">Free</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Model description -->
+                                            <div id="modeDescriptionGroup" class="mt-1.5">
+                                                <p id="modeDescriptionText"
+                                                    class="text-[10px] leading-relaxed opacity-40 text-gray-500 dark:text-gray-400 m-0 py-0.5 px-1">
+                                                    Select a model to see its description</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ── VIDEOS TAB ── -->
+                                    <div class="tab-pane" data-tab="video" style="display:none">
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 p-1">
+                                            <div class="model-item cursor-not-allowed opacity-70" data-mode="video_gen">
+                                                <span class="model-item-icon model-icon-video"><svg viewBox="0 0 24 24"
+                                                        fill="none">
+                                                        <polygon points="23 7 16 12 23 17 23 7" stroke="currentColor"
+                                                            stroke-width="1.8" stroke-linejoin="round" />
+                                                        <rect x="1" y="5" width="15" height="14" rx="2"
+                                                            stroke="currentColor" stroke-width="1.8" />
+                                                    </svg></span>
+                                                <div class="model-item-info"><span class="model-item-name">Video
+                                                        Gen</span><span class="model-item-tags"><span
+                                                            class="tag tag-orange">soon</span></span></div>
+                                            </div>
+                                            <div class="model-item cursor-not-allowed opacity-70"
+                                                data-mode="image_to_video">
+                                                <span class="model-item-icon model-icon-video"><svg viewBox="0 0 24 24"
+                                                        fill="none">
+                                                        <polygon points="23 7 16 12 23 17 23 7" stroke="currentColor"
+                                                            stroke-width="1.8" stroke-linejoin="round" />
+                                                        <rect x="1" y="5" width="15" height="14" rx="2"
+                                                            stroke="currentColor" stroke-width="1.8" />
+                                                    </svg></span>
+                                                <div class="model-item-info"><span class="model-item-name">Image to
+                                                        Video</span><span class="model-item-tags"><span
+                                                            class="tag tag-orange">soon</span></span></div>
+                                            </div>
+                                            <div class="model-item cursor-not-allowed opacity-70"
+                                                data-mode="video_edit">
+                                                <span class="model-item-icon model-icon-video"><svg viewBox="0 0 24 24"
+                                                        fill="none">
+                                                        <polygon points="23 7 16 12 23 17 23 7" stroke="currentColor"
+                                                            stroke-width="1.8" stroke-linejoin="round" />
+                                                        <rect x="1" y="5" width="15" height="14" rx="2"
+                                                            stroke="currentColor" stroke-width="1.8" />
+                                                    </svg></span>
+                                                <div class="model-item-info"><span class="model-item-name">Video
+                                                        Edit</span><span class="model-item-tags"><span
+                                                            class="tag tag-orange">soon</span></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ── EDIT IMAGE TAB ── -->
+                                    <div class="tab-pane" data-tab="edit" style="display:none">
+                                        <!-- Step 1: Upload image -->
+                                        <div id="editStep1" class="edit-step-panel">
+                                            <div class="edit-info-block">
+                                                <div class="edit-info-icon">
+                                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <path
+                                                            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                        <path
+                                                            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="edit-info-title">AI Image Editor</p>
+                                                    <p class="edit-info-desc">Upload your image and describe any
+                                                        change — background, style, color, objects, details,
+                                                        lighting, and more.</p>
+                                                </div>
+                                            </div>
+                                            <div class="edit-capabilities">
+                                                <span class="cap-chip">🎨 Style</span>
+                                                <span class="cap-chip">🏞 Background</span>
+                                                <span class="cap-chip">🌈 Color</span>
+                                                <span class="cap-chip">✨ Details</span>
+                                                <span class="cap-chip">💡 Lighting</span>
+                                                <span class="cap-chip">🧹 Remove object</span>
+                                                <span class="cap-chip">👤 Face</span>
+                                                <span class="cap-chip">📐 Composition</span>
+                                            </div>
+                                            <!-- Edit Dropzone -->
+                                            <div id="editDropzone" class="edit-dropzone"
+                                                onclick="document.getElementById('editImageInput').click()"
+                                                ondragover="event.preventDefault()" ondrop="handleEditDrop(event)">
+                                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                                    stroke-linejoin="round" class="edit-dropzone-icon">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                    <polyline points="17 8 12 3 7 8" />
+                                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                                </svg>
+                                                <p class="edit-dropzone-title">Drop your image here</p>
+                                                <p class="edit-dropzone-sub">or <span
+                                                        class="text-blue-500 cursor-pointer">click to browse</span>
+                                                    · paste URL below</p>
+                                                <input type="file" id="editImageInput" class="hidden" accept="image/*"
+                                                    onchange="handleEditFileSelect(this)">
+                                                <div class="flex items-center gap-2 w-full mt-3">
+                                                    <input type="url" id="editImageUrlInput"
+                                                        placeholder="https://image-url..." class="edit-url-input"
+                                                        onkeydown="if(event.key==='Enter') addEditImageFromUrl()">
+                                                    <button type="button" onclick="addEditImageFromUrl()"
+                                                        class="edit-url-btn">Add URL</button>
+                                                </div>
+                                                <button type="button" onclick="openEditFromHistory()"
+                                                    class="edit-history-btn mt-2">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2">
+                                                        <circle cx="12" cy="12" r="10" />
+                                                        <polyline points="12 6 12 12 16 14" />
+                                                    </svg>
+                                                    Choose from History
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Step 2: Prompt + model (shown after image loaded) -->
+                                        <div id="editStep2" class="edit-step-panel hidden">
+                                            <div class="edit-preview-row">
+                                                <div class="edit-thumb-wrap">
+                                                    <img id="editPreviewImg" src="" alt="Edit preview"
+                                                        class="edit-thumb-img">
+                                                    <button type="button" onclick="clearEditImage()"
+                                                        class="edit-thumb-remove">×</button>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <!-- Edit model picker button -->
+                                                    <button type="button" id="editModelPickerBtn"
+                                                        onclick="toggleEditModelDropdown()"
+                                                        class="model-picker-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold transition-all duration-200 hover:bg-white/60 dark:hover:bg-white/10 cursor-pointer mb-2">
+                                                        <span id="editModelPickerIcon"
+                                                            class="flex-shrink-0 w-4 h-4"></span>
+                                                        <span id="editModelPickerLabel">Nano Banana Pro</span>
+                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2.5"
+                                                            class="ml-auto opacity-50">
+                                                            <path d="M6 9l6 6 6-6" />
+                                                        </svg>
+                                                    </button>
+                                                    <!-- Edit model dropdown -->
+                                                    <div id="editModelDropdown"
+                                                        class="model-dropdown hidden rounded-xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-xl overflow-hidden mb-2">
+                                                        <div class="model-item" data-mode="nano_banana"
+                                                            onclick="selectEditModel('nano_banana','Nano Banana','gemini')">
+                                                            <span class="model-item-icon model-icon-gemini"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
+                                                                        stroke-width="1.5" opacity="0.3" />
+                                                                    <path
+                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info"><span
+                                                                    class="model-item-name">Nano Banana</span><span
+                                                                    class="model-item-tags"><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">5–11 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="nano_banana_2"
+                                                            onclick="selectEditModel('nano_banana_2','Nano Banana 2','gemini')">
+                                                            <span class="model-item-icon model-icon-gemini"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
+                                                                        stroke-width="1.5" opacity="0.3" />
+                                                                    <path
+                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info"><span
+                                                                    class="model-item-name">Nano Banana
+                                                                    2</span><span class="model-item-tags"><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">12–16 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="nano_banana_pro"
+                                                            onclick="selectEditModel('nano_banana_pro','Nano Banana Pro','gemini')">
+                                                            <span class="model-item-icon model-icon-gemini"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
+                                                                        stroke-width="1.5" opacity="0.3" />
+                                                                    <path
+                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info"><span
+                                                                    class="model-item-name">Nano Banana
+                                                                    Pro</span><span class="model-item-tags"><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">12–16 Cr</span>
+                                                        </div>
+                                                        <div class="model-item" data-mode="qwen_image_edit"
+                                                            onclick="selectEditModel('qwen_image_edit','Qwen Image Edit','qwen')">
+                                                            <span class="model-item-icon model-icon-qwen"><svg
+                                                                    viewBox="0 0 24 24" fill="none">
+                                                                    <rect x="3" y="3" width="18" height="18" rx="4"
+                                                                        stroke="currentColor" stroke-width="1.5"
+                                                                        opacity="0.3" />
+                                                                    <path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor"
+                                                                        stroke-width="1.8" stroke-linecap="round" />
+                                                                    <circle cx="12" cy="16" r="1.5"
+                                                                        fill="currentColor" />
+                                                                </svg></span>
+                                                            <div class="model-item-info"><span
+                                                                    class="model-item-name">Qwen Image
+                                                                    Edit</span><span class="model-item-tags"><span
+                                                                        class="tag tag-purple">edit</span></span>
+                                                            </div>
+                                                            <span class="model-item-badge">4 Cr</span>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Resolution (Nano Banana only) -->
+                                                    <div id="editResolutionRow"
+                                                        class="hidden flex items-center gap-2 mb-2">
+                                                        <span
+                                                            class="text-[9px] uppercase font-bold opacity-50">Res</span>
+                                                        <select id="editResolutionSelect"
+                                                            class="bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1 px-2 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer">
+                                                            <option value="1K" selected>1K</option>
+                                                            <option value="2K">2K</option>
+                                                            <option value="4K">4K (Pro)</option>
+                                                        </select>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ── SOUND AI TAB ── -->
+                                    <div class="tab-pane" data-tab="sound" style="display:none">
+                                        <!-- Sub-mode switcher -->
+                                        <div class="sound-sub-tabs">
+                                            <button type="button" class="sound-sub-tab active" data-sound-tab="text"
+                                                onclick="switchSoundTab('text')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <polyline points="4 7 4 4 20 4 20 7" />
+                                                    <line x1="9" y1="20" x2="15" y2="20" />
+                                                    <line x1="12" y1="4" x2="12" y2="20" />
+                                                </svg>
+                                                Audio from Text
+                                            </button>
+                                            <button type="button" class="sound-sub-tab" data-sound-tab="image"
+                                                onclick="switchSoundTab('image')">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                                    <polyline points="21 15 16 10 5 21" />
+                                                </svg>
+                                                Audio from Image
+                                            </button>
+                                        </div>
+
+                                        <!-- Sound: from Text -->
+                                        <div id="soundFromText" class="sound-panel">
+                                            <p class="sound-info-text">Describe the sound, music style, mood,
+                                                instruments, or scene. AI will compose a unique audio track for you.
+                                            </p>
+                                            <!-- Sound model picker -->
+                                            <div class="relative">
+                                                <button type="button" id="soundModelPickerBtn"
+                                                    onclick="toggleSoundModelDropdown()"
+                                                    class="model-picker-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold mb-2 cursor-pointer hover:bg-white/60 dark:hover:bg-white/10">
+                                                    <span class="text-base">🎵</span>
+                                                    <span id="soundModelLabel">Suno AI</span>
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2.5"
+                                                        class="ml-auto opacity-50">
+                                                        <path d="M6 9l6 6 6-6" />
+                                                    </svg>
+                                                </button>
+                                                <div id="soundModelDropdown"
+                                                    class="model-dropdown hidden rounded-xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-xl overflow-hidden mb-2">
+                                                    <div class="model-item"
+                                                        onclick="selectSoundModel('suno','Suno AI')">
+                                                        <span class="text-base mr-2">🎵</span>
+                                                        <div class="model-item-info"><span class="model-item-name">Suno
+                                                                AI</span></div>
+                                                        <span class="model-item-badge">Active</span>
+                                                    </div>
+                                                    <div class="model-item opacity-60 cursor-not-allowed">
+                                                        <span class="text-base mr-2">🎶</span>
+                                                        <div class="model-item-info"><span
+                                                                class="model-item-name">Udio</span></div>
+                                                        <span class="model-item-badge tag-orange">soon</span>
+                                                    </div>
+                                                    <div class="model-item opacity-60 cursor-not-allowed">
+                                                        <span class="text-base mr-2">🔊</span>
+                                                        <div class="model-item-info"><span
+                                                                class="model-item-name">Stable Audio</span></div>
+                                                        <span class="model-item-badge tag-orange">soon</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Music style chips for "from Text" -->
+                                            <div class="sound-styles-section">
+                                                <p
+                                                    class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide">
+                                                    Music style</p>
+                                                <div class="flex flex-wrap gap-1">
+                                                    <button type="button" class="style-chip" data-style="Cinematic"
+                                                        onclick="addSoundStyle(this)">Cinematic</button>
+                                                    <button type="button" class="style-chip" data-style="Electronic"
+                                                        onclick="addSoundStyle(this)">Electronic</button>
+                                                    <button type="button" class="style-chip" data-style="Ambient"
+                                                        onclick="addSoundStyle(this)">Ambient</button>
+                                                    <button type="button" class="style-chip" data-style="Jazz"
+                                                        onclick="addSoundStyle(this)">Jazz</button>
+                                                    <button type="button" class="style-chip" data-style="Epic"
+                                                        onclick="addSoundStyle(this)">Epic</button>
+                                                    <button type="button" class="style-chip" data-style="Lo-fi"
+                                                        onclick="addSoundStyle(this)">Lo-fi</button>
+                                                    <button type="button" class="style-chip" data-style="Pop"
+                                                        onclick="addSoundStyle(this)">Pop</button>
+                                                    <button type="button" class="style-chip" data-style="Classical"
+                                                        onclick="addSoundStyle(this)">Classical</button>
+                                                    <button type="button" class="style-chip" data-style="Hip-Hop"
+                                                        onclick="addSoundStyle(this)">Hip-Hop</button>
+                                                    <button type="button" class="style-chip" data-style="Rock"
+                                                        onclick="addSoundStyle(this)">Rock</button>
+                                                    <div id="soundMoreStylesText"
+                                                        class="hidden flex flex-wrap gap-1 w-full">
+                                                        <button type="button" class="style-chip" data-style="Trap"
+                                                            onclick="addSoundStyle(this)">Trap</button>
+                                                        <button type="button" class="style-chip" data-style="R&B"
+                                                            onclick="addSoundStyle(this)">R&B</button>
+                                                        <button type="button" class="style-chip" data-style="Reggae"
+                                                            onclick="addSoundStyle(this)">Reggae</button>
+                                                        <button type="button" class="style-chip" data-style="Folk"
+                                                            onclick="addSoundStyle(this)">Folk</button>
+                                                        <button type="button" class="style-chip" data-style="House"
+                                                            onclick="addSoundStyle(this)">House</button>
+                                                        <button type="button" class="style-chip" data-style="Techno"
+                                                            onclick="addSoundStyle(this)">Techno</button>
+                                                        <button type="button" class="style-chip" data-style="Acoustic"
+                                                            onclick="addSoundStyle(this)">Acoustic</button>
+                                                        <button type="button" class="style-chip" data-style="Synthwave"
+                                                            onclick="addSoundStyle(this)">Synthwave</button>
+                                                    </div>
+                                                    <button type="button" id="soundMoreBtnText" class="style-chip-more"
+                                                        onclick="toggleSoundMoreStyles('text')">More ▾</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Sound: from Image — Step 1 -->
+                                        <div id="soundFromImage" class="sound-panel hidden">
+                                            <!-- Step 1: upload -->
+                                            <div id="soundImageStep1">
+                                                <div class="edit-info-block mb-2">
+                                                    <div class="edit-info-icon"><svg width="20" height="20"
+                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="1.8">
+                                                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                                                            <circle cx="8.5" cy="8.5" r="1.5" />
+                                                            <polyline points="21 15 16 10 5 21" />
+                                                        </svg></div>
+                                                    <div>
+                                                        <p class="edit-info-title">Audio from Image</p>
+                                                        <p class="edit-info-desc">Upload an image and AI will
+                                                            compose a unique audio track inspired by it.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="edit-dropzone"
+                                                    onclick="document.getElementById('soundImageInput').click()"
+                                                    ondragover="event.preventDefault()"
+                                                    ondrop="handleSoundImageDrop(event)">
+                                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                                        class="edit-dropzone-icon">
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                        <polyline points="17 8 12 3 7 8" />
+                                                        <line x1="12" y1="3" x2="12" y2="15" />
+                                                    </svg>
+                                                    <p class="edit-dropzone-title">Drop one image</p>
+                                                    <p class="edit-dropzone-sub">or <span
+                                                            class="text-blue-500 cursor-pointer">browse</span> ·
+                                                        paste URL below</p>
+                                                    <input type="file" id="soundImageInput" class="hidden"
+                                                        accept="image/*" onchange="handleSoundImageSelect(this)">
+                                                    <div class="flex items-center gap-2 w-full mt-3">
+                                                        <input type="url" id="soundImageUrlInput"
+                                                            placeholder="https://image-url..." class="edit-url-input"
+                                                            onkeydown="if(event.key==='Enter') addSoundImageFromUrl()">
+                                                        <button type="button" onclick="addSoundImageFromUrl()"
+                                                            class="edit-url-btn">Add</button>
+                                                    </div>
+                                                    <button type="button" onclick="openSoundFromHistory()"
+                                                        class="edit-history-btn mt-2">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2">
+                                                            <circle cx="12" cy="12" r="10" />
+                                                            <polyline points="12 6 12 12 16 14" />
+                                                        </svg>
+                                                        Choose from History
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Step 2: Image previewed + prompt + styles -->
+                                            <div id="soundImageStep2" class="hidden">
+                                                <div class="sound-img-preview-wrap">
+                                                    <img id="soundPreviewImg" src="" alt="" class="sound-preview-img">
+                                                    <button type="button" onclick="clearSoundImage()"
+                                                        class="edit-thumb-remove sound-preview-remove">×</button>
+                                                </div>
+                                                <!-- Sound model for image flow -->
+                                                <button type="button" onclick="toggleSoundModelDropdown2()"
+                                                    class="model-picker-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold mb-2 cursor-pointer hover:bg-white/60 dark:hover:bg-white/10">
+                                                    <span class="text-base">🎵</span>
+                                                    <span id="soundModelLabel2">Suno AI</span>
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2.5"
+                                                        class="ml-auto opacity-50">
+                                                        <path d="M6 9l6 6 6-6" />
+                                                    </svg>
+                                                </button>
+                                                <div id="soundModelDropdown2"
+                                                    class="model-dropdown hidden rounded-xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-xl overflow-hidden mb-2">
+                                                    <div class="model-item"
+                                                        onclick="selectSoundModel2('suno','Suno AI')"><span
+                                                            class="text-base mr-2">🎵</span>
+                                                        <div class="model-item-info"><span class="model-item-name">Suno
+                                                                AI</span></div><span
+                                                            class="model-item-badge">Active</span>
+                                                    </div>
+                                                    <div class="model-item opacity-60 cursor-not-allowed"><span
+                                                            class="text-base mr-2">🎶</span>
+                                                        <div class="model-item-info"><span
+                                                                class="model-item-name">Udio</span></div><span
+                                                            class="model-item-badge tag-orange">soon</span>
+                                                    </div>
+                                                    <div class="model-item opacity-60 cursor-not-allowed"><span
+                                                            class="text-base mr-2">🔊</span>
+                                                        <div class="model-item-info"><span
+                                                                class="model-item-name">Stable Audio</span></div>
+                                                        <span class="model-item-badge tag-orange">soon</span>
+                                                    </div>
+                                                </div>
+                                                <!-- Music style chips -->
+                                                <div class="sound-styles-section">
+                                                    <p
+                                                        class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide">
+                                                        Music style</p>
+                                                    <div id="soundStylesContainer" class="flex flex-wrap gap-1">
+                                                        <!-- 10 primary styles -->
+                                                        <button type="button" class="style-chip" data-style="Cinematic"
+                                                            onclick="addSoundStyle(this)">Cinematic</button>
+                                                        <button type="button" class="style-chip" data-style="Electronic"
+                                                            onclick="addSoundStyle(this)">Electronic</button>
+                                                        <button type="button" class="style-chip" data-style="Ambient"
+                                                            onclick="addSoundStyle(this)">Ambient</button>
+                                                        <button type="button" class="style-chip" data-style="Jazz"
+                                                            onclick="addSoundStyle(this)">Jazz</button>
+                                                        <button type="button" class="style-chip" data-style="Epic"
+                                                            onclick="addSoundStyle(this)">Epic</button>
+                                                        <button type="button" class="style-chip" data-style="Lo-fi"
+                                                            onclick="addSoundStyle(this)">Lo-fi</button>
+                                                        <button type="button" class="style-chip" data-style="Pop"
+                                                            onclick="addSoundStyle(this)">Pop</button>
+                                                        <button type="button" class="style-chip" data-style="Classical"
+                                                            onclick="addSoundStyle(this)">Classical</button>
+                                                        <button type="button" class="style-chip" data-style="Hip-Hop"
+                                                            onclick="addSoundStyle(this)">Hip-Hop</button>
+                                                        <button type="button" class="style-chip" data-style="Rock"
+                                                            onclick="addSoundStyle(this)">Rock</button>
+                                                        <!-- More styles (hidden) -->
+                                                        <div id="soundMoreStyles"
+                                                            class="hidden flex flex-wrap gap-1 w-full">
+                                                            <button type="button" class="style-chip" data-style="Trap"
+                                                                onclick="addSoundStyle(this)">Trap</button>
+                                                            <button type="button" class="style-chip" data-style="R&B"
+                                                                onclick="addSoundStyle(this)">R&B</button>
+                                                            <button type="button" class="style-chip" data-style="Reggae"
+                                                                onclick="addSoundStyle(this)">Reggae</button>
+                                                            <button type="button" class="style-chip" data-style="Folk"
+                                                                onclick="addSoundStyle(this)">Folk</button>
+                                                            <button type="button" class="style-chip" data-style="House"
+                                                                onclick="addSoundStyle(this)">House</button>
+                                                            <button type="button" class="style-chip" data-style="Techno"
+                                                                onclick="addSoundStyle(this)">Techno</button>
+                                                            <button type="button" class="style-chip"
+                                                                data-style="Acoustic"
+                                                                onclick="addSoundStyle(this)">Acoustic</button>
+                                                            <button type="button" class="style-chip" data-style="Metal"
+                                                                onclick="addSoundStyle(this)">Metal</button>
+                                                            <button type="button" class="style-chip"
+                                                                data-style="New Age" onclick="addSoundStyle(this)">New
+                                                                Age</button>
+                                                            <button type="button" class="style-chip" data-style="Gospel"
+                                                                onclick="addSoundStyle(this)">Gospel</button>
+                                                            <button type="button" class="style-chip" data-style="Soul"
+                                                                onclick="addSoundStyle(this)">Soul</button>
+                                                            <button type="button" class="style-chip" data-style="World"
+                                                                onclick="addSoundStyle(this)">World</button>
+                                                            <button type="button" class="style-chip"
+                                                                data-style="Bossa Nova"
+                                                                onclick="addSoundStyle(this)">Bossa Nova</button>
+                                                            <button type="button" class="style-chip"
+                                                                data-style="Synthwave"
+                                                                onclick="addSoundStyle(this)">Synthwave</button>
+                                                        </div>
+                                                        <button type="button" id="soundMoreBtn" class="style-chip-more"
+                                                            onclick="toggleSoundMoreStyles()">More styles ▾</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div><!-- /tabs-content -->
+
+                                <!-- Hidden legacy select for mode-cards.js compatibility -->
+                                <select id="modeSelect" style="display: none;">
+                                    <option value="nano_banana">Nano Banana</option>
+                                    <option value="nano_banana_2">Nano Banana 2</option>
+                                    <option value="nano_banana_pro" selected>Nano Banana Pro</option>
+                                    <option value="fast_generation">Flux Fast Generation</option>
+                                    <option value="z_image">Z-Image Turbo</option>
+                                    <option value="qwen_image">Qwen Image</option>
+                                    <option value="qwen_image_edit">Qwen Image Edit</option>
+                                    <option value="pixplace_pro">Flux Pro Advanced</option>
+                                    <option value="print_maker">Print on Demand</option>
+                                    <option value="background_removal">Remove Background</option>
+                                    <option value="upscale_image">Upscale Image</option>
+                                </select>
+
+
+
                             </div>
                             <!-- ⚡ MODERN PROMPT INPUT CARD -->
                             <div class="layout-section-prompt" id="promptFormGroup">
@@ -1115,7 +2045,8 @@
                                     </div>
                                     <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-1">Drop image here
                                     </h3>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center px-4">Drag and drop
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center px-4">Drag and
+                                        drop
                                         any image to use it for generation</p>
                                 </div>
                                 <div class="relative w-full rounded-2xl bg-white/90 dark:bg-[#0f172a] backdrop-blur-xl border border-white/20 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:bg-white dark:hover:bg-[#0f172a] focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50 group z-10"
@@ -1140,14 +2071,12 @@
                                         <div id="previewContainer" class="flex flex-wrap gap-2"></div>
                                     </div>
 
-                                    <div id="promptDivider"
-                                        class="relative w-full my-0"
+                                    <div id="promptDivider" class="relative w-full my-0"
                                         style="height:1px; background: linear-gradient(to right, transparent, rgba(99,102,241,0.35), transparent)">
                                     </div>
 
                                     <!-- Universal Media Input Section (Hidden by default based on mode) -->
-                                    <div id="urlInputContainer"
-                                        class="relative px-4 pt-1.5 pb-0 transition-all">
+                                    <div id="urlInputContainer" class="relative px-4 pt-1.5 pb-0 transition-all">
                                         <div class="flex items-center gap-3">
 
                                             <!-- Click to Browse File Input Label -->
@@ -1319,155 +2248,118 @@
 
 
                                 <!-- Choose a Style Section - CLEAN REPLACEMENT -->
-                                <div class="form-group" id="chooseStyleSection">
-                                    <div class="style-dropdown-button" onclick="handleStyleCheckboxChange()">
-                                        <input type="checkbox" id="styleCheckbox" style="display: none;">
-                                        <span class="dropdown-arrow">▼</span>
-                                        <span class="dropdown-label" data-i18n="use_style_selection">Choose a
-                                            Style</span>
-                                        <span class="selected-style-indicator" id="selectedStyleIndicator"></span>
-                                    </div>
-                                    <div class="style-dropdown" id="styleDropdown">
-                                        <div class="style-grid-container">
-                                            <!-- No Style Option -->
-                                            <div class="carousel-2d-item" onclick="resetStyleSelection()">
-                                                <div
-                                                    class="w-full h-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600">
-                                                    <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </div>
-                                                <p data-i18n="style_none">No Style</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="realistic"
-                                                onclick="selectStyleCard('realistic')">
-                                                <img src="https://i.pinimg.com/236x/bd/63/9e/bd639e0617cac14d309c4d73bc40fc70.jpg"
-                                                    alt="Realistic Style" loading="lazy" />
-                                                <p data-i18n="style_realistic">Realistic</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="popart"
-                                                onclick="selectStyleCard('popart')">
-                                                <img src="https://i.pinimg.com/236x/aa/bc/8f/aabc8fb3da616dfe5a5d6d8ecf049e99.jpg"
-                                                    alt="Pop Art Style" loading="lazy" />
-                                                <p data-i18n="style_popart">Pop Art</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="cyberpunk"
-                                                onclick="selectStyleCard('cyberpunk')">
-                                                <img src="https://i.pinimg.com/236x/b6/6d/67/b66d677696a17465a7f91a5487a2d510.jpg"
-                                                    alt="Cyberpunk Style" loading="lazy" />
-                                                <p data-i18n="style_cyberpunk">Cyberpunk</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="cartoon"
-                                                onclick="selectStyleCard('cartoon')">
-                                                <img src="https://i.pinimg.com/236x/47/dd/14/47dd14400e61dde173fc1c7302b2810d.jpg"
-                                                    alt="Cartoon Style" loading="lazy" />
-                                                <p data-i18n="style_cartoon">Cartoon</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="sketch"
-                                                onclick="selectStyleCard('sketch')">
-                                                <img src="https://i.pinimg.com/236x/8c/0f/a5/8c0fa58d350dfa98b84c0bd77943e9ea.jpg"
-                                                    alt="Sketch Art" loading="lazy" />
-                                                <p data-i18n="style_sketch">Sketch</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="anime"
-                                                onclick="selectStyleCard('anime')">
-                                                <img src="https://i.pinimg.com/236x/88/b4/91/88b49169eae2a4f42cd61540f339dbc8.jpg"
-                                                    alt="Anime Style" loading="lazy" />
-                                                <p data-i18n="style_anime">Anime</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="fantasy"
-                                                onclick="selectStyleCard('fantasy')">
-                                                <img src="https://i.pinimg.com/236x/4a/e1/90/4ae1903b93fee81e4a816100df19a177.jpg"
-                                                    alt="Fantasy Style" loading="lazy" />
-                                                <p data-i18n="style_fantasy">Fantasy</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="surrealism"
-                                                onclick="selectStyleCard('surrealism')">
-                                                <img src="https://i.pinimg.com/236x/37/3a/1c/373a1c221bdcf4b501498263674aed7e.jpg"
-                                                    alt="Surrealism Design" loading="lazy" />
-                                                <p data-i18n="style_surrealism">Surrealism</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="artistic"
-                                                onclick="selectStyleCard('artistic')">
-                                                <img src="https://i.pinimg.com/236x/69/30/f4/6930f42752c14b5ad3dce15f215344d1.jpg"
-                                                    alt="Artistic Style" loading="lazy" />
-                                                <p data-i18n="style_artistic">Artistic</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="abstract"
-                                                onclick="selectStyleCard('abstract')">
-                                                <img src="https://i.pinimg.com/236x/a4/56/0a/a4560a03b54ba349b42ced80bf402bb1.jpg"
-                                                    alt="Abstract Style" loading="lazy" />
-                                                <p data-i18n="style_abstract">Abstract</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="minimalism"
-                                                onclick="selectStyleCard('minimalism')">
-                                                <img src="https://i.pinimg.com/236x/33/b3/a3/33b3a3d227992ce02ca6da59baab0cf4.jpg"
-                                                    alt="Minimalism Design" loading="lazy" />
-                                                <p data-i18n="style_minimalism">Minimalism</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="fashion"
-                                                onclick="selectStyleCard('fashion')">
-                                                <img src="https://i.pinimg.com/236x/c7/0e/00/c70e0091c109796e3cee75c234f96da9.jpg"
-                                                    alt="Fashion Design" loading="lazy" />
-                                                <p data-i18n="style_fashion">Fashion</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="3d"
-                                                onclick="selectStyleCard('3d')">
-                                                <img src="https://i.pinimg.com/236x/67/15/77/671577e00166b3e1fed8bab82520b970.jpg"
-                                                    alt="3D Design" loading="lazy" />
-                                                <p data-i18n="style_3d">3D</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="interior"
-                                                onclick="selectStyleCard('interior')">
-                                                <img src="https://i.pinimg.com/236x/ff/d3/05/ffd305ca4f27d4d55fe5ce7f0a78f9ba.jpg"
-                                                    alt="Interior Design" loading="lazy" />
-                                                <p data-i18n="style_interior">Interior</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="architecture"
-                                                onclick="selectStyleCard('architecture')">
-                                                <img src="https://i.pinimg.com/236x/8a/0d/e8/8a0de899bdb0a2f764b67792940bd0e0.jpg"
-                                                    alt="Architecture Design" loading="lazy" />
-                                                <p data-i18n="style_architecture">Architecture</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="print"
-                                                onclick="selectStyleCard('print')">
-                                                <img src="https://i.pinimg.com/236x/df/22/81/df2281b4dc1009f0a74e7e3c8df90a34.jpg"
-                                                    alt="Print Design, Print on Demand" loading="lazy" />
-                                                <p data-i18n="style_print">Print</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="sticker"
-                                                onclick="selectStyleCard('sticker')">
-                                                <img src="https://i.pinimg.com/236x/c2/cf/df/c2cfdfd0373b23849f1c3e625ec23e86.jpg"
-                                                    alt="Sticker Design" loading="lazy" />
-                                                <p data-i18n="style_sticker">Sticker</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="banner"
-                                                onclick="selectStyleCard('banner')">
-                                                <img src="https://i.pinimg.com/236x/43/a1/57/43a157f45bd1e916776598941396b6f4.jpg"
-                                                    alt="Banner Design" loading="lazy" />
-                                                <p data-i18n="style_banner">Banner</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="infographic"
-                                                onclick="selectStyleCard('infographic')">
-                                                <img src="https://i.pinimg.com/236x/6f/8a/e9/6f8ae9b723f25d77d5d7d5275b4f8c06.jpg"
-                                                    alt="Ai infographic Design" loading="lazy" />
-                                                <p data-i18n="style_infographic">Infografic</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="logo"
-                                                onclick="selectStyleCard('logo')">
-                                                <img src="https://i.pinimg.com/236x/dc/d8/6a/dcd86a15d7736f8a3759ff78d1a5b07c.jpg"
-                                                    alt="Ai Logo Design" loading="lazy" />
-                                                <p data-i18n="style_logo">Logo</p>
-                                            </div>
-                                            <div class="carousel-2d-item" data-style="vector"
-                                                onclick="selectStyleCard('vector')">
-                                                <img src="https://i.pinimg.com/236x/c9/d4/b3/c9d4b3a45983ff207020b569556a3d65.jpg"
-                                                    alt="Vector Design" loading="lazy" />
-                                                <p data-i18n="style_vector">Vector</p>
-                                            </div>
+                                <div id="imageStylesSection" class="form-group" style="display: none;">
+                                    <p class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide px-2">
+                                        Image Style</p>
+                                    <div id="imageStylesContainer" class="flex flex-wrap gap-1 px-2">
+                                        <button type="button" class="style-chip" data-style="Cinematic"
+                                            onclick="addImageStyle(this)">Cinematic</button>
+                                        <button type="button" class="style-chip" data-style="Photographic"
+                                            onclick="addImageStyle(this)">Photographic</button>
+                                        <button type="button" class="style-chip" data-style="Realistic"
+                                            onclick="addImageStyle(this)">Realistic</button>
+                                        <button type="button" class="style-chip" data-style="Pop Art"
+                                            onclick="addImageStyle(this)">Pop Art</button>
+                                        <button type="button" class="style-chip" data-style="Cyberpunk"
+                                            onclick="addImageStyle(this)">Cyberpunk</button>
+                                        <button type="button" class="style-chip" data-style="Cartoon"
+                                            onclick="addImageStyle(this)">Cartoon</button>
+                                        <button type="button" class="style-chip" data-style="Sketch"
+                                            onclick="addImageStyle(this)">Sketch</button>
+                                        <button type="button" class="style-chip" data-style="Anime"
+                                            onclick="addImageStyle(this)">Anime</button>
+                                        <button type="button" class="style-chip" data-style="Fantasy"
+                                            onclick="addImageStyle(this)">Fantasy</button>
+                                        <button type="button" class="style-chip" data-style="Pixel Art"
+                                            onclick="addImageStyle(this)">Pixel Art</button>
+
+                                        <div id="imageMoreStyles" class="hidden flex flex-wrap gap-1 w-full mt-0.5">
+                                            <button type="button" class="style-chip" data-style="Surrealism"
+                                                onclick="addImageStyle(this)">Surrealism</button>
+                                            <button type="button" class="style-chip" data-style="Artistic"
+                                                onclick="addImageStyle(this)">Artistic</button>
+                                            <button type="button" class="style-chip" data-style="Abstract"
+                                                onclick="addImageStyle(this)">Abstract</button>
+                                            <button type="button" class="style-chip" data-style="Minimalism"
+                                                onclick="addImageStyle(this)">Minimalism</button>
+                                            <button type="button" class="style-chip" data-style="Fashion"
+                                                onclick="addImageStyle(this)">Fashion</button>
+                                            <button type="button" class="style-chip" data-style="3D Element"
+                                                onclick="addImageStyle(this)">3D Element</button>
+                                            <button type="button" class="style-chip" data-style="Interior Design"
+                                                onclick="addImageStyle(this)">Interior</button>
+                                            <button type="button" class="style-chip" data-style="Architecture"
+                                                onclick="addImageStyle(this)">Architecture</button>
+                                            <button type="button" class="style-chip" data-style="Print on Demand"
+                                                onclick="addImageStyle(this)">Print</button>
+                                            <button type="button" class="style-chip" data-style="Sticker"
+                                                onclick="addImageStyle(this)">Sticker</button>
+                                            <button type="button" class="style-chip" data-style="Banner"
+                                                onclick="addImageStyle(this)">Banner</button>
+                                            <button type="button" class="style-chip" data-style="Infographic"
+                                                onclick="addImageStyle(this)">Infographic</button>
+                                            <button type="button" class="style-chip" data-style="Logo"
+                                                onclick="addImageStyle(this)">Logo</button>
+                                            <button type="button" class="style-chip" data-style="Vector"
+                                                onclick="addImageStyle(this)">Vector</button>
+                                            <button type="button" class="style-chip" data-style="Neon"
+                                                onclick="addImageStyle(this)">Neon</button>
+                                            <button type="button" class="style-chip" data-style="Steampunk"
+                                                onclick="addImageStyle(this)">Steampunk</button>
+                                            <button type="button" class="style-chip" data-style="Watercolor"
+                                                onclick="addImageStyle(this)">Watercolor</button>
                                         </div>
+                                        <button type="button" id="imageMoreBtn" class="style-chip-more"
+                                            onclick="toggleImageMoreStyles()">More styles ▾</button>
+                                    </div>
+                                </div>
+
+                                <!-- ⚡ VIDEO STYLE CHIPS -->
+                                <div id="videoStylesSection" class="form-group" style="display: none;">
+                                    <p class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide px-2">
+                                        Video Style</p>
+                                    <div id="videoStylesContainer" class="flex flex-wrap gap-1 px-2">
+                                        <button type="button" class="style-chip" data-style="Cinematic Motion"
+                                            onclick="addVideoStyle(this)">Cinematic</button>
+                                        <button type="button" class="style-chip" data-style="Slow Motion"
+                                            onclick="addVideoStyle(this)">Slow Mo</button>
+                                        <button type="button" class="style-chip" data-style="Hyperlapse"
+                                            onclick="addVideoStyle(this)">Hyperlapse</button>
+                                        <button type="button" class="style-chip" data-style="Drone View"
+                                            onclick="addVideoStyle(this)">Drone</button>
+                                        <button type="button" class="style-chip" data-style="Vintage Film"
+                                            onclick="addVideoStyle(this)">Vintage</button>
+                                        <button type="button" class="style-chip" data-style="3D Animation"
+                                            onclick="addVideoStyle(this)">3D Anim</button>
+                                        <button type="button" class="style-chip" data-style="Glitch Art"
+                                            onclick="addVideoStyle(this)">Glitch</button>
+                                        <button type="button" class="style-chip" data-style="Time Lapse"
+                                            onclick="addVideoStyle(this)">Time Lapse</button>
+                                        <button type="button" class="style-chip" data-style="Cyberpunk City"
+                                            onclick="addVideoStyle(this)">Cyberpunk</button>
+                                        <button type="button" class="style-chip" data-style="Anime Action"
+                                            onclick="addVideoStyle(this)">Anime</button>
+
+                                        <div id="videoMoreStyles" class="hidden flex flex-wrap gap-1 w-full mt-0.5">
+                                            <button type="button" class="style-chip" data-style="Camera Pan"
+                                                onclick="addVideoStyle(this)">Camera Pan</button>
+                                            <button type="button" class="style-chip" data-style="Zoom In"
+                                                onclick="addVideoStyle(this)">Zoom In</button>
+                                            <button type="button" class="style-chip" data-style="Zoom Out"
+                                                onclick="addVideoStyle(this)">Zoom Out</button>
+                                            <button type="button" class="style-chip" data-style="Dolly Shot"
+                                                onclick="addVideoStyle(this)">Dolly Shot</button>
+                                            <button type="button" class="style-chip" data-style="Macro Focus"
+                                                onclick="addVideoStyle(this)">Macro Focus</button>
+                                            <button type="button" class="style-chip" data-style="VFX Magic"
+                                                onclick="addVideoStyle(this)">VFX Magic</button>
+                                            <button type="button" class="style-chip" data-style="Morphing"
+                                                onclick="addVideoStyle(this)">Morphing</button>
+                                            <button type="button" class="style-chip" data-style="Seamless Loop"
+                                                onclick="addVideoStyle(this)">Seamless Loop</button>
+                                        </div>
+                                        <button type="button" id="videoMoreBtn" class="style-chip-more"
+                                            onclick="toggleVideoMoreStyles()">More styles ▾</button>
                                     </div>
                                 </div>
                                 <!-- Generation History Toggle Button -->
@@ -1494,14 +2386,14 @@
                                     </svg>
                                 </button>
                                 <div id="historyList" class="history-list hidden"></div>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
+    </div>
 
-            <!-- AI Chat Screen - REMOVED: Using modal version instead -->
-            <!-- Modal AI chat is produced by JavaScript - avoids dual chat conflicts -->
-        </main>
+    <!-- AI Chat Screen - REMOVED: Using modal version instead -->
+    <!-- Modal AI chat is produced by JavaScript - avoids dual chat conflicts -->
+    </main>
     </div>
     <!-- Toast Notifications -->
     <div id="toastContainer" class="toast-container"></div>
@@ -1792,7 +2684,420 @@
         })();
     </script>
 
+    <script>
+        // ============================================================
+        // TAB SWITCHING (Images / Videos / Edit / Sound)
+        // ============================================================
+        (function () {
+            function switchGenerationTab(tabName) {
+                // Update tab buttons
+                document.querySelectorAll('.generation-tab').forEach(btn => {
+                    const active = btn.dataset.tab === tabName;
+                    btn.classList.toggle('active', active);
+                });
+                // Update tab panes
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.style.display = (pane.dataset.tab === tabName) ? '' : 'none';
+                });
+                const promptSection = document.getElementById('promptFormGroup');
+                const imageUploadArea = document.getElementById('urlInputContainer');
+                const promptDivider = document.getElementById('promptDivider');
+                const styleSection = document.getElementById('chooseStyleSection');
+
+                if (tabName === 'image' || tabName === 'video') {
+                    // Normal mode — show prompt + upload bar + image styles
+                    if (promptSection) promptSection.style.display = '';
+                    if (imageUploadArea) imageUploadArea.style.display = '';
+                    if (promptDivider) promptDivider.style.display = '';
+                    if (styleSection) styleSection.style.display = '';
+                } else if (tabName === 'edit') {
+                    // Edit — hide image styles; restore state based on DOM (was image loaded before?)
+                    if (styleSection) styleSection.style.display = 'none';
+                    if (imageUploadArea) imageUploadArea.style.display = 'none';
+                    if (promptDivider) promptDivider.style.display = 'none';
+                    // Use DOM state as source of truth: if preview has a src, image was loaded
+                    const editStep2 = document.getElementById('editStep2');
+                    const editStep1 = document.getElementById('editStep1');
+                    const hasImage = !!_editImageUrl;
+                    if (hasImage) {
+                        // Image was loaded before — show step2 + prompt
+                        if (editStep1) editStep1.classList.add('hidden');
+                        if (editStep2) editStep2.classList.remove('hidden');
+                        if (promptSection) promptSection.style.display = '';
+                    } else {
+                        // No image — show upload dropzone, hide prompt
+                        if (editStep1) editStep1.classList.remove('hidden');
+                        if (editStep2) editStep2.classList.add('hidden');
+                        if (promptSection) promptSection.style.display = 'none';
+                    }
+                } else if (tabName === 'sound') {
+                    // Sound — show prompt for "Audio from Text", hide image styles & upload bar
+                    if (styleSection) styleSection.style.display = 'none';
+                    if (imageUploadArea) imageUploadArea.style.display = 'none';
+                    if (promptDivider) promptDivider.style.display = 'none';
+                    // Re-init sound sub-tab to text (default shows prompt)
+                    switchSoundTab('text');
+                }
+                window._currentGenerationTab = tabName;
+
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.generation-tab').forEach(btn => {
+                    btn.addEventListener('click', () => switchGenerationTab(btn.dataset.tab));
+                });
+                switchGenerationTab('image');
+            });
+
+            window.switchGenerationTab = switchGenerationTab;
+        })();
+
+        // ============================================================
+        // MODEL PICKER DROPDOWN
+        // ============================================================
+        const MODEL_ICONS = {
+            gemini: `<svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z" fill="currentColor"/></svg>`,
+            zimage: `<svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+            qwen: `<svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%"><rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="1.5" opacity="0.3"/><path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></svg>`,
+            flux: `<svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+            sdxl: `<svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%"><rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+            other: `<svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%"><path d="M21 15l-5-5L7 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 9l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="7" y1="5" x2="7" y2="14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+        };
+        const ICON_CLASS = { gemini: 'model-icon-gemini', zimage: 'model-icon-zimage', qwen: 'model-icon-qwen', flux: 'model-icon-flux', sdxl: 'model-icon-sdxl', other: 'model-icon-other' };
+
+        function _closeAllDropdowns() {
+            ['modelDropdown', 'editModelDropdown', 'soundModelDropdown', 'soundModelDropdown2'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+        }
+
+        function toggleModelDropdown() {
+            const dd = document.getElementById('modelDropdown');
+            if (!dd) return;
+            const wasHidden = dd.classList.contains('hidden');
+            _closeAllDropdowns();
+            if (wasHidden) dd.classList.remove('hidden');
+        }
+
+        function selectModelFromPicker(mode, label, iconKey) {
+            // Update picker button
+            const pickerLabel = document.getElementById('modelPickerLabel');
+            const pickerIcon = document.getElementById('modelPickerIcon');
+            if (pickerLabel) pickerLabel.textContent = label;
+            if (pickerIcon) {
+                pickerIcon.className = 'flex-shrink-0 w-5 h-5 flex items-center justify-center ' + (ICON_CLASS[iconKey] || 'model-icon-other');
+                pickerIcon.innerHTML = MODEL_ICONS[iconKey] || MODEL_ICONS.other;
+            }
+            // Sync hidden select
+            const sel = document.getElementById('modeSelect');
+            if (sel) { sel.value = mode; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+            // Close dropdown
+            _closeAllDropdowns();
+        }
+
+        // ---- EDIT model picker ----
+        function toggleEditModelDropdown() {
+            const dd = document.getElementById('editModelDropdown');
+            if (!dd) return;
+            const wasHidden = dd.classList.contains('hidden');
+            _closeAllDropdowns();
+            if (wasHidden) dd.classList.remove('hidden');
+        }
+
+        function selectEditModel(mode, label, iconKey) {
+            const lbl = document.getElementById('editModelPickerLabel');
+            const ico = document.getElementById('editModelPickerIcon');
+            if (lbl) lbl.textContent = label;
+            if (ico) {
+                ico.className = 'flex-shrink-0 w-4 h-4 ' + (ICON_CLASS[iconKey] || 'model-icon-other');
+                ico.innerHTML = MODEL_ICONS[iconKey] || MODEL_ICONS.other;
+            }
+            // Show resolution row for all nano banana variants
+            const resRow = document.getElementById('editResolutionRow');
+            const isNano = mode === 'nano_banana' || mode === 'nano_banana_2' || mode === 'nano_banana_pro';
+            if (resRow) resRow.classList.toggle('hidden', !isNano);
+            // Store selected edit model for webhook dispatch
+            window._editModel = mode;
+            _closeAllDropdowns();
+        }
+
+        // ---- SOUND model pickers ----
+        function toggleSoundModelDropdown() {
+            const dd = document.getElementById('soundModelDropdown');
+            if (!dd) return;
+            const wasHidden = dd.classList.contains('hidden');
+            _closeAllDropdowns();
+            if (wasHidden) dd.classList.remove('hidden');
+        }
+        function selectSoundModel(key, label) {
+            const lbl = document.getElementById('soundModelLabel');
+            if (lbl) lbl.textContent = label;
+            _closeAllDropdowns();
+        }
+        function toggleSoundModelDropdown2() {
+            const dd = document.getElementById('soundModelDropdown2');
+            if (!dd) return;
+            const wasHidden = dd.classList.contains('hidden');
+            _closeAllDropdowns();
+            if (wasHidden) dd.classList.remove('hidden');
+        }
+        function selectSoundModel2(key, label) {
+            const lbl = document.getElementById('soundModelLabel2');
+            if (lbl) lbl.textContent = label;
+            _closeAllDropdowns();
+        }
+
+        // Global click outside to close (NO capture — let onclick handlers fire first)
+        document.addEventListener('click', e => {
+            // If the click is on a picker button itself, the onclick handler will manage state
+            // Only close if clicking truly outside any picker or dropdown
+            const insideAny = e.target.closest('#modelPickerWrapper') ||
+                e.target.closest('#editModelPickerBtn') ||
+                e.target.closest('#editModelDropdown') ||
+                e.target.closest('#soundModelPickerBtn') ||
+                e.target.closest('#soundModelDropdown') ||
+                e.target.closest('#soundModelDropdown2');
+            if (!insideAny) {
+                _closeAllDropdowns();
+            }
+        });
+
+        // ============================================================
+        // SOUND TAB SWITCHER
+        // ============================================================
+        function switchSoundTab(tabName) {
+            document.querySelectorAll('.sound-sub-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.soundTab === tabName);
+            });
+            const fromText = document.getElementById('soundFromText');
+            const fromImage = document.getElementById('soundFromImage');
+            if (fromText) fromText.classList.toggle('hidden', tabName !== 'text');
+            if (fromImage) fromImage.classList.toggle('hidden', tabName !== 'image');
+
+            // Manage prompt textarea visibility:
+            // - Audio from Text: show the prompt so user types their description
+            // - Audio from Image: hide prompt until image is selected (showSoundStep2 shows it)
+            const promptSection = document.getElementById('promptFormGroup');
+            const promptDivider = document.getElementById('promptDivider');
+            if (tabName === 'text') {
+                if (promptSection) promptSection.style.display = '';
+                if (promptDivider) promptDivider.style.display = 'none';
+            } else {
+                // Image mode: only show prompt after image is chosen
+                if (promptSection) promptSection.style.display = 'none';
+                if (promptDivider) promptDivider.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // EDIT IMAGE FLOW
+        // ============================================================
+        let _editImageBlob = null;
+        let _editImageUrl = null;
+
+        function _showEditStep2(src) {
+            const s1 = document.getElementById('editStep1');
+            const s2 = document.getElementById('editStep2');
+            const preview = document.getElementById('editPreviewImg');
+            if (s1) s1.classList.add('hidden');
+            if (s2) s2.classList.remove('hidden');
+            if (preview) preview.src = src;
+            // Also show and enable the prompt input
+            const promptSection = document.getElementById('promptFormGroup');
+            if (promptSection) promptSection.style.display = '';
+            const divider = document.getElementById('promptDivider');
+            if (divider) divider.style.display = '';
+        }
+
+        function handleEditFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            _editImageBlob = file;
+            _editImageUrl = null;
+            _showEditStep2(URL.createObjectURL(file));
+        }
+
+        function handleEditDrop(e) {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            _editImageBlob = file;
+            _editImageUrl = null;
+            _showEditStep2(URL.createObjectURL(file));
+        }
+
+        function addEditImageFromUrl() {
+            const input = document.getElementById('editImageUrlInput');
+            const url = (input && input.value.trim()) || '';
+            if (!url) return;
+            _editImageUrl = url;
+            _editImageBlob = null;
+            _showEditStep2(url);
+            if (input) input.value = '';
+        }
+
+        function clearEditImage() {
+            _editImageBlob = null;
+            _editImageUrl = null;
+            const s1 = document.getElementById('editStep1');
+            const s2 = document.getElementById('editStep2');
+            const preview = document.getElementById('editPreviewImg');
+            if (preview) preview.src = '';  // clear src so DOM-check detects "no image"
+            if (s1) s1.classList.remove('hidden');
+            if (s2) s2.classList.add('hidden');
+            // Reset file input so the same file can be re-selected
+            const fileInput = document.getElementById('editImageInput');
+            if (fileInput) fileInput.value = '';
+            // Hide prompt area again
+            const promptSection = document.getElementById('promptFormGroup');
+            if (promptSection) promptSection.style.display = 'none';
+        }
+
+        function openEditFromHistory() {
+            // Reuse existing history modal open logic
+            if (typeof openHistoryModal === 'function') {
+                openHistoryModal('edit');
+            } else if (typeof window.openHistoryModal === 'function') {
+                window.openHistoryModal('edit');
+            } else {
+                if (window.showToast) window.showToast('История пока недоступна', 'info');
+            }
+        }
+
+        // ============================================================
+        // SOUND FROM IMAGE FLOW
+        // ============================================================
+        let _soundImageBlob = null;
+        let _soundImageUrl = null;
+
+        function _showSoundStep2(src) {
+            const s1 = document.getElementById('soundImageStep1');
+            const s2 = document.getElementById('soundImageStep2');
+            const preview = document.getElementById('soundPreviewImg');
+            if (s1) s1.style.display = 'none';
+            if (s2) s2.classList.remove('hidden');
+            if (preview) preview.src = src;
+            // Show prompt textarea
+            const promptSection = document.getElementById('promptFormGroup');
+            if (promptSection) promptSection.style.display = '';
+            // Hide upload row - no double upload needed
+            const urlInputContainer = document.getElementById('urlInputContainer');
+            if (urlInputContainer) urlInputContainer.style.setProperty('display', 'none', 'important');
+        }
+
+        function handleSoundImageSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            _soundImageBlob = file;
+            _soundImageUrl = null;
+            _showSoundStep2(URL.createObjectURL(file));
+        }
+
+        function handleSoundImageDrop(e) {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            _soundImageBlob = file;
+            _soundImageUrl = null;
+            _showSoundStep2(URL.createObjectURL(file));
+        }
+
+        function addSoundImageFromUrl() {
+            const input = document.getElementById('soundImageUrlInput');
+            const url = (input && input.value.trim()) || '';
+            if (!url) return;
+            _soundImageUrl = url;
+            _soundImageBlob = null;
+            _showSoundStep2(url);
+            if (input) input.value = '';
+        }
+
+        function clearSoundImage() {
+            _soundImageBlob = null;
+            _soundImageUrl = null;
+            const s1 = document.getElementById('soundImageStep1');
+            const s2 = document.getElementById('soundImageStep2');
+            if (s1) s1.style.display = '';
+            if (s2) s2.classList.add('hidden');
+            // Reset file input so same image can be re-selected
+            const fileInput = document.getElementById('soundImageInput');
+            if (fileInput) fileInput.value = '';
+            const promptSection = document.getElementById('promptFormGroup');
+            if (promptSection) promptSection.style.display = 'none';
+            // Restore the upload row for other modes
+            const urlInputContainer = document.getElementById('urlInputContainer');
+            if (urlInputContainer) urlInputContainer.style.removeProperty('display');
+        }
+
+        function openSoundFromHistory() {
+            if (typeof openHistoryModal === 'function') {
+                openHistoryModal('sound');
+            } else if (window.showToast) {
+                window.showToast('История пока недоступна', 'info');
+            }
+        }
+
+        // ============================================================
+        // SOUND STYLE CHIPS
+        // ============================================================
+        const _selectedStyles = new Set();
+
+        function addSoundStyle(btn) {
+            const style = btn.dataset.style;
+            const allButtonsWithStyle = document.querySelectorAll(`button.style-chip[data-style="${style}"]`);
+
+            if (_selectedStyles.has(style)) {
+                _selectedStyles.delete(style);
+                allButtonsWithStyle.forEach(b => b.classList.remove('active'));
+            } else {
+                _selectedStyles.add(style);
+                allButtonsWithStyle.forEach(b => b.classList.add('active'));
+            }
+            // Append to prompt textarea
+            const ta = document.getElementById('promptInput');
+            if (ta && style) {
+                const current = ta.value.trim();
+                if (!current.includes(style)) {
+                    ta.value = current ? current + ', ' + style : style;
+                    ta.dispatchEvent(new Event('input'));
+                }
+            }
+        }
+
+        function toggleSoundMoreStyles(panelId) {
+            // panelId: 'text' (soundMoreStylesText + soundMoreBtnText) or 'image' (soundMoreStyles + soundMoreBtn)
+            const suffix = panelId === 'text' ? 'Text' : '';
+            const container = document.getElementById('soundMoreStyles' + suffix);
+            const btn = document.getElementById('soundMoreBtn' + suffix);
+            if (!container) return;
+            const isHidden = container.classList.contains('hidden');
+            container.classList.toggle('hidden', !isHidden);
+            if (btn) btn.textContent = isHidden ? 'Less ▴' : 'More ▾';
+
+        }
+
+        // ============================================================
+        // INIT: Set initial icon in model picker button
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Default: Nano Banana Pro (gemini)
+            const pickerIcon = document.getElementById('modelPickerIcon');
+            if (pickerIcon) {
+                pickerIcon.className = 'flex-shrink-0 w-5 h-5 flex items-center justify-center model-icon-gemini';
+                pickerIcon.innerHTML = MODEL_ICONS.gemini;
+            }
+            // Set default edit model icon
+            const editIcon = document.getElementById('editModelPickerIcon');
+            if (editIcon) {
+                editIcon.className = 'flex-shrink-0 w-4 h-4 model-icon-gemini';
+                editIcon.innerHTML = MODEL_ICONS.gemini;
+            }
+        });
+    </script>
+
 </body>
+
 
 
 </html

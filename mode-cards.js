@@ -47,35 +47,28 @@ export function selectModeCard(mode) {
     // 🔥 FIX: Визуально выделяем выбранную карточку
     highlightSelectedCard(mode);
 
-    // 🔥 FIX: Обновляем текст на кнопке toggle через централизованную функцию если она есть
-    if (window.updateToggleText) {
-        window.updateToggleText();
-    } else {
-        const toggleText = document.getElementById('modeCardsToggleText');
-        if (toggleText) {
-            const card = document.querySelector(`[data-mode="${mode}"]`);
-            const title = card ? card.querySelector('h4')?.textContent : null;
-            toggleText.textContent = title || mode.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        }
+    // Sync the new model picker button label
+    const pickerLabel = document.getElementById('modelPickerLabel');
+    if (pickerLabel) {
+        const item = document.querySelector(`.model-item[data-mode="${mode}"] .model-item-name`);
+        pickerLabel.textContent = item ? item.textContent : mode.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+    // Also call the new global selectModelFromPicker if it exists (for icon update)
+    const itemEl = document.querySelector(`.model-item[data-mode="${mode}"]`);
+    if (itemEl && typeof window.selectModelFromPicker === 'function') {
+        // Determine icon key from item class
+        const iconEl = itemEl.querySelector('.model-item-icon');
+        const iconKey = iconEl ? Array.from(iconEl.classList).find(c => c.startsWith('model-icon-'))?.replace('model-icon-', '') : 'other';
+        const labelEl = itemEl.querySelector('.model-item-name');
+        window.selectModelFromPicker(mode, labelEl?.textContent || mode, iconKey || 'other');
+        return true;
     }
 
     // 🔥 FIX: Автоматическое сворачивание меню через централизованную функцию
     setTimeout(() => {
-        if (window.setModeCardsCollapsed) {
-            window.setModeCardsCollapsed(true);
-            console.log('✅ Menu auto-collapsed via setModeCardsCollapsed');
-        } else {
-            // Fallback если функция не загружена
-            const wrapper = document.getElementById('modeCardsWrapper');
-            const toggle = document.getElementById('modeCardsToggle');
-            if (wrapper && toggle) {
-                wrapper.style.display = 'none'; // Важно: перебиваем inline style
-                wrapper.classList.remove('expanded');
-                wrapper.classList.add('collapsed');
-                toggle.classList.remove('expanded');
-                toggle.classList.add('collapsed');
-            }
-        }
+        // Close model dropdown
+        const dd = document.getElementById('modelDropdown');
+        if (dd) dd.classList.add('hidden');
 
         // 🔥 ДОБАВЛЕНО: Прокрутка к полю ввода и фокус
         const promptInput = document.getElementById('promptInput');
@@ -91,6 +84,7 @@ export function selectModeCard(mode) {
             }, 600);
         }
     }, 400); // 400ms для комфортного восприятия
+
 
     // Диспатчим событие для обновления UI в navigation-manager.js и app_modern.js
     document.dispatchEvent(new CustomEvent('mode:changed', {

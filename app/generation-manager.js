@@ -163,14 +163,12 @@ export class GenerationManager {
      */
     collectFormData() {
         const prompt = document.getElementById('promptInput').value.trim();
-        const style = this.getSelectedStyle();
         const mode = this.getCurrentMode();
         const size = document.getElementById('sizeSelect').value;
         const negativePrompt = this.getNegativePrompt();
 
         return {
             prompt,
-            style,
             mode,
             size,
             negativePrompt,
@@ -178,13 +176,7 @@ export class GenerationManager {
         };
     }
 
-    /**
-     * Получение выбранного стиля
-     */
-    getSelectedStyle() {
-        const activeCard = document.querySelector('.carousel-2d-item.active');
-        return activeCard?.dataset.style || 'realistic';
-    }
+
 
     /**
      * Получение негативного промпта
