@@ -43,6 +43,7 @@ body {
         flex-direction: column;
     }
 
+
     /* Style Dropdown Button - Global (Critical for immediate loading) */
     .style-dropdown-button {
         display: flex;
@@ -74,7 +75,7 @@ body {
     }
 
     /* Form Layout is now handled via Tailwind Utility classes in index.html */
-    
+
     /* Force single column for mode cards in sidebar */
     .layout-section-modes .mode-cards-wrapper .grid {
         grid-template-columns: 1fr !important;
