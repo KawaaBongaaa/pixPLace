@@ -6,6 +6,9 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+/* Fix for Telegram Mini App on older devices (avoids :where pseudo-class) */
+@custom-variant dark ([data-theme="dark"] &);
+
 /* =============================================================================
    CSS CUSTOM PROPERTIES - Design System Variables
    MUST BE IMPORTED BEFORE TAILWIND CSS
