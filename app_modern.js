@@ -885,11 +885,8 @@ async function initializeUI() {
         });
         console.log('✅ Cost Badge module loaded and initialized');
 
-        // 🎯 LAZY LOAD: Initialize Style Management Module
-        console.log('🎨 Lazy loading Style Management module...');
-        const styleManagementModule = await import('./style-management.js');
-        styleManagementModule.initStyleCheckboxHandler();
-        console.log('✅ Style Management module loaded and initialized');
+        // Removed legacy style management (now using style chips in index.html)
+
 
         // 🎯 LAZY LOAD: Initialize Style Manager (NEW MODULAR APPROACH)
         console.log('🎨 Style Manager will initialize lazily on style checkbox interaction');
@@ -897,13 +894,6 @@ async function initializeUI() {
 
     } catch (error) {
         console.error('❌ Failed to load Mode Cards or Cost Badge components:', error);
-        // Fallback to legacy initialization
-        console.log('🔄 Fallback: trying legacy style carousel initialization');
-        try {
-            initStyleCarousel();
-        } catch (legacyError) {
-            console.error('❌ Legacy style carousel also failed:', legacyError);
-        }
     }
 
     // 🚀 Initialize user account and update mode selection
