@@ -3,59 +3,28 @@
 /* 1. Minimum Width Constraint */
 html,
 body {
-    min-width: 365px !important;
+    min-width: 320px !important;
     overflow-x: auto;
     /* Allow horizontal scroll if screen is too small */
 }
 
-/* 2. Wide Screen Dashboard Layout (Desktop) */
-@media (min-width: 1280px) {
-
-    /* Main Layout container - Allow natural scrolling */
-    body {
-        /* height: 100vh; */
-        /* overflow: hidden; */
-        /* Prevent global scroll */
-    }
-
-    #app {
-        min-height: 100vh;
-        /* height: 100vh; */
-        /* overflow: hidden; */
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Fixed Header is already handled by main styles (sticky/fixed), 
-       but we ensure it doesn't overlap content inappropriately */
+/* 2. Adaptive Dashboard Layout */
+@media (min-width: 768px) {
 
     /* Main Content Area adjustments */
     main {
         flex: 1;
-        /* height: 100% !important; */
         padding-top: 112px;
-        /* Space for header (JS will adjust if needed) */
-        /* padding-bottom: 50px !important; */
-        /* Space for fixed footer */
-        /* overflow: hidden; */
-        /* Internal scrolling handled by grid areas */
         display: flex;
         flex-direction: column;
         align-items: center;
     }
-
-
-    /* Legacy Style Dropdown styles removed */
-
-
 
     /* The Generation Screen */
     #generationScreen {
         display: flex;
         flex-direction: column;
     }
-
-    /* Form Layout is now handled via Tailwind Utility classes in index.html */
 
     /* Force single column for mode cards in sidebar */
     .layout-section-modes .mode-cards-wrapper .grid {
@@ -83,5 +52,16 @@ body {
 
     .dark .layout-section-prompt textarea {
         color: #f1f5f9;
+    }
+}
+/* Scaling for History Items (Wide) */
+@media (min-width: 1440px) {
+    .history-caption {
+        font-size: 13px !important;
+        padding: 8px 12px !important;
+    }
+    
+    .history-mini {
+        min-height: 130px !important;
     }
 }
