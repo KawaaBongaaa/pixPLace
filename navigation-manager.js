@@ -1,37 +1,7 @@
 import { showResult, displayFullResult, showResultToast, removeResultToast, showApp } from './screen-manager.js';
 
-// Функция динамической загрузки limitModal по требованию (lazy loading)
-const getLoadLimitModal = async () => {
-    // Если уже загружено - используем
-    if (window.loadLimitModal) {
-        return window.loadLimitModal;
-    }
+// Legacy modal loaders removed. Everything redirects to pricing.html or uses showCreditPurchaseModal.
 
-    try {
-        console.log('🔄 Lazy loading plans-modal.js on demand...');
-
-        // Ленивая загрузка модуля
-        const module = await import('./plans-modal.js');
-        console.log('✅ Plans modal loaded via import()');
-
-        // Ждем инициализации модуля
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // Получаем функцию из экспорта или глобальной области
-        const loadLimitModalFunc = module.loadLimitModal || window.loadLimitModal;
-
-        if (loadLimitModalFunc) {
-            console.log('✅ loadLimitModal function found');
-            return loadLimitModalFunc;
-        } else {
-            console.error('❌ loadLimitModal not found in module exports or window');
-            throw new Error('loadLimitModal not found');
-        }
-    } catch (error) {
-        console.error('❌ Failed to lazy load plans modal:', error);
-        return null;
-    }
-};
 
 // ================================================
 // 🌍 NAVIGATION FUNCTIONS
@@ -190,226 +160,10 @@ export function showHistory() {
 }
 
 // Функция из app_modern.js - showSubscriptionNotice
+// showSubscriptionNotice was removed. Check parallel-generation.js for showCreditPurchaseModal usage.
 export async function showSubscriptionNotice(result, limitType = 'trial') {
-    // 🔥 Ensure services are ready before showing subscription notice
-    if (!window.appServices && !window.appState) {
-        console.warn('⚠️ Waiting for appState before showing subscription notice...');
-        let attempts = 0;
-        while ((!window.appServices && !window.appState) && attempts < 30) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
-        }
-    }
-
-    console.log('🔗 Full result object:', result);
-    console.log('🔗 Payment URLs from result:', result?.payment_urls);
-    console.log('🔗 Limit type:', limitType);
-
-    // Динамическая загрузка limitModal по требованию (lazy loading)
-    const loadLimitModal = await getLoadLimitModal();
-    if (!loadLimitModal) {
-        console.error('❌ Failed to load limit modal!');
-        return;
-    }
-
-    const modal = await loadLimitModal();
-    if (!modal) {
-        console.error('❌ Failed to create limit modal!');
-        return;
-    }
-
-    // Получаем тексты из словаря по выбранному языку
-    const titleKey = limitType === 'premium' ? 'premium_limit_title' : 'limit_title';
-    const messageKey = limitType === 'premium' ? 'premium_limit_message' : 'limit_message';
-
-    const title = window.appState?.translate?.(titleKey);
-    const message = window.appState?.translate?.(messageKey);
-
-    console.log('🌍 TRANSLATION DEBUG:', {
-        limitType,
-        currentLanguage: (typeof appState !== 'undefined' ? appState : window.appState)?.language,
-        titleKey,
-        messageKey,
-        title,
-        message,
-        titleFallback: title || 'Generation Limit Reached',
-        messageFallback: message || 'Your credits are depleted. Upgrade for more!'
-    });
-
-    // Динамически устанавливаем текст модального окна
-    const titleElement = modal.querySelector('.limit-title');
-    const messageElement = modal.querySelector('.limit-message');
-
-    if (titleElement) {
-        titleElement.textContent = title || 'Generation Limit Reached';  // Fallback английский
-    }
-    if (messageElement) {
-        messageElement.textContent = message || 'Your credits are depleted. Upgrade for more!';  // Fallback английский
-    }
-
-    console.log('📝 Set modal text for limit type:', limitType, { title, message });
-
-    // 🔍 ДИАГНОСТИКА: Проверяем все элементы которые могут быть поверх модального окна
-    console.log('🔍 DIAGNOSING modal overlay elements...');
-
-    // Проверяем Z-index всех элементов
-    const allElements = document.querySelectorAll('*');
-    const highZIndexElements = [];
-    const suspiciousElements = [];
-
-    allElements.forEach(el => {
-        const zIndex = window.getComputedStyle(el).zIndex;
-        if (zIndex !== 'auto' && parseInt(zIndex) > 99995) { // Выше модального окна
-            highZIndexElements.push({
-                element: el,
-                zIndex: zIndex,
-                tagName: el.tagName,
-                id: el.id,
-                className: el.className,
-                position: window.getComputedStyle(el).position,
-                display: window.getComputedStyle(el).display,
-                visibility: window.getComputedStyle(el).visibility
-            });
-        }
-
-        // Ищем подозрительные элементы с fixed позиционированием в центре
-        if (window.getComputedStyle(el).position === 'fixed' && el !== modal) {
-            const rect = el.getBoundingClientRect();
-            if (rect.width < 100 && rect.height < 100 && // Маленький размер
-                Math.abs(rect.left + rect.width / 2 - window.innerWidth / 2) < 50 && // Центр по X
-                Math.abs(rect.top + rect.height / 2 - window.innerHeight / 2) < 50) { // Центр по Y
-                suspiciousElements.push({
-                    element: el,
-                    rect: rect,
-                    styles: window.getComputedStyle(el),
-                    html: el.outerHTML.substring(0, 200) + '...'
-                });
-            }
-        }
-    });
-
-    // ✋ РАСШИРЕННАЯ ДИАГНОСТИКА: ПОДРОБНАЯ ИНФОРМАЦИЯ О ВЫСОКИХ ЭЛЕМЕНТАХ
-    if (highZIndexElements.length > 0) {
-        console.warn(`🔍 Found ${highZIndexElements.length} elements with high Z-INDEX:`);
-    }
-    console.table(highZIndexElements.map((el, index) => ({
-        '№': index + 1,
-        'Элемент': el.element.tagName,
-        'Z-Index': el.zIndex,
-        'ID': el.element.id || 'без ID',
-        'Классы': el.element.className || 'без классов',
-        'Position': el.element.style ? el.element.style.position : 'не определено',
-        'Display': el.element.style ? el.element.style.display : 'не определено',
-        'Visibility': el.element.style ? el.element.style.visibility : 'не определено',
-        'Содержимое': el.element.innerText ? el.element.innerText.substring(0, 50) + '...' : 'пустой элемент',
-        'HTML': el.element.outerHTML.substring(0, 100) + '...'
-    })));
-
-    console.log('🔍 SUSPICIOUS Fixed Elements in center:', suspiciousElements);
-
-    // Ищем элементы с классом 'touch-action' или похожим
-    const touchElements = document.querySelectorAll('[class*="touch"], [class*="finger"], [class*="joystick"]');
-    console.log('🔍 TOUCH-related elements:', touchElements);
-
-    // Проверяем viewport meta-tag
-    const viewport = document.querySelector('meta[name="viewport"]');
-    console.log('🔍 Viewport meta:', viewport ? viewport.content : 'NOT FOUND');
-
-    // Проверяем наличие системных overlays
-    console.log('🔍 User agent:', navigator.userAgent);
-    console.log('🔍 Touch capabilities:', {
-        touchscreen: navigator.maxTouchPoints > 0,
-        ontouchstart: 'ontouchstart' in window,
-        pointerEvent: 'onpointerdown' in window
-    });
-
-    // Уведомляем пользователя о начале диагностики
-    console.warn('🔍 SYSTEM OVERLAY DETECTION STARTED');
-    console.warn('Если видим оранжевый квадратик/джостик, это может быть:');
-    console.warn('1. Touch Action Indicator (системный оверлей сеанса)');
-    console.warn('2. Pointer Events Hover (CSS hover эффекты)');
-    console.warn('3. Browser Gesture Recognition (системное поведение)');
-    console.warn('4. Mobile System UI (панель навигации)');
-    console.warn('5. Input Method Editor (экранная клавиатура)');
-
-    // Показать модальное окно с небольшой задержкой для корректного reflow
-    setTimeout(() => {
-        if (!document.body.contains(modal)) {
-            console.warn('⚠️ Modal was not in body, re-appending...');
-            document.body.appendChild(modal);
-        }
-
-        modal.classList.add('show');
-        console.log('✨ Modal visibility toggled: SHOW');
-    }, 50);
-
-    // Helper function for safe redirections with error handling
-    const safeRedirect = (url, planName) => {
-        modal.classList.remove('show');
-        showApp(); // Используем showApp из screen-manager
-        setTimeout(() => {
-            try {
-                console.log(`🔗 Redirecting to ${planName} payment URL: ${url}`);
-                // Try modern way first
-                if (window.appState?.tg?.openLink) {
-                    window.appState.tg.openLink(url);
-                } else {
-                    // Fallback to regular navigation
-                    window.open(url, '_blank');
-                }
-            } catch (error) {
-                console.error(`❌ Error redirecting to ${planName} payment link:`, error);
-                showToast('error', `Ошибка перехода к ${planName}. Попробуйте снова.`);
-                // Fallback to popup
-                window.open(url, '_blank', 'noopener,noreferrer');
-            }
-        }, 100);
-    };
-
-    // Настроить обработчики для трех кнопок тарифов
-    // 🔥 FIX: Search within the modal element for reliability
-    const upgradeBtnLimit = modal.querySelector('#upgradeBtn') || document.getElementById('upgradeBtn');
-    const upgradeBtnPro = modal.querySelector('#upgradebtn_pro') || document.getElementById('upgradebtn_pro');
-    const upgradeBtnStudio = modal.querySelector('#upgradebtn_studio') || document.getElementById('upgradebtn_studio');
-
-    console.log('🔘 Upgrade buttons found:', !!upgradeBtnLimit, !!upgradeBtnPro, !!upgradeBtnStudio);
-
-    // Helper to setup button with clean listener
-    const setupButton = (btn, planName, defaultUrl) => {
-        if (!btn) return;
-
-        // Clone to remove old listeners
-        const newBtn = btn.cloneNode(true);
-        if (btn.parentNode) {
-            btn.parentNode.replaceChild(newBtn, btn);
-        }
-
-        newBtn.onclick = () => {
-            console.log(`🔘 ${planName} Upgrade button clicked`);
-            // Use custom URL or default fallback
-            let paymentUrl = defaultUrl;
-            if (result.payment_urls) {
-                if (planName === 'LITE' && result.payment_urls.lite) paymentUrl = result.payment_urls.lite;
-                if (planName === 'PRO' && result.payment_urls.pro) paymentUrl = result.payment_urls.pro;
-                if (planName === 'STUDIO' && result.payment_urls.studio) paymentUrl = result.payment_urls.studio;
-            }
-
-            safeRedirect(paymentUrl, planName);
-        };
-    };
-
-    setupButton(upgradeBtnLimit, 'LITE', 'https://t.me/tribute/app?startapp=syDv');
-    setupButton(upgradeBtnPro, 'PRO', 'https://t.me/tribute/app?startapp=d71w'); // Updated Pro Link
-    setupButton(upgradeBtnStudio, 'STUDIO', 'https://t.me/tribute/app?startapp=s8E3'); // Updated Studio Link
-
-    // Настроить кнопку закрытия
-    const closeBtn = modal.querySelector('#closeLimitModal') || document.getElementById('closeLimitModal');
-    if (closeBtn) {
-        closeBtn.onclick = () => {
-            modal.classList.remove('show');
-            showApp(); // Используем showApp из screen-manager
-        };
-    }
+    console.warn('showSubscriptionNotice is deprecated. Redirecting to pricing.html...');
+    window.location.href = 'pricing.html';
 }
 
 // Функция из app_modern.js - showWarningAboutNoImage (исправленная версия с улучшенным удалением overlay)
@@ -1033,42 +787,44 @@ window.toggleModeDetails = toggleModeDetails;
 // ================================================
 
 export async function openSubscriptionPlans() {
-    console.log('💎 Opening subscription plans... (Redirecting to pricing.html)');
+    console.log('💎 [Portal] openSubscriptionPlans() called');
     try {
         // Закрываем меню пользователя если оно открыто
         if (typeof window.toggleUserMenu === 'function') {
             const menu = document.getElementById('userMenuDropdown');
             if (menu && menu.classList.contains('show')) {
                 window.toggleUserMenu();
-                console.log('💎 User menu closed');
             }
         }
 
-        window.location.href = 'pricing.html';
+        const { showPricingModal } = await import('./js/modules/ui-utils.js?v=portal-1');
+        showPricingModal({ initialTab: 'plans' });
     } catch (e) {
-        console.error('❌ Error in openSubscriptionPlans redirection:', e);
+        console.error('❌ Error in openSubscriptionPlans:', e);
+        window.location.href = 'pricing.html';
     }
 }
 
 export async function openCreditPacks() {
-    console.log('💳 Opening credit packs...');
-    // Закрываем меню пользователя если оно открыто
-    if (typeof window.toggleUserMenu === 'function') {
-        const menu = document.getElementById('userMenuDropdown');
-        if (menu && menu.classList.contains('show')) {
-            window.toggleUserMenu();
+    console.log('💳 [Portal] openCreditPacks() called');
+    try {
+        // Закрываем меню пользователя если оно открыто
+        if (typeof window.toggleUserMenu === 'function') {
+            const menu = document.getElementById('userMenuDropdown');
+            if (menu && menu.classList.contains('show')) {
+                window.toggleUserMenu();
+            }
         }
-    }
 
-    // Если есть специализированная функция для модалки кредитов - используем ее
-    if (typeof window.showCreditPacksModal === 'function') {
-        window.showCreditPacksModal();
-    } else {
-        await showSubscriptionNotice({ payment_urls: {} }, 'trial');
+        const { showPricingModal } = await import('./js/modules/ui-utils.js?v=portal-1');
+        showPricingModal({ initialTab: 'credits' });
+    } catch (e) {
+        console.error('❌ Error in openCreditPacks:', e);
+        window.location.href = 'pricing.html#credits';
     }
 }
 
 // Экспортируем в глобальную область для доступа из HTML onclick
 window.openSubscriptionPlans = openSubscriptionPlans;
 window.openCreditPacks = openCreditPacks;
-window.showSubscriptionNotice = showSubscriptionNotice;
+

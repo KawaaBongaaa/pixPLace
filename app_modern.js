@@ -10,7 +10,7 @@ import { showScreen, showApp, showResult, displayFullResult, showResultToast, sh
 import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
-import { updateUserNameDisplay, updateUserBalanceDisplay, showSubscriptionNotice, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js';
+import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=portal-1';
 import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback, extractBase64FromDataUrl, readFileAsArrayBuffer, arrayBufferToBlob, blobToDataURL, maybeCompressImageBlob } from './utils.js';
 // 🚀 LAZY LOAD: AI Coach loaded on demand
 // import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
@@ -107,13 +107,9 @@ const CONFIG = {
     PREVIEW_JPEG_QUALITY: 0.9,
 
     // UI/UX Settings
-    TELEGRAM_BOT_URL: 'https://t.me/pixPLaceBot?start=user_shared',
-    SHARE_DEFAULT_HASHTAGS: '#pixPLaceBot #Telegram #miniApp #Ai',
+    
     MAINTENANCE_MODE: false // Keep hardcoded for safety
 };
-console.log("Webhook URL:", CONFIG.WEBHOOK_URL);
-console.log("Chat Webhook URL:", CONFIG.CHAT_WEBHOOK_URL);
-console.log("Telegram Bot URL:", CONFIG.TELEGRAM_BOT_URL);
 // 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
 window.CONFIG = CONFIG;
 

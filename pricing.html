@@ -267,10 +267,152 @@
             width: 24px;
             height: 24px;
         }
+
+        /* --- Modal Mode adjustments --- */
+        .mode-modal header {
+            display: none !important;
+        }
+
+        .mode-modal .ambient-glow {
+            opacity: 0.1 !important;
+        }
+
+        .mode-modal main {
+            padding-top: 2rem !important;
+            padding-bottom: 5rem !important;
+            transition: opacity 0.6s ease;
+        }
+
+        /* --- Portal Loader (Premium) --- */
+        .portal-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: #09090b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .portal-loading .portal-loader {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .portal-loading main {
+            opacity: 0;
+        }
+
+        .loader-orbit {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .loader-core {
+            position: absolute;
+            inset: 20px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            filter: blur(8px);
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        .loader-ring {
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(59, 130, 246, 0.1);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loader-text {
+            color: #9ca3af;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            animation: pulse-text 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; filter: blur(8px); }
+            50% { transform: scale(1.2); opacity: 1; filter: blur(12px); }
+        }
+
+        @keyframes pulse-text {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
+    <script>
+        // 🔥 EARLY MODAL MODE DETECTION
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('mode') === 'modal') {
+                document.documentElement.classList.add('mode-modal');
+                
+                // If credits hash is present, auto-open the offer modal without scrolling
+                if (window.location.hash === '#credits') {
+                    document.documentElement.classList.add('portal-loading');
+                    
+                    window.addEventListener('load', () => {
+                        // Wait for internal logic to be ready
+                        setTimeout(() => {
+                            // AUTO-OPEN CREDIT PACKS MODAL
+                            const tryOpen = () => {
+                                if (typeof window.handleCreditPackClick === 'function') {
+                                    window.handleCreditPackClick();
+                                    
+                                    // Smoothly hide loader after modal opens
+                                    setTimeout(() => {
+                                        document.documentElement.classList.remove('portal-loading');
+                                    }, 400);
+                                } else {
+                                    setTimeout(tryOpen, 100);
+                                }
+                            };
+                            tryOpen();
+                        }, 300);
+                    });
+                }
+
+                // ESCAPE KEY SUPPORT (Notify parent to close modal)
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        // If there's an internal modal open (like credit packs), 
+                        // let it handle its own escape first.
+                        const internalModal = document.getElementById('credit-offer-overlay');
+                        if (internalModal) return; 
+
+                        // Otherwise, notify parent to close the portal iframe
+                        window.parent.postMessage('close-pricing-modal', '*');
+                    }
+                });
+            }
+        })();
+    </script>
 </head>
 
 <body class="min-h-screen flex flex-col relative overflow-x-hidden">
+    <!-- Portal Loader Overlay -->
+    <div id="portalLoader" class="portal-loader">
+        <div class="loader-orbit">
+            <div class="loader-core"></div>
+            <div class="loader-ring"></div>
+        </div>
+        <div class="loader-text">pixPLace Portal</div>
+    </div>
     <!-- Ambient Background -->
     <div class="ambient-glow glow-1"></div>
     <div class="ambient-glow glow-2"></div>
@@ -844,6 +986,9 @@
 
 
     </main>
+
+    <!-- Credits Section Anchor -->
+    <div id="credits-section" class="w-full h-1 invisible"></div>
 
     <!-- Credit Pack Offer Button (Hidden by default, triggered after 8s) -->
     <div id="credit-pack-offer-btn" class="credit-pack-entrance" onclick="handleCreditPackClick()">
