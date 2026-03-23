@@ -407,7 +407,8 @@
 
                     <!-- BALANCE IN HEADER (AUTHORIZED ONLY) -->
                     <div id="headerBalanceWrapper"
-                        class="hidden items-center justify-center gap-1 sm:gap-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg sm:rounded-xl px-2 py-1 sm:px-3 sm:py-1.5 shadow-sm border border-gray-200 dark:border-gray-600 transition-all cursor-default">
+                        class="hidden items-center justify-center gap-1.5 bg-gray-100 dark:bg-gray-700/50 rounded-lg sm:rounded-xl px-2 py-1 sm:px-3 sm:py-1.5 shadow-sm border border-gray-200 dark:border-gray-600 transition-all cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-95"
+                        onclick="openCreditPacks()">
                         <span
                             class="text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">cr</span>
                         <span class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100"
@@ -1725,7 +1726,7 @@
                                     <div class="tab-pane" data-tab="sound" style="display:none">
                                         <!-- Sub-mode switcher -->
                                         <div class="sound-sub-tabs">
-                                            <button type="button" class="sound-sub-tab active" data-sound-tab="text"
+                                            <button type="button" class="sound-sub-tab" data-sound-tab="text"
                                                 onclick="switchSoundTab('text')">
                                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                                                     stroke="currentColor" stroke-width="2">
@@ -1735,7 +1736,7 @@
                                                 </svg>
                                                 Audio from Text
                                             </button>
-                                            <button type="button" class="sound-sub-tab" data-sound-tab="image"
+                                            <button type="button" class="sound-sub-tab active" data-sound-tab="image"
                                                 onclick="switchSoundTab('image')">
                                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                                                     stroke="currentColor" stroke-width="2">
@@ -1748,7 +1749,7 @@
                                         </div>
 
                                         <!-- Sound: from Text -->
-                                        <div id="soundFromText" class="sound-panel">
+                                        <div id="soundFromText" class="sound-panel hidden">
                                             <p class="sound-info-text">Describe the sound, music style, mood,
                                                 instruments, or scene. AI will compose a unique audio track for you.
                                             </p>
@@ -1841,7 +1842,7 @@
 
 
                                         <!-- Sound: from Image — Step 1 -->
-                                        <div id="soundFromImage" class="sound-panel hidden">
+                                        <div id="soundFromImage" class="sound-panel">
                                             <!-- Step 1: upload -->
                                             <div id="soundImageStep1">
                                                 <div class="edit-info-block mb-2">
@@ -2730,7 +2731,7 @@
                     if (imageUploadArea) imageUploadArea.style.display = 'none';
                     if (promptDivider) promptDivider.style.display = 'none';
                     // Re-init sound sub-tab to text (default shows prompt)
-                    switchSoundTab('text');
+                    switchSoundTab('image');
                 }
                 window._currentGenerationTab = tabName;
 
