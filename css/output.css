@@ -316,6 +316,9 @@
   .top-4 {
     top: 1rem;
   }
+  .top-5 {
+    top: 1.25rem;
+  }
   .top-6 {
     top: 1.5rem;
   }
@@ -1356,6 +1359,9 @@
   .max-h-\[85vh\] {
     max-height: 85vh;
   }
+  .max-h-\[92vh\] {
+    max-height: 92vh;
+  }
   .min-h-0 {
     min-height: 0;
   }
@@ -1871,6 +1877,10 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .border-0 {
+    border-style: var(--tw-border-style);
+    border-width: 0px;
+  }
   .border-2 {
     border-style: var(--tw-border-style);
     border-width: 2px;
@@ -2044,6 +2054,9 @@
   .bg-\[\#2AABEE\] {
     background-color: #2AABEE;
   }
+  .bg-\[\#09090b\] {
+    background-color: #09090b;
+  }
   .bg-\[\#09090b\]\/80 {
     background-color: color-mix(in oklab, #09090b 80%, transparent);
   }
@@ -2077,6 +2090,12 @@
       background-color: color-mix(in oklab, var(--color-black) 40%, transparent);
     }
   }
+  .bg-black\/50 {
+    background-color: color-mix(in srgb, #000 50%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-black) 50%, transparent);
+    }
+  }
   .bg-black\/60 {
     background-color: color-mix(in srgb, #000 60%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -2087,6 +2106,12 @@
     background-color: color-mix(in srgb, #000 70%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-black) 70%, transparent);
+    }
+  }
+  .bg-black\/80 {
+    background-color: color-mix(in srgb, #000 80%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-black) 80%, transparent);
     }
   }
   .bg-black\/95 {
@@ -3469,6 +3494,16 @@
       }
     }
   }
+  .hover\:scale-110 {
+    &:hover {
+      @media (hover: hover) {
+        --tw-scale-x: 110%;
+        --tw-scale-y: 110%;
+        --tw-scale-z: 110%;
+        scale: var(--tw-scale-x) var(--tw-scale-y);
+      }
+    }
+  }
   .hover\:scale-\[1\.02\] {
     &:hover {
       @media (hover: hover) {
@@ -4122,6 +4157,14 @@
       translate: var(--tw-translate-x) var(--tw-translate-y);
     }
   }
+  .active\:scale-90 {
+    &:active {
+      --tw-scale-x: 90%;
+      --tw-scale-y: 90%;
+      --tw-scale-z: 90%;
+      scale: var(--tw-scale-x) var(--tw-scale-y);
+    }
+  }
   .active\:scale-95 {
     &:active {
       --tw-scale-x: 95%;
@@ -4138,6 +4181,11 @@
   .xs\:inline {
     @media (width >= 480px) {
       display: inline;
+    }
+  }
+  .sm\:mx-4 {
+    @media (width >= 640px) {
+      margin-inline: 1rem;
     }
   }
   .sm\:mb-4 {
@@ -4268,6 +4316,11 @@
   .sm\:gap-8 {
     @media (width >= 640px) {
       gap: 2rem;
+    }
+  }
+  .sm\:rounded-3xl {
+    @media (width >= 640px) {
+      border-radius: 1.5rem;
     }
   }
   .sm\:rounded-xl {

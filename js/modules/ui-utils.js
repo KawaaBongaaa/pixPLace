@@ -118,8 +118,29 @@ export function showConfirmationModal(title, message, onConfirm, options = {}) {
  * Shows a glassmorphism modal when user has insufficient credits.
  * @param {object} options - { cost: number, balance: number, onTopUp?: function }
  */
-export function showCreditPurchaseModal({ cost = 0, balance = 0, onTopUp } = {}) {
+/**
+ * Показывает модальное окно для покупки кредитов
+ * @param {object} options - { cost?: number, balance?: number, reason?: string, onTopUp?: function }
+ * reason can be 'insufficient_funds' or 'limit_reached'
+ */
+export function showCreditPurchaseModal({ cost = 0, balance = 0, reason = 'insufficient_funds', onTopUp } = {}) {
     document.getElementById('ai-credits-modal')?.remove();
+
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+    }
+
+    let title = 'Not Enough Credits';
+    let messageHtml = `This generation costs <span class="text-yellow-400 font-bold">${cost} credits</span>`;
+    let subMessageHtml = `Your balance: <span class="font-semibold text-white">${balance} credits</span>`;
+    let buttonText = '⭐ Top Up Credits';
+
+    if (reason === 'limit_reached') {
+        title = 'Credits Finished';
+        messageHtml = `<span class="text-yellow-400 font-bold">Generation limit reached!</span>`;
+        subMessageHtml = `<span class="text-gray-300">Tokens for generation have ended.</span>`;
+        buttonText = '🚀 Get More Credits';
+    }
 
     const modal = createElement('div', {
         id: 'ai-credits-modal',
@@ -130,12 +151,12 @@ export function showCreditPurchaseModal({ cost = 0, balance = 0, onTopUp } = {})
     const content = createElement('div', {
         className: 'bg-white/10 backdrop-blur-xl border border-white/10 p-7 sm:p-10 rounded-3xl shadow-2xl max-w-sm w-full transform translate-y-4 transition-all duration-300 flex flex-col items-center text-center',
         innerHTML: `
-            <div class="mb-4 text-5xl">💎</div>
-            <h3 class="text-xl font-bold text-white mb-2 tracking-wide">Not Enough Credits</h3>
-            <p class="text-gray-300 text-sm mb-1">This generation costs <span class="text-yellow-400 font-bold">${cost} credits</span></p>
-            <p class="text-gray-400 text-sm mb-7">Your balance: <span class="font-semibold text-white">${balance} credits</span></p>
+            <div class="mb-4 text-5xl">${reason === 'limit_reached' ? '🪫' : '💎'}</div>
+            <h3 class="text-xl font-bold text-white mb-2 tracking-wide">${title}</h3>
+            <p class="text-gray-300 text-sm mb-1">${messageHtml}</p>
+            <p class="text-gray-400 text-sm mb-7">${subMessageHtml}</p>
             <div class="w-full bg-white/5 rounded-2xl p-4 mb-7 border border-white/10">
-                <p class="text-xs text-gray-400 leading-relaxed">Top up your credits via <span class="text-blue-400">⭐ Telegram Stars</span> in your account.</p>
+                <p class="text-xs text-gray-400 leading-relaxed">Top up your credits or upgrade your plan on the <span class="text-blue-400">Pricing page</span> to continue.</p>
             </div>
         `
     });
@@ -150,14 +171,13 @@ export function showCreditPurchaseModal({ cost = 0, balance = 0, onTopUp } = {})
 
     const topUpBtn = createElement('button', {
         className: 'w-full px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 text-white shadow-lg shadow-violet-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer',
-        innerHTML: '⭐ Top Up Credits',
+        innerHTML: buttonText,
         onclick: () => {
             if (window.navigator?.vibrate) window.navigator.vibrate(30);
             if (typeof onTopUp === 'function') {
                 onTopUp();
             } else {
-                const accountBtn = document.querySelector('[data-tab="account"]') || document.getElementById('accountBtn');
-                if (accountBtn) accountBtn.click();
+                window.location.href = 'pricing.html';
             }
             closeModal();
         }
@@ -216,8 +236,7 @@ export function showSubscriptionUpgradeModal({ featureName = 'this feature' } = 
         innerHTML: '✨ View Plans',
         onclick: () => {
             if (window.navigator?.vibrate) window.navigator.vibrate(30);
-            const accountBtn = document.querySelector('[data-tab="account"]') || document.getElementById('accountBtn');
-            if (accountBtn) accountBtn.click();
+            window.location.href = 'pricing.html';
             closeModal();
         }
     });
@@ -239,3 +258,83 @@ export function showSubscriptionUpgradeModal({ featureName = 'this feature' } = 
         setTimeout(() => modal.remove(), 300);
     }
 }
+
+/**
+ * Shows a portal (iframe) to the pricing page within a modal.
+ * @param {object} options - { initialTab?: 'plans' | 'credits' }
+ */
+export function showPricingModal({ initialTab = 'plans' } = {}) {
+    const modalId = 'pricing-portal-modal';
+    document.getElementById(modalId)?.remove();
+
+    // Construct URL with mode=modal for conditional styling
+    const url = `pricing.html?mode=modal${initialTab === 'credits' ? '#credits' : ''}`;
+
+    const modal = createElement('div', {
+        id: modalId,
+        className: 'fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-500',
+        style: 'z-index: 10000000 !important;', // 10 million - above everything
+        onclick: (e) => { if (e.target === modal) closeModal(); }
+    });
+
+    const container = createElement('div', {
+        className: 'relative w-full h-full max-w-7xl max-h-[92vh] sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl transform scale-95 transition-all duration-500 bg-[#09090b] sm:mx-4',
+    });
+
+    // Premium Floating Close Button
+    const closeBtn = createElement('button', {
+        className: 'absolute top-5 right-5 p-2 bg-black/50 hover:bg-white/10 text-white rounded-full backdrop-blur-md border border-white/10 transition-all cursor-pointer shadow-xl hover:scale-110 active:scale-90',
+        style: 'z-index: 10000001 !important;',
+        innerHTML: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>',
+        onclick: closeModal
+    });
+
+    const iframe = createElement('iframe', {
+        src: url,
+        className: 'w-full h-full border-0',
+        onload: () => {
+            iframe.style.opacity = '1';
+        }
+    });
+    iframe.style.opacity = '0';
+    iframe.style.transition = 'opacity 0.8s ease';
+
+    container.appendChild(closeBtn);
+    container.appendChild(iframe);
+    modal.appendChild(container);
+    document.body.appendChild(modal);
+
+    // Entrance Animation
+    requestAnimationFrame(() => {
+        modal.classList.remove('opacity-0');
+        container.classList.remove('scale-95');
+        container.classList.add('scale-100');
+    });
+
+    function closeModal() {
+        modal.classList.add('opacity-0');
+        container.classList.remove('scale-100');
+        container.classList.add('scale-95');
+        setTimeout(() => modal.remove(), 500);
+    }
+
+    // Accessibility: Escape key support (from parent window)
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
+
+    // Listen for messages from iframe (e.g. to close modal via Esc within iframe)
+    const handleMessage = (e) => {
+        if (e.data === 'close-pricing-modal') {
+            closeModal();
+            window.removeEventListener('message', handleMessage);
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    window.addEventListener('message', handleMessage);
+}
+
