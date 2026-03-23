@@ -1790,6 +1790,9 @@
       margin-inline-end: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
     }
   }
+  .self-center {
+    align-self: center;
+  }
   .self-start {
     align-self: flex-start;
   }
