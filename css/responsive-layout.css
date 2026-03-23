@@ -41,6 +41,7 @@ body {
         /* Internal scrolling handled by grid areas */
         display: flex;
         flex-direction: column;
+        align-items: center;
     }
 
 
