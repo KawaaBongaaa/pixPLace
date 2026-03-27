@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1145,12 +1145,12 @@
                 }, { passive: true });
             })();
         </script>
-        <main class="flex-1 w-full min-h-0 pt-[112px] flex flex-col items-center" data-current-screen="generation">
+        <main class="flex-1 w-full min-h-0 pt-[112px] flex flex-col justify-start" data-current-screen="generation">
             <!-- Generation Screen -->
-            <div id="generationScreen" class="screen w-full max-w-[1600px] mx-auto self-center px-2 sm:px-4 lg:px-8">
+            <div id="generationScreen" class="screen w-full mx-auto px-2 sm:px-4 lg:px-8 xl:px-12 2xl:px-16">
                 <div class="w-full">
                     <form
-                        class="generation-form w-full flex flex-col xl:grid xl:grid-cols-[320px_minmax(0,1fr)_300px] gap-6 pb-12">
+                        class="generation-form w-full max-w-none flex flex-col xl:grid xl:grid-cols-[320px_minmax(0,1fr)_300px] gap-6 pb-12">
                         <div class="layout-section-modes flex flex-col">
                             <!-- Вкладки выбора типа генерации с сеткой карточек -->
                             <div class="mb-3">
@@ -2397,80 +2397,166 @@
     <footer
         class="relative z-50 w-full bg-white/80 dark:bg-gray-950 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 transition-colors duration-300 mt-auto">
         <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <!-- Brand Column -->
-                <div class="col-span-1 md:col-span-1">
+            <!-- Row 1: Brand -->
+            <div class="mb-12 border-b border-gray-200 dark:border-white/5 pb-12 px-4 sm:px-0">
+                <div class="max-w-md">
                     <div class="flex items-center gap-2 mb-4">
                         <span
-                            class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                            class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
                             pixPLace
                         </span>
                     </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed" data-i18n="footer_desc">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-6 leading-relaxed" data-i18n="footer_desc">
                         Next-generation AI creative studio. Turn your ideas into reality with our advanced generative
                         tools.
                     </p>
                     <div class="flex gap-4">
-                        <!-- Telegram Social Link -->
                         <a href="https://t.me/pixPLaceBot" target="_blank" rel="noopener noreferrer"
-                            class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                            class="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all active:scale-95"
                             aria-label="Telegram">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                                 <path
                                     d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.48-1.03-2.4-1.63-1.06-.69-.37-1.07.23-1.69.15-.16 2.75-2.52 2.8-.73.06.82-.12.47-.57 1.48-.36.76-.04 1.35-.94 1.93-1.6-.9-2.07-.66-2.9-.66-.85-.86-2.22-1.31-2.22-1.31s-.68.21-.69 1.25.4 1.63 1.05 1.84c.88.29 2.96.81 2.96.81s.88-.34 2.22-.84c1.16-.44 2.37-.87 3.53-1.3l.03-.01c1.37-.51 1.64-.69 1.83-.69.41 0 .61.27.61.57z" />
                             </svg>
                         </a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Links Column 1: Product -->
-                <div>
-                    <h3 class="text-xs font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4"
+            <!-- Row 2: Columns -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 lg:gap-12 mb-16 px-4 sm:px-0">
+                <!-- Column 1: Product -->
+                <div class="md:col-span-2">
+                    <h3 class="text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-[0.2em] mb-6"
                         data-i18n="footer_product">Product</h3>
-                    <ul class="space-y-3">
-                        <li><a href="#" onclick="showGeneration(); return false;"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                    <circle cx="8.5" cy="8.5" r="1.5" />
-                                    <polyline points="21 15 16 10 5 21" />
-                                </svg>
-                                <span data-i18n="footer_generate">Generate</span>
-                            </a></li>
-                        <li><a href="#" onclick="openSubscriptionPlans(); return false;"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path
-                                        d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-                                    <line x1="7" y1="7" x2="7.01" y2="7" />
-                                </svg>
-                                <span data-i18n="footer_pricing">Pricing</span>
-                            </a></li>
-                        <li><a href="#" onclick="openCreditPacks(); return false;"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <ellipse cx="12" cy="5" rx="9" ry="3" />
-                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-                                </svg>
-                                <span data-i18n="footer_credits">Credits</span>
-                            </a></li>
-                    </ul>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                        <ul class="space-y-4">
+                            <li><a href="#" onclick="showGeneration(); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <polyline points="21 15 16 10 5 21" />
+                                    </svg>
+                                    <span data-i18n="footer_ai_image">Ai Image</span>
+                                </a></li>
+                            <li><a href="#" onclick="switchGenerationTab('video'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M23 7l-7 5 7 5V7z" />
+                                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                                    </svg>
+                                    <span data-i18n="footer_ai_video">Ai Video</span>
+                                </a></li>
+                            <li><a href="#"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 18V5l12-2v13" />
+                                        <circle cx="6" cy="18" r="3" />
+                                        <circle cx="18" cy="16" r="3" />
+                                    </svg>
+                                    <span data-i18n="footer_ai_music">Ai Music</span>
+                                </a></li>
+                            <li><a href="#" onclick="showAICoach(); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                    </svg>
+                                    <span data-i18n="footer_ai_chat">GPT Chat</span>
+                                </a></li>
+                            <li><a href="#" onclick="switchGenerationTab('edit'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                    <span data-i18n="footer_image_edit">Image Edit</span>
+                                </a></li>
+                            <li><a href="#"
+                                    onclick="switchGenerationTab('image'); selectModelFromPicker('background_removal','Remove Background','other'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                                    </svg>
+                                    <span data-i18n="footer_remove_bg">Remove BackGround</span>
+                                </a></li>
+                        </ul>
+                        <ul class="space-y-4">
+                            <li><a href="#"
+                                    onclick="switchGenerationTab('image'); selectModelFromPicker('upscale_image','Enhance Image','other'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="15 3 21 3 21 9" />
+                                        <polyline points="9 21 3 21 3 15" />
+                                        <line x1="21" y1="3" x2="14" y2="10" />
+                                        <line x1="3" y1="21" x2="10" y2="14" />
+                                    </svg>
+                                    <span data-i18n="footer_upscale">Upscale or Enhance Image</span>
+                                </a></li>
+                            <li><a href="#"
+                                    onclick="switchGenerationTab('sound'); switchSoundTab('image'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <circle cx="15.5" cy="15.5" r="2.5" />
+                                        <path d="M8 13v2" />
+                                        <path d="M11 11v4" />
+                                    </svg>
+                                    <span data-i18n="footer_audio_from_image">Audio from Image</span>
+                                </a></li>
+                            <li><a href="#" onclick="switchGenerationTab('image'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                        <circle cx="12" cy="13" r="4" />
+                                    </svg>
+                                    <span data-i18n="footer_photosession">Photosesion</span>
+                                </a></li>
+                            <li><a href="#" onclick="switchGenerationTab('image'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                        <polyline points="9 22 9 12 15 12 15 22" />
+                                    </svg>
+                                    <span data-i18n="footer_interior_design">Interior Design</span>
+                                </a></li>
+                            <li><a href="#"
+                                    onclick="switchGenerationTab('image'); selectModelFromPicker('print_maker','Print on Demand','sdxl'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group leading-tight">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                        <rect x="6" y="14" width="12" height="8" />
+                                        <rect x="6" y="2" width="12" height="6" />
+                                    </svg>
+                                    <span data-i18n="footer_print_generator">Print Generator for PoD Services</span>
+                                </a></li>
+                        </ul>
+                    </div>
                 </div>
 
-                <!-- Links Column 2: Community & Resources -->
-                <div>
-                    <h3 class="text-xs font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4"
+                <!-- Column 2: Community -->
+                <div class="md:col-span-1">
+                    <h3 class="text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-[0.2em] mb-6"
                         data-i18n="footer_resources">Community & Resources</h3>
-                    <ul class="space-y-3">
-                        <li>
-                            <a href="https://t.me/pixplace_public/20" target="_blank"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <ul class="space-y-4">
+                        <li><a href="https://t.me/pixplace_public/20" target="_blank"
+                                class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path
                                         d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
                                     <path d="M18 14h-8" />
@@ -2478,13 +2564,11 @@
                                     <path d="M10 6h8v4h-8V6Z" />
                                 </svg>
                                 <span>Ai News Channel</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://t.me/pixplace_public/21" target="_blank"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            </a></li>
+                        <li><a href="https://t.me/pixplace_public/21" target="_blank"
+                                class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path
                                         d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
                                     <path d="M9 18h6" />
@@ -2492,71 +2576,93 @@
                                     <path d="M12 14V2" />
                                 </svg>
                                 <span>Daily Prompt Ideas</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://t.me/pixplace_public" target="_blank"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            </a></li>
+                        <li><a href="https://t.me/pixplace_public" target="_blank"
+                                class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                                     <circle cx="9" cy="7" r="4" />
                                     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                                 </svg>
                                 <span data-i18n="footer_community">Community Chat</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://prompt.pixplace.space/" target="_blank"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            </a></li>
+                        <li><a href="https://prompt.pixplace.space/" target="_blank"
+                                class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                                 </svg>
                                 <span data-i18n="footer_blog">Blog & Tutorials</span>
-                            </a>
-                        </li>
+                            </a></li>
                     </ul>
                 </div>
 
-                <!-- Links Column 3: Legal -->
-                <div>
-                    <h3 class="text-xs font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4"
-                        data-i18n="footer_legal">Legal</h3>
-                    <ul class="space-y-3">
-                        <li><a href="#" onclick="legalRouter.navigateTo('privacy'); return false;"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                </svg>
-                                <span data-i18n="footer_privacy">Privacy Policy</span>
-                            </a></li>
-                        <li><a href="#" onclick="legalRouter.navigateTo('terms'); return false;"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" />
-                                </svg>
-                                <span data-i18n="footer_terms">Terms of Service</span>
-                            </a></li>
-                        <li><a href="https://t.me/pixplace_support" target="_blank"
-                                class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <circle cx="12" cy="12" r="4" />
-                                    <line x1="4.93" y1="4.93" x2="9.17" y2="9.17" />
-                                    <line x1="14.83" y1="14.83" x2="19.07" y2="19.07" />
-                                    <line x1="14.83" y1="9.17" x2="19.07" y2="4.93" />
-                                    <line x1="4.93" y1="19.07" x2="9.17" y2="14.83" />
-                                </svg>
-                                <span data-i18n="footer_support">Contact Support</span>
-                            </a></li>
-                    </ul>
+                <!-- Column 3: Pricing & Legal -->
+                <div class="md:col-span-1">
+                    <div class="mb-10">
+                        <h3 class="text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-[0.2em] mb-6"
+                            data-i18n="footer_pricing">Pricing</h3>
+                        <ul class="space-y-4">
+                            <li><a href="#" onclick="openSubscriptionPlans(); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M20 7h-7L10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                                    </svg>
+                                    <span data-i18n="footer_update_plan">Update Plan</span>
+                                </a></li>
+                            <li><a href="#" onclick="openCreditPacks(); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                                    </svg>
+                                    <span data-i18n="footer_get_credits">Get Credits</span>
+                                </a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-[0.2em] mb-6"
+                            data-i18n="footer_legal">Legal</h3>
+                        <ul class="space-y-4">
+                            <li><a href="#" onclick="legalRouter.navigateTo('privacy'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                    </svg>
+                                    <span data-i18n="footer_privacy">Privacy Policy</span>
+                                </a></li>
+                            <li><a href="#" onclick="legalRouter.navigateTo('terms'); return false;"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" />
+                                    </svg>
+                                    <span data-i18n="footer_terms">Terms of Service</span>
+                                </a></li>
+                            <li><a href="https://t.me/pixplace_support" target="_blank"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <circle cx="12" cy="12" r="4" />
+                                        <line x1="4.93" y1="4.93" x2="9.17" y2="9.17" />
+                                        <line x1="14.83" y1="14.83" x2="19.07" y2="19.07" />
+                                        <line x1="14.83" y1="9.17" x2="19.07" y2="4.93" />
+                                        <line x1="4.93" y1="19.07" x2="9.17" y2="14.83" />
+                                    </svg>
+                                    <span data-i18n="footer_support">Contact Support</span>
+                                </a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
