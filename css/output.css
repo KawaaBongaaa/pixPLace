@@ -1238,6 +1238,9 @@
   .mb-12 {
     margin-bottom: 3rem;
   }
+  .mb-16 {
+    margin-bottom: 4rem;
+  }
   .mb-40 {
     margin-bottom: calc(var(--spacing) * 40);
   }
@@ -1315,6 +1318,9 @@
   }
   .h-8 {
     height: 2rem;
+  }
+  .h-9 {
+    height: 2.25rem;
   }
   .h-10 {
     height: 2.5rem;
@@ -1423,6 +1429,9 @@
   }
   .w-8 {
     width: 2rem;
+  }
+  .w-9 {
+    width: 2.25rem;
   }
   .w-10 {
     width: 2.5rem;
@@ -1765,6 +1774,9 @@
   .gap-8 {
     gap: 2rem;
   }
+  .gap-10 {
+    gap: 2.5rem;
+  }
   .space-y-1 {
     :where(& > :not(:last-child)) {
       --tw-space-y-reverse: 0;
@@ -1800,6 +1812,10 @@
       margin-block-end: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
     }
   }
+  .gap-x-8 {
+    -moz-column-gap: 2rem;
+         column-gap: 2rem;
+  }
   .space-x-6 {
     :where(& > :not(:last-child)) {
       --tw-space-x-reverse: 0;
@@ -1807,8 +1823,8 @@
       margin-inline-end: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
     }
   }
-  .self-center {
-    align-self: center;
+  .gap-y-4 {
+    row-gap: 1rem;
   }
   .self-start {
     align-self: flex-start;
@@ -3664,6 +3680,13 @@
       }
     }
   }
+  .hover\:bg-blue-100 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-blue-100);
+      }
+    }
+  }
   .hover\:bg-blue-200 {
     &:hover {
       @media (hover: hover) {
@@ -4414,6 +4437,11 @@
       padding: 3rem;
     }
   }
+  .sm\:px-0 {
+    @media (width >= 640px) {
+      padding-inline: 0;
+    }
+  }
   .sm\:px-2 {
     @media (width >= 640px) {
       padding-inline: 0.5rem;
@@ -4513,6 +4541,11 @@
   .md\:col-span-1 {
     @media (width >= 768px) {
       grid-column: span 1 / span 1;
+    }
+  }
+  .md\:col-span-2 {
+    @media (width >= 768px) {
+      grid-column: span 2 / span 2;
     }
   }
   .md\:container {
@@ -4644,6 +4677,11 @@
       gap: 1rem;
     }
   }
+  .lg\:gap-12 {
+    @media (width >= 1024px) {
+      gap: 3rem;
+    }
+  }
   .lg\:p-4 {
     @media (width >= 1024px) {
       padding: 1rem;
@@ -4703,6 +4741,16 @@
   .xl\:px-8 {
     @media (width >= 1280px) {
       padding-inline: 2rem;
+    }
+  }
+  .xl\:px-12 {
+    @media (width >= 1280px) {
+      padding-inline: 3rem;
+    }
+  }
+  .\32 xl\:px-16 {
+    @media (width >= 1440px) {
+      padding-inline: 4rem;
     }
   }
   .dark\:border-blue-800 {
@@ -5206,6 +5254,18 @@
           background-color: color-mix(in srgb, oklch(37.9% 0.146 265.522) 20%, transparent);
           @supports (color: color-mix(in lab, red, red)) {
             background-color: color-mix(in oklab, var(--color-blue-900) 20%, transparent);
+          }
+        }
+      }
+    }
+  }
+  .dark\:hover\:bg-blue-900\/40 {
+    [data-theme="dark"] & {
+      &:hover {
+        @media (hover: hover) {
+          background-color: color-mix(in srgb, oklch(37.9% 0.146 265.522) 40%, transparent);
+          @supports (color: color-mix(in lab, red, red)) {
+            background-color: color-mix(in oklab, var(--color-blue-900) 40%, transparent);
           }
         }
       }
