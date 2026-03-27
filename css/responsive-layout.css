@@ -17,7 +17,6 @@ body {
         padding-top: 112px;
         display: flex;
         flex-direction: column;
-        align-items: center;
     }
 
     /* The Generation Screen */
@@ -65,3 +64,47 @@ body {
         min-height: 130px !important;
     }
 }
+
+/* Container styles for proper centering and ultra-wide support */
+.container {
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Mobile: max-width: 768px */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* Tablet: 769px - 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+/* Desktop: 1025px - 1440px */
+@media (min-width: 1025px) and (max-width: 1440px) {
+    .container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+
+/* FIX: Force 3-column grid layout on XL screens (>= 1280px) */
+/* Fallback for modern media query syntax that may not be fully supported */
+@media (min-width: 1280px) {
+    .generation-form {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr) 300px;
+    }
+}
+
