@@ -53,13 +53,14 @@ body {
         color: #f1f5f9;
     }
 }
+
 /* Scaling for History Items (Wide) */
 @media (min-width: 1440px) {
     .history-caption {
         font-size: 13px !important;
         padding: 8px 12px !important;
     }
-    
+
     .history-mini {
         min-height: 130px !important;
     }
@@ -99,12 +100,38 @@ body {
 }
 
 
-/* FIX: Force 3-column grid layout on XL screens (>= 1280px) */
-/* Fallback for modern media query syntax that may not be fully supported */
+/* DEBUG: Color code grid sections */
 @media (min-width: 1280px) {
-    .generation-form {
-        display: grid;
-        grid-template-columns: 320px minmax(0, 1fr) 300px;
+    .layout-section-modes {
+        background-color: rgba(255, 0, 0, 0.2) !important;
+        outline: 2px dashed red !important;
+    }
+
+    .layout-section-prompt {
+        background-color: rgba(0, 255, 0, 0.2) !important;
+        outline: 2px dashed green !important;
+    }
+
+    .layout-section-extras {
+        background-color: rgba(0, 0, 255, 0.2) !important;
+        outline: 2px dashed blue !important;
     }
 }
 
+/* FIX: Force 3-column grid layout on XL screens (>= 1280px) */
+/* Now handled by Tailwind classes: xl:grid xl:grid-cols-[280px_minmax(0,1fr)_260px] 2xl:grid-cols-[320px_minmax(0,1fr)_300px] */
+/* Fallback for extremely old browsers that don't support modern grid syntax */
+@media (min-width: 1280px) {
+    .generation-form {
+        display: grid !important;
+        flex-direction: unset !important;
+        grid-template-columns: 280px minmax(0, 1fr) 260px !important;
+        grid-template-rows: auto !important;
+    }
+}
+
+@media (min-width: 1536px) {
+    .generation-form {
+        grid-template-columns: 320px minmax(0, 1fr) 300px !important;
+    }
+}
