@@ -51,6 +51,15 @@ async function handleTelegramLogin() {
                         window.appState.userId = String(data.userId);
                         window.appState.userName = data.userName || user.first_name;
                         window.appState.userAvatar = data.userPhotoUrl || user.photo_url || null;
+                        
+                        // 🔥 ADDED: Sync credits and profile to appState
+                        if (typeof window.appState.setUser === 'function') {
+                            window.appState.setUser({
+                                credits: data.credits !== undefined ? Number(data.credits) : undefined,
+                                isPremium: data.isPremium !== undefined ? !!data.isPremium : undefined,
+                                subscription: data.subscription || null
+                            });
+                        }
                     }
 
                     // 🔥 СОХРАНЯЕМ СЕССИЮ В LOCALSTORAGE (F5 FIX)
@@ -205,6 +214,15 @@ async function completeTelegramAuth(authData) {
                 window.appState.userId = data.userId;
                 window.appState.userName = data.userName || authData.user.first_name || authData.user.username;
                 window.appState.userAvatar = data.userPhotoUrl || authData.user.photo_url || null;
+
+                // 🔥 ADDED: Sync credits and profile to appState
+                if (typeof window.appState.setUser === 'function') {
+                    window.appState.setUser({
+                        credits: data.credits !== undefined ? Number(data.credits) : undefined,
+                        isPremium: data.isPremium !== undefined ? !!data.isPremium : undefined,
+                        subscription: data.subscription || null
+                    });
+                }
 
                 // Update UI immediately 
                 if (typeof window.updateUserMenuInfo === 'function') {
