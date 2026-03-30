@@ -128,7 +128,9 @@ class TelegramService {
                                     username: user.username || null,
                                     photo_url: data.userPhotoUrl || user.photo_url || null,
                                     language: user.language_code || 'en',
-                                    isPremium: user.is_premium || false
+                                    isPremium: data.isPremium !== undefined ? !!data.isPremium : (user.is_premium || false),
+                                    credits: data.credits !== undefined ? Number(data.credits) : undefined,
+                                    subscription: data.subscription || null
                                 });
 
                                 // Сохраняем сессию так же, как в обычной авторизации (fixes F5 localstorage bug)
