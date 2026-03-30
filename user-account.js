@@ -366,8 +366,64 @@ function updateUserMenuInfo() {
         creditsElement.textContent = credits;
     }
 
+
     console.log('📋 User menu info updated:', { isAuthenticated, userName });
+
+    // Refresh the top-up button whenever menu info changes
+    refreshTopUpButton();
 }
+
+/**
+ * Shows or hides a small "+" top-up button next to the credits display.
+ * Visible only when user is logged in AND credits ≤ 0.
+ * Routes to credit packs tab (pro/studio) or plans tab (others).
+ */
+function refreshTopUpButton() {
+    const creditsWrapper = document.getElementById('headerBalanceWrapper');
+    if (!creditsWrapper) return;
+
+    const existingBtn = document.getElementById('headerTopUpBtn');
+    const isAuthenticated = !!window.appState?.userId;
+    const credits = parseFloat(window.appState?.user?.credits ?? window.appState?.userCredits) || 0;
+
+    if (!isAuthenticated || credits > 0) {
+        existingBtn?.remove();
+        return;
+    }
+
+    // Create button if not already present
+    if (existingBtn) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'headerTopUpBtn';
+    btn.title = 'Get more credits';
+    btn.innerHTML = '+';
+    btn.style.cssText = [
+        'display:inline-flex', 'align-items:center', 'justify-content:center',
+        'width:18px', 'height:18px', 'border-radius:50%',
+        'background:linear-gradient(135deg,#7c3aed,#4f46e5)',
+        'color:#fff', 'font-size:13px', 'font-weight:900',
+        'border:none', 'cursor:pointer', 'margin-left:4px',
+        'box-shadow:0 1px 6px rgba(124,58,237,0.5)',
+        'transition:transform 0.15s,box-shadow 0.15s',
+        'flex-shrink:0', 'line-height:1'
+    ].join(';');
+    btn.onmouseover = () => { btn.style.transform = 'scale(1.15)'; btn.style.boxShadow='0 2px 10px rgba(124,58,237,0.7)'; };
+    btn.onmouseout  = () => { btn.style.transform = 'scale(1)';    btn.style.boxShadow='0 1px 6px rgba(124,58,237,0.5)'; };
+    btn.onclick = async () => {
+        if (window.navigator?.vibrate) window.navigator.vibrate(30);
+        const sub = (window.appState?.user?.subscription || '').toLowerCase();
+        const hasSub = ['pro', 'studio'].includes(sub);
+        try {
+            const { showPricingModal } = await import('./js/modules/ui-utils.js');
+            showPricingModal({ initialTab: hasSub ? 'credits' : 'plans' });
+        } catch(e) {
+            window.location.href = 'pricing.html';
+        }
+    };
+    creditsWrapper.appendChild(btn);
+}
+
 
 // Функция открытия истории списаний
 function openFinancialHistory() {
@@ -1092,6 +1148,8 @@ window.openFinancialHistory = openFinancialHistory;
 window.showFinancialHistoryModal = showFinancialHistoryModal;
 window.closeFinancialHistoryModal = closeFinancialHistoryModal;
 window.showCreditPacksModal = showCreditPacksModal;
+window.refreshTopUpButton = refreshTopUpButton;
+
 window.closeCreditPacksModal = closeCreditPacksModal;
 window.buyCreditPack = buyCreditPack;
 window.handleSignInClick = handleSignInClick;

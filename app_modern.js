@@ -1182,8 +1182,8 @@ async function updatePromptVisibility() {
     // 🔧 ЛОГИКА: Скрываем все лишние поля для режимов обработки
     const isProcessMode = ['background_removal', 'upscale_image'].includes(currentMode);
 
-    // Получаем текущую активную вкладку
-    const activeTab = document.querySelector('.tab-pane.active')?.dataset.tab || 'image';
+    // Note: tabs are switched via style.display — use window._currentGenerationTab, not .tab-pane.active
+    const activeTab = window._currentGenerationTab || 'image';
     const isSoundOrVideoTab = ['sound', 'video'].includes(activeTab);
 
     // ─── EDIT TAB: полностью пропускаем — UI управляется _showEditStep2 / clearEditImage в index.html ───
@@ -1267,7 +1267,7 @@ async function updatePromptVisibility() {
 
 // Обновляем видимость интерфейса при переключении таба
 document.addEventListener('tab:changed', (e) => {
-    const newTab = e?.detail?.tab || document.querySelector('.tab-pane.active')?.dataset.tab;
+    const newTab = e?.detail?.tab || window._currentGenerationTab || 'image';
     
     // При переходе на Edit — скрываем системные секции, если изображение еще не загружено
     if (newTab === 'edit') {
@@ -1376,12 +1376,19 @@ async function updateSizeSelectVisibility() {
 
     // Скрываем размеры для Sound и Edit вкладок
     const activeTabForSize = document.querySelector('.tab-pane.active')?.dataset.tab || 'image';
-    if (activeTabForSize === 'sound' || activeTabForSize === 'edit') {
+    if (activeTabForSize === 'sound') {
         sizeGroup.style.setProperty('display', 'none', 'important');
         sizeGroup.classList.add('hidden');
-        // Also hide the shared resolutionGroup — Edit tab uses its own editResolutionRow
         const resGroupShared = document.getElementById('resolutionGroup');
         if (resGroupShared) resGroupShared.style.setProperty('display', 'none', 'important');
+        return;
+    }
+    if (activeTabForSize === 'edit') {
+        // Edit tab hides the size (aspect ratio) selector but keeps resolutionGroup
+        // visible for nano_banana_2 / nano_banana_pro models inside Edit
+        sizeGroup.style.setProperty('display', 'none', 'important');
+        sizeGroup.classList.add('hidden');
+        // resolutionGroup visibility handled by updateResolutionSelectVisibility()
         return;
     }
 
@@ -1469,6 +1476,22 @@ async function updateResolutionSelectVisibility() {
     const resolutionSelect = document.getElementById('resolutionSelect');
     if (!resolutionGroup || !resolutionSelect) return;
 
+    // 🔥 FIX: In Edit mode, use window._editModel instead of the Image-tab mode
+    const activeTabNow = window._currentGenerationTab || 'image';
+    if (activeTabNow === 'edit') {
+        const editModel = window._editModel || 'nano_banana_pro';
+        const showRes = ['nano_banana_2', 'nano_banana_pro'].includes(editModel);
+        if (showRes) {
+            resolutionGroup.style.removeProperty('display');
+            resolutionGroup.style.display = 'flex';
+            resolutionGroup.classList.remove('hidden');
+        } else {
+            resolutionGroup.style.setProperty('display', 'none', 'important');
+            resolutionGroup.classList.add('hidden');
+        }
+        return;
+    }
+
     const currentMode = await getCurrentSelectedMode();
 
     if (currentMode === 'nano_banana_2' || currentMode === 'nano_banana_pro') {
@@ -1516,7 +1539,15 @@ async function updateResolutionSelectVisibility() {
     }
 }
 
+// ===== Expose key visibility functions to window for cross-script access =====
+// Needed by selectEditModel (index.html) to update resolution selector on model change
+window.updateResolutionSelectVisibility = updateResolutionSelectVisibility;
+// Needed by navigation-manager.js and other modules
+window.updatePromptVisibility = updatePromptVisibility;
+
 // ===== Инициализация UI загрузки =====
+
+
 function initUserImageUpload() {
     const input = document.getElementById('userImage');
     const removeBtn = document.getElementById('removeUserImage');
@@ -2527,9 +2558,35 @@ const GENERATION_COST_MAP = {
     'dreamshaper_xl': { withImages: 0, noImages: 0 }
 };
 
+// 🔒 Premium-only modes & tabs
+const PREMIUM_ONLY_MODES = new Set(['nano_banana_pro']);
+const PREMIUM_ONLY_TABS = new Set(['sound', 'video']);
+// nano_banana_2 at 2K/4K is also premium - checked dynamically inside checkGenerationAccess
+
 function checkGenerationAccess(mode, hasImages) {
     const user = window.appState?.user;
     if (!user || !user.id) return { ok: false, reason: 'unauthorized' };
+
+    // ── Premium subscription check ──────────────────────────────────────────
+    const hasPremiumSub = user.isPremium === true ||
+        ['pro', 'studio'].includes((user.subscription || '').toLowerCase());
+
+    const currentTab = window._currentGenerationTab || 'image';
+    if (PREMIUM_ONLY_TABS.has(currentTab) && !hasPremiumSub) {
+        const featureName = currentTab === 'sound' ? 'Music & Audio' : 'Video Generation';
+        return { ok: false, reason: 'requires_subscription', featureName };
+    }
+    if (PREMIUM_ONLY_MODES.has(mode) && !hasPremiumSub) {
+        return { ok: false, reason: 'requires_subscription', featureName: 'Nano Banana Pro' };
+    }
+    if (mode === 'nano_banana_2' && !hasPremiumSub) {
+        const resolutionSelect = document.getElementById('resolutionSelect');
+        const resolution = (resolutionSelect?.value || '1K').toUpperCase();
+        if (resolution === '2K' || resolution === '4K') {
+            return { ok: false, reason: 'requires_subscription', featureName: 'Nano Banana 2 (2K/4K)' };
+        }
+    }
+    // ───────────────────────────────────────────────────────────────────────
 
     let cost = 5;
     const costs = GENERATION_COST_MAP[mode];
@@ -2559,17 +2616,25 @@ function checkGenerationAccess(mode, hasImages) {
 async function handleAccessDenied(checkResult) {
     triggerHaptic('error');
     try {
-        const { showCreditPurchaseModal, showSubscriptionUpgradeModal } = await import('./js/modules/ui-utils.js');
+        const { showCreditPurchaseModal, showSubscriptionUpgradeModal, showPricingModal } = await import('./js/modules/ui-utils.js');
         if (checkResult.reason === 'unauthorized') {
             if (window.openAuthModal) window.openAuthModal();
         } else if (checkResult.reason === 'insufficient_funds') {
-            showCreditPurchaseModal({ cost: checkResult.cost, balance: checkResult.balance });
+            // Route top-up destination based on subscription:
+            // Pro/Studio users → credit packs tab; others → plans tab
+            const sub = (window.appState?.user?.subscription || '').toLowerCase();
+            const hasSub = ['pro', 'studio'].includes(sub);
+            showCreditPurchaseModal({
+                cost: checkResult.cost,
+                balance: checkResult.balance,
+                onTopUp: () => showPricingModal({ initialTab: hasSub ? 'credits' : 'plans' })
+            });
         } else if (checkResult.reason === 'requires_subscription') {
             showSubscriptionUpgradeModal({ featureName: checkResult.featureName || 'Pro Models' });
         }
     } catch (e) {
         console.error('❌ handleAccessDenied: ui-utils load failed', e);
-        if (window.showToast) window.showToast('error', `Not enough credits (${checkResult.balance} / ${checkResult.cost} needed)`);
+        if (window.showToast) window.showToast('error', `Access denied: ${checkResult.reason}`);
     }
 }
 
@@ -3022,7 +3087,7 @@ async function sendToWebhook(data) {
         data.action = 'Image Edit';
         data.editImageBlob = window._editImageBlob || null;
         data.editImageUrl = window._editImageUrl || null;
-        data.editResolution = document.getElementById('editResolutionSelect')?.value || '1K';
+        data.editResolution = document.getElementById('resolutionSelect')?.value || '1K';
         if (editModelMode === 'nano_banana') {
             webhookUrl = CONFIG.NANO_BANANA_WEBHOOK;
             webhookType = 'NANO_BANANA_WEBHOOK';
