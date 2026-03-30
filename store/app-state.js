@@ -100,6 +100,20 @@ export class AppStateManager {
     set userName(value) {
         this.updateState({ user: { ...this.state.user, name: value } });
     }
+
+    // 🔥 ADDED: Backward compatibility for credits
+    get userCredits() {
+        return this.state.user.credits;
+    }
+    set userCredits(value) {
+        if (value !== undefined && value !== null) {
+            const numValue = Number(value);
+            this.updateState({
+                user: { ...this.state.user, credits: numValue }
+            });
+            this.saveCurrentBalance();
+        }
+    }
     get userAvatar() { return this.state.user.photo_url; }
     set userAvatar(value) {
         this.updateState({ user: { ...this.state.user, photo_url: value } });
@@ -219,9 +233,16 @@ export class AppStateManager {
 
     // Методы для работы с пользователем
     setUser(userData) {
-        this.updateState({
+        console.log('👤 AppState: setting user:', userData);
+        const newState = {
             user: { ...this.state.user, ...userData }
-        });
+        };
+        this.updateState(newState);
+        
+        // 🔥 CRITICAL: If credentials/credits were in userData, save them to localStorage immediately
+        if (userData.credits !== undefined && userData.credits !== null) {
+            this.saveCurrentBalance();
+        }
     }
 
     // Методы для работы с историей генераций
