@@ -297,7 +297,7 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
         }
     });
     iframe.style.opacity = '0';
-    iframe.style.transition = 'opacity 0.8s ease';
+    iframe.style.transition = 'opacity 0.25s ease';
 
     container.appendChild(closeBtn);
     container.appendChild(iframe);
@@ -333,6 +333,10 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
             closeModal();
             window.removeEventListener('message', handleMessage);
             document.removeEventListener('keydown', handleEsc);
+        } else if (e.data === 'hide-close-btn') {
+            closeBtn.style.display = 'none';
+        } else if (e.data === 'show-close-btn') {
+            closeBtn.style.display = 'block';
         }
     };
     window.addEventListener('message', handleMessage);
