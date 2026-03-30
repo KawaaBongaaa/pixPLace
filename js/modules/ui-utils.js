@@ -236,8 +236,8 @@ export function showSubscriptionUpgradeModal({ featureName = 'this feature' } = 
         innerHTML: '✨ View Plans',
         onclick: () => {
             if (window.navigator?.vibrate) window.navigator.vibrate(30);
-            window.location.href = 'pricing.html';
             closeModal();
+            showPricingModal({ initialTab: 'plans' });
         }
     });
 
@@ -278,7 +278,7 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
     });
 
     const container = createElement('div', {
-        className: 'relative w-full h-full max-w-7xl max-h-[92vh] sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl transform scale-95 transition-all duration-500 bg-[#09090b] sm:mx-4',
+        className: 'relative w-full h-full max-w-7xl max-h-[92vh] sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl transform translate-y-full sm:translate-y-24 transition-all duration-500 ease-out bg-[#09090b] sm:mx-4',
     });
 
     // Premium Floating Close Button
@@ -307,14 +307,14 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
     // Entrance Animation
     requestAnimationFrame(() => {
         modal.classList.remove('opacity-0');
-        container.classList.remove('scale-95');
-        container.classList.add('scale-100');
+        container.classList.remove('translate-y-full', 'sm:translate-y-24');
+        container.classList.add('translate-y-0');
     });
 
     function closeModal() {
         modal.classList.add('opacity-0');
-        container.classList.remove('scale-100');
-        container.classList.add('scale-95');
+        container.classList.remove('translate-y-0');
+        container.classList.add('translate-y-full', 'sm:translate-y-24');
         setTimeout(() => modal.remove(), 500);
     }
 
