@@ -145,17 +145,26 @@ export class AuthManager {
                 this.internalUserId = data.userId;
                 this.userName = data.userName || user.first_name || user.username;
 
+                // 🔥 ADDED: Extract profile data from response
+                const profileUpdates = {
+                    internalUserId: data.userId,
+                    credits: data.credits !== undefined ? Number(data.credits) : undefined,
+                    isPremium: data.isPremium !== undefined ? !!data.isPremium : undefined,
+                    subscription: data.subscription || null,
+                    funnel_stage: data.funnel_stage || null
+                };
+
                 // Сохранение данных
                 this.saveAuthData({
                     ...user,
-                    internalUserId: data.userId,
+                    ...profileUpdates,
                     auth_type: 'webapp_api'
                 });
 
                 // Установка авторизованного пользователя
-                this.setAuthenticatedUser(user);
+                this.setAuthenticatedUser({ ...user, ...profileUpdates });
 
-                console.log('✅ WebApp API authentication successful');
+                console.log('✅ WebApp API authentication successful with profile data');
             } else {
                 throw new Error(data.error || 'API auth failed - no userId returned');
             }
@@ -228,6 +237,15 @@ export class AuthManager {
             // Используем внутренний ID базы данных (строку), если он доступен
             window.appState.userId = user.internalUserId || this.internalUserId || user.id;
             window.appState.userName = this.userName || user.first_name || user.username;
+            
+            // 🔥 ADDED: Sync credits and profile to appState
+            if (typeof window.appState.setUser === 'function') {
+                window.appState.setUser({
+                    credits: user.credits !== undefined ? user.credits : undefined,
+                    isPremium: user.isPremium !== undefined ? user.isPremium : undefined,
+                    subscription: user.subscription || null
+                });
+            }
         }
 
         // 🔥 Fetch fresh profile (credits, subscription) right after any auth success
