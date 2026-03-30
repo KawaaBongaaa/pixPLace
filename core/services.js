@@ -416,7 +416,10 @@ class UserProfileService {
             // Merge fresh data into appState user object
             const updates = {};
             if (data.credits !== undefined && data.credits !== null) updates.credits = Number(data.credits);
-            if (data.subscription !== undefined) updates.subscription = data.subscription;
+            if (data.isPremium !== undefined) updates.isPremium = !!data.isPremium;
+            if (data.subscription !== undefined) updates.subscription = data.subscription ?? null;
+            if (data.funnel_stage !== undefined) updates.funnel_stage = data.funnel_stage ?? null;
+            if (data.last_login !== undefined) updates.last_login = data.last_login ?? null;
             if (data.name || data.userName) updates.name = data.name || data.userName;
             if (data.photo_url || data.userPhotoUrl) updates.photo_url = data.photo_url || data.userPhotoUrl;
 
@@ -428,6 +431,10 @@ class UserProfileService {
                     localStorage.setItem('currentBalance', updates.credits);
                     if (window.updateUserBalance) window.updateUserBalance(updates.credits);
                 }
+
+                // Refresh header UI (balance display, top-up button, premium badge)
+                if (window.updateUserMenuInfo) window.updateUserMenuInfo();
+                if (window.refreshTopUpButton) window.refreshTopUpButton();
 
                 console.log('💾 UserProfileService: appState.user updated:', updates);
             }
