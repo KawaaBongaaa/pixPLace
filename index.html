@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1147,10 +1147,11 @@
         </script>
         <main class="flex-1 w-full min-h-0 pt-[112px] flex flex-col justify-start" data-current-screen="generation">
             <!-- Generation Screen -->
-            <div id="generationScreen" class="screen w-full mx-auto px-2 sm:px-4 lg:px-8 xl:px-12 2xl:px-16">
+            <div id="generationScreen"
+                class="screen w-full max-w-screen-2xl mx-auto px-2 sm:px-4 lg:px-8 xl:px-12 2xl:px-16">
                 <div class="w-full">
                     <form
-                        class="generation-form w-full max-w-none flex flex-col xl:grid xl:grid-cols-[320px_minmax(0,1fr)_300px] gap-6 pb-12">
+                        class="generation-form w-full max-w-none flex flex-col xl:grid xl:grid-cols-[280px_minmax(0,1fr)_260px] 2xl:grid-cols-[320px_minmax(0,1fr)_300px] gap-6 pb-12">
                         <div class="layout-section-modes flex flex-col">
                             <!-- Вкладки выбора типа генерации с сеткой карточек -->
                             <div class="mb-3">
@@ -1207,292 +1208,15 @@
                                             <circle cx="6" cy="18" r="3" />
                                             <circle cx="18" cy="16" r="3" />
                                         </svg>
-                                        <span>Sound</span>
+                                        <span>Music</span>
                                     </button>
                                 </div>
 
                                 <!-- ===== TAB PANES ===== -->
                                 <div class="tabs-content">
 
-                                    <!-- ── IMAGES TAB ── -->
                                     <div class="tab-pane active" data-tab="image">
-                                        <div id="ob-model-selector-row">
-                                            <!-- Compact model picker trigger -->
-                                            <div class="relative" id="modelPickerWrapper">
-                                                <button type="button" id="modelPickerBtn"
-                                                    class="model-picker-btn w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold transition-all duration-200 hover:bg-white/60 dark:hover:bg-white/10 cursor-pointer"
-                                                    onclick="toggleModelDropdown()">
-                                                    <span id="modelPickerIcon"
-                                                        class="flex-shrink-0 w-5 h-5 flex items-center justify-center">
-                                                        <!-- icon injected by JS -->
-                                                    </span>
-                                                    <span id="modelPickerLabel" class="flex-1 text-left">Nano Banana
-                                                        Pro</span>
-                                                    <span class="opacity-50 ml-auto">
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2.5">
-                                                            <path d="M6 9l6 6 6-6" />
-                                                        </svg>
-                                                    </span>
-                                                </button>
-
-                                                <!-- Model Dropdown -->
-                                                <div id="modelDropdown"
-                                                    class="model-dropdown hidden absolute top-full left-0 right-0 mt-1.5 rounded-2xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-2xl shadow-black/20 overflow-hidden z-50"
-                                                    style="max-height: 420px; overflow-y: auto;">
-
-                                                    <!-- Group: Google Gemini -->
-                                                    <div class="model-group">
-                                                        <div class="model-group-label">Google Gemini</div>
-                                                        <div class="model-item" data-mode="nano_banana"
-                                                            onclick="selectModelFromPicker('nano_banana','Nano Banana','gemini')">
-                                                            <span
-                                                                class="model-item-icon model-icon-gemini"><!-- G --><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
-                                                                        stroke-width="1.5" opacity="0.3" />
-                                                                    <path
-                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Nano Banana</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span><span
-                                                                        class="tag tag-green">logo</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">3 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="nano_banana_2"
-                                                            onclick="selectModelFromPicker('nano_banana_2','Nano Banana 2','gemini')">
-                                                            <span class="model-item-icon model-icon-gemini"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
-                                                                        stroke-width="1.5" opacity="0.3" />
-                                                                    <path
-                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Nano Banana 2</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">5–11 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="nano_banana_pro"
-                                                            onclick="selectModelFromPicker('nano_banana_pro','Nano Banana Pro','gemini')">
-                                                            <span class="model-item-icon model-icon-gemini"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
-                                                                        stroke-width="1.5" opacity="0.3" />
-                                                                    <path
-                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Nano Banana Pro</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">12–16 Cr</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Group: Z-Image -->
-                                                    <div class="model-group">
-                                                        <div class="model-group-label">Z-Image</div>
-                                                        <div class="model-item" data-mode="z_image"
-                                                            onclick="selectModelFromPicker('z_image','Z-Image Turbo','zimage')">
-                                                            <span class="model-item-icon model-icon-zimage"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
-                                                                        stroke="currentColor" stroke-width="1.8"
-                                                                        stroke-linejoin="round" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Z-Image Turbo</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">3 Cr</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Group: Qwen -->
-                                                    <div class="model-group">
-                                                        <div class="model-group-label">Qwen</div>
-                                                        <div class="model-item" data-mode="qwen_image"
-                                                            onclick="selectModelFromPicker('qwen_image','Qwen Image','qwen')">
-                                                            <span class="model-item-icon model-icon-qwen"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <rect x="3" y="3" width="18" height="18" rx="4"
-                                                                        stroke="currentColor" stroke-width="1.5"
-                                                                        opacity="0.3" />
-                                                                    <path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor"
-                                                                        stroke-width="1.8" stroke-linecap="round" />
-                                                                    <circle cx="12" cy="16" r="1.5"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Qwen Image</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">4 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="qwen_image_edit"
-                                                            onclick="selectModelFromPicker('qwen_image_edit','Qwen Image Edit','qwen')">
-                                                            <span class="model-item-icon model-icon-qwen"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <rect x="3" y="3" width="18" height="18" rx="4"
-                                                                        stroke="currentColor" stroke-width="1.5"
-                                                                        opacity="0.3" />
-                                                                    <path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor"
-                                                                        stroke-width="1.8" stroke-linecap="round" />
-                                                                    <circle cx="12" cy="16" r="1.5"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Qwen Image Edit</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">4 Cr</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Group: Flux -->
-                                                    <div class="model-group">
-                                                        <div class="model-group-label">Flux</div>
-                                                        <div class="model-item" data-mode="pixplace_pro"
-                                                            onclick="selectModelFromPicker('pixplace_pro','Flux Pro','flux')">
-                                                            <span class="model-item-icon model-icon-flux"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <path
-                                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                                                                        stroke="currentColor" stroke-width="1.5"
-                                                                        stroke-linejoin="round" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Flux Pro</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span><span
-                                                                        class="tag tag-purple">img2img</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">4 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="fast_generation"
-                                                            onclick="selectModelFromPicker('fast_generation','Flux Fast','flux')">
-                                                            <span class="model-item-icon model-icon-flux"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <path
-                                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                                                                        stroke="currentColor" stroke-width="1.5"
-                                                                        stroke-linejoin="round" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Flux Fast</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">3 Cr</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Group: SDXL -->
-                                                    <div class="model-group">
-                                                        <div class="model-group-label">SDXL</div>
-                                                        <div class="model-item" data-mode="print_maker"
-                                                            onclick="selectModelFromPicker('print_maker','Print on Demand','sdxl')">
-                                                            <span class="model-item-icon model-icon-sdxl"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <rect x="2" y="3" width="20" height="18" rx="2"
-                                                                        stroke="currentColor" stroke-width="1.5"
-                                                                        opacity="0.4" />
-                                                                    <path d="M8 10h8M8 14h5" stroke="currentColor"
-                                                                        stroke-width="1.8" stroke-linecap="round" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Print on Demand</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span><span
-                                                                        class="tag tag-purple">img2img</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">5 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="dreamshaper_xl"
-                                                            onclick="selectModelFromPicker('dreamshaper_xl','Dreamshaper XL','sdxl')">
-                                                            <span class="model-item-icon model-icon-sdxl"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <rect x="2" y="3" width="20" height="18" rx="2"
-                                                                        stroke="currentColor" stroke-width="1.5"
-                                                                        opacity="0.4" />
-                                                                    <path d="M8 10h8M8 14h5" stroke="currentColor"
-                                                                        stroke-width="1.8" stroke-linecap="round" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Dreamshaper XL</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-blue">txt2img</span><span
-                                                                        class="tag tag-purple">img2img</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge free-badge">Free</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Group: Other -->
-                                                    <div class="model-group">
-                                                        <div class="model-group-label">других</div>
-                                                        <div class="model-item" data-mode="upscale_image"
-                                                            onclick="selectModelFromPicker('upscale_image','Enhance Image','other')">
-                                                            <span class="model-item-icon model-icon-other"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <path d="M21 15l-5-5L7 18" stroke="currentColor"
-                                                                        stroke-width="1.8" stroke-linecap="round"
-                                                                        stroke-linejoin="round" />
-                                                                    <path d="M3 9l4-4 4 4" stroke="currentColor"
-                                                                        stroke-width="1.8" stroke-linecap="round"
-                                                                        stroke-linejoin="round" />
-                                                                    <line x1="7" y1="5" x2="7" y2="14"
-                                                                        stroke="currentColor" stroke-width="1.8"
-                                                                        stroke-linecap="round" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Enhance Image</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-purple">img2img</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">5 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="background_removal"
-                                                            onclick="selectModelFromPicker('background_removal','Remove Background','other')">
-                                                            <span class="model-item-icon model-icon-other"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <rect x="3" y="3" width="18" height="18" rx="2"
-                                                                        stroke="currentColor" stroke-width="1.5"
-                                                                        stroke-dasharray="3 2" opacity="0.6" />
-                                                                    <path d="M9 12l2 2 4-4" stroke="currentColor"
-                                                                        stroke-width="1.8" stroke-linecap="round"
-                                                                        stroke-linejoin="round" />
-                                                                </svg></span>
-                                                            <div class="model-item-info">
-                                                                <span class="model-item-name">Remove
-                                                                    Background</span>
-                                                                <span class="model-item-tags"><span
-                                                                        class="tag tag-purple">img2img</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge free-badge">Free</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
+                                        <!-- Portal moved to prompt area -->
                                     </div>
 
                                     <!-- ── VIDEOS TAB ── -->
@@ -1704,23 +1428,12 @@
                                                             <span class="model-item-badge">4 Cr</span>
                                                         </div>
                                                     </div>
-                                                    <!-- Resolution (Nano Banana only) -->
-                                                    <div id="editResolutionRow"
-                                                        class="hidden flex items-center gap-2 mb-2">
-                                                        <span
-                                                            class="text-[9px] uppercase font-bold opacity-50">Res</span>
-                                                        <select id="editResolutionSelect"
-                                                            class="bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1 px-2 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer">
-                                                            <option value="1K" selected>1K</option>
-                                                            <option value="2K">2K</option>
-                                                            <option value="4K">4K (Pro)</option>
-                                                        </select>
 
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
 
                                     <!-- ── SOUND AI TAB ── -->
                                     <div class="tab-pane" data-tab="sound" style="display:none">
@@ -2222,15 +1935,28 @@
                                             </div>
                                         </div>
 
-                                        <!-- Right: Generate Button -->
-                                        <button type="submit" id="generateBtn"
-                                            class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl py-2 px-6 text-sm font-bold shadow-xl shadow-blue-500/30 border-2 border-white/20 hover:border-white/40 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transform transition-all duration-200 w-full sm:w-auto bg-[length:200%_auto] hover:bg-right">
-                                            <span data-i18n="generate_btn">Generate</span>
-                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2.5">
-                                                <path d="M5 12h14M12 5l7 7-7 7" />
-                                            </svg>
-                                        </button>
+                                        <!-- Model Selector + Generate Button (grouped together on desktop) -->
+                                        <div
+                                            class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto order-2 sm:order-none">
+
+                                            <!-- Form Portal Container for iframe Model Selector -->
+                                            <div id="form-portal-container"
+                                                class="relative w-full sm:w-[220px] h-[44px] z-[200]"
+                                                style="overflow: visible;">
+                                                <!-- iframe will be loaded here by portal-loader.js -->
+                                            </div>
+
+                                            <!-- Generate Button -->
+                                            <button type="submit" id="generateBtn"
+                                                class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl py-2 px-6 text-sm font-bold shadow-xl shadow-blue-500/30 border-2 border-white/20 hover:border-white/40 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transform transition-all duration-200 w-full sm:w-auto bg-[length:200%_auto] hover:bg-right">
+                                                <span data-i18n="generate_btn">Generate</span>
+                                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2.5">
+                                                    <path d="M5 12h14M12 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+
+                                        </div>
                                     </div>
                                 </div>
 
@@ -2914,12 +2640,9 @@
                 ico.className = 'flex-shrink-0 w-4 h-4 ' + (ICON_CLASS[iconKey] || 'model-icon-other');
                 ico.innerHTML = MODEL_ICONS[iconKey] || MODEL_ICONS.other;
             }
-            // Show resolution row for all nano banana variants
-            const resRow = document.getElementById('editResolutionRow');
-            const isNano = mode === 'nano_banana' || mode === 'nano_banana_2' || mode === 'nano_banana_pro';
-            if (resRow) resRow.classList.toggle('hidden', !isNano);
-            // Store selected edit model for webhook dispatch
+            // Show resolution selector (shared, in prompt toolbar) for nano banana variants
             window._editModel = mode;
+            if (window.updateResolutionSelectVisibility) window.updateResolutionSelectVisibility();
             _closeAllDropdowns();
         }
 
@@ -2979,15 +2702,23 @@
 
             // Manage prompt textarea visibility:
             // - Audio from Text: show the prompt so user types their description
-            // - Audio from Image: hide prompt until image is selected (showSoundStep2 shows it)
+            // - Audio from Image: hide prompt until image is selected (_showSoundStep2 shows it)
             const promptSection = document.getElementById('promptFormGroup');
             const promptDivider = document.getElementById('promptDivider');
             if (tabName === 'text') {
                 if (promptSection) promptSection.style.display = '';
                 if (promptDivider) promptDivider.style.display = 'none';
             } else {
-                // Image mode: only show prompt after image is chosen
-                if (promptSection) promptSection.style.display = 'none';
+                // 🔥 FIX: If image was already uploaded (step2 visible), keep prompt visible
+                const step2 = document.getElementById('soundImageStep2');
+                const imageAlreadyUploaded = step2 && !step2.classList.contains('hidden');
+                if (imageAlreadyUploaded) {
+                    // Image is uploaded → keep prompt visible
+                    if (promptSection) promptSection.style.display = '';
+                } else {
+                    // No image yet → hide prompt until image is chosen
+                    if (promptSection) promptSection.style.display = 'none';
+                }
                 if (promptDivider) promptDivider.style.display = 'none';
             }
         }
@@ -3223,7 +2954,32 @@
         });
     </script>
 
+    <!-- Portal Loader for modular forms -->
+    <script src="/forms/portal-loader.js?t=${Date.now()}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize portal loader for image form
+            window.portalLoader = new PortalLoader({
+                basePath: '/forms/',
+                containerSelector: '#form-portal-container',
+                defaultForm: 'image'
+            });
+
+            // Integrate with existing tab switching
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.getAttribute('data-tab');
+                    if (tab && window.portalLoader) {
+                        window.portalLoader.switchForm(tab);
+                    }
+                });
+            });
+        });
+    </script>
+
 </body>
+
 
 
 
