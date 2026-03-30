@@ -16,7 +16,10 @@ export class AppStateManager {
                 username: null,
                 photo_url: null,
                 language: 'en',
-                isPremium: false
+                isPremium: false,
+                subscription: null,    // e.g. '', 'touch', 'pro', 'studio'
+                funnel_stage: null,    // stored, no action yet
+                last_login: null       // stored, no action yet
             },
 
             // Telegram объект (для обратной совместимости)
