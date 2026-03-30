@@ -1647,6 +1647,10 @@
     --tw-translate-y: 7rem;
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
+  .translate-y-full {
+    --tw-translate-y: 100%;
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
   .scale-1 {
     --tw-scale-x: 1%;
     --tw-scale-y: 1%;
@@ -4696,6 +4700,12 @@
   .sm\:flex-none {
     @media (width >= 640px) {
       flex: none;
+    }
+  }
+  .sm\:translate-y-24 {
+    @media (width >= 640px) {
+      --tw-translate-y: 6rem;
+      translate: var(--tw-translate-x) var(--tw-translate-y);
     }
   }
   .sm\:grid-cols-2 {
