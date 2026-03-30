@@ -92,12 +92,7 @@ body {
 }
 
 /* Desktop: 1025px - 1440px */
-@media (min-width: 1025px) and (max-width: 1440px) {
-    .container {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-}
+
 
 
 /* DEBUG: Color code grid sections */
@@ -117,7 +112,6 @@ body {
         outline: 2px dashed blue !important;
     }
 }
-
 /* FIX: Force 3-column grid layout on XL screens (>= 1280px) */
 /* Now handled by Tailwind classes: xl:grid xl:grid-cols-[280px_minmax(0,1fr)_260px] 2xl:grid-cols-[320px_minmax(0,1fr)_300px] */
 /* Fallback for extremely old browsers that don't support modern grid syntax */
@@ -127,11 +121,131 @@ body {
         flex-direction: unset !important;
         grid-template-columns: 280px minmax(0, 1fr) 260px !important;
         grid-template-rows: auto !important;
+        /* Strong visual indicator */
+        outline: 5px solid #ff00ff !important;
+        outline-offset: -5px;
+        position: relative;
+    }
+    
+    .generation-form::after {
+        content: "XL SCREEN (≥1280px): 3-COLUMN GRID ACTIVE" !important;
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.9);
+        color: #00ff00;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: monospace;
+        font-weight: bold;
+        z-index: 99999;
+        pointer-events: none;
+        border: 2px solid #00ff00;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    }
+    
+    /* Make sure debug colors are visible */
+    .layout-section-modes {
+        background-color: rgba(255, 0, 0, 0.3) !important;
+        outline: 3px dashed red !important;
+    }
+
+    .layout-section-prompt {
+        background-color: rgba(0, 255, 0, 0.3) !important;
+        outline: 3px dashed green !important;
+    }
+
+    .layout-section-extras {
+        background-color: rgba(0, 0, 255, 0.3) !important;
+        outline: 3px dashed blue !important;
+    }
+}@media (min-width: 1536px) {
+    .generation-form {
+        grid-template-columns: 320px minmax(0, 1fr) 300px !important;
+    }
+}
+/* ULTRA-AGGRESSIVE DEBUG - Force grid layout */
+@media (min-width: 1280px) {
+    .generation-form {
+        all: unset !important;
+        display: grid !important;
+        grid-template-columns: 280px minmax(0, 1fr) 260px !important;
+        grid-template-rows: auto !important;
+        gap: 24px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-bottom: 48px !important;
+    }
+    
+    .generation-form > * {
+        min-width: 0 !important;
+    }
+    
+    /* Force grid items to be in correct positions */
+    .layout-section-modes {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+    }
+    
+    .layout-section-prompt {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+    
+    .layout-section-extras {
+        grid-column: 3 !important;
+        grid-row: 1 !important;
+    }
+}
+/* FIX FOR 1280px+ SCREENS - Use flexbox instead of grid */
+@media (min-width: 1280px) {
+    .generation-form {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 24px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-bottom: 48px !important;
+    }
+    
+    /* Three columns */
+    .layout-section-modes {
+        flex: 0 0 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+        order: 1 !important;
+    }
+    
+    .layout-section-prompt {
+        flex: 1 1 auto !important;
+        min-width: 0 !important; /* Important for flex shrinking */
+        order: 2 !important;
+    }
+    
+    .layout-section-extras {
+        flex: 0 0 260px !important;
+        min-width: 260px !important;
+        max-width: 260px !important;
+        order: 3 !important;
+    }
+    
+    /* Hide any wrappers that might be interfering */
+    .generation-form > *:not(.layout-section-modes):not(.layout-section-prompt):not(.layout-section-extras) {
     }
 }
 
 @media (min-width: 1536px) {
-    .generation-form {
-        grid-template-columns: 320px minmax(0, 1fr) 300px !important;
+    .layout-section-modes {
+        flex-basis: 320px !important;
+        min-width: 320px !important;
+        max-width: 320px !important;
+    }
+    
+    .layout-section-extras {
+        flex-basis: 300px !important;
+        min-width: 300px !important;
+        max-width: 300px !important;
     }
 }
