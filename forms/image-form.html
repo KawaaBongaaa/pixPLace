@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ai Image Generation workflow - by pixPLace App</title>
+
+    <!-- Early theme detection to prevent flickering -->
+    <script>
+        (function () {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches ||
+                document.documentElement.classList.contains('dark') ||
+                document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            /* Iframe height is managed by parent */
+        }
+
+        /* Theme CSS Variables */
+        :root {
+            --bg-input-light: rgba(255, 255, 255, 0.8);
+            --bg-input-dark: rgba(255, 255, 255, 0.05);
+            --border-input-light: rgba(0, 0, 0, 0.1);
+            --border-input-dark: rgba(255, 255, 255, 0.1);
+            --text-primary-light: #1e293b;
+            --text-primary-dark: #f1f5f9;
+            --bg-model-picker-light: rgba(255, 255, 255, 0.4);
+            --bg-model-picker-dark: rgba(255, 255, 255, 0.05);
+            --border-model-picker-light: rgba(255, 255, 255, 0.25);
+            --border-model-picker-dark: rgba(255, 255, 255, 0.1);
+            --bg-model-picker-hover-light: rgba(255, 255, 255, 0.6);
+            --bg-model-picker-hover-dark: rgba(255, 255, 255, 0.1);
+            --bg-dropzone-light: rgba(255, 255, 255, 0.3);
+            --bg-dropzone-dark: rgba(255, 255, 255, 0.05);
+            --bg-slider-light: rgba(0, 0, 0, 0.1);
+            --bg-slider-dark: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Reset for iframe */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: transparent;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        .dark body {
+            color: #f1f5f9;
+        }
+
+        .form-container {
+            padding: 16px;
+        }
+
+        /* Model Picker Styles */
+        #ob-model-selector-row {
+            margin-bottom: 20px;
+        }
+
+        .model-picker-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-model-picker-light);
+            background: var(--bg-model-picker-light);
+            color: var(--text-primary-light);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dark .model-picker-btn {
+            background: var(--bg-model-picker-dark);
+            color: var(--text-primary-dark);
+            border-color: var(--border-model-picker-dark);
+        }
+
+        .model-picker-btn:hover {
+            background: var(--bg-model-picker-hover-light);
+        }
+
+        .dark .model-picker-btn:hover {
+            background: var(--bg-model-picker-hover-dark);
+        }
+
+        /* Modal overlay for model list */
+        .model-dropdown {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 999999;
+            background: rgba(0, 0, 0, 0);
+            /* Background will be handled by parent expansion */
+        }
+
+        .model-dropdown .modal-content {
+            width: 100%;
+            max-width: 380px;
+            width: calc(100% - 32px);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(30px) saturate(180%);
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
+            transform: scale(0.9) translateY(30px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dark .model-dropdown .modal-content {
+            background: rgba(15, 23, 42, 0.75);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
+        }
+
+        .model-dropdown.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .model-dropdown.open .modal-content {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 20px 20px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .modal-close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dark .modal-close-btn {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .dark .modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            flex: 1;
+            padding-bottom: 20px;
+            scrollbar-width: none;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .model-group {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .model-group {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .model-group-label {
+            padding: 0 16px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+        }
+
+        .model-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .model-item:hover {
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .model-item-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .model-item-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .model-item-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .dark .model-item-name {
+            color: #f1f5f9;
+        }
+
+        .model-item-tags {
+            display: flex;
+            gap: 4px;
+        }
+
+        .tag {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tag-blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .tag-green {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .tag-purple {
+            background: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+        }
+
+        .tag-orange {
+            background: rgba(249, 115, 22, 0.15);
+            color: #f97316;
+        }
+
+        .model-item-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: #10b981;
+            padding: 4px 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 6px;
+        }
+
+        .free-badge {
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        /* Size format icons */
+        .size-option-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.8;
+        }
+
+        .dark .size-option-icon {
+            opacity: 0.9;
+        }
+
+        .size-icon-square {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3C/svg%3E");
+        }
+
+        .dark .size-icon-square {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3C/svg%3E");
+        }
+
+        .size-icon-landscape {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Crect x='2' y='7' width='20' height='10' rx='2'/%3E%3C/svg%3E");
+        }
+
+        .dark .size-icon-landscape {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Crect x='2' y='7' width='20' height='10' rx='2'/%3E%3C/svg%3E");
+        }
+
+        .size-icon-portrait {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Crect x='7' y='2' width='10' height='20' rx='2'/%3E%3C/svg%3E");
+        }
+
+        .dark .size-icon-portrait {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Crect x='7' y='2' width='10' height='20' rx='2'/%3E%3C/svg%3E");
+        }
+
+        .size-icon-auto {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
+        }
+
+        .dark .size-icon-auto {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
+        }
+
+        /* Size value icon styling */
+        .control-value {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .size-value-icon {
+            width: 16px;
+            height: 16px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.8;
+            flex-shrink: 0;
+        }
+
+        .dark .size-value-icon {
+            opacity: 0.9;
+        }
+
+        /* Prompt input area */
+        .prompt-section {
+            margin-top: 20px;
+        }
+
+        .prompt-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #64748b;
+        }
+
+        .dark .prompt-label {
+            color: #94a3b8;
+        }
+
+        .prompt-input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-input-light);
+            background: var(--bg-input-light);
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.2s;
+            color: var(--text-primary-light);
+        }
+
+        .dark .prompt-input {
+            background: var(--bg-input-dark);
+            border-color: var(--border-input-dark);
+            color: var(--text-primary-dark);
+        }
+
+        .prompt-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Generate button */
+        .generate-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Status message */
+        .status-message {
+            margin-top: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .status-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            display: block;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            display: block;
+        }
+
+        /* Additional form controls */
+        .form-controls {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .dark .control-label {
+            color: #94a3b8;
+        }
+
+        .control-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .dark .control-value {
+            color: #f1f5f9;
+        }
+
+        .slider-container {
+            width: 100%;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .dark .slider {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Image Dropzone */
+        .image-dropzone-section {
+            margin-top: 20px;
+        }
+
+        .dropzone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .dropzone-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .dropzone-hint {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .image-dropzone {
+            border: 1.5px dashed rgba(99, 102, 241, 0.35);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dark .image-dropzone {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .image-dropzone:hover {
+            border-color: rgba(99, 102, 241, 0.6);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .dropzone-icon {
+            opacity: 0.4;
+            margin-bottom: 8px;
+        }
+
+        .dropzone-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+
+        .dark .dropzone-title {
+            color: #cbd5e1;
+        }
+
+        .dropzone-sub {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .image-preview-container {
+            margin-top: 12px;
+        }
+
+        .preview-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preview-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .preview-thumb {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .clear-images-btn {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #ef4444;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Style Chips */
+        .style-chips-section {
+            margin-top: 20px;
+        }
+
+        .style-chips-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .style-chips-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .style-chips-hint {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .style-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .style-chip {
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dark .style-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+        }
+
+        .style-chip:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .style-chip.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+            color: #6366f1;
+            font-weight: 600;
+        }
+
+        /* Style chips more section */
+        .style-chips-more {
+            margin-top: 10px;
+        }
+
+        .style-more-btn {
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px dashed rgba(99, 102, 241, 0.3);
+            background: rgba(99, 102, 241, 0.05);
+            font-size: 10px;
+            font-weight: 500;
+            color: #6366f1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dark .style-more-btn {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .style-more-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .style-chips-secondary {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .style-chips-secondary {
+            border-top-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Style categories */
+        .style-category {
+            margin-top: 16px;
+        }
+
+        .style-category-header {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .style-category-header {
+            color: #94a3b8;
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Character counter */
+        .char-counter {
+            text-align: right;
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Negative prompt toggle */
+        .negative-prompt-toggle {
+            margin-top: 12px;
+        }
+
+        .toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #64748b;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .toggle-btn svg {
+            transition: transform 0.2s;
+        }
+
+        .toggle-btn.expanded svg {
+            transform: rotate(180deg);
+        }
+
+        .prompt-input.negative {
+            margin-top: 8px;
+            min-height: 60px;
+        }
+
+        /* Minimal view to show only model picker */
+        .minimal-view>*:not(#ob-model-selector-row) {
+            display: none !important;
+        }
+
+        .minimal-view {
+            padding: 0 !important;
+        }
+
+        .minimal-view #ob-model-selector-row {
+            margin-bottom: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container minimal-view" id="imageForm">
+        <div id="ob-model-selector-row">
+            <!-- Compact model picker trigger -->
+            <div class="relative" id="modelPickerWrapper">
+                <button type="button" id="modelPickerBtn" class="model-picker-btn">
+                    <span id="modelPickerIcon" class="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                fill="currentColor" />
+                        </svg>
+                    </span>
+                    <span id="modelPickerLabel" class="flex-1 text-left">Nano Banana Pro</span>
+                    <span class="opacity-50 ml-auto">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </span>
+                </button>
+
+                <!-- Model Dropdown -->
+                <!-- Model list displayed as a modal overlay -->
+                <div id="modelDropdown" class="model-dropdown">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <span class="modal-title">Select Model</span>
+                            <button type="button" class="modal-close-btn" id="closeModelModal">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Group: Google Gemini -->
+                            <div class="model-group">
+                                <div class="model-group-label">Google Gemini</div>
+                                <div class="model-item" data-mode="nano_banana">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"
+                                                opacity="0.3" />
+                                            <path
+                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                fill="currentColor" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Nano Banana</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-green">logo</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">3 Cr</span>
+                                </div>
+                                <div class="model-item" data-mode="nano_banana_2">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"
+                                                opacity="0.3" />
+                                            <path
+                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                fill="currentColor" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Nano Banana 2</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">edit</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">5–11 Cr</span>
+                                </div>
+                                <div class="model-item" data-mode="nano_banana_pro">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"
+                                                opacity="0.3" />
+                                            <path
+                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
+                                                fill="currentColor" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Nano Banana Pro</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">edit</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">12–16 Cr</span>
+                                </div>
+                            </div>
+
+                            <!-- Group: Z-Image -->
+                            <div class="model-group">
+                                <div class="model-group-label">Z-Image</div>
+                                <div class="model-item" data-mode="z_image">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor"
+                                                stroke-width="1.8" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Z-Image Turbo</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">edit</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">3 Cr</span>
+                                </div>
+                            </div>
+
+                            <!-- Group: Qwen -->
+                            <div class="model-group">
+                                <div class="model-group-label">Qwen</div>
+                                <div class="model-item" data-mode="qwen_image">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor"
+                                                stroke-width="1.5" opacity="0.3" />
+                                            <path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linecap="round" />
+                                            <circle cx="12" cy="16" r="1.5" fill="currentColor" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Qwen Image</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">edit</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">4 Cr</span>
+                                </div>
+                                <div class="model-item" data-mode="qwen_image_edit">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor"
+                                                stroke-width="1.5" opacity="0.3" />
+                                            <path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linecap="round" />
+                                            <circle cx="12" cy="16" r="1.5" fill="currentColor" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Qwen Image Edit</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-purple">edit</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">4 Cr</span>
+                                </div>
+                            </div>
+
+                            <!-- Group: Flux -->
+                            <div class="model-group">
+                                <div class="model-group-label">Flux</div>
+                                <div class="model-item" data-mode="pixplace_pro">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                                                stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Flux Pro</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">img2img</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">4 Cr</span>
+                                </div>
+                                <div class="model-item" data-mode="fast_generation">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                                                stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Flux Fast</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">1 Cr</span>
+                                </div>
+                            </div>
+
+                            <!-- Group: SDXL -->
+                            <div class="model-group">
+                                <div class="model-group-label">SDXL</div>
+                                <div class="model-item" data-mode="print_maker">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor"
+                                                stroke-width="1.5" opacity="0.4" />
+                                            <path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Print on Demand</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">img2img</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">5 Cr</span>
+                                </div>
+                                <div class="model-item" data-mode="dreamshaper_xl">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor"
+                                                stroke-width="1.5" opacity="0.4" />
+                                            <path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Dreamshaper XL</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">img2img</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge free-badge">1 Cr</span>
+                                </div>
+                            </div>
+
+                            <!-- Group: Other -->
+                            <div class="model-group">
+                                <div class="model-group-label">других</div>
+                                <div class="model-item" data-mode="upscale_image">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <path d="M21 15l-5-5L7 18" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M3 9l4-4 4 4" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <line x1="7" y1="5" x2="7" y2="14" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Enhance Image</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-purple">img2img</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">5 Cr</span>
+                                </div>
+                                <div class="model-item" data-mode="background_removal">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor"
+                                                stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6" />
+                                            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Remove Background</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-purple">img2img</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge free-badge">2 Cr</span>
+                                </div>
+                            </div> <!-- /modal-body -->
+                        </div> <!-- /modal-content -->
+                    </div> <!-- /modelDropdown -->
+                </div>
+            </div>
+            <div class="style-chips-section" style="margin-top: 24px;">
+                <div class="style-chips-header">
+                    <span class="style-chips-label">Professional Use Cases</span>
+                    <span class="style-chips-hint">Click to add relevant phrases to prompt</span>
+                </div>
+                <div class="style-chips">
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="interior design, modern living room, 3D rendering">Interior Design</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="architectural visualization, exterior facade, daylight">Architecture</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="product photography, white background, studio lighting">Product
+                        Photography</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="fashion photography, model posing, editorial">Fashion</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="logo design, minimalist, vector">Logo Design</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="infographic, data visualization, colorful">Infographic</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="packaging design, label, mockup">Packaging</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="social media post, Instagram square, trendy">Social Media</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="book cover, typography, dramatic">Book Cover</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="website banner, hero image, modern">Website Banner</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="camera angle low shot, wide lens, perspective">Camera Angle</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="macro lens, close-up, detailed">Macro Lens</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="aerial view, drone, landscape">Aerial View</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="isometric view, 3D illustration, technical">Isometric</button>
+                    <button type="button" class="style-chip professional-chip"
+                        data-phrase="flat lay, overhead, arranged objects">Flat Lay</button>
+                </div>
+                <div class="style-chips-more">
+                    <button type="button" id="showMoreProfessional" class="style-more-btn">Show more professional
+                        cases...</button>
+                    <div id="moreProfessionalContainer" class="hidden">
+                        <div class="style-chips style-chips-secondary">
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="UI design, dashboard, wireframe">UI Design</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="icon set, pixel perfect, consistent">Icon Set</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="character design, concept art, fantasy">Character Design</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="texture, seamless pattern, tileable">Texture</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="blueprint, technical drawing, measurements">Blueprint</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="storyboard, comic panel, narrative">Storyboard</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="mood board, collage, inspiration">Mood Board</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="presentation slide, corporate, clean">Presentation Slide</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="billboard, large format, bold">Billboard</button>
+                            <button type="button" class="style-chip professional-chip"
+                                data-phrase="merchandise, t-shirt print, wearable">Merchandise</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Prompt Input Section -->
+            <div class="prompt-section">
+                <label for="promptInput" class="prompt-label">Describe what you want to generate</label>
+                <textarea id="promptInput" class="prompt-input"
+                    placeholder="A beautiful sunset over mountains, digital art, vibrant colors..." rows="4"></textarea>
+
+                <!-- Character Counter -->
+                <div class="char-counter" id="charCounter">0/2000</div>
+
+                <!-- Negative Prompt Toggle -->
+                <div class="negative-prompt-toggle">
+                    <button type="button" id="toggleNegativePrompt" class="toggle-btn">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                        <span>Negative prompt</span>
+                    </button>
+                    <div id="negativePromptContainer" class="hidden">
+                        <textarea id="negativePromptInput" class="prompt-input negative"
+                            placeholder="Things to avoid (e.g. blurry, low quality, deformed)..." rows="2"></textarea>
+                        <div class="char-counter" id="negativeCharCounter">0/1000</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Dropzone (Reference Images) -->
+            <div class="image-dropzone-section">
+                <div class="dropzone-header">
+                    <span class="dropzone-label">Reference Images (optional)</span>
+                    <span class="dropzone-hint">Upload up to 4 images for style reference</span>
+                </div>
+                <div id="imageDropzone" class="image-dropzone"
+                    onclick="document.getElementById('referenceImageInput').click()" ondragover="event.preventDefault()"
+                    ondrop="handleImageDrop(event)">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round" class="dropzone-icon">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <p class="dropzone-title">Drop your images here</p>
+                    <p class="dropzone-sub">or <span class="text-blue-500 cursor-pointer">click to browse</span></p>
+                    <input type="file" id="referenceImageInput" class="hidden" accept="image/*" multiple
+                        onchange="handleReferenceImageSelect(this)">
+                </div>
+                <div id="imagePreviewContainer" class="image-preview-container hidden">
+                    <div class="preview-grid" id="previewGrid">
+                        <!-- Preview thumbnails will be inserted here -->
+                    </div>
+                    <button type="button" id="clearImagesBtn" class="clear-images-btn">Clear all</button>
+                </div>
+            </div>
+
+            <!-- Style Chips - Enhanced with more styles -->
+            <div class="style-chips-section">
+                <div class="style-chips-header">
+                    <span class="style-chips-label">Style Chips</span>
+                    <span class="style-chips-hint">Choose a visual style (optional)</span>
+                </div>
+                <div class="style-chips">
+
+                    <button type="button" class="style-chip" data-style="isometric"
+                        title="Isometric view">Isometric</button>
+                    <button type="button" class="style-chip" data-style="comic_book" title="Comic book style">Comic
+                        Book</button>
+                    <button type="button" class="style-chip" data-style="solarpunk"
+                        title="Eco-futurism">SolarPunk</button>
+                    <button type="button" class="style-chip" data-style="street_art" title="Street art">Street
+                        Art</button>
+                    <button type="button" class="style-chip" data-style="steampunk"
+                        title="Victorian machinery">Steampunk</button>
+                    <button type="button" class="style-chip" data-style="cute" title="Kawaii cute">Cute</button>
+                    <button type="button" class="style-chip" data-style="realistic"
+                        title="Photorealistic images">Realistic</button>
+                    <button type="button" class="style-chip" data-style="photography"
+                        title="Professional photography">Photography</button>
+                    <button type="button" class="style-chip" data-style="cinematic"
+                        title="Movie-like visuals">Cinematic</button>
+                    <button type="button" class="style-chip" data-style="cyberpunk"
+                        title="Neon futuristic">Cyberpunk</button>
+                    <button type="button" class="style-chip" data-style="fantasy"
+                        title="Magical fantasy world">Fantasy</button>
+                    <button type="button" class="style-chip" data-style="scifi" title="Science fiction">Sci-Fi</button>
+                    <button type="button" class="style-chip" data-style="anime"
+                        title="Japanese animation">Anime</button>
+                    <button type="button" class="style-chip" data-style="manga"
+                        title="Japanese comic style">Manga</button>
+
+                </div>
+                <div class="style-chips-more">
+                    <button type="button" id="showMoreStyles" class="style-more-btn">Show more styles...</button>
+                    <div id="moreStylesContainer" class="hidden">
+                        <div class="style-chips style-chips-secondary">
+                            <button type="button" class="style-chip" data-style="paper_cut">Paper Cut</button>
+                            <button type="button" class="style-chip" data-style="claymation">Claymation</button>
+                            <button type="button" class="style-chip" data-style="origami">Origami</button>
+                            <button type="button" class="style-chip" data-style="stained_glass">Stained Glass</button>
+                            <button type="button" class="style-chip" data-style="mosaic">Mosaic</button>
+                            <button type="button" class="style-chip" data-style="tattoo">Tattoo</button>
+                            <button type="button" class="style-chip" data-style="sketch">Sketch</button>
+                            <button type="button" class="style-chip" data-style="charcoal">Charcoal</button>
+                            <button type="button" class="style-chip" data-style="pastel">Pastel</button>
+                            <button type="button" class="style-chip" data-style="chalkboard">Chalkboard</button>
+                            <button type="button" class="style-chip" data-style="cartoon"
+                                title="Western cartoon">Cartoon</button>
+                            <button type="button" class="style-chip" data-style="disney"
+                                title="Disney animation style">Disney</button>
+                            <button type="button" class="style-chip" data-style="pixar"
+                                title="Pixar 3D style">Pixar</button>
+                            <button type="button" class="style-chip" data-style="watercolor"
+                                title="Watercolor painting">Watercolor</button>
+                            <button type="button" class="style-chip" data-style="oil_painting" title="Oil painting">Oil
+                                Painting</button>
+                            <button type="button" class="style-chip" data-style="digital_art"
+                                title="Digital artwork">Digital Art</button>
+                            <button type="button" class="style-chip" data-style="concept_art"
+                                title="Concept art">Concept
+                                Art</button>
+                            <button type="button" class="style-chip" data-style="vector"
+                                title="Vector graphics">Vector</button>
+                            <button type="button" class="style-chip" data-style="low_poly" title="Low polygon 3D">Low
+                                Poly</button>
+                            <button type="button" class="style-chip" data-style="pixel_art" title="Pixel art">Pixel
+                                Art</button>
+                            <button type="button" class="style-chip" data-style="retro"
+                                title="80s/90s retro">Retro</button>
+                            <button type="button" class="style-chip" data-style="vaporwave"
+                                title="Vaporwave aesthetic">Vaporwave</button>
+                            <button type="button" class="style-chip" data-style="synthwave"
+                                title="Synthwave style">Synthwave</button>
+                            <button type="button" class="style-chip" data-style="minimalist"
+                                title="Minimal design">Minimalist</button>
+                            <button type="button" class="style-chip" data-style="abstract"
+                                title="Abstract art">Abstract</button>
+                            <button type="button" class="style-chip" data-style="surrealism"
+                                title="Surreal art">Surrealism</button>
+                            <button type="button" class="style-chip" data-style="impressionism"
+                                title="Impressionist painting">Impressionism</button>
+                            <button type="button" class="style-chip" data-style="renaissance"
+                                title="Renaissance art">Renaissance</button>
+                            <button type="button" class="style-chip" data-style="baroque"
+                                title="Baroque style">Baroque</button>
+                            <button type="button" class="style-chip" data-style="art_nouveau" title="Art Nouveau">Art
+                                Nouveau</button>
+                            <button type="button" class="style-chip" data-style="art_deco" title="Art Deco">Art
+                                Deco</button>
+                            <button type="button" class="style-chip" data-style="popart" title="Pop Art">Pop
+                                Art</button>
+                            <button type="button" class="style-chip" data-style="graffiti"
+                                title="Graffiti style">Graffiti</button>
+                            <button type="button" class="style-chip" data-style="horror"
+                                title="Horror theme">Horror</button>
+                            <button type="button" class="style-chip" data-style="lovecraftian"
+                                title="Lovecraft cosmic horror">Lovecraftian</button>
+                            <button type="button" class="style-chip" data-style="gothic"
+                                title="Gothic style">Gothic</button>
+                            <button type="button" class="style-chip" data-style="fairy_tale" title="Fairy tale">Fairy
+                                Tale</button>
+                            <button type="button" class="style-chip" data-style="whimsical"
+                                title="Whimsical playful">Whimsical</button>
+                            <button type="button" class="style-chip" data-style="macabre"
+                                title="Dark macabre">Macabre</button>
+                            <button type="button" class="style-chip" data-style="dystopian"
+                                title="Dystopian future">Dystopian</button>
+                            <button type="button" class="style-chip" data-style="utopian"
+                                title="Utopian future">Utopian</button>
+                            <button type="button" class="style-chip" data-style="biopunk"
+                                title="Biological technology">BioPunk</button>
+                            <button type="button" class="style-chip" data-style="neon">Neon</button>
+                            <button type="button" class="style-chip" data-style="holographic">Holographic</button>
+                            <button type="button" class="style-chip" data-style="glitch">Glitch</button>
+                            <button type="button" class="style-chip" data-style="cyber_gothic">Cyber Gothic</button>
+                            <button type="button" class="style-chip"
+                                data-style="post_apocalyptic">Post-Apocalyptic</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Use Cases -->
+
+
+            <!-- Additional Controls -->
+            <div class="form-controls">
+                <div class="control-group">
+                    <span class="control-label">Number of images</span>
+                    <span class="control-value">1</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" min="1" max="4" value="1" class="slider" id="imageCountSlider">
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">Quality</span>
+                    <span class="control-value">High</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" min="1" max="3" value="2" class="slider" id="qualitySlider">
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label">Image Size</span>
+                    <span class="control-value" id="sizeValue">
+                        <span class="size-value-icon size-icon-auto"></span>
+                        <span class="size-value-text">Auto</span>
+                    </span>
+                </div>
+                <div class="slider-container">
+                    <select id="sizeSelect" class="slider"
+                        style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border-input-light); background: var(--bg-input-light);">
+                        <!-- Options will be dynamically generated based on selected model -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <button type="button" id="generateBtn" class="generate-btn">
+                <span>Generate Image</span>
+                <span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">(3 credits)</span>
+            </button>
+
+            <!-- Status Message -->
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+
+        <script>
+            // Form functionality for iframe
+            document.addEventListener('DOMContentLoaded', function () {
+                const pickerBtn = document.getElementById('modelPickerBtn');
+                const dropdown = document.getElementById('modelDropdown');
+                const promptInput = document.getElementById('promptInput');
+                const generateBtn = document.getElementById('generateBtn');
+                const statusMessage = document.getElementById('statusMessage');
+
+                // Current selected model
+                let selectedModel = 'nano_banana_pro';
+                let selectedModelName = 'Nano Banana Pro';
+
+                // Store original button HTML for restoration after generation
+                let originalButtonHTML = generateBtn ? generateBtn.innerHTML : '';
+
+                // Model picker functionality
+                if (pickerBtn && dropdown) {
+                    // Toggle dropdown as a centered modal
+                    pickerBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        // Ensure dropdown is visible by adding open class
+                        dropdown.classList.add('open');
+
+                        // Notify parent to expand iframe
+                        window.parent.postMessage({ type: 'modal-toggle', open: true }, '*');
+                    });
+
+                    // Close button logic
+                    const closeBtn = document.getElementById('closeModelModal');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function () {
+                            dropdown.classList.remove('open');
+                            window.parent.postMessage({ type: 'modal-toggle', open: false }, '*');
+                        });
+                    }
+
+                    // Close dropdown when clicking on the overlay background
+                    document.addEventListener('click', function (e) {
+                        if (e.target === dropdown) {
+                            dropdown.classList.remove('open');
+                            window.parent.postMessage({ type: 'modal-toggle', open: false }, '*');
+                        }
+                    });
+
+                    // Model selection
+                    const modelItems = dropdown.querySelectorAll('.model-item');
+                    modelItems.forEach(item => {
+                        item.addEventListener('click', function () {
+                            selectedModel = this.getAttribute('data-mode');
+                            selectedModelName = this.querySelector('.model-item-name').textContent;
+                            const badge = this.querySelector('.model-item-badge').textContent;
+
+                            // Close dropdown and notify parent
+                            dropdown.classList.remove('open');
+                            window.parent.postMessage({ type: 'modal-toggle', open: false }, '*');
+
+                            // Update picker button
+                            document.getElementById('modelPickerLabel').textContent = selectedModelName;
+
+                            // Update generate button credit cost
+                            updateGenerateButtonCost(badge);
+
+                            // Update size selection based on model
+                            updateSizeForModel(selectedModel);
+
+                            // Close dropdown with animation
+                            dropdown.classList.remove('open');
+
+                            // Notify parent window
+                            if (window.parent) {
+                                window.parent.postMessage({
+                                    type: 'model-selected',
+                                    mode: selectedModel,
+                                    name: selectedModelName,
+                                    badge: badge
+                                }, '*');
+                            }
+                        });
+                    });
+                }
+
+                // Update generate button cost based on model badge
+                function updateGenerateButtonCost(badgeText) {
+                    const btn = document.getElementById('generateBtn');
+                    const creditMatch = badgeText.match(/(\d+)/);
+                    if (creditMatch) {
+                        const credits = creditMatch[1];
+                        btn.innerHTML = `<span>Generate Image</span><span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">(${credits} credits)</span>`;
+                    }
+                }
+
+                // Size options configuration
+                const sizeOptions = [
+                    {
+                        value: 'auto',
+                        aspectRatio: 'Auto',
+                        pixelDimensions: '',
+                        iconClass: 'size-icon-auto',
+                        category: 'auto',
+                        geminiText: 'Auto',
+                        nonGeminiText: 'Auto (model default)'
+                    },
+                    {
+                        value: 'square',
+                        aspectRatio: 'Square 1:1',
+                        pixelDimensions: '1024×1024',
+                        iconClass: 'size-icon-square',
+                        category: 'square',
+                        geminiText: 'Square 1:1',
+                        nonGeminiText: 'Square 1:1 (1024×1024)'
+                    },
+                    {
+                        value: 'ultra_wide_landscape',
+                        aspectRatio: 'Ultra-Wide Landscape 21:9',
+                        pixelDimensions: '1536×640',
+                        iconClass: 'size-icon-landscape',
+                        category: 'landscape',
+                        geminiText: 'Ultra-Wide Landscape 21:9',
+                        nonGeminiText: 'Ultra-Wide Landscape 21:9 (1536×640)'
+                    },
+                    {
+                        value: 'wide_landscape',
+                        aspectRatio: 'Wide Landscape 16:9',
+                        pixelDimensions: '1344×768',
+                        iconClass: 'size-icon-landscape',
+                        category: 'landscape',
+                        geminiText: 'Wide Landscape 16:9',
+                        nonGeminiText: 'Wide Landscape 16:9 (1344×768)'
+                    },
+                    {
+                        value: 'standard_landscape',
+                        aspectRatio: 'Standard Landscape 4:3',
+                        pixelDimensions: '1152×896',
+                        iconClass: 'size-icon-landscape',
+                        category: 'landscape',
+                        geminiText: 'Standard Landscape 4:3',
+                        nonGeminiText: 'Standard Landscape 4:3 (1152×896)'
+                    },
+                    {
+                        value: 'classic_landscape',
+                        aspectRatio: 'Classic Landscape 3:2',
+                        pixelDimensions: '1280×832',
+                        iconClass: 'size-icon-landscape',
+                        category: 'landscape',
+                        geminiText: 'Classic Landscape 3:2',
+                        nonGeminiText: 'Classic Landscape 3:2 (1280×832)'
+                    },
+                    {
+                        value: 'classic_portrait',
+                        aspectRatio: 'Classic Portrait 2:3',
+                        pixelDimensions: '832×1280',
+                        iconClass: 'size-icon-portrait',
+                        category: 'portrait',
+                        geminiText: 'Classic Portrait 2:3',
+                        nonGeminiText: 'Classic Portrait 2:3 (832×1280)'
+                    },
+                    {
+                        value: 'standard_portrait',
+                        aspectRatio: 'Standard Portrait 3:4',
+                        pixelDimensions: '896×1152',
+                        iconClass: 'size-icon-portrait',
+                        category: 'portrait',
+                        geminiText: 'Standard Portrait 3:4',
+                        nonGeminiText: 'Standard Portrait 3:4 (896×1152)'
+                    },
+                    {
+                        value: 'tall_portrait',
+                        aspectRatio: 'Tall Portrait 9:16',
+                        pixelDimensions: '768×1344',
+                        iconClass: 'size-icon-portrait',
+                        category: 'portrait',
+                        geminiText: 'Tall Portrait 9:16',
+                        nonGeminiText: 'Tall Portrait 9:16 (768×1344)'
+                    },
+                    {
+                        value: 'ultra_tall_portrait',
+                        aspectRatio: 'Ultra-Tall Portrait 9:21',
+                        pixelDimensions: '640×1536',
+                        iconClass: 'size-icon-portrait',
+                        category: 'portrait',
+                        geminiText: 'Ultra-Tall Portrait 9:21',
+                        nonGeminiText: 'Ultra-Tall Portrait 9:21 (640×1536)'
+                    }
+                ];
+
+                // Check if model is a Gemini model
+                function isGeminiModel(model) {
+                    return ['nano_banana', 'nano_banana_2', 'nano_banana_pro'].includes(model);
+                }
+
+                // Update size selection based on model
+                function updateSizeForModel(model) {
+                    const sizeSelect = document.getElementById('sizeSelect');
+                    const sizeValue = document.getElementById('sizeValue');
+                    if (!sizeSelect || !sizeValue) return;
+
+                    // Clear existing options
+                    sizeSelect.innerHTML = '';
+
+                    const isGemini = isGeminiModel(model);
+
+                    // Add options based on model type
+                    sizeOptions.forEach(option => {
+                        // For non-Gemini models, hide/disable auto option
+                        if (!isGemini && option.value === 'auto') {
+                            return; // Skip auto option for non-Gemini models
+                        }
+
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option.value;
+
+                        // Set display text based on model type
+                        const displayText = isGemini ? option.geminiText : option.nonGeminiText;
+                        optionElement.textContent = displayText;
+
+                        // Add data attributes for icon and category
+                        optionElement.dataset.iconClass = option.iconClass;
+                        optionElement.dataset.category = option.category;
+
+                        sizeSelect.appendChild(optionElement);
+                    });
+
+                    // Set default value
+                    const modelSizeMap = {
+                        'nano_banana': 'auto',
+                        'nano_banana_2': 'auto',
+                        'nano_banana_pro': 'auto',
+                        // For other models, default to square
+                    };
+                    const defaultSize = modelSizeMap[model] || 'square';
+                    sizeSelect.value = defaultSize;
+
+                    // Update displayed value
+                    updateSizeDisplay();
+
+                    // Update option icons
+                    updateSizeOptionIcons();
+                }
+
+                // Update displayed size value
+                function updateSizeDisplay() {
+                    const sizeSelect = document.getElementById('sizeSelect');
+                    const sizeValue = document.getElementById('sizeValue');
+                    if (!sizeSelect || !sizeValue) return;
+
+                    const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
+                    if (!selectedOption) return;
+
+                    // Extract just the first word (e.g., "Auto", "Square", "Ultra-Wide", etc.)
+                    const displayText = selectedOption.textContent;
+                    const firstWord = displayText.split(' ')[0];
+
+                    // Get icon class from data attribute or determine based on value
+                    const optionValue = selectedOption.value;
+                    const iconClass = selectedOption.dataset.iconClass || getIconClassForValue(optionValue);
+
+                    // Update the size value display with icon and text
+                    sizeValue.innerHTML = `
+                    <span class="size-value-icon ${iconClass}"></span>
+                    <span class="size-value-text">${firstWord}</span>
+                `;
+                }
+
+                // Helper to get icon class for a size value
+                function getIconClassForValue(value) {
+                    const option = sizeOptions.find(opt => opt.value === value);
+                    return option ? option.iconClass : 'size-icon-auto';
+                }
+
+                // Update size option icons in the dropdown
+                function updateSizeOptionIcons() {
+                    const sizeSelect = document.getElementById('sizeSelect');
+                    if (!sizeSelect) return;
+
+                    // We can't directly style option elements with icons in most browsers,
+                    // so we'll update the select's background or use a custom dropdown if needed.
+                    // For now, we'll rely on the data attributes for potential future enhancement.
+                }
+
+                // Add event listener for size select change
+                const sizeSelect = document.getElementById('sizeSelect');
+                if (sizeSelect) {
+                    sizeSelect.addEventListener('change', updateSizeDisplay);
+                }
+
+                // Initialize size selection based on default model
+                updateSizeForModel(selectedModel);
+
+                // Generate button click
+                if (generateBtn) {
+                    generateBtn.addEventListener('click', function () {
+                        const prompt = promptInput.value.trim();
+
+                        if (!prompt || prompt.length < 5) {
+                            showStatus('Please enter a description of at least 5 characters', 'error');
+                            return;
+                        }
+
+                        // Show loading state
+                        generateBtn.disabled = true;
+                        generateBtn.innerHTML = '<span>Generating...</span>';
+                        showStatus('Starting generation...', 'success');
+
+                        // Collect form data
+                        const sizeSelect = document.getElementById('sizeSelect');
+                        const formData = {
+                            type: 'image',
+                            model: selectedModel,
+                            modelName: selectedModelName,
+                            prompt: prompt,
+                            size: sizeSelect ? sizeSelect.value : 'auto',
+                            imageCount: document.getElementById('imageCountSlider').value,
+                            quality: document.getElementById('qualitySlider').value,
+                            timestamp: new Date().toISOString()
+                        };
+
+                        // Notify parent window
+                        if (window.parent) {
+                            window.parent.postMessage({
+                                type: 'form-submit',
+                                formType: 'image',
+                                data: formData
+                            }, '*');
+                        }
+
+                        // Simulate generation (in real app, this would be handled by parent)
+                        setTimeout(() => {
+                            generateBtn.disabled = false;
+                            generateBtn.innerHTML = '<span>Generate Image</span><span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">(3 credits)</span>';
+                            showStatus('Generation request sent successfully!', 'success');
+                        }, 1000);
+                    });
+                }
+
+                // Status message helper
+                function showStatus(message, type) {
+                    statusMessage.textContent = message;
+                    statusMessage.className = 'status-message';
+                    statusMessage.classList.add(`status-${type}`);
+                    statusMessage.style.display = 'block';
+
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 3000);
+                }
+
+                // Detect dark mode
+                function detectDarkMode() {
+                    const isDark = document.documentElement.classList.contains('dark') ||
+                        document.documentElement.getAttribute('data-theme') === 'dark' ||
+                        window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                    if (isDark) {
+                        document.body.classList.add('dark');
+                    } else {
+                        document.body.classList.remove('dark');
+                    }
+                }
+
+                detectDarkMode();
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectDarkMode);
+
+                // Listen for messages from parent
+                window.addEventListener('message', function (event) {
+                    const data = event.data;
+                    if (!data || !data.type) return;
+
+                    switch (data.type) {
+                        case 'set-theme':
+                            if (data.theme === 'dark') {
+                                document.body.classList.add('dark');
+                            } else {
+                                document.body.classList.remove('dark');
+                            }
+                            break;
+
+                        case 'set-form-data':
+                            // Pre-fill form with data from parent
+                            if (data.prompt) {
+                                promptInput.value = data.prompt;
+                            }
+                            if (data.model) {
+                                // Find and select corresponding model
+                                const modelItem = dropdown.querySelector(`[data-mode="${data.model}"]`);
+                                if (modelItem) {
+                                    modelItem.click();
+                                }
+                            }
+                            break;
+
+                        case 'generation-status':
+                            // Update UI based on generation status
+                            handleGenerationStatus(data);
+                            break;
+
+                        case 'generation-result':
+                            // Handle successful generation result
+                            handleGenerationResult(data);
+                            break;
+
+                        case 'reset-form':
+                            // Reset form to initial state
+                            resetForm();
+                            break;
+                    }
+                });
+
+                // Handle generation status updates
+                function handleGenerationStatus(statusData) {
+                    console.log('Generation status:', statusData);
+
+                    const generateBtn = document.getElementById('generateBtn');
+                    const statusMessage = document.getElementById('statusMessage');
+
+                    switch (statusData.status) {
+                        case 'processing':
+                            showStatus('Generating image...', 'success');
+                            if (generateBtn) {
+                                generateBtn.disabled = true;
+                                generateBtn.innerHTML = '<span>Generating...</span>';
+                            }
+                            break;
+
+                        case 'success':
+                            showStatus('Generation completed successfully!', 'success');
+                            if (generateBtn) {
+                                generateBtn.disabled = false;
+                                generateBtn.innerHTML = originalButtonHTML;
+                            }
+                            break;
+
+                        case 'error':
+                            showStatus(`Error: ${statusData.message || 'Generation failed'}`, 'error');
+                            if (generateBtn) {
+                                generateBtn.disabled = false;
+                                generateBtn.innerHTML = originalButtonHTML;
+                            }
+                            break;
+                    }
+                }
+
+                // Handle generation result
+                function handleGenerationResult(resultData) {
+                    console.log('Generation result received:', resultData);
+                    showStatus('Image generated successfully! Check your results.', 'success');
+
+                    // Reset form after successful generation
+                    setTimeout(() => {
+                        resetForm();
+                    }, 2000);
+                }
+
+                // Reset form to initial state
+                function resetForm() {
+                    const promptInput = document.getElementById('promptInput');
+                    const negativePromptInput = document.getElementById('negativePromptInput');
+                    const generateBtn = document.getElementById('generateBtn');
+
+                    if (promptInput) promptInput.value = '';
+                    if (negativePromptInput) negativePromptInput.value = '';
+                    if (generateBtn) {
+                        generateBtn.disabled = false;
+                        generateBtn.innerHTML = originalButtonHTML;
+                    }
+
+                    // Clear image previews
+                    if (window.uploadedImages) {
+                        window.uploadedImages = [];
+                        const previewGrid = document.getElementById('previewGrid');
+                        if (previewGrid) previewGrid.innerHTML = '';
+                        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+                        if (imagePreviewContainer) imagePreviewContainer.classList.add('hidden');
+                    }
+
+                    // Reset style chips
+                    document.querySelectorAll('.style-chip').forEach(chip => {
+                        chip.classList.remove('active');
+                    });
+                    const defaultStyleChip = document.querySelector('.style-chip[data-style="none"]');
+                    if (defaultStyleChip) {
+                        defaultStyleChip.classList.add('active');
+                    }
+
+                    // Reset selected style variable
+                    selectedStyle = 'none';
+
+                    // Hide additional styles if shown
+                    const moreStylesContainer = document.getElementById('moreStylesContainer');
+                    const showMoreBtn = document.getElementById('showMoreStyles');
+                    if (moreStylesContainer && !moreStylesContainer.classList.contains('hidden')) {
+                        moreStylesContainer.classList.add('hidden');
+                        if (showMoreBtn) {
+                            showMoreBtn.textContent = 'Show more styles...';
+                        }
+                    }
+
+                    showStatus('Form reset', 'success');
+                }
+
+                // ===== NEW FUNCTIONALITY =====
+                // Character counters
+                function updateCharCounter(textarea, counterId, max) {
+                    const count = textarea.value.length;
+                    document.getElementById(counterId).textContent = `${count}/${max}`;
+                }
+
+                promptInput.addEventListener('input', () => updateCharCounter(promptInput, 'charCounter', 2000));
+                const negativePromptInput = document.getElementById('negativePromptInput');
+                if (negativePromptInput) {
+                    negativePromptInput.addEventListener('input', () => updateCharCounter(negativePromptInput, 'negativeCharCounter', 1000));
+                }
+
+                // Negative prompt toggle
+                const toggleNegativeBtn = document.getElementById('toggleNegativePrompt');
+                const negativeContainer = document.getElementById('negativePromptContainer');
+                if (toggleNegativeBtn && negativeContainer) {
+                    toggleNegativeBtn.addEventListener('click', () => {
+                        const isHidden = negativeContainer.classList.contains('hidden');
+                        negativeContainer.classList.toggle('hidden');
+                        toggleNegativeBtn.classList.toggle('expanded', !isHidden);
+                    });
+                }
+
+                // Image dropzone functionality
+                const referenceImageInput = document.getElementById('referenceImageInput');
+                const previewGrid = document.getElementById('previewGrid');
+                const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+                const clearImagesBtn = document.getElementById('clearImagesBtn');
+                let uploadedImages = [];
+
+                function handleReferenceImageSelect(input) {
+                    const files = Array.from(input.files);
+                    if (files.length + uploadedImages.length > 4) {
+                        showStatus('Maximum 4 images allowed', 'error');
+                        return;
+                    }
+                    files.forEach(file => {
+                        if (!file.type.startsWith('image/')) return;
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            uploadedImages.push({
+                                file,
+                                dataUrl: e.target.result
+                            });
+                            updateImagePreviews();
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                    input.value = '';
+                }
+
+                function handleImageDrop(e) {
+                    e.preventDefault();
+                    const files = Array.from(e.dataTransfer.files);
+                    if (files.length + uploadedImages.length > 4) {
+                        showStatus('Maximum 4 images allowed', 'error');
+                        return;
+                    }
+                    files.forEach(file => {
+                        if (!file.type.startsWith('image/')) return;
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            uploadedImages.push({
+                                file,
+                                dataUrl: e.target.result
+                            });
+                            updateImagePreviews();
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                function updateImagePreviews() {
+                    previewGrid.innerHTML = '';
+                    uploadedImages.forEach((img, index) => {
+                        const thumb = document.createElement('img');
+                        thumb.src = img.dataUrl;
+                        thumb.className = 'preview-thumb';
+                        thumb.addEventListener('click', () => removeImage(index));
+                        previewGrid.appendChild(thumb);
+                    });
+                    if (uploadedImages.length > 0) {
+                        imagePreviewContainer.classList.remove('hidden');
+                    } else {
+                        imagePreviewContainer.classList.add('hidden');
+                    }
+                }
+
+                function removeImage(index) {
+                    uploadedImages.splice(index, 1);
+                    updateImagePreviews();
+                }
+
+                if (clearImagesBtn) {
+                    clearImagesBtn.addEventListener('click', () => {
+                        uploadedImages = [];
+                        updateImagePreviews();
+                    });
+                }
+
+                // Enhanced style chips functionality
+                const styleChips = document.querySelectorAll('.style-chip');
+                let selectedStyle = 'none';
+
+                // Function to handle style selection
+                function selectStyle(chip) {
+                    styleChips.forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    selectedStyle = chip.getAttribute('data-style');
+
+                    // Visual feedback
+                    chip.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        chip.style.transform = '';
+                    }, 150);
+                }
+
+                // Add click handlers to all style chips
+                styleChips.forEach(chip => {
+                    chip.addEventListener('click', () => selectStyle(chip));
+                });
+
+                // Set default active chip (No Style)
+                const defaultStyleChip = document.querySelector('.style-chip[data-style="none"]');
+                if (defaultStyleChip) {
+                    defaultStyleChip.classList.add('active');
+                }
+
+                // Show more styles functionality
+                const showMoreBtn = document.getElementById('showMoreStyles');
+                const moreStylesContainer = document.getElementById('moreStylesContainer');
+
+                if (showMoreBtn && moreStylesContainer) {
+                    showMoreBtn.addEventListener('click', () => {
+                        const isHidden = moreStylesContainer.classList.contains('hidden');
+                        if (isHidden) {
+                            moreStylesContainer.classList.remove('hidden');
+                            showMoreBtn.textContent = 'Show fewer styles...';
+                        } else {
+                            moreStylesContainer.classList.add('hidden');
+                            showMoreBtn.textContent = 'Show more styles...';
+                        }
+                    });
+
+                    // Also add click handlers to secondary style chips
+                    const secondaryChips = moreStylesContainer.querySelectorAll('.style-chip');
+                    secondaryChips.forEach(chip => {
+                        chip.addEventListener('click', () => selectStyle(chip));
+                    });
+                }
+
+                // Style search/filter functionality (optional enhancement)
+                function filterStyles(searchTerm) {
+                    styleChips.forEach(chip => {
+                        const styleName = chip.textContent.toLowerCase();
+                        const styleData = chip.getAttribute('data-style').toLowerCase();
+                        const matches = styleName.includes(searchTerm.toLowerCase()) ||
+                            styleData.includes(searchTerm.toLowerCase());
+                        chip.style.display = matches ? 'flex' : 'none';
+                    });
+                }
+
+                // Add search input if needed (commented out for now)
+                /*
+                const styleSearch = document.createElement('input');
+                styleSearch.type = 'text';
+                styleSearch.placeholder = 'Search styles...';
+                styleSearch.className = 'style-search';
+                styleSearch.addEventListener('input', (e) => filterStyles(e.target.value));
+                document.querySelector('.style-chips-section').prepend(styleSearch);
+                */
+
+                // Update form data collection to include new fields
+                const originalGenerateHandler = generateBtn.onclick;
+                generateBtn.onclick = null; // Remove previous handler
+                generateBtn.addEventListener('click', function () {
+                    const prompt = promptInput.value.trim();
+                    if (!prompt || prompt.length < 5) {
+                        showStatus('Please enter a description of at least 5 characters', 'error');
+                        return;
+                    }
+
+                    // Show loading state
+                    generateBtn.disabled = true;
+                    generateBtn.innerHTML = '<span>Generating...</span>';
+                    showStatus('Starting generation...', 'success');
+
+                    // Collect form data
+                    const formData = {
+                        type: 'image',
+                        model: selectedModel,
+                        modelName: selectedModelName,
+                        prompt: prompt,
+                        negativePrompt: negativePromptInput ? negativePromptInput.value.trim() : '',
+                        style: selectedStyle,
+                        referenceImages: uploadedImages.map(img => img.dataUrl), // base64 strings
+                        imageCount: document.getElementById('imageCountSlider').value,
+                        quality: document.getElementById('qualitySlider').value,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // Notify parent window
+                    if (window.parent) {
+                        window.parent.postMessage({
+                            type: 'form-submit',
+                            formType: 'image',
+                            data: formData
+                        }, '*');
+                    }
+
+                    // Simulate generation (in real app, this would be handled by parent)
+                    setTimeout(() => {
+                        generateBtn.disabled = false;
+                        generateBtn.innerHTML = '<span>Generate Image</span><span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">(3 credits)</span>';
+                        showStatus('Generation request sent successfully!', 'success');
+                    }, 1000);
+                });
+
+                // Notify parent that form is loaded
+                if (window.parent) {
+                    window.parent.postMessage({
+                        type: 'form-loaded',
+                        formType: 'image',
+                        version: '1.0'
+                    }, '*');
+                }
+            });
+        </script>
+</body>
+
+</html>
