@@ -5583,6 +5583,11 @@
       color: var(--color-red-200);
     }
   }
+  .dark\:text-red-400 {
+    [data-theme="dark"] & {
+      color: var(--color-red-400);
+    }
+  }
   .dark\:text-red-500 {
     [data-theme="dark"] & {
       color: var(--color-red-500);
