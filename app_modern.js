@@ -2338,10 +2338,21 @@ async function uploadUserImages() {
 //   https://app.pixplace.space/?prompt=A%20cat&utm_source=telegram&utm_campaign=group_post
 //
 async function applyUrlParams() {
-    const urlParams = new URLSearchParams(window.location.search);
+    const rawSearch = window.location.search;
+    const urlParams = new URLSearchParams(rawSearch);
     const urlPrompt   = urlParams.get('prompt');
-    const urlImageUrl = urlParams.get('image_url');
+    let   urlImageUrl = urlParams.get('image_url');
     const urlSource   = urlParams.get('utm_source') || urlParams.get('source');
+
+    // 🛡️ Fallback: manually extract image_url if URLSearchParams couldn't decode it
+    // (happens when the nested URL wasn't percent-encoded and contains raw ://)
+    if (!urlImageUrl && rawSearch.includes('image_url=')) {
+        const m = rawSearch.match(/[?&]image_url=([^&]*)/);
+        if (m) {
+            urlImageUrl = decodeURIComponent(m[1]);
+            console.log('🛡️ [applyUrlParams] image_url via fallback regex:', urlImageUrl);
+        }
+    }
 
     let applied = false;
 
@@ -2359,13 +2370,24 @@ async function applyUrlParams() {
     // 2️⃣  Pre-load image by URL → show image preview
     if (urlImageUrl) {
         console.log(`🖼️ [applyUrlParams] image_url param found → ${urlImageUrl}`);
-        // Switch to image tab if a tab switcher exists
+        // Switch to image tab
         const imageTab = document.querySelector('[data-tab="image"]');
         if (imageTab) imageTab.click();
-        // Give tab switch a moment to settle, then load the image
+        // Give tab/mode switch time to settle, then load the image
         setTimeout(() => {
+            // Ensure modeSelect is on a mode that PERMITS image uploads.
+            // Modes with limit=0 (fast_generation, qwen_image) block handleUrlAdd.
+            const MODES_WITH_IMAGES = ['nano_banana', 'nano_banana_2', 'nano_banana_pro',
+                'pixplace_pro', 'upscale_image', 'background_removal',
+                'print_maker', 'dreamshaper_xl', 'z_image'];
+            const modeSelect = document.getElementById('modeSelect');
+            if (modeSelect && !MODES_WITH_IMAGES.includes(modeSelect.value)) {
+                console.log(`🔄 [applyUrlParams] mode "${modeSelect.value}" blocks images — forcing nano_banana`);
+                modeSelect.value = 'nano_banana';
+                modeSelect.dispatchEvent(new Event('change'));
+            }
             handleUrlAdd(urlImageUrl);
-        }, 300);
+        }, 700); // Extra buffer for tab + mode switch to fully settle
         applied = true;
     }
 
