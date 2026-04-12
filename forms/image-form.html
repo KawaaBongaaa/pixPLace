@@ -80,13 +80,13 @@
             width: 100%;
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            border-radius: 12px;
+            gap: 6px;
+            padding: 7px 10px;
+            border-radius: 10px;
             border: 1px solid var(--border-model-picker-light);
             background: var(--bg-model-picker-light);
             color: var(--text-primary-light);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -118,9 +118,9 @@
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 999999;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
 
         .model-dropdown .modal-content {
@@ -524,6 +524,7 @@
             background: rgba(0, 0, 0, 0.1);
             outline: none;
             -webkit-appearance: none;
+            appearance: none;
         }
 
         .dark .slider {
@@ -838,7 +839,7 @@
                                 fill="currentColor" />
                         </svg>
                     </span>
-                    <span id="modelPickerLabel" class="flex-1 text-left">Nano Banana Pro</span>
+                    <span id="modelPickerLabel" class="flex-1 text-left">Z-Image Turbo</span>
                     <span class="opacity-50 ml-auto">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5">
@@ -879,7 +880,7 @@
                                         <span class="model-item-name">Nano Banana</span>
                                         <span class="model-item-tags">
                                             <span class="tag tag-blue">txt2img</span>
-                                            <span class="tag tag-green">logo</span>
+                                            <span class="tag tag-purple">edit</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge">3 Cr</span>
@@ -938,7 +939,6 @@
                                         <span class="model-item-name">Z-Image Turbo</span>
                                         <span class="model-item-tags">
                                             <span class="tag tag-blue">txt2img</span>
-                                            <span class="tag tag-purple">edit</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge">3 Cr</span>
@@ -962,7 +962,6 @@
                                         <span class="model-item-name">Qwen Image</span>
                                         <span class="model-item-tags">
                                             <span class="tag tag-blue">txt2img</span>
-                                            <span class="tag tag-purple">edit</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge">4 Cr</span>
@@ -1084,6 +1083,7 @@
                                         <span class="model-item-name">Enhance Image</span>
                                         <span class="model-item-tags">
                                             <span class="tag tag-purple">img2img</span>
+                                            <span class="tag tag-purple">edit</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge">5 Cr</span>
@@ -1101,6 +1101,7 @@
                                         <span class="model-item-name">Remove Background</span>
                                         <span class="model-item-tags">
                                             <span class="tag tag-purple">img2img</span>
+                                            <span class="tag tag-purple">edit</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge free-badge">2 Cr</span>
@@ -1413,8 +1414,8 @@
                 const statusMessage = document.getElementById('statusMessage');
 
                 // Current selected model
-                let selectedModel = 'nano_banana_pro';
-                let selectedModelName = 'Nano Banana Pro';
+                let selectedModel = 'z_image';
+                let selectedModelName = 'Z-Image Turbo';
 
                 // Store original button HTML for restoration after generation
                 let originalButtonHTML = generateBtn ? generateBtn.innerHTML : '';
@@ -1424,12 +1425,15 @@
                     // Toggle dropdown as a centered modal
                     pickerBtn.addEventListener('click', function (e) {
                         e.stopPropagation();
-                        // Ensure dropdown is visible by adding open class
-                        dropdown.classList.add('open');
-                        document.body.classList.add('portal-modal-open');
 
-                        // Notify parent to expand iframe
+                        // Notify parent to expand iframe FIRST
                         window.parent.postMessage({ type: 'modal-toggle', open: true }, '*');
+
+                        // Wait for iframe to become fixed/fullscreen before showing the inner modal
+                        setTimeout(() => {
+                            dropdown.classList.add('open');
+                            document.body.classList.add('portal-modal-open');
+                        }, 50);
                     });
 
                     // Close button logic
@@ -1445,6 +1449,15 @@
                     // Close dropdown when clicking on the overlay background
                     document.addEventListener('click', function (e) {
                         if (e.target === dropdown) {
+                            dropdown.classList.remove('open');
+                            document.body.classList.remove('portal-modal-open');
+                            window.parent.postMessage({ type: 'modal-toggle', open: false }, '*');
+                        }
+                    });
+
+                    // ESC key to close modal
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape' && dropdown.classList.contains('open')) {
                             dropdown.classList.remove('open');
                             document.body.classList.remove('portal-modal-open');
                             window.parent.postMessage({ type: 'modal-toggle', open: false }, '*');
@@ -1812,9 +1825,31 @@
                             // Reset form to initial state
                             resetForm();
                             break;
+
+                        case 'set-context':
+                            // Filter model list based on the active generation mode
+                            // data.mode: 'image' = show all, 'edit' = only models with 'edit' tag
+                            (function () {
+                                const filterMode = data.mode || 'image';
+                                const allItems = document.querySelectorAll('.model-item');
+                                allItems.forEach(function (item) {
+                                    if (filterMode === 'edit') {
+                                        const hasEditTag = item.querySelector('.model-item-tags .tag');
+                                        const tags = Array.from(item.querySelectorAll('.model-item-tags .tag')).map(t => t.textContent.trim());
+                                        item.style.display = tags.includes('edit') ? '' : 'none';
+                                    } else {
+                                        item.style.display = '';
+                                    }
+                                });
+                                // Also show/hide group labels that may become empty
+                                document.querySelectorAll('.model-group').forEach(function (group) {
+                                    const visible = Array.from(group.querySelectorAll('.model-item')).some(i => i.style.display !== 'none');
+                                    group.style.display = visible ? '' : 'none';
+                                });
+                            })();
+                            break;
                     }
                 });
-
                 // Handle generation status updates
                 function handleGenerationStatus(statusData) {
                     console.log('Generation status:', statusData);
