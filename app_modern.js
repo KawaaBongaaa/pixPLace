@@ -1600,8 +1600,13 @@ function initUserImageUpload() {
         updateSizeSelectVisibility();
         updateResolutionSelectVisibility(); // 🔥 ДОБАВЛЕНО: инициализация видимости разрешений
 
-        // 🔥 ДОБАВЛЕНО: Инициализация селектора размеров со всеми вариантами при загрузке страницы
-        updateSizeOptionsForMode('nano_banana_pro'); // Используем дефолтный режим для инициализации
+        // 🔥 ИСПРАВЛЕНО: Инициализируем UI для реально выбранного режима (z_image по умолчанию в HTML)
+        // Не хардкодим nano_banana_pro — читаем реальное значение из modeSelect
+        const defaultMode = modeSelect.value || 'z_image';
+        updateSizeOptionsForMode(defaultMode);
+        // Запускаем полный цикл синхронизации UI для дефолтного режима
+        // (обновит видимость size/resolution/prompt/upload под реальную модель)
+        modeSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
         // Слушать изменения режима через DOM select (для совместимости)
         modeSelect.addEventListener('change', () => {
@@ -2344,15 +2349,6 @@ async function applyUrlParams() {
     let   urlImageUrl = urlParams.get('image_url');
     const urlSource   = urlParams.get('utm_source') || urlParams.get('source');
 
-    // 🛡️ Fallback: manually extract image_url if URLSearchParams couldn't decode it
-    // (happens when the nested URL wasn't percent-encoded and contains raw ://)
-    if (!urlImageUrl && rawSearch.includes('image_url=')) {
-        const m = rawSearch.match(/[?&]image_url=([^&]*)/);
-        if (m) {
-            urlImageUrl = decodeURIComponent(m[1]);
-            console.log('🛡️ [applyUrlParams] image_url via fallback regex:', urlImageUrl);
-        }
-    }
 
     let applied = false;
 
@@ -2367,15 +2363,13 @@ async function applyUrlParams() {
         }
     }
 
-    // 2️⃣  Pre-load image by URL → directly inject into state + DOM
+    // 2️⃣  Pre-load image by URL → inject into state and show preview
+    // URLSearchParams correctly parses both encoded and unencoded image_url,
+    // including when UTM params follow: ?image_url=https://...webp&utm_source=telegram
     if (urlImageUrl) {
         console.log(`🖼️ [applyUrlParams] image_url → ${urlImageUrl}`);
 
-        // Image tab is already active by default — no .click() needed.
-        // Clicking it would trigger switchGenerationTab('image') side-effects
-        // (tab:changed event, updatePromptVisibility) which we don't need here.
-
-        // Add to userImageState directly (bypasses mode-limit checks of handleUrlAdd)
+        // Add to userImageState directly (bypasses handleUrlAdd mode-limit checks)
         const imageId = 'url_param_' + Date.now();
         userImageState.images.push({
             id: imageId,
@@ -2386,27 +2380,10 @@ async function applyUrlParams() {
         });
         createPreviewItem(imageId, urlImageUrl, 'URL Image');
 
-        // Helper: force the preview visible
-        const _forceShowPreview = () => {
-            if (userImageState.images.length === 0) return; // sanity check
-            const preview = document.getElementById('userImagePreview');
-            if (preview) {
-                preview.classList.remove('hidden', 'flux-shnel-hidden');
-                preview.style.setProperty('display', 'block', 'important');
-            }
-            const pc = document.getElementById('previewContainer');
-            if (pc) pc.classList.remove('hidden');
-            const wrapper = document.getElementById('userImageWrapper');
-            if (wrapper) {
-                wrapper.classList.add('has-image');
-                wrapper.classList.remove('need-image');
-            }
-        };
-
-        // Show now, then re-assert after 300ms in case any async visibility
-        // callback (updatePromptVisibility, initializeUI setTimeout etc.) re-hides it
-        _forceShowPreview();
-        setTimeout(_forceShowPreview, 300);
+        // Let the standard visibility function show the preview.
+        // With images.length > 0 and a mode that supports images (z_image default),
+        // it will correctly set shouldShowPreview = true.
+        updateImageUploadVisibility();
 
         applied = true;
     }
