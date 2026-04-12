@@ -2367,27 +2367,47 @@ async function applyUrlParams() {
         }
     }
 
-    // 2️⃣  Pre-load image by URL → show image preview
+    // 2️⃣  Pre-load image by URL → directly inject into state + DOM
     if (urlImageUrl) {
-        console.log(`🖼️ [applyUrlParams] image_url param found → ${urlImageUrl}`);
-        // Switch to image tab
-        const imageTab = document.querySelector('[data-tab="image"]');
-        if (imageTab) imageTab.click();
-        // Give tab/mode switch time to settle, then load the image
-        setTimeout(() => {
-            // Ensure modeSelect is on a mode that PERMITS image uploads.
-            // Modes with limit=0 (fast_generation, qwen_image) block handleUrlAdd.
-            const MODES_WITH_IMAGES = ['nano_banana', 'nano_banana_2', 'nano_banana_pro',
-                'pixplace_pro', 'upscale_image', 'background_removal',
-                'print_maker', 'dreamshaper_xl', 'z_image'];
-            const modeSelect = document.getElementById('modeSelect');
-            if (modeSelect && !MODES_WITH_IMAGES.includes(modeSelect.value)) {
-                console.log(`🔄 [applyUrlParams] mode "${modeSelect.value}" blocks images — forcing nano_banana`);
-                modeSelect.value = 'nano_banana';
-                modeSelect.dispatchEvent(new Event('change'));
+        console.log(`🖼️ [applyUrlParams] image_url → ${urlImageUrl}`);
+
+        // Image tab is already active by default — no .click() needed.
+        // Clicking it would trigger switchGenerationTab('image') side-effects
+        // (tab:changed event, updatePromptVisibility) which we don't need here.
+
+        // Add to userImageState directly (bypasses mode-limit checks of handleUrlAdd)
+        const imageId = 'url_param_' + Date.now();
+        userImageState.images.push({
+            id: imageId,
+            file: null,
+            blob: null,
+            dataUrl: urlImageUrl,
+            uploadedUrl: urlImageUrl
+        });
+        createPreviewItem(imageId, urlImageUrl, 'URL Image');
+
+        // Helper: force the preview visible
+        const _forceShowPreview = () => {
+            if (userImageState.images.length === 0) return; // sanity check
+            const preview = document.getElementById('userImagePreview');
+            if (preview) {
+                preview.classList.remove('hidden', 'flux-shnel-hidden');
+                preview.style.setProperty('display', 'block', 'important');
             }
-            handleUrlAdd(urlImageUrl);
-        }, 700); // Extra buffer for tab + mode switch to fully settle
+            const pc = document.getElementById('previewContainer');
+            if (pc) pc.classList.remove('hidden');
+            const wrapper = document.getElementById('userImageWrapper');
+            if (wrapper) {
+                wrapper.classList.add('has-image');
+                wrapper.classList.remove('need-image');
+            }
+        };
+
+        // Show now, then re-assert after 300ms in case any async visibility
+        // callback (updatePromptVisibility, initializeUI setTimeout etc.) re-hides it
+        _forceShowPreview();
+        setTimeout(_forceShowPreview, 300);
+
         applied = true;
     }
 
