@@ -118,8 +118,9 @@
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 999999;
-            background: rgba(0, 0, 0, 0);
-            /* Background will be handled by parent expansion */
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .model-dropdown .modal-content {
@@ -135,9 +136,9 @@
             border: 1px solid rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(30px) saturate(180%);
             box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
-            transform: scale(0.9) translateY(30px);
+            transform: scale(0.98) translateY(8px);
             opacity: 0;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .dark .model-dropdown .modal-content {
@@ -797,7 +798,11 @@
         }
 
         /* Minimal view to show only model picker */
-        .minimal-view>*:not(#ob-model-selector-row) {
+        .minimal-view > *:not(#ob-model-selector-row) {
+            display: none !important;
+        }
+
+        .minimal-view #ob-model-selector-row > *:not(#modelPickerWrapper) {
             display: none !important;
         }
 
@@ -807,6 +812,13 @@
 
         .minimal-view #ob-model-selector-row {
             margin-bottom: 0 !important;
+        }
+
+        /* Hide the picker button when the modal is open to prevent "strip" flash */
+        body.portal-modal-open #modelPickerBtn {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: opacity 0.2s ease;
         }
     </style>
 </head>
@@ -1414,6 +1426,7 @@
                         e.stopPropagation();
                         // Ensure dropdown is visible by adding open class
                         dropdown.classList.add('open');
+                        document.body.classList.add('portal-modal-open');
 
                         // Notify parent to expand iframe
                         window.parent.postMessage({ type: 'modal-toggle', open: true }, '*');
@@ -1424,6 +1437,7 @@
                     if (closeBtn) {
                         closeBtn.addEventListener('click', function () {
                             dropdown.classList.remove('open');
+                            document.body.classList.remove('portal-modal-open');
                             window.parent.postMessage({ type: 'modal-toggle', open: false }, '*');
                         });
                     }
@@ -1432,6 +1446,7 @@
                     document.addEventListener('click', function (e) {
                         if (e.target === dropdown) {
                             dropdown.classList.remove('open');
+                            document.body.classList.remove('portal-modal-open');
                             window.parent.postMessage({ type: 'modal-toggle', open: false }, '*');
                         }
                     });
@@ -1446,6 +1461,7 @@
 
                             // Close dropdown and notify parent
                             dropdown.classList.remove('open');
+                            document.body.classList.remove('portal-modal-open');
                             window.parent.postMessage({ type: 'modal-toggle', open: false }, '*');
 
                             // Update picker button

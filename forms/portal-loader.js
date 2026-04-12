@@ -197,7 +197,7 @@ class PortalLoader {
                         senderIframe.classList.add('portal-modal-active');
                         this.container.classList.add('portal-container-modal-active');
                         document.body.classList.add('portal-any-modal-open');
-                        
+
                         // Задержка для плавной анимации фона
                         setTimeout(() => {
                             senderIframe.classList.add('portal-modal-open-anim');
@@ -342,21 +342,17 @@ class PortalLoader {
             .portal-modal-active {
                 position: fixed !important;
                 inset: 0 !important;
-                z-index: 11000 !important;
+                z-index: 2000000 !important;
                 width: 100vw !important;
                 height: 100vh !important;
-                background: rgba(0, 0, 0, 0) !important;
-                backdrop-filter: blur(0px) !important;
+                background: rgba(0, 0, 0, 0.95) !important;
+                backdrop-filter: blur(10px) !important;
                 border: none !important;
                 pointer-events: auto !important;
-                transition: background 0.3s ease, backdrop-filter 0.3s ease !important;
-            }
-            .portal-modal-active.portal-modal-open-anim {
-                background: rgba(0, 0, 0, 0.4) !important;
-                backdrop-filter: blur(4px) !important;
+                transition: background 0.2s ease, backdrop-filter 0.2s ease !important;
             }
             .portal-container-modal-active {
-                z-index: 11000 !important;
+                z-index: 2000000 !important;
             }
             .portal-any-modal-open {
                 overflow: hidden !important;
