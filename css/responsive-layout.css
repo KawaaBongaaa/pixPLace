@@ -1,251 +1,83 @@
-/* Responsive Layout Adaptations for 2026 Modern Dashboard */
+/* =============================================================================
+   PIXPLACE ULTRA-WIDE RESPONSIVE OVERRIDE (v1.1.0)
+   Full-width strategy for screens >= 1280px.
+   ============================================================================= */
 
-/* 1. Minimum Width Constraint */
-html,
-body {
-    min-width: 320px !important;
-    overflow-x: auto;
-    /* Allow horizontal scroll if screen is too small */
+/* 1. ROOT SHELL RESET 
+   Force the main application containers to 100% width on all major breakpoints.
+*/
+#app,
+.app,
+main,
+#generationScreen {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
-/* 2. Adaptive Dashboard Layout */
-@media (min-width: 768px) {
-
-    /* Main Content Area adjustments */
-    main {
-        flex: 1;
-        padding-top: 112px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* The Generation Screen */
-    #generationScreen {
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Force single column for mode cards in sidebar */
-    .layout-section-modes .mode-cards-wrapper .grid {
-        grid-template-columns: 1fr !important;
-        padding: 0.5rem !important;
-        gap: 0.75rem !important;
-    }
-
-    /* Make prompt area taller and more central */
-    .layout-section-prompt textarea {
-        min-height: 200px;
-        font-size: 1.1rem;
-    }
-
-    .layout-section-prompt .rounded-2xl {
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    .dark .layout-section-prompt .rounded-2xl {
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-
-
-    .dark .layout-section-prompt textarea {
-        color: #f1f5f9;
-    }
-}
-
-/* Scaling for History Items (Wide) */
-@media (min-width: 1440px) {
-    .history-caption {
-        font-size: 13px !important;
-        padding: 8px 12px !important;
-    }
-
-    .history-mini {
-        min-height: 130px !important;
-    }
-}
-
-/* Container styles for proper centering and ultra-wide support */
-.container {
-    width: 100%;
-    max-width: none;
-    margin: 0 auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-/* Mobile: max-width: 768px */
-@media (max-width: 768px) {
-    .container {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-}
-
-/* Tablet: 769px - 1024px */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .container {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-    }
-}
-
-/* Desktop: 1025px - 1440px */
-
-
-
-/* DEBUG: Color code grid sections */
-@media (min-width: 1280px) {
-    .layout-section-modes {
-        background-color: rgba(255, 0, 0, 0.2) !important;
-        outline: 2px dashed red !important;
-    }
-
-    .layout-section-prompt {
-        background-color: rgba(0, 255, 0, 0.2) !important;
-        outline: 2px dashed green !important;
-    }
-
-    .layout-section-extras {
-        background-color: rgba(0, 0, 255, 0.2) !important;
-        outline: 2px dashed blue !important;
-    }
-}
-/* FIX: Force 3-column grid layout on XL screens (>= 1280px) */
-/* Now handled by Tailwind classes: xl:grid xl:grid-cols-[280px_minmax(0,1fr)_260px] 2xl:grid-cols-[320px_minmax(0,1fr)_300px] */
-/* Fallback for extremely old browsers that don't support modern grid syntax */
+/* 2. GENERATION FORM GRID (XL/2XL/3XL)
+   We use fixed sidebar widths for Modes and Settings, and a fluid 1fr for the Prompt.
+*/
 @media (min-width: 1280px) {
     .generation-form {
         display: grid !important;
-        flex-direction: unset !important;
-        grid-template-columns: 280px minmax(0, 1fr) 260px !important;
-        grid-template-rows: auto !important;
-        /* Strong visual indicator */
-        outline: 5px solid #ff00ff !important;
-        outline-offset: -5px;
-        position: relative;
-    }
-    
-    .generation-form::after {
-        content: "XL SCREEN (≥1280px): 3-COLUMN GRID ACTIVE" !important;
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.9);
-        color: #00ff00;
-        padding: 10px 15px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-family: monospace;
-        font-weight: bold;
-        z-index: 99999;
-        pointer-events: none;
-        border: 2px solid #00ff00;
-        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-    }
-    
-    /* Make sure debug colors are visible */
-    .layout-section-modes {
-        background-color: rgba(255, 0, 0, 0.3) !important;
-        outline: 3px dashed red !important;
+        /* Verified column configuration matching modern-ui standards */
+        grid-template-columns: 280px 1fr 260px !important;
+        width: 100% !important;
+        max-width: none !important;
+        gap: 24px !important;
+        align-items: start !important;
     }
 
-    .layout-section-prompt {
-        background-color: rgba(0, 255, 0, 0.3) !important;
-        outline: 3px dashed green !important;
+    #ob-tabs-row {
+        justify-content: flex-start !important;
+        width: 100% !important;
     }
 
-    .layout-section-extras {
-        background-color: rgba(0, 0, 255, 0.3) !important;
-        outline: 3px dashed blue !important;
-    }
-}@media (min-width: 1536px) {
-    .generation-form {
-        grid-template-columns: 320px minmax(0, 1fr) 300px !important;
-    }
-}
-/* ULTRA-AGGRESSIVE DEBUG - Force grid layout */
-@media (min-width: 1280px) {
-    .generation-form {
-        all: unset !important;
-        display: grid !important;
-        grid-template-columns: 280px minmax(0, 1fr) 260px !important;
-        grid-template-rows: auto !important;
-        gap: 24px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding-bottom: 48px !important;
-    }
-    
-    .generation-form > * {
-        min-width: 0 !important;
-    }
-    
-    /* Force grid items to be in correct positions */
-    .layout-section-modes {
-        grid-column: 1 !important;
-        grid-row: 1 !important;
-    }
-    
+    /* Force prompt card to stretch */
     .layout-section-prompt {
-        grid-column: 2 !important;
-        grid-row: 1 !important;
-    }
-    
-    .layout-section-extras {
-        grid-column: 3 !important;
-        grid-row: 1 !important;
-    }
-}
-/* FIX FOR 1280px+ SCREENS - Use flexbox instead of grid */
-@media (min-width: 1280px) {
-    .generation-form {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 24px !important;
         width: 100% !important;
-        max-width: 100% !important;
-        padding-bottom: 48px !important;
-    }
-    
-    /* Three columns */
-    .layout-section-modes {
-        flex: 0 0 280px !important;
-        min-width: 280px !important;
-        max-width: 280px !important;
-        order: 1 !important;
-    }
-    
-    .layout-section-prompt {
-        flex: 1 1 auto !important;
-        min-width: 0 !important; /* Important for flex shrinking */
-        order: 2 !important;
-    }
-    
-    .layout-section-extras {
-        flex: 0 0 260px !important;
-        min-width: 260px !important;
-        max-width: 260px !important;
-        order: 3 !important;
-    }
-    
-    /* Hide any wrappers that might be interfering */
-    .generation-form > *:not(.layout-section-modes):not(.layout-section-prompt):not(.layout-section-extras) {
+        max-width: none !important;
+        flex-grow: 1 !important;
     }
 }
 
 @media (min-width: 1536px) {
-    .layout-section-modes {
-        flex-basis: 320px !important;
-        min-width: 320px !important;
-        max-width: 320px !important;
+    .generation-form {
+        grid-template-columns: 320px 1fr 300px !important;
+        gap: 32px !important;
     }
-    
-    .layout-section-extras {
-        flex-basis: 300px !important;
-        min-width: 300px !important;
-        max-width: 300px !important;
+}
+
+@media (min-width: 1920px) {
+    .generation-form {
+        grid-template-columns: 360px 1fr 320px !important;
+        gap: 40px !important;
     }
+}
+
+/* 3. CONTENT COMPRESSION PREVENTION
+   Ensures that inner wrappers don't inherit narrow max-widths from Tailwind utilities.
+*/
+#promptCardInner,
+#promptTextareaWrapper,
+#promptInput {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* Kill centering on the screen-level container */
+#generationScreen {
+    align-items: stretch !important;
+}
+
+/* 4. HISTORY LIST STRETCHING
+   Ensures the history section also fills the wide viewport.
+*/
+.history-container,
+#generationHistory {
+    width: 100% !important;
+    max-width: none !important;
 }
