@@ -2,7 +2,7 @@
 // Основная логика перенесена в navigation-manager.js
 
 // РАЗДЕЛЬНЫЕ СОСТОЯНИЯ ДЛЯ РАЗНЫХ ТАБОВ
-let selectedImageMode = 'nano_banana_pro';
+let selectedImageMode = 'z_image';
 let selectedVideoMode = 'image_to_video';
 let activeTab = 'image';
 
@@ -106,6 +106,10 @@ export async function initOnDemand() {
         selectModeCard,
         initOnDemand
     };
+
+    // 🔥 FIX: Also expose directly on window so portal-loader.js can call window.selectModeCard
+    window.selectModeCard = selectModeCard;
+    window.getSelectedMode = getSelectedMode;
 
     console.log('✅ Mode Cards initialized with core functions only');
 }
