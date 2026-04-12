@@ -615,7 +615,7 @@
 
             /* Fallback padding for main content to prevent initial overlap */
             main {
-                padding-top: 112px;
+                padding-top: 20px;
             }
 
             /* ===== MODEL PICKER ===== */
@@ -1163,13 +1163,14 @@
                 }, { passive: true });
             })();
         </script>
-        <main class="flex-1 w-full min-h-0 pt-[112px] flex flex-col justify-start items-stretch"
+        <main
+            class="flex-1 w-full min-h-0 pt-[80px] sm:pt-[88px] lg:pt-[96px] flex flex-col justify-start items-stretch"
             data-current-screen="generation">
             <!-- Generation Screen -->
             <div id="generationScreen" class="screen w-full !max-w-none px-2 sm:px-4 lg:px-8 xl:px-12 2xl:px-16">
                 <div class="w-full">
                     <form
-                        class="generation-form w-full !max-w-none flex flex-col xl:grid xl:grid-cols-[280px_1fr_260px] 2xl:grid-cols-[300px_1fr_280px] gap-6 pb-12">
+                        class="generation-form w-full !max-w-none flex flex-col xl:grid xl:grid-cols-[minmax(240px,280px)_1fr_minmax(220px,260px)] 2xl:grid-cols-[minmax(260px,300px)_1fr_minmax(240px,280px)] gap-6 pb-12">
                         <div class="layout-section-modes flex flex-col">
                             <!-- Вкладки выбора типа генерации с сеткой карточек -->
                             <div class="mb-3">
@@ -1349,183 +1350,226 @@
                                             </div>
                                         </div>
 
-                                        <!-- Step 2: Prompt + model (shown after image loaded) -->
-                                        <div id="editStep2" class="edit-step-panel hidden">
-                                            <div class="edit-preview-row">
-                                                <div class="edit-thumb-wrap">
-                                                    <img id="editPreviewImg" src="" alt="Edit preview"
-                                                        class="edit-thumb-img">
-                                                    <button type="button" onclick="clearEditImage()"
-                                                        class="edit-thumb-remove">×</button>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <!-- Edit model picker button -->
-                                                    <button type="button" id="editModelPickerBtn"
-                                                        onclick="toggleEditModelDropdown()"
-                                                        class="model-picker-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold transition-all duration-200 hover:bg-white/60 dark:hover:bg-white/10 cursor-pointer mb-2">
-                                                        <span id="editModelPickerIcon"
-                                                            class="flex-shrink-0 w-4 h-4"></span>
-                                                        <span id="editModelPickerLabel">Nano Banana Pro</span>
-                                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2.5"
-                                                            class="ml-auto opacity-50">
-                                                            <path d="M6 9l6 6 6-6" />
-                                                        </svg>
-                                                    </button>
-                                                    <!-- Edit model dropdown -->
-                                                    <div id="editModelDropdown"
-                                                        class="model-dropdown hidden rounded-xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-xl overflow-hidden mb-2">
-                                                        <div class="model-item" data-mode="nano_banana"
-                                                            onclick="selectEditModel('nano_banana','Nano Banana','gemini')">
-                                                            <span class="model-item-icon model-icon-gemini"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
-                                                                        stroke-width="1.5" opacity="0.3" />
-                                                                    <path
-                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info"><span
-                                                                    class="model-item-name">Nano Banana</span><span
-                                                                    class="model-item-tags"><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">5–11 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="nano_banana_2"
-                                                            onclick="selectEditModel('nano_banana_2','Nano Banana 2','gemini')">
-                                                            <span class="model-item-icon model-icon-gemini"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
-                                                                        stroke-width="1.5" opacity="0.3" />
-                                                                    <path
-                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info"><span
-                                                                    class="model-item-name">Nano Banana
-                                                                    2</span><span class="model-item-tags"><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">12–16 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="nano_banana_pro"
-                                                            onclick="selectEditModel('nano_banana_pro','Nano Banana Pro','gemini')">
-                                                            <span class="model-item-icon model-icon-gemini"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <circle cx="12" cy="12" r="10" stroke="currentColor"
-                                                                        stroke-width="1.5" opacity="0.3" />
-                                                                    <path
-                                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info"><span
-                                                                    class="model-item-name">Nano Banana
-                                                                    Pro</span><span class="model-item-tags"><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">12–16 Cr</span>
-                                                        </div>
-                                                        <div class="model-item" data-mode="qwen_image_edit"
-                                                            onclick="selectEditModel('qwen_image_edit','Qwen Image Edit','qwen')">
-                                                            <span class="model-item-icon model-icon-qwen"><svg
-                                                                    viewBox="0 0 24 24" fill="none">
-                                                                    <rect x="3" y="3" width="18" height="18" rx="4"
-                                                                        stroke="currentColor" stroke-width="1.5"
-                                                                        opacity="0.3" />
-                                                                    <path d="M8 12a4 4 0 0 1 8 0" stroke="currentColor"
-                                                                        stroke-width="1.8" stroke-linecap="round" />
-                                                                    <circle cx="12" cy="16" r="1.5"
-                                                                        fill="currentColor" />
-                                                                </svg></span>
-                                                            <div class="model-item-info"><span
-                                                                    class="model-item-name">Qwen Image
-                                                                    Edit</span><span class="model-item-tags"><span
-                                                                        class="tag tag-purple">edit</span></span>
-                                                            </div>
-                                                            <span class="model-item-badge">4 Cr</span>
-                                                        </div>
-                                                    </div>
+                                        <!-- Step 2: empty placeholder — preview now in shared #userImagePreview -->
+                                        <div id="editStep2" class="edit-step-panel hidden"></div>
+                                    </div>
+                                </div>
 
+
+                                <!-- ── SOUND AI TAB ── -->
+                                <div class="tab-pane" data-tab="sound" style="display:none">
+                                    <!-- Sub-mode switcher -->
+                                    <div class="sound-sub-tabs">
+                                        <button type="button" class="sound-sub-tab" data-sound-tab="text"
+                                            onclick="switchSoundTab('text')">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <polyline points="4 7 4 4 20 4 20 7" />
+                                                <line x1="9" y1="20" x2="15" y2="20" />
+                                                <line x1="12" y1="4" x2="12" y2="20" />
+                                            </svg>
+                                            Audio from Text
+                                        </button>
+                                        <button type="button" class="sound-sub-tab active" data-sound-tab="image"
+                                            onclick="switchSoundTab('image')">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                                <polyline points="21 15 16 10 5 21" />
+                                            </svg>
+                                            Audio from Image
+                                        </button>
+                                    </div>
+
+                                    <!-- Sound: from Text -->
+                                    <div id="soundFromText" class="sound-panel hidden">
+                                        <p class="sound-info-text">Describe the sound, music style, mood,
+                                            instruments, or scene. AI will compose a unique audio track for you.
+                                        </p>
+                                        <!-- Sound model picker -->
+                                        <div class="relative">
+                                            <button type="button" id="soundModelPickerBtn"
+                                                onclick="toggleSoundModelDropdown()"
+                                                class="model-picker-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold mb-2 cursor-pointer hover:bg-white/60 dark:hover:bg-white/10">
+                                                <span class="text-base">🎵</span>
+                                                <span id="soundModelLabel">Suno AI</span>
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2.5" class="ml-auto opacity-50">
+                                                    <path d="M6 9l6 6 6-6" />
+                                                </svg>
+                                            </button>
+                                            <div id="soundModelDropdown"
+                                                class="model-dropdown hidden rounded-xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-xl overflow-hidden mb-2">
+                                                <div class="model-item" onclick="selectSoundModel('suno','Suno AI')">
+                                                    <span class="text-base mr-2">🎵</span>
+                                                    <div class="model-item-info"><span class="model-item-name">Suno
+                                                            AI</span></div>
+                                                    <span class="model-item-badge">Active</span>
                                                 </div>
+                                                <div class="model-item opacity-60 cursor-not-allowed">
+                                                    <span class="text-base mr-2">🎶</span>
+                                                    <div class="model-item-info"><span
+                                                            class="model-item-name">Udio</span></div>
+                                                    <span class="model-item-badge tag-orange">soon</span>
+                                                </div>
+                                                <div class="model-item opacity-60 cursor-not-allowed">
+                                                    <span class="text-base mr-2">🔊</span>
+                                                    <div class="model-item-info"><span class="model-item-name">Stable
+                                                            Audio</span></div>
+                                                    <span class="model-item-badge tag-orange">soon</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Music style chips for "from Text" -->
+                                        <div class="sound-styles-section">
+                                            <p class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide">
+                                                Music style</p>
+                                            <div class="flex flex-wrap gap-1">
+                                                <button type="button" class="style-chip" data-style="Cinematic"
+                                                    onclick="addSoundStyle(this)">Cinematic</button>
+                                                <button type="button" class="style-chip" data-style="Electronic"
+                                                    onclick="addSoundStyle(this)">Electronic</button>
+                                                <button type="button" class="style-chip" data-style="Ambient"
+                                                    onclick="addSoundStyle(this)">Ambient</button>
+                                                <button type="button" class="style-chip" data-style="Jazz"
+                                                    onclick="addSoundStyle(this)">Jazz</button>
+                                                <button type="button" class="style-chip" data-style="Epic"
+                                                    onclick="addSoundStyle(this)">Epic</button>
+                                                <button type="button" class="style-chip" data-style="Lo-fi"
+                                                    onclick="addSoundStyle(this)">Lo-fi</button>
+                                                <button type="button" class="style-chip" data-style="Pop"
+                                                    onclick="addSoundStyle(this)">Pop</button>
+                                                <button type="button" class="style-chip" data-style="Classical"
+                                                    onclick="addSoundStyle(this)">Classical</button>
+                                                <button type="button" class="style-chip" data-style="Hip-Hop"
+                                                    onclick="addSoundStyle(this)">Hip-Hop</button>
+                                                <button type="button" class="style-chip" data-style="Rock"
+                                                    onclick="addSoundStyle(this)">Rock</button>
+                                                <div id="soundMoreStylesText"
+                                                    class="hidden flex flex-wrap gap-1 w-full">
+                                                    <button type="button" class="style-chip" data-style="Trap"
+                                                        onclick="addSoundStyle(this)">Trap</button>
+                                                    <button type="button" class="style-chip" data-style="R&B"
+                                                        onclick="addSoundStyle(this)">R&B</button>
+                                                    <button type="button" class="style-chip" data-style="Reggae"
+                                                        onclick="addSoundStyle(this)">Reggae</button>
+                                                    <button type="button" class="style-chip" data-style="Folk"
+                                                        onclick="addSoundStyle(this)">Folk</button>
+                                                    <button type="button" class="style-chip" data-style="House"
+                                                        onclick="addSoundStyle(this)">House</button>
+                                                    <button type="button" class="style-chip" data-style="Techno"
+                                                        onclick="addSoundStyle(this)">Techno</button>
+                                                    <button type="button" class="style-chip" data-style="Acoustic"
+                                                        onclick="addSoundStyle(this)">Acoustic</button>
+                                                    <button type="button" class="style-chip" data-style="Synthwave"
+                                                        onclick="addSoundStyle(this)">Synthwave</button>
+                                                </div>
+                                                <button type="button" id="soundMoreBtnText" class="style-chip-more"
+                                                    onclick="toggleSoundMoreStyles('text')">More ▾</button>
                                             </div>
                                         </div>
                                     </div>
 
 
-                                    <!-- ── SOUND AI TAB ── -->
-                                    <div class="tab-pane" data-tab="sound" style="display:none">
-                                        <!-- Sub-mode switcher -->
-                                        <div class="sound-sub-tabs">
-                                            <button type="button" class="sound-sub-tab" data-sound-tab="text"
-                                                onclick="switchSoundTab('text')">
-                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2">
-                                                    <polyline points="4 7 4 4 20 4 20 7" />
-                                                    <line x1="9" y1="20" x2="15" y2="20" />
-                                                    <line x1="12" y1="4" x2="12" y2="20" />
-                                                </svg>
-                                                Audio from Text
-                                            </button>
-                                            <button type="button" class="sound-sub-tab active" data-sound-tab="image"
-                                                onclick="switchSoundTab('image')">
-                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2">
-                                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                                    <circle cx="8.5" cy="8.5" r="1.5" />
-                                                    <polyline points="21 15 16 10 5 21" />
-                                                </svg>
-                                                Audio from Image
-                                            </button>
-                                        </div>
-
-                                        <!-- Sound: from Text -->
-                                        <div id="soundFromText" class="sound-panel hidden">
-                                            <p class="sound-info-text">Describe the sound, music style, mood,
-                                                instruments, or scene. AI will compose a unique audio track for you.
-                                            </p>
-                                            <!-- Sound model picker -->
-                                            <div class="relative">
-                                                <button type="button" id="soundModelPickerBtn"
-                                                    onclick="toggleSoundModelDropdown()"
-                                                    class="model-picker-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold mb-2 cursor-pointer hover:bg-white/60 dark:hover:bg-white/10">
-                                                    <span class="text-base">🎵</span>
-                                                    <span id="soundModelLabel">Suno AI</span>
-                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2.5"
-                                                        class="ml-auto opacity-50">
-                                                        <path d="M6 9l6 6 6-6" />
-                                                    </svg>
-                                                </button>
-                                                <div id="soundModelDropdown"
-                                                    class="model-dropdown hidden rounded-xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-xl overflow-hidden mb-2">
-                                                    <div class="model-item"
-                                                        onclick="selectSoundModel('suno','Suno AI')">
-                                                        <span class="text-base mr-2">🎵</span>
-                                                        <div class="model-item-info"><span class="model-item-name">Suno
-                                                                AI</span></div>
-                                                        <span class="model-item-badge">Active</span>
-                                                    </div>
-                                                    <div class="model-item opacity-60 cursor-not-allowed">
-                                                        <span class="text-base mr-2">🎶</span>
-                                                        <div class="model-item-info"><span
-                                                                class="model-item-name">Udio</span></div>
-                                                        <span class="model-item-badge tag-orange">soon</span>
-                                                    </div>
-                                                    <div class="model-item opacity-60 cursor-not-allowed">
-                                                        <span class="text-base mr-2">🔊</span>
-                                                        <div class="model-item-info"><span
-                                                                class="model-item-name">Stable Audio</span></div>
-                                                        <span class="model-item-badge tag-orange">soon</span>
-                                                    </div>
+                                    <!-- Sound: from Image — Step 1 -->
+                                    <div id="soundFromImage" class="sound-panel">
+                                        <!-- Step 1: upload -->
+                                        <div id="soundImageStep1">
+                                            <div class="edit-info-block mb-2">
+                                                <div class="edit-info-icon"><svg width="20" height="20"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="1.8">
+                                                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                                        <polyline points="21 15 16 10 5 21" />
+                                                    </svg></div>
+                                                <div>
+                                                    <p class="edit-info-title">Audio from Image</p>
+                                                    <p class="edit-info-desc">Upload an image and AI will
+                                                        compose a unique audio track inspired by it.</p>
                                                 </div>
                                             </div>
-                                            <!-- Music style chips for "from Text" -->
+                                            <div class="edit-dropzone"
+                                                onclick="document.getElementById('soundImageInput').click()"
+                                                ondragover="event.preventDefault()"
+                                                ondrop="handleSoundImageDrop(event)">
+                                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                                    class="edit-dropzone-icon">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                    <polyline points="17 8 12 3 7 8" />
+                                                    <line x1="12" y1="3" x2="12" y2="15" />
+                                                </svg>
+                                                <p class="edit-dropzone-title">Drop one image</p>
+                                                <p class="edit-dropzone-sub">or <span
+                                                        class="text-blue-500 cursor-pointer">browse</span> ·
+                                                    paste URL below</p>
+                                                <input type="file" id="soundImageInput" class="hidden" accept="image/*"
+                                                    onchange="handleSoundImageSelect(this)">
+                                                <div class="flex items-center gap-2 w-full mt-3">
+                                                    <input type="url" id="soundImageUrlInput"
+                                                        placeholder="https://image-url..." class="edit-url-input"
+                                                        onkeydown="if(event.key==='Enter') addSoundImageFromUrl()">
+                                                    <button type="button" onclick="addSoundImageFromUrl()"
+                                                        class="edit-url-btn">Add</button>
+                                                </div>
+                                                <button type="button" onclick="openSoundFromHistory()"
+                                                    class="edit-history-btn mt-2">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2">
+                                                        <circle cx="12" cy="12" r="10" />
+                                                        <polyline points="12 6 12 12 16 14" />
+                                                    </svg>
+                                                    Choose from History
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Step 2: Image previewed + prompt + styles -->
+                                        <div id="soundImageStep2" class="hidden">
+                                            <div class="sound-img-preview-wrap">
+                                                <img id="soundPreviewImg" src="" alt="" class="sound-preview-img">
+                                                <button type="button" onclick="clearSoundImage()"
+                                                    class="edit-thumb-remove sound-preview-remove">×</button>
+                                            </div>
+                                            <!-- Sound model for image flow -->
+                                            <button type="button" onclick="toggleSoundModelDropdown2()"
+                                                class="model-picker-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold mb-2 cursor-pointer hover:bg-white/60 dark:hover:bg-white/10">
+                                                <span class="text-base">🎵</span>
+                                                <span id="soundModelLabel2">Suno AI</span>
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2.5" class="ml-auto opacity-50">
+                                                    <path d="M6 9l6 6 6-6" />
+                                                </svg>
+                                            </button>
+                                            <div id="soundModelDropdown2"
+                                                class="model-dropdown hidden rounded-xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-xl overflow-hidden mb-2">
+                                                <div class="model-item" onclick="selectSoundModel2('suno','Suno AI')">
+                                                    <span class="text-base mr-2">🎵</span>
+                                                    <div class="model-item-info"><span class="model-item-name">Suno
+                                                            AI</span></div><span class="model-item-badge">Active</span>
+                                                </div>
+                                                <div class="model-item opacity-60 cursor-not-allowed"><span
+                                                        class="text-base mr-2">🎶</span>
+                                                    <div class="model-item-info"><span
+                                                            class="model-item-name">Udio</span></div><span
+                                                        class="model-item-badge tag-orange">soon</span>
+                                                </div>
+                                                <div class="model-item opacity-60 cursor-not-allowed"><span
+                                                        class="text-base mr-2">🔊</span>
+                                                    <div class="model-item-info"><span class="model-item-name">Stable
+                                                            Audio</span></div>
+                                                    <span class="model-item-badge tag-orange">soon</span>
+                                                </div>
+                                            </div>
+                                            <!-- Music style chips -->
                                             <div class="sound-styles-section">
                                                 <p
                                                     class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide">
                                                     Music style</p>
-                                                <div class="flex flex-wrap gap-1">
+                                                <div id="soundStylesContainer" class="flex flex-wrap gap-1">
+                                                    <!-- 10 primary styles -->
                                                     <button type="button" class="style-chip" data-style="Cinematic"
                                                         onclick="addSoundStyle(this)">Cinematic</button>
                                                     <button type="button" class="style-chip" data-style="Electronic"
@@ -1546,7 +1590,8 @@
                                                         onclick="addSoundStyle(this)">Hip-Hop</button>
                                                     <button type="button" class="style-chip" data-style="Rock"
                                                         onclick="addSoundStyle(this)">Rock</button>
-                                                    <div id="soundMoreStylesText"
+                                                    <!-- More styles (hidden) -->
+                                                    <div id="soundMoreStyles"
                                                         class="hidden flex flex-wrap gap-1 w-full">
                                                         <button type="button" class="style-chip" data-style="Trap"
                                                             onclick="addSoundStyle(this)">Trap</button>
@@ -1562,569 +1607,417 @@
                                                             onclick="addSoundStyle(this)">Techno</button>
                                                         <button type="button" class="style-chip" data-style="Acoustic"
                                                             onclick="addSoundStyle(this)">Acoustic</button>
+                                                        <button type="button" class="style-chip" data-style="Metal"
+                                                            onclick="addSoundStyle(this)">Metal</button>
+                                                        <button type="button" class="style-chip" data-style="New Age"
+                                                            onclick="addSoundStyle(this)">New
+                                                            Age</button>
+                                                        <button type="button" class="style-chip" data-style="Gospel"
+                                                            onclick="addSoundStyle(this)">Gospel</button>
+                                                        <button type="button" class="style-chip" data-style="Soul"
+                                                            onclick="addSoundStyle(this)">Soul</button>
+                                                        <button type="button" class="style-chip" data-style="World"
+                                                            onclick="addSoundStyle(this)">World</button>
+                                                        <button type="button" class="style-chip" data-style="Bossa Nova"
+                                                            onclick="addSoundStyle(this)">Bossa Nova</button>
                                                         <button type="button" class="style-chip" data-style="Synthwave"
                                                             onclick="addSoundStyle(this)">Synthwave</button>
                                                     </div>
-                                                    <button type="button" id="soundMoreBtnText" class="style-chip-more"
-                                                        onclick="toggleSoundMoreStyles('text')">More ▾</button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <!-- Sound: from Image — Step 1 -->
-                                        <div id="soundFromImage" class="sound-panel">
-                                            <!-- Step 1: upload -->
-                                            <div id="soundImageStep1">
-                                                <div class="edit-info-block mb-2">
-                                                    <div class="edit-info-icon"><svg width="20" height="20"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="1.8">
-                                                            <rect x="3" y="3" width="18" height="18" rx="2" />
-                                                            <circle cx="8.5" cy="8.5" r="1.5" />
-                                                            <polyline points="21 15 16 10 5 21" />
-                                                        </svg></div>
-                                                    <div>
-                                                        <p class="edit-info-title">Audio from Image</p>
-                                                        <p class="edit-info-desc">Upload an image and AI will
-                                                            compose a unique audio track inspired by it.</p>
-                                                    </div>
-                                                </div>
-                                                <div class="edit-dropzone"
-                                                    onclick="document.getElementById('soundImageInput').click()"
-                                                    ondragover="event.preventDefault()"
-                                                    ondrop="handleSoundImageDrop(event)">
-                                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                                        class="edit-dropzone-icon">
-                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                                        <polyline points="17 8 12 3 7 8" />
-                                                        <line x1="12" y1="3" x2="12" y2="15" />
-                                                    </svg>
-                                                    <p class="edit-dropzone-title">Drop one image</p>
-                                                    <p class="edit-dropzone-sub">or <span
-                                                            class="text-blue-500 cursor-pointer">browse</span> ·
-                                                        paste URL below</p>
-                                                    <input type="file" id="soundImageInput" class="hidden"
-                                                        accept="image/*" onchange="handleSoundImageSelect(this)">
-                                                    <div class="flex items-center gap-2 w-full mt-3">
-                                                        <input type="url" id="soundImageUrlInput"
-                                                            placeholder="https://image-url..." class="edit-url-input"
-                                                            onkeydown="if(event.key==='Enter') addSoundImageFromUrl()">
-                                                        <button type="button" onclick="addSoundImageFromUrl()"
-                                                            class="edit-url-btn">Add</button>
-                                                    </div>
-                                                    <button type="button" onclick="openSoundFromHistory()"
-                                                        class="edit-history-btn mt-2">
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                                            stroke="currentColor" stroke-width="2">
-                                                            <circle cx="12" cy="12" r="10" />
-                                                            <polyline points="12 6 12 12 16 14" />
-                                                        </svg>
-                                                        Choose from History
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <!-- Step 2: Image previewed + prompt + styles -->
-                                            <div id="soundImageStep2" class="hidden">
-                                                <div class="sound-img-preview-wrap">
-                                                    <img id="soundPreviewImg" src="" alt="" class="sound-preview-img">
-                                                    <button type="button" onclick="clearSoundImage()"
-                                                        class="edit-thumb-remove sound-preview-remove">×</button>
-                                                </div>
-                                                <!-- Sound model for image flow -->
-                                                <button type="button" onclick="toggleSoundModelDropdown2()"
-                                                    class="model-picker-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-white/25 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-700 dark:text-gray-200 text-xs font-semibold mb-2 cursor-pointer hover:bg-white/60 dark:hover:bg-white/10">
-                                                    <span class="text-base">🎵</span>
-                                                    <span id="soundModelLabel2">Suno AI</span>
-                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor" stroke-width="2.5"
-                                                        class="ml-auto opacity-50">
-                                                        <path d="M6 9l6 6 6-6" />
-                                                    </svg>
-                                                </button>
-                                                <div id="soundModelDropdown2"
-                                                    class="model-dropdown hidden rounded-xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-slate-900/98 shadow-xl overflow-hidden mb-2">
-                                                    <div class="model-item"
-                                                        onclick="selectSoundModel2('suno','Suno AI')"><span
-                                                            class="text-base mr-2">🎵</span>
-                                                        <div class="model-item-info"><span class="model-item-name">Suno
-                                                                AI</span></div><span
-                                                            class="model-item-badge">Active</span>
-                                                    </div>
-                                                    <div class="model-item opacity-60 cursor-not-allowed"><span
-                                                            class="text-base mr-2">🎶</span>
-                                                        <div class="model-item-info"><span
-                                                                class="model-item-name">Udio</span></div><span
-                                                            class="model-item-badge tag-orange">soon</span>
-                                                    </div>
-                                                    <div class="model-item opacity-60 cursor-not-allowed"><span
-                                                            class="text-base mr-2">🔊</span>
-                                                        <div class="model-item-info"><span
-                                                                class="model-item-name">Stable Audio</span></div>
-                                                        <span class="model-item-badge tag-orange">soon</span>
-                                                    </div>
-                                                </div>
-                                                <!-- Music style chips -->
-                                                <div class="sound-styles-section">
-                                                    <p
-                                                        class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide">
-                                                        Music style</p>
-                                                    <div id="soundStylesContainer" class="flex flex-wrap gap-1">
-                                                        <!-- 10 primary styles -->
-                                                        <button type="button" class="style-chip" data-style="Cinematic"
-                                                            onclick="addSoundStyle(this)">Cinematic</button>
-                                                        <button type="button" class="style-chip" data-style="Electronic"
-                                                            onclick="addSoundStyle(this)">Electronic</button>
-                                                        <button type="button" class="style-chip" data-style="Ambient"
-                                                            onclick="addSoundStyle(this)">Ambient</button>
-                                                        <button type="button" class="style-chip" data-style="Jazz"
-                                                            onclick="addSoundStyle(this)">Jazz</button>
-                                                        <button type="button" class="style-chip" data-style="Epic"
-                                                            onclick="addSoundStyle(this)">Epic</button>
-                                                        <button type="button" class="style-chip" data-style="Lo-fi"
-                                                            onclick="addSoundStyle(this)">Lo-fi</button>
-                                                        <button type="button" class="style-chip" data-style="Pop"
-                                                            onclick="addSoundStyle(this)">Pop</button>
-                                                        <button type="button" class="style-chip" data-style="Classical"
-                                                            onclick="addSoundStyle(this)">Classical</button>
-                                                        <button type="button" class="style-chip" data-style="Hip-Hop"
-                                                            onclick="addSoundStyle(this)">Hip-Hop</button>
-                                                        <button type="button" class="style-chip" data-style="Rock"
-                                                            onclick="addSoundStyle(this)">Rock</button>
-                                                        <!-- More styles (hidden) -->
-                                                        <div id="soundMoreStyles"
-                                                            class="hidden flex flex-wrap gap-1 w-full">
-                                                            <button type="button" class="style-chip" data-style="Trap"
-                                                                onclick="addSoundStyle(this)">Trap</button>
-                                                            <button type="button" class="style-chip" data-style="R&B"
-                                                                onclick="addSoundStyle(this)">R&B</button>
-                                                            <button type="button" class="style-chip" data-style="Reggae"
-                                                                onclick="addSoundStyle(this)">Reggae</button>
-                                                            <button type="button" class="style-chip" data-style="Folk"
-                                                                onclick="addSoundStyle(this)">Folk</button>
-                                                            <button type="button" class="style-chip" data-style="House"
-                                                                onclick="addSoundStyle(this)">House</button>
-                                                            <button type="button" class="style-chip" data-style="Techno"
-                                                                onclick="addSoundStyle(this)">Techno</button>
-                                                            <button type="button" class="style-chip"
-                                                                data-style="Acoustic"
-                                                                onclick="addSoundStyle(this)">Acoustic</button>
-                                                            <button type="button" class="style-chip" data-style="Metal"
-                                                                onclick="addSoundStyle(this)">Metal</button>
-                                                            <button type="button" class="style-chip"
-                                                                data-style="New Age" onclick="addSoundStyle(this)">New
-                                                                Age</button>
-                                                            <button type="button" class="style-chip" data-style="Gospel"
-                                                                onclick="addSoundStyle(this)">Gospel</button>
-                                                            <button type="button" class="style-chip" data-style="Soul"
-                                                                onclick="addSoundStyle(this)">Soul</button>
-                                                            <button type="button" class="style-chip" data-style="World"
-                                                                onclick="addSoundStyle(this)">World</button>
-                                                            <button type="button" class="style-chip"
-                                                                data-style="Bossa Nova"
-                                                                onclick="addSoundStyle(this)">Bossa Nova</button>
-                                                            <button type="button" class="style-chip"
-                                                                data-style="Synthwave"
-                                                                onclick="addSoundStyle(this)">Synthwave</button>
-                                                        </div>
-                                                        <button type="button" id="soundMoreBtn" class="style-chip-more"
-                                                            onclick="toggleSoundMoreStyles()">More styles ▾</button>
-                                                    </div>
+                                                    <button type="button" id="soundMoreBtn" class="style-chip-more"
+                                                        onclick="toggleSoundMoreStyles()">More styles ▾</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                </div><!-- /tabs-content -->
-
-                                <!-- Hidden legacy select for mode-cards.js compatibility -->
-                                <select id="modeSelect" style="display: none;">
-                                    <option value="nano_banana">Nano Banana</option>
-                                    <option value="nano_banana_2">Nano Banana 2</option>
-                                    <option value="nano_banana_pro" selected>Nano Banana Pro</option>
-                                    <option value="fast_generation">Flux Fast Generation</option>
-                                    <option value="z_image">Z-Image Turbo</option>
-                                    <option value="qwen_image">Qwen Image</option>
-                                    <option value="qwen_image_edit">Qwen Image Edit</option>
-                                    <option value="pixplace_pro">Flux Pro Advanced</option>
-                                    <option value="print_maker">Print on Demand</option>
-                                    <option value="background_removal">Remove Background</option>
-                                    <option value="upscale_image">Upscale Image</option>
-                                </select>
-
-
-
-                            </div>
-                            <!-- ⚡ MODERN PROMPT INPUT CARD -->
-                            <div class="layout-section-prompt relative z-20" id="promptFormGroup">
-                                <div id="dropzoneOverlay"
-                                    class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-[#0f172a]/90 backdrop-blur-sm border-2 border-dashed border-blue-500 rounded-2xl opacity-0 pointer-events-none transition-opacity duration-200 hidden">
-                                    <div
-                                        class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-full mb-3 text-blue-500 dark:text-blue-400">
-                                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                            stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-1">Drop image here
-                                    </h3>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center px-4">Drag and
-                                        drop
-                                        any image to use it for generation</p>
                                 </div>
-                                <div class="relative w-full rounded-2xl bg-white/90 dark:bg-[#0f172a] backdrop-blur-xl border border-white/20 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:bg-white dark:hover:bg-[#0f172a] focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50 group z-10"
-                                    id="promptCardInner">
-                                    <!-- Positive Prompt Area -->
-                                    <div class="relative w-full" id="promptTextareaWrapper">
-                                        <textarea id="promptInput"
-                                            class="w-full bg-transparent border-none focus:ring-0 p-3 sm:p-4 min-h-[80px] sm:min-h-[120px] lg:min-h-[160px] text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base resize-none font-medium leading-relaxed scrollbar-hide"
-                                            data-i18n-placeholder="prompt_placeholder"
-                                            placeholder="Describe your vision and watch AI bring it to life"
-                                            maxlength="2000"></textarea>
 
-                                        <!-- Character Counter -->
-                                        <div
-                                            class="absolute bottom-2 right-4 text-[10px] font-mono opacity-40 pointer-events-none">
-                                            <span id="charCounter">0/2000</span>
+                            </div><!-- /tabs-content -->
+
+                            <!-- Hidden legacy select for mode-cards.js compatibility -->
+                            <select id="modeSelect" style="display: none;">
+                                <option value="nano_banana">Nano Banana</option>
+                                <option value="nano_banana_2">Nano Banana 2</option>
+                                <option value="nano_banana_pro">Nano Banana Pro</option>
+                                <option value="fast_generation">Flux Fast Generation</option>
+                                <option value="z_image" selected>Z-Image Turbo</option>
+                                <option value="qwen_image">Qwen Image</option>
+                                <option value="qwen_image_edit">Qwen Image Edit</option>
+                                <option value="pixplace_pro">Flux Pro Advanced</option>
+                                <option value="print_maker">Print on Demand</option>
+                                <option value="background_removal">Remove Background</option>
+                                <option value="upscale_image">Upscale Image</option>
+                            </select>
+
+
+
+                        </div>
+                        <!-- ⚡ MODERN PROMPT INPUT CARD -->
+                        <div class="layout-section-prompt relative z-20" id="promptFormGroup">
+                            <div id="dropzoneOverlay"
+                                class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-[#0f172a]/90 backdrop-blur-sm border-2 border-dashed border-blue-500 rounded-2xl opacity-0 pointer-events-none transition-opacity duration-200 hidden">
+                                <div
+                                    class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-full mb-3 text-blue-500 dark:text-blue-400">
+                                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-1">Drop image here
+                                </h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 text-center px-4">Drag and
+                                    drop
+                                    any image to use it for generation</p>
+                            </div>
+                            <div class="relative w-full rounded-2xl bg-white/90 dark:bg-[#0f172a] backdrop-blur-xl border border-white/20 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:bg-white dark:hover:bg-[#0f172a] focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50 group z-10"
+                                id="promptCardInner">
+                                <!-- Positive Prompt Area -->
+                                <div class="relative w-full" id="promptTextareaWrapper">
+                                    <textarea id="promptInput"
+                                        class="w-full bg-transparent border-none focus:ring-0 p-3 sm:p-4 min-h-[80px] sm:min-h-[120px] lg:min-h-[160px] text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base resize-none font-medium leading-relaxed scrollbar-hide"
+                                        data-i18n-placeholder="prompt_placeholder"
+                                        placeholder="Describe your vision and watch AI bring it to life"
+                                        maxlength="2000"></textarea>
+
+                                    <!-- Character Counter -->
+                                    <div
+                                        class="absolute bottom-2 right-4 text-[10px] font-mono opacity-40 pointer-events-none">
+                                        <span id="charCounter">0/2000</span>
+                                    </div>
+                                </div>
+
+                                <!-- Image Preview Area (Hidden by default) -->
+                                <div id="userImagePreview" class="hidden px-4 pb-2">
+                                    <div id="previewContainer" class="flex flex-wrap gap-2"></div>
+                                </div>
+
+                                <div id="promptDivider" class="relative w-full my-0"
+                                    style="height:1px; background: linear-gradient(to right, transparent, rgba(99,102,241,0.35), transparent)">
+                                </div>
+
+                                <!-- Universal Media Input Section (Hidden by default based on mode) -->
+                                <div id="urlInputContainer" class="relative px-4 pt-1.5 pb-0 transition-all">
+                                    <div class="flex items-center gap-3">
+
+                                        <!-- Click to Browse File Input Label -->
+                                        <label for="userImage"
+                                            class="shrink-0 flex items-center justify-center bg-white dark:bg-[#0f172a] hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 cursor-pointer transition-colors shadow-sm text-gray-700 dark:text-gray-300 group/upload">
+                                            <svg class="w-5 h-5 mr-2 text-gray-400 group-hover/upload:text-blue-500 transition-colors"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                            </svg>
+                                            <span class="text-sm font-semibold">Upload</span>
+                                        </label>
+
+                                        <!-- Text URL Input -->
+                                        <div class="relative flex-1 group/url">
+                                            <div
+                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400 group-focus-within/url:text-indigo-500 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor" stroke-width="2.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                </svg>
+                                            </div>
+                                            <input type="url" id="imageUrlInput"
+                                                class="w-full bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 block pl-10 pr-12 p-2.5 shadow-sm outline-none transition-all placeholder:text-gray-400"
+                                                placeholder="Paste image URL here... (https://...)">
+
+                                            <!-- Add Button Inside Input -->
+                                            <button type="button" id="addUrlSubmitBtn"
+                                                class="absolute inset-y-1 right-1 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors shadow-sm hover:shadow active:scale-95">
+                                                Add
+                                            </button>
                                         </div>
                                     </div>
+                                    <div id="urlInputError"
+                                        class="hidden text-red-500 text-[11px] mt-1 ml-1 font-medium bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded inline-block">
+                                        Invalid or unreachable URL</div>
+                                </div>
 
-                                    <!-- Image Preview Area (Hidden by default) -->
-                                    <div id="userImagePreview" class="hidden px-4 pb-2">
-                                        <div id="previewContainer" class="flex flex-wrap gap-2"></div>
-                                    </div>
+                                <!-- Negative Prompt Section (Collapsible) -->
+                                <div class="collapse-section" id="negativePromptSection">
+                                    <button type="button"
+                                        class="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-400 hover:text-blue-500/80 dark:hover:text-blue-400/80 transition-colors px-4 py-1 w-full text-left focus:outline-none group/neg"
+                                        onclick="const container = document.getElementById('negativePromptContainer'); const icon = this.querySelector('svg'); container.classList.toggle('hidden'); icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';">
+                                        <svg style="width: 10px; height: 10px;"
+                                            class="transition-transform duration-200 opacity-50 group-hover/neg:opacity-100"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                        <span>Negative prompt</span>
+                                    </button>
 
-                                    <div id="promptDivider" class="relative w-full my-0"
-                                        style="height:1px; background: linear-gradient(to right, transparent, rgba(99,102,241,0.35), transparent)">
-                                    </div>
-
-                                    <!-- Universal Media Input Section (Hidden by default based on mode) -->
-                                    <div id="urlInputContainer" class="relative px-4 pt-1.5 pb-0 transition-all">
-                                        <div class="flex items-center gap-3">
-
-                                            <!-- Click to Browse File Input Label -->
-                                            <label for="userImage"
-                                                class="shrink-0 flex items-center justify-center bg-white dark:bg-[#0f172a] hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 cursor-pointer transition-colors shadow-sm text-gray-700 dark:text-gray-300 group/upload">
-                                                <svg class="w-5 h-5 mr-2 text-gray-400 group-hover/upload:text-blue-500 transition-colors"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                    stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                                </svg>
-                                                <span class="text-sm font-semibold">Upload</span>
-                                            </label>
-
-                                            <!-- Text URL Input -->
-                                            <div class="relative flex-1 group/url">
-                                                <div
-                                                    class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400 group-focus-within/url:text-indigo-500 transition-colors">
-                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
-                                                        stroke="currentColor" stroke-width="2.5">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                                    </svg>
-                                                </div>
-                                                <input type="url" id="imageUrlInput"
-                                                    class="w-full bg-white dark:bg-[#0f172a] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 block pl-10 pr-12 p-2.5 shadow-sm outline-none transition-all placeholder:text-gray-400"
-                                                    placeholder="Paste image URL here... (https://...)">
-
-                                                <!-- Add Button Inside Input -->
-                                                <button type="button" id="addUrlSubmitBtn"
-                                                    class="absolute inset-y-1 right-1 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors shadow-sm hover:shadow active:scale-95">
-                                                    Add
-                                                </button>
+                                    <div id="negativePromptContainer"
+                                        class="hidden px-4 pb-3 pt-0 transition-all duration-200 ease-in-out">
+                                        <div class="relative">
+                                            <textarea id="negativePromptInput"
+                                                class="w-full bg-gray-50/50 dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700 focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/30 p-3 text-[11px] text-gray-600 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 resize-none font-medium"
+                                                rows="2"
+                                                placeholder="Things to avoid (e.g. blurry, low quality, deformed)..."
+                                                maxlength="3000"></textarea>
+                                            <div
+                                                class="absolute bottom-1 right-2 text-[8px] font-mono opacity-20 pointer-events-none">
+                                                <span id="negativeCharCounter">0/3000</span>
                                             </div>
                                         </div>
-                                        <div id="urlInputError"
-                                            class="hidden text-red-500 text-[11px] mt-1 ml-1 font-medium bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded inline-block">
-                                            Invalid or unreachable URL</div>
                                     </div>
+                                </div>
 
-                                    <!-- Negative Prompt Section (Collapsible) -->
-                                    <div class="collapse-section" id="negativePromptSection">
-                                        <button type="button"
-                                            class="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-400 hover:text-blue-500/80 dark:hover:text-blue-400/80 transition-colors px-4 py-1 w-full text-left focus:outline-none group/neg"
-                                            onclick="const container = document.getElementById('negativePromptContainer'); const icon = this.querySelector('svg'); container.classList.toggle('hidden'); icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';">
-                                            <svg style="width: 10px; height: 10px;"
-                                                class="transition-transform duration-200 opacity-50 group-hover/neg:opacity-100"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                    d="M19 9l-7 7-7-7" />
+                                <!-- Toolbar Area -->
+                                <div
+                                    class="flex flex-wrap items-center justify-between p-2 sm:p-3 bg-white/30 dark:bg-black/20 backdrop-blur-md border-t border-white/5 gap-3">
+
+                                    <!-- Left Tools -->
+                                    <div id="ob-tools-row"
+                                        class="flex flex-wrap items-center gap-2 w-full sm:flex-1 sm:w-auto pb-1 sm:pb-0">
+
+                                        <!-- Aspect Ratio Selector -->
+                                        <div class="relative flex-1 min-w-[120px] max-w-[200px]" id="sizeGroup">
+                                            <span
+                                                class="absolute -top-2 left-2 text-[9px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] px-1 z-10 pointer-events-none rounded-sm">Size</span>
+                                            <select id="sizeSelect"
+                                                class="w-full text-ellipsis overflow-hidden bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-3 pr-2 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors pt-2.5">
+                                                <option value="square">Square 1:1 (1024×1024)</option>
+                                                <option value="ultra_wide_landscape">Ultra-Wide Landscape 21:9
+                                                    (1536×640)</option>
+                                                <option value="wide_landscape">Wide Landscape 16:9 (1344×768)
+                                                </option>
+                                                <option value="standard_landscape">Standard Landscape 4:3
+                                                    (1152×896)
+                                                </option>
+                                                <option value="classic_landscape">Classic Landscape 3:2
+                                                    (1280×832)
+                                                </option>
+                                                <option value="classic_portrait">Classic Portrait 2:3 (832×1280)
+                                                </option>
+                                                <option value="standard_portrait">Standard Portrait 3:4
+                                                    (896×1152)
+                                                </option>
+                                                <option value="tall_portrait">Tall Portrait 9:16 (768×1344)
+                                                </option>
+                                                <option value="ultra_tall_portrait">Ultra-Tall Portrait 9:21
+                                                    (640×1536)</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Resolution Selector (Nano Banana) -->
+                                        <div class="relative flex-1 min-w-[100px] max-w-[130px] hidden"
+                                            id="resolutionGroup">
+                                            <span
+                                                class="absolute -top-2 left-2 text-[9px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] px-1 z-10 pointer-events-none rounded-sm">Resolution</span>
+                                            <select id="resolutionSelect"
+                                                class="w-full text-ellipsis overflow-hidden bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-2 pr-2 text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors pt-2.5">
+                                                <option value="1K">1K</option>
+                                                <option value="2K">2K</option>
+                                                <option value="4K">4K (Pro)</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Upload File Input (Used by label and inline buttons) -->
+                                        <input type="file" id="userImage" class="hidden" multiple
+                                            accept="image/png,image/jpeg,image/webp,image/gif" />
+
+                                        <!-- Batch Upload Button (Coming Soon) -->
+                                        <button type="button" id="batchUploadBtn"
+                                            class="hidden flex items-center gap-1.5 bg-transparent border border-gray-300/40 dark:border-gray-600/40 rounded-lg py-1.5 px-3 text-[10px] font-semibold text-gray-700 dark:text-gray-200 cursor-not-allowed transition-all whitespace-nowrap overflow-hidden relative group">
+                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
+                                                <line x1="12" y1="18" x2="12" y2="12" />
+                                                <line x1="9" y1="15" x2="15" y2="15" />
                                             </svg>
-                                            <span>Negative prompt</span>
+                                            <span>Batch</span>
+                                            <span
+                                                class="ml-1 bg-blue-500 text-white dark:bg-blue-600 text-[7px] px-1 rounded-sm uppercase font-bold tracking-tighter">soon</span>
                                         </button>
 
-                                        <div id="negativePromptContainer"
-                                            class="hidden px-4 pb-3 pt-0 transition-all duration-200 ease-in-out">
-                                            <div class="relative">
-                                                <textarea id="negativePromptInput"
-                                                    class="w-full bg-gray-50/50 dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700 focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/30 p-3 text-[11px] text-gray-600 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 resize-none font-medium"
-                                                    rows="2"
-                                                    placeholder="Things to avoid (e.g. blurry, low quality, deformed)..."
-                                                    maxlength="3000"></textarea>
-                                                <div
-                                                    class="absolute bottom-1 right-2 text-[8px] font-mono opacity-20 pointer-events-none">
-                                                    <span id="negativeCharCounter">0/3000</span>
-                                                </div>
-                                            </div>
+                                        <!-- Strength Slider (Hidden by default) -->
+                                        <div id="strengthSliderGroup"
+                                            class="hidden items-center gap-2 bg-white/50 dark:bg-slate-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg py-1 px-3">
+                                            <span class="text-[9px] font-bold opacity-60 uppercase">Str</span>
+                                            <input type="range" id="strengthSlider"
+                                                class="appearance-none w-16 h-1 bg-gray-200 dark:bg-gray-600 rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
+                                                min="0.01" max="1.0" step="0.01" value="0.8">
+                                            <span id="strengthValue"
+                                                class="text-[9px] font-bold min-w-[24px] text-right">80%</span>
                                         </div>
                                     </div>
 
-                                    <!-- Toolbar Area -->
+                                    <!-- Model Selector + Generate Button (grouped together on desktop) -->
                                     <div
-                                        class="flex flex-wrap items-center justify-between p-2 sm:p-3 bg-white/30 dark:bg-black/20 backdrop-blur-md border-t border-white/5 gap-3">
+                                        class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto order-2 sm:order-none">
 
-                                        <!-- Left Tools -->
-                                        <div id="ob-tools-row"
-                                            class="flex flex-wrap items-center gap-2 w-full sm:flex-1 sm:w-auto pb-1 sm:pb-0">
-
-                                            <!-- Aspect Ratio Selector -->
-                                            <div class="relative flex-1 min-w-[120px] max-w-[200px]" id="sizeGroup">
-                                                <span
-                                                    class="absolute -top-2 left-2 text-[9px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] px-1 z-10 pointer-events-none rounded-sm">Size</span>
-                                                <select id="sizeSelect"
-                                                    class="w-full text-ellipsis overflow-hidden bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-3 pr-2 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors pt-2.5">
-                                                    <option value="square">Square 1:1 (1024×1024)</option>
-                                                    <option value="ultra_wide_landscape">Ultra-Wide Landscape 21:9
-                                                        (1536×640)</option>
-                                                    <option value="wide_landscape">Wide Landscape 16:9 (1344×768)
-                                                    </option>
-                                                    <option value="standard_landscape">Standard Landscape 4:3
-                                                        (1152×896)
-                                                    </option>
-                                                    <option value="classic_landscape">Classic Landscape 3:2
-                                                        (1280×832)
-                                                    </option>
-                                                    <option value="classic_portrait">Classic Portrait 2:3 (832×1280)
-                                                    </option>
-                                                    <option value="standard_portrait">Standard Portrait 3:4
-                                                        (896×1152)
-                                                    </option>
-                                                    <option value="tall_portrait">Tall Portrait 9:16 (768×1344)
-                                                    </option>
-                                                    <option value="ultra_tall_portrait">Ultra-Tall Portrait 9:21
-                                                        (640×1536)</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Resolution Selector (Nano Banana) -->
-                                            <div class="relative flex-1 min-w-[100px] max-w-[130px] hidden"
-                                                id="resolutionGroup">
-                                                <span
-                                                    class="absolute -top-2 left-2 text-[9px] uppercase tracking-wider font-bold text-gray-400 dark:text-gray-500 bg-white dark:bg-[#0f172a] px-1 z-10 pointer-events-none rounded-sm">Resolution</span>
-                                                <select id="resolutionSelect"
-                                                    class="w-full text-ellipsis overflow-hidden bg-white/50 dark:bg-slate-800 border border-gray-200/50 dark:border-slate-700 rounded-lg py-1.5 pl-2 pr-2 text-[11px] sm:text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer hover:bg-white/70 dark:hover:bg-slate-700 transition-colors pt-2.5">
-                                                    <option value="1K">1K</option>
-                                                    <option value="2K">2K</option>
-                                                    <option value="4K">4K (Pro)</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Upload File Input (Used by label and inline buttons) -->
-                                            <input type="file" id="userImage" class="hidden" multiple
-                                                accept="image/png,image/jpeg,image/webp,image/gif" />
-
-                                            <!-- Batch Upload Button (Coming Soon) -->
-                                            <button type="button" id="batchUploadBtn"
-                                                class="hidden flex items-center gap-1.5 bg-transparent border border-gray-300/40 dark:border-gray-600/40 rounded-lg py-1.5 px-3 text-[10px] font-semibold text-gray-700 dark:text-gray-200 cursor-not-allowed transition-all whitespace-nowrap overflow-hidden relative group">
-                                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2">
-                                                    <rect x="2" y="2" width="20" height="20" rx="2" ry="2" />
-                                                    <line x1="12" y1="18" x2="12" y2="12" />
-                                                    <line x1="9" y1="15" x2="15" y2="15" />
-                                                </svg>
-                                                <span>Batch</span>
-                                                <span
-                                                    class="ml-1 bg-blue-500 text-white dark:bg-blue-600 text-[7px] px-1 rounded-sm uppercase font-bold tracking-tighter">soon</span>
-                                            </button>
-
-                                            <!-- Strength Slider (Hidden by default) -->
-                                            <div id="strengthSliderGroup"
-                                                class="hidden items-center gap-2 bg-white/50 dark:bg-slate-800/50 border border-gray-200/50 dark:border-gray-700/50 rounded-lg py-1 px-3">
-                                                <span class="text-[9px] font-bold opacity-60 uppercase">Str</span>
-                                                <input type="range" id="strengthSlider"
-                                                    class="appearance-none w-16 h-1 bg-gray-200 dark:bg-gray-600 rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
-                                                    min="0.01" max="1.0" step="0.01" value="0.8">
-                                                <span id="strengthValue"
-                                                    class="text-[9px] font-bold min-w-[24px] text-right">80%</span>
-                                            </div>
+                                        <!-- Form Portal Container for iframe Model Selector -->
+                                        <div id="form-portal-container"
+                                            class="relative w-full sm:w-[220px] h-[44px] z-[200]"
+                                            style="overflow: visible;">
+                                            <!-- iframe will be loaded here by portal-loader.js -->
                                         </div>
 
-                                        <!-- Model Selector + Generate Button (grouped together on desktop) -->
-                                        <div
-                                            class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto order-2 sm:order-none">
+                                        <!-- Generate Button -->
+                                        <button type="submit" id="generateBtn"
+                                            class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl py-2 px-6 text-sm font-bold shadow-xl shadow-blue-500/30 border-2 border-white/20 hover:border-white/40 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transform transition-all duration-200 w-full sm:w-auto bg-[length:200%_auto] hover:bg-right">
+                                            <span data-i18n="generate_btn">Generate</span>
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2.5">
+                                                <path d="M5 12h14M12 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
 
-                                            <!-- Form Portal Container for iframe Model Selector -->
-                                            <div id="form-portal-container"
-                                                class="relative w-full sm:w-[220px] h-[44px] z-[200]"
-                                                style="overflow: visible;">
-                                                <!-- iframe will be loaded here by portal-loader.js -->
-                                            </div>
-
-                                            <!-- Generate Button -->
-                                            <button type="submit" id="generateBtn"
-                                                class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl py-2 px-6 text-sm font-bold shadow-xl shadow-blue-500/30 border-2 border-white/20 hover:border-white/40 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transform transition-all duration-200 w-full sm:w-auto bg-[length:200%_auto] hover:bg-right">
-                                                <span data-i18n="generate_btn">Generate</span>
-                                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2.5">
-                                                    <path d="M5 12h14M12 5l7 7-7 7" />
-                                                </svg>
-                                            </button>
-
-                                        </div>
                                     </div>
                                 </div>
-
-
-                                <!-- Hidden items for script compatibility -->
                             </div>
-                            <div class="layout-section-extras">
-                                <div id="negativePromptSection" style="display: none;"></div>
-                                <div id="userImageWrapper" style="display: none;"></div>
 
 
-                                <!-- Choose a Style Section - CLEAN REPLACEMENT -->
-                                <div id="imageStylesSection" class="form-group" style="display: none;">
-                                    <p class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide px-2">
-                                        Image Style</p>
-                                    <div id="imageStylesContainer" class="flex flex-wrap gap-1 px-2">
-                                        <button type="button" class="style-chip" data-style="Cinematic"
-                                            onclick="addImageStyle(this)">Cinematic</button>
-                                        <button type="button" class="style-chip" data-style="Photographic"
-                                            onclick="addImageStyle(this)">Photographic</button>
-                                        <button type="button" class="style-chip" data-style="Realistic"
-                                            onclick="addImageStyle(this)">Realistic</button>
-                                        <button type="button" class="style-chip" data-style="Pop Art"
-                                            onclick="addImageStyle(this)">Pop Art</button>
-                                        <button type="button" class="style-chip" data-style="Cyberpunk"
-                                            onclick="addImageStyle(this)">Cyberpunk</button>
-                                        <button type="button" class="style-chip" data-style="Cartoon"
-                                            onclick="addImageStyle(this)">Cartoon</button>
-                                        <button type="button" class="style-chip" data-style="Sketch"
-                                            onclick="addImageStyle(this)">Sketch</button>
-                                        <button type="button" class="style-chip" data-style="Anime"
-                                            onclick="addImageStyle(this)">Anime</button>
-                                        <button type="button" class="style-chip" data-style="Fantasy"
-                                            onclick="addImageStyle(this)">Fantasy</button>
-                                        <button type="button" class="style-chip" data-style="Pixel Art"
-                                            onclick="addImageStyle(this)">Pixel Art</button>
+                            <!-- Hidden items for script compatibility -->
+                        </div>
+                        <div class="layout-section-extras">
+                            <div id="negativePromptSection" style="display: none;"></div>
+                            <div id="userImageWrapper" style="display: none;"></div>
 
-                                        <div id="imageMoreStyles" class="hidden flex flex-wrap gap-1 w-full mt-0.5">
-                                            <button type="button" class="style-chip" data-style="Surrealism"
-                                                onclick="addImageStyle(this)">Surrealism</button>
-                                            <button type="button" class="style-chip" data-style="Artistic"
-                                                onclick="addImageStyle(this)">Artistic</button>
-                                            <button type="button" class="style-chip" data-style="Abstract"
-                                                onclick="addImageStyle(this)">Abstract</button>
-                                            <button type="button" class="style-chip" data-style="Minimalism"
-                                                onclick="addImageStyle(this)">Minimalism</button>
-                                            <button type="button" class="style-chip" data-style="Fashion"
-                                                onclick="addImageStyle(this)">Fashion</button>
-                                            <button type="button" class="style-chip" data-style="3D Element"
-                                                onclick="addImageStyle(this)">3D Element</button>
-                                            <button type="button" class="style-chip" data-style="Interior Design"
-                                                onclick="addImageStyle(this)">Interior</button>
-                                            <button type="button" class="style-chip" data-style="Architecture"
-                                                onclick="addImageStyle(this)">Architecture</button>
-                                            <button type="button" class="style-chip" data-style="Print on Demand"
-                                                onclick="addImageStyle(this)">Print</button>
-                                            <button type="button" class="style-chip" data-style="Sticker"
-                                                onclick="addImageStyle(this)">Sticker</button>
-                                            <button type="button" class="style-chip" data-style="Banner"
-                                                onclick="addImageStyle(this)">Banner</button>
-                                            <button type="button" class="style-chip" data-style="Infographic"
-                                                onclick="addImageStyle(this)">Infographic</button>
-                                            <button type="button" class="style-chip" data-style="Logo"
-                                                onclick="addImageStyle(this)">Logo</button>
-                                            <button type="button" class="style-chip" data-style="Vector"
-                                                onclick="addImageStyle(this)">Vector</button>
-                                            <button type="button" class="style-chip" data-style="Neon"
-                                                onclick="addImageStyle(this)">Neon</button>
-                                            <button type="button" class="style-chip" data-style="Steampunk"
-                                                onclick="addImageStyle(this)">Steampunk</button>
-                                            <button type="button" class="style-chip" data-style="Watercolor"
-                                                onclick="addImageStyle(this)">Watercolor</button>
-                                        </div>
-                                        <button type="button" id="imageMoreBtn" class="style-chip-more"
-                                            onclick="toggleImageMoreStyles()">More styles ▾</button>
+
+                            <!-- Choose a Style Section - CLEAN REPLACEMENT -->
+                            <div id="imageStylesSection" class="form-group" style="display: none;">
+                                <p class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide px-2">
+                                    Image Style</p>
+                                <div id="imageStylesContainer" class="flex flex-wrap gap-1 px-2">
+                                    <button type="button" class="style-chip" data-style="Cinematic"
+                                        onclick="addImageStyle(this)">Cinematic</button>
+                                    <button type="button" class="style-chip" data-style="Photographic"
+                                        onclick="addImageStyle(this)">Photographic</button>
+                                    <button type="button" class="style-chip" data-style="Realistic"
+                                        onclick="addImageStyle(this)">Realistic</button>
+                                    <button type="button" class="style-chip" data-style="Pop Art"
+                                        onclick="addImageStyle(this)">Pop Art</button>
+                                    <button type="button" class="style-chip" data-style="Cyberpunk"
+                                        onclick="addImageStyle(this)">Cyberpunk</button>
+                                    <button type="button" class="style-chip" data-style="Cartoon"
+                                        onclick="addImageStyle(this)">Cartoon</button>
+                                    <button type="button" class="style-chip" data-style="Sketch"
+                                        onclick="addImageStyle(this)">Sketch</button>
+                                    <button type="button" class="style-chip" data-style="Anime"
+                                        onclick="addImageStyle(this)">Anime</button>
+                                    <button type="button" class="style-chip" data-style="Fantasy"
+                                        onclick="addImageStyle(this)">Fantasy</button>
+                                    <button type="button" class="style-chip" data-style="Pixel Art"
+                                        onclick="addImageStyle(this)">Pixel Art</button>
+
+                                    <div id="imageMoreStyles" class="hidden flex flex-wrap gap-1 w-full mt-0.5">
+                                        <button type="button" class="style-chip" data-style="Surrealism"
+                                            onclick="addImageStyle(this)">Surrealism</button>
+                                        <button type="button" class="style-chip" data-style="Artistic"
+                                            onclick="addImageStyle(this)">Artistic</button>
+                                        <button type="button" class="style-chip" data-style="Abstract"
+                                            onclick="addImageStyle(this)">Abstract</button>
+                                        <button type="button" class="style-chip" data-style="Minimalism"
+                                            onclick="addImageStyle(this)">Minimalism</button>
+                                        <button type="button" class="style-chip" data-style="Fashion"
+                                            onclick="addImageStyle(this)">Fashion</button>
+                                        <button type="button" class="style-chip" data-style="3D Element"
+                                            onclick="addImageStyle(this)">3D Element</button>
+                                        <button type="button" class="style-chip" data-style="Interior Design"
+                                            onclick="addImageStyle(this)">Interior</button>
+                                        <button type="button" class="style-chip" data-style="Architecture"
+                                            onclick="addImageStyle(this)">Architecture</button>
+                                        <button type="button" class="style-chip" data-style="Print on Demand"
+                                            onclick="addImageStyle(this)">Print</button>
+                                        <button type="button" class="style-chip" data-style="Sticker"
+                                            onclick="addImageStyle(this)">Sticker</button>
+                                        <button type="button" class="style-chip" data-style="Banner"
+                                            onclick="addImageStyle(this)">Banner</button>
+                                        <button type="button" class="style-chip" data-style="Infographic"
+                                            onclick="addImageStyle(this)">Infographic</button>
+                                        <button type="button" class="style-chip" data-style="Logo"
+                                            onclick="addImageStyle(this)">Logo</button>
+                                        <button type="button" class="style-chip" data-style="Vector"
+                                            onclick="addImageStyle(this)">Vector</button>
+                                        <button type="button" class="style-chip" data-style="Neon"
+                                            onclick="addImageStyle(this)">Neon</button>
+                                        <button type="button" class="style-chip" data-style="Steampunk"
+                                            onclick="addImageStyle(this)">Steampunk</button>
+                                        <button type="button" class="style-chip" data-style="Watercolor"
+                                            onclick="addImageStyle(this)">Watercolor</button>
                                     </div>
+                                    <button type="button" id="imageMoreBtn" class="style-chip-more"
+                                        onclick="toggleImageMoreStyles()">More styles ▾</button>
                                 </div>
+                            </div>
 
-                                <!-- ⚡ VIDEO STYLE CHIPS -->
-                                <div id="videoStylesSection" class="form-group" style="display: none;">
-                                    <p class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide px-2">
-                                        Video Style</p>
-                                    <div id="videoStylesContainer" class="flex flex-wrap gap-1 px-2">
-                                        <button type="button" class="style-chip" data-style="Cinematic Motion"
-                                            onclick="addVideoStyle(this)">Cinematic</button>
-                                        <button type="button" class="style-chip" data-style="Slow Motion"
-                                            onclick="addVideoStyle(this)">Slow Mo</button>
-                                        <button type="button" class="style-chip" data-style="Hyperlapse"
-                                            onclick="addVideoStyle(this)">Hyperlapse</button>
-                                        <button type="button" class="style-chip" data-style="Drone View"
-                                            onclick="addVideoStyle(this)">Drone</button>
-                                        <button type="button" class="style-chip" data-style="Vintage Film"
-                                            onclick="addVideoStyle(this)">Vintage</button>
-                                        <button type="button" class="style-chip" data-style="3D Animation"
-                                            onclick="addVideoStyle(this)">3D Anim</button>
-                                        <button type="button" class="style-chip" data-style="Glitch Art"
-                                            onclick="addVideoStyle(this)">Glitch</button>
-                                        <button type="button" class="style-chip" data-style="Time Lapse"
-                                            onclick="addVideoStyle(this)">Time Lapse</button>
-                                        <button type="button" class="style-chip" data-style="Cyberpunk City"
-                                            onclick="addVideoStyle(this)">Cyberpunk</button>
-                                        <button type="button" class="style-chip" data-style="Anime Action"
-                                            onclick="addVideoStyle(this)">Anime</button>
+                            <!-- ⚡ VIDEO STYLE CHIPS -->
+                            <div id="videoStylesSection" class="form-group" style="display: none;">
+                                <p class="text-[10px] uppercase font-bold opacity-50 mb-1.5 tracking-wide px-2">
+                                    Video Style</p>
+                                <div id="videoStylesContainer" class="flex flex-wrap gap-1 px-2">
+                                    <button type="button" class="style-chip" data-style="Cinematic Motion"
+                                        onclick="addVideoStyle(this)">Cinematic</button>
+                                    <button type="button" class="style-chip" data-style="Slow Motion"
+                                        onclick="addVideoStyle(this)">Slow Mo</button>
+                                    <button type="button" class="style-chip" data-style="Hyperlapse"
+                                        onclick="addVideoStyle(this)">Hyperlapse</button>
+                                    <button type="button" class="style-chip" data-style="Drone View"
+                                        onclick="addVideoStyle(this)">Drone</button>
+                                    <button type="button" class="style-chip" data-style="Vintage Film"
+                                        onclick="addVideoStyle(this)">Vintage</button>
+                                    <button type="button" class="style-chip" data-style="3D Animation"
+                                        onclick="addVideoStyle(this)">3D Anim</button>
+                                    <button type="button" class="style-chip" data-style="Glitch Art"
+                                        onclick="addVideoStyle(this)">Glitch</button>
+                                    <button type="button" class="style-chip" data-style="Time Lapse"
+                                        onclick="addVideoStyle(this)">Time Lapse</button>
+                                    <button type="button" class="style-chip" data-style="Cyberpunk City"
+                                        onclick="addVideoStyle(this)">Cyberpunk</button>
+                                    <button type="button" class="style-chip" data-style="Anime Action"
+                                        onclick="addVideoStyle(this)">Anime</button>
 
-                                        <div id="videoMoreStyles" class="hidden flex flex-wrap gap-1 w-full mt-0.5">
-                                            <button type="button" class="style-chip" data-style="Camera Pan"
-                                                onclick="addVideoStyle(this)">Camera Pan</button>
-                                            <button type="button" class="style-chip" data-style="Zoom In"
-                                                onclick="addVideoStyle(this)">Zoom In</button>
-                                            <button type="button" class="style-chip" data-style="Zoom Out"
-                                                onclick="addVideoStyle(this)">Zoom Out</button>
-                                            <button type="button" class="style-chip" data-style="Dolly Shot"
-                                                onclick="addVideoStyle(this)">Dolly Shot</button>
-                                            <button type="button" class="style-chip" data-style="Macro Focus"
-                                                onclick="addVideoStyle(this)">Macro Focus</button>
-                                            <button type="button" class="style-chip" data-style="VFX Magic"
-                                                onclick="addVideoStyle(this)">VFX Magic</button>
-                                            <button type="button" class="style-chip" data-style="Morphing"
-                                                onclick="addVideoStyle(this)">Morphing</button>
-                                            <button type="button" class="style-chip" data-style="Seamless Loop"
-                                                onclick="addVideoStyle(this)">Seamless Loop</button>
-                                        </div>
-                                        <button type="button" id="videoMoreBtn" class="style-chip-more"
-                                            onclick="toggleVideoMoreStyles()">More styles ▾</button>
+                                    <div id="videoMoreStyles" class="hidden flex flex-wrap gap-1 w-full mt-0.5">
+                                        <button type="button" class="style-chip" data-style="Camera Pan"
+                                            onclick="addVideoStyle(this)">Camera Pan</button>
+                                        <button type="button" class="style-chip" data-style="Zoom In"
+                                            onclick="addVideoStyle(this)">Zoom In</button>
+                                        <button type="button" class="style-chip" data-style="Zoom Out"
+                                            onclick="addVideoStyle(this)">Zoom Out</button>
+                                        <button type="button" class="style-chip" data-style="Dolly Shot"
+                                            onclick="addVideoStyle(this)">Dolly Shot</button>
+                                        <button type="button" class="style-chip" data-style="Macro Focus"
+                                            onclick="addVideoStyle(this)">Macro Focus</button>
+                                        <button type="button" class="style-chip" data-style="VFX Magic"
+                                            onclick="addVideoStyle(this)">VFX Magic</button>
+                                        <button type="button" class="style-chip" data-style="Morphing"
+                                            onclick="addVideoStyle(this)">Morphing</button>
+                                        <button type="button" class="style-chip" data-style="Seamless Loop"
+                                            onclick="addVideoStyle(this)">Seamless Loop</button>
                                     </div>
+                                    <button type="button" id="videoMoreBtn" class="style-chip-more"
+                                        onclick="toggleVideoMoreStyles()">More styles ▾</button>
                                 </div>
-                                <!-- Generation History Toggle Button -->
-                                <button type="button" id="historyToggleBtn" onclick="toggleHistoryList()"
-                                    class="w-full flex items-center justify-between mt-4 px-4 py-3 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-white/10 hover:border-blue-400/40 dark:hover:border-blue-400/30 transition-all duration-300 cursor-pointer group shadow-sm">
-                                    <!-- Left: Icon + Text -->
-                                    <span class="flex items-center gap-2.5">
-                                        <svg class="w-4.5 h-4.5 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10" />
-                                            <polyline points="12 6 12 12 16 14" />
-                                        </svg>
-                                        <span data-i18n="history_toggle">Generation History</span>
-                                        <span id="historyCountBadge"
-                                            class="hidden px-1.5 py-0.5 text-[10px] font-bold bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300 rounded-full leading-none"></span>
-                                    </span>
-                                    <!-- Right: Chevron -->
-                                    <svg id="historyChevron"
-                                        class="w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-300 group-hover:text-gray-600 dark:group-hover:text-gray-300"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                            </div>
+                            <!-- Generation History Toggle Button -->
+                            <button type="button" id="historyToggleBtn" onclick="toggleHistoryList()"
+                                class="w-full flex items-center justify-between mt-4 px-4 py-3 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-white/10 hover:border-blue-400/40 dark:hover:border-blue-400/30 transition-all duration-300 cursor-pointer group shadow-sm">
+                                <!-- Left: Icon + Text -->
+                                <span class="flex items-center gap-2.5">
+                                    <svg class="w-4.5 h-4.5 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="6 9 12 15 18 9" />
+                                        <circle cx="12" cy="12" r="10" />
+                                        <polyline points="12 6 12 12 16 14" />
                                     </svg>
-                                </button>
-                                <div id="historyList" class="history-list hidden"></div>
+                                    <span data-i18n="history_toggle">Generation History</span>
+                                    <span id="historyCountBadge"
+                                        class="hidden px-1.5 py-0.5 text-[10px] font-bold bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300 rounded-full leading-none"></span>
+                                </span>
+                                <!-- Right: Chevron -->
+                                <svg id="historyChevron"
+                                    class="w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-300 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+                            <div id="historyList" class="history-list hidden"></div>
                     </form>
                 </div>
             </div>
@@ -2175,7 +2068,8 @@
                         data-i18n="footer_product">Product</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                         <ul class="space-y-4">
-                            <li><a href="#" onclick="showGeneration(); return false;"
+                            <li><a href="#"
+                                    onclick="showGeneration(); switchGenerationTab('image'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2185,7 +2079,7 @@
                                     </svg>
                                     <span data-i18n="footer_ai_image">Ai Image</span>
                                 </a></li>
-                            <li><a href="#" onclick="switchGenerationTab('video'); return false;"
+                            <li><a href="#" onclick="switchGenerationTab('video'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2195,6 +2089,7 @@
                                     <span data-i18n="footer_ai_video">Ai Video</span>
                                 </a></li>
                             <li><a href="#"
+                                    onclick="switchGenerationTab('sound'); switchSoundTab('text'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2212,7 +2107,7 @@
                                     </svg>
                                     <span data-i18n="footer_ai_chat">GPT Chat</span>
                                 </a></li>
-                            <li><a href="#" onclick="switchGenerationTab('edit'); return false;"
+                            <li><a href="#" onclick="switchGenerationTab('edit'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2245,7 +2140,7 @@
                                     <span data-i18n="footer_upscale">Upscale or Enhance Image</span>
                                 </a></li>
                             <li><a href="#"
-                                    onclick="switchGenerationTab('sound'); switchSoundTab('image'); return false;"
+                                    onclick="switchGenerationTab('sound'); switchSoundTab('image'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2257,7 +2152,8 @@
                                     </svg>
                                     <span data-i18n="footer_audio_from_image">Audio from Image</span>
                                 </a></li>
-                            <li><a href="#" onclick="switchGenerationTab('image'); return false;"
+                            <li><a href="#"
+                                    onclick="switchGenerationTab('edit'); scrollToGeneration(); setTimeout(function(){ var el=document.getElementById('editDropzone'); if(el){ el.style.outline='2px solid #6366f1'; el.style.boxShadow='0 0 0 6px rgba(99,102,241,0.18)'; setTimeout(function(){el.style.outline='';el.style.boxShadow='';},2000); }},350); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2267,7 +2163,7 @@
                                     </svg>
                                     <span data-i18n="footer_photosession">Photosesion</span>
                                 </a></li>
-                            <li><a href="#" onclick="switchGenerationTab('image'); return false;"
+                            <li><a href="#" onclick="switchGenerationTab('image'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2533,6 +2429,18 @@
         // ============================================================
         // TAB SWITCHING (Images / Videos / Edit / Sound)
         // ============================================================
+        // Helper used by footer buttons — shows gen screen and focuses prompt
+        function scrollToGeneration() {
+            if (typeof showGeneration === 'function') showGeneration();
+            setTimeout(function () {
+                const screen = document.getElementById('generationScreen');
+                if (screen) screen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const inp = document.getElementById('promptInput');
+                if (inp && inp.offsetParent !== null) inp.focus({ preventScroll: true });
+            }, 250);
+        }
+        window.scrollToGeneration = scrollToGeneration;
+
         (function () {
             function switchGenerationTab(tabName) {
                 // Update tab buttons
@@ -2549,6 +2457,25 @@
                 const promptDivider = document.getElementById('promptDivider');
                 const styleSection = document.getElementById('chooseStyleSection');
 
+                // When leaving image mode, reset stale model state that controls batch/UI visibility
+                if (tabName !== 'image') {
+                    const sel = document.getElementById('modeSelect');
+                    if (sel && ['background_removal', 'upscale_image'].includes(sel.value)) {
+                        sel.value = 'z_image';
+                        sel.dispatchEvent(new Event('change', { bubbles: true }));
+                        // Restore promptTextareaWrapper — updatePromptVisibility() hid it for process
+                        // modes but edit/sound branches early-return without restoring it
+                        const ptw = document.getElementById('promptTextareaWrapper');
+                        if (ptw) ptw.classList.remove('hidden');
+                    }
+                    // Always force-hide batch button on non-image tabs
+                    const batchBtn = document.getElementById('batchUploadBtn');
+                    if (batchBtn) {
+                        batchBtn.classList.add('hidden');
+                        batchBtn.style.setProperty('display', 'none', 'important');
+                    }
+                }
+
                 if (tabName === 'image' || tabName === 'video') {
                     // Normal mode — show prompt + upload bar + image styles
                     if (promptSection) promptSection.style.display = '';
@@ -2560,30 +2487,75 @@
                     if (styleSection) styleSection.style.display = 'none';
                     if (imageUploadArea) imageUploadArea.style.display = 'none';
                     if (promptDivider) promptDivider.style.display = 'none';
-                    // Use DOM state as source of truth: if preview has a src, image was loaded
+
                     const editStep2 = document.getElementById('editStep2');
                     const editStep1 = document.getElementById('editStep1');
+
+                    // If no dedicated edit image but Images mode has one, carry it over
+                    if (!_editImageUrl && window.userImageState && window.userImageState.images.length > 0) {
+                        const firstImg = window.userImageState.images[0];
+                        if (firstImg.dataUrl) {
+                            window._editImageUrl = firstImg.dataUrl;
+                            window._editImageBlob = firstImg.file || null;
+                            const editPreviewImg = document.getElementById('editPreviewImg');
+                            if (editPreviewImg) editPreviewImg.src = firstImg.dataUrl;
+                        }
+                    }
+
                     const hasImage = !!_editImageUrl;
                     if (hasImage) {
-                        // Image was loaded before — show step2 + prompt
                         if (editStep1) editStep1.classList.add('hidden');
                         if (editStep2) editStep2.classList.remove('hidden');
                         if (promptSection) promptSection.style.display = '';
                     } else {
-                        // No image — show upload dropzone, hide prompt
                         if (editStep1) editStep1.classList.remove('hidden');
                         if (editStep2) editStep2.classList.add('hidden');
                         if (promptSection) promptSection.style.display = 'none';
+                    }
+
+                    // Set default model to nano_banana when entering edit tab
+                    const selEdit = document.getElementById('modeSelect');
+                    if (selEdit && !['nano_banana', 'nano_banana_2', 'nano_banana_pro', 'qwen_image_edit', 'background_removal', 'upscale_image'].includes(selEdit.value)) {
+                        selEdit.value = 'nano_banana';
+                        selEdit.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 } else if (tabName === 'sound') {
                     // Sound — show prompt for "Audio from Text", hide image styles & upload bar
                     if (styleSection) styleSection.style.display = 'none';
                     if (imageUploadArea) imageUploadArea.style.display = 'none';
                     if (promptDivider) promptDivider.style.display = 'none';
-                    // Re-init sound sub-tab to text (default shows prompt)
-                    switchSoundTab('image');
+                    // Always show promptFormGroup in sound (may have been hidden by edit no-image state)
+                    if (promptSection) promptSection.style.display = '';
+                    // Default to text sub-tab so the text prompt is visible
+                    switchSoundTab('text');
                 }
                 window._currentGenerationTab = tabName;
+
+                // Notify app_modern.js listeners so it can update prompt/UI for this tab
+                document.dispatchEvent(new CustomEvent('tab:changed', { detail: { tab: tabName } }));
+
+                // Show/hide the model picker portal — visible in image and edit modes
+                const portalContainer = document.getElementById('form-portal-container');
+                if (portalContainer) {
+                    const showPortal = (tabName === 'image' || tabName === 'edit');
+                    portalContainer.style.display = showPortal ? '' : 'none';
+
+                    if (showPortal) {
+                        // Send filter context to iframe after a tiny delay (iframe may need to be ready)
+                        setTimeout(function () {
+                            const iframe = portalContainer.querySelector('iframe');
+                            if (iframe && iframe.contentWindow) {
+                                iframe.contentWindow.postMessage({ type: 'set-context', mode: tabName }, '*');
+                                // When entering edit, ensure default model is nano_banana in the picker
+                                if (tabName === 'edit') {
+                                    const curSel = document.getElementById('modeSelect');
+                                    const curModel = curSel ? curSel.value : 'nano_banana';
+                                    iframe.contentWindow.postMessage({ type: 'set-form-data', model: curModel }, '*');
+                                }
+                            }
+                        }, 250);
+                    }
+                }
 
             }
 
@@ -2626,18 +2598,29 @@
         }
 
         function selectModelFromPicker(mode, label, iconKey) {
-            // Update picker button
-            const pickerLabel = document.getElementById('modelPickerLabel');
-            const pickerIcon = document.getElementById('modelPickerIcon');
-            if (pickerLabel) pickerLabel.textContent = label;
-            if (pickerIcon) {
-                pickerIcon.className = 'flex-shrink-0 w-5 h-5 flex items-center justify-center ' + (ICON_CLASS[iconKey] || 'model-icon-other');
-                pickerIcon.innerHTML = MODEL_ICONS[iconKey] || MODEL_ICONS.other;
-            }
-            // Sync hidden select
+            // Sync hidden select for any legacy consumers
             const sel = document.getElementById('modeSelect');
             if (sel) { sel.value = mode; sel.dispatchEvent(new Event('change', { bubbles: true })); }
-            // Close dropdown
+            // Send model selection into the iframe via postMessage
+            const portalContainer = document.getElementById('form-portal-container');
+            if (portalContainer) {
+                const iframe = portalContainer.querySelector('iframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({ type: 'set-form-data', model: mode }, '*');
+                }
+            }
+            // Re-send context so the model list stays filtered to the current tab
+            const portalContainer2 = document.getElementById('form-portal-container');
+            if (portalContainer2) {
+                const iframe2 = portalContainer2.querySelector('iframe');
+                if (iframe2 && iframe2.contentWindow) {
+                    const ctx = window._currentGenerationTab || 'image';
+                    setTimeout(function () {
+                        iframe2.contentWindow.postMessage({ type: 'set-context', mode: ctx }, '*');
+                    }, 100);
+                }
+            }
+            // Close any open dropdowns
             _closeAllDropdowns();
         }
 
@@ -2751,20 +2734,31 @@
         Object.defineProperty(window, '_editImageUrl', { get: () => _editImageUrl, set: (v) => { _editImageUrl = v; } });
 
         function _showEditStep2(src) {
+            // Hide step-1 dropzone
             const s1 = document.getElementById('editStep1');
-            const s2 = document.getElementById('editStep2');
-            const preview = document.getElementById('editPreviewImg');
             if (s1) s1.classList.add('hidden');
-            if (s2) s2.classList.remove('hidden');
-            if (preview) preview.src = src;
+            // editStep2 is a placeholder only — preview goes to shared #previewContainer
+            const s2 = document.getElementById('editStep2');
+            if (s2) s2.classList.add('hidden');
 
-            // Also show and enable the prompt input
+            // Store src for state checks
+            window._editImageUrl = src;
+
+            if (window.updateImageUploadVisibility) {
+                window.updateImageUploadVisibility();
+            }
+
+            // Show prompt + divider
             const promptSection = document.getElementById('promptFormGroup');
             if (promptSection) promptSection.style.display = '';
             const divider = document.getElementById('promptDivider');
             if (divider) divider.style.display = '';
 
-            // --- FIXED: Show style chips after image is loaded in Edit mode ---
+            // Force-hide the image-mode upload bar (edit has its own dropzone)
+            const uploadBar = document.getElementById('urlInputContainer');
+            if (uploadBar) uploadBar.style.setProperty('display', 'none', 'important');
+
+            // Show style chips
             const imageStylesSection = document.getElementById('imageStylesSection');
             if (imageStylesSection) {
                 imageStylesSection.style.setProperty('display', 'block', 'important');
@@ -2777,8 +2771,9 @@
         function handleEditFileSelect(input) {
             const file = input.files[0];
             if (!file) return;
-            _editImageBlob = file;
-            _editImageUrl = null;
+            if (window.onUserImageChange) {
+                window.onUserImageChange({ target: { files: [file] } });
+            }
             _showEditStep2(URL.createObjectURL(file));
         }
 
@@ -2786,8 +2781,9 @@
             e.preventDefault();
             const file = e.dataTransfer.files[0];
             if (!file || !file.type.startsWith('image/')) return;
-            _editImageBlob = file;
-            _editImageUrl = null;
+            if (window.onUserImageChange) {
+                window.onUserImageChange({ target: { files: [file] } });
+            }
             _showEditStep2(URL.createObjectURL(file));
         }
 
@@ -2795,8 +2791,11 @@
             const input = document.getElementById('editImageUrlInput');
             const url = (input && input.value.trim()) || '';
             if (!url) return;
-            _editImageUrl = url;
-            _editImageBlob = null;
+            if (window.handleUrlAdd) {
+                window.handleUrlAdd(url);
+            } else if (window.onUserImageChange) { // fallback
+                // no fallback for url right now if not available, will rely on exported handleUrlAdd
+            }
             _showEditStep2(url);
             if (input) input.value = '';
         }
@@ -2804,20 +2803,28 @@
         function clearEditImage() {
             _editImageBlob = null;
             _editImageUrl = null;
+            window._editImageUrl = null;
+
+            // Unify with main upload logic
+            if (window.clearAllImages) {
+                window.clearAllImages();
+            }
+
+            // Show step-1 dropzone again; keep step-2 hidden
             const s1 = document.getElementById('editStep1');
-            const s2 = document.getElementById('editStep2');
-            const preview = document.getElementById('editPreviewImg');
-            if (preview) preview.src = '';  // clear src so DOM-check detects "no image"
             if (s1) s1.classList.remove('hidden');
+            const s2 = document.getElementById('editStep2');
             if (s2) s2.classList.add('hidden');
-            // Reset file input so the same file can be re-selected
+
+            // Reset file input so same file can be re-selected
             const fileInput = document.getElementById('editImageInput');
             if (fileInput) fileInput.value = '';
-            // Hide prompt area again
+
+            // Hide prompt area
             const promptSection = document.getElementById('promptFormGroup');
             if (promptSection) promptSection.style.display = 'none';
 
-            // --- FIXED: Hide style chips when image is cleared ---
+            // Hide style chips
             const imageStylesSection = document.getElementById('imageStylesSection');
             const videoStylesSection = document.getElementById('videoStylesSection');
             if (imageStylesSection) {
@@ -2828,6 +2835,8 @@
                 videoStylesSection.style.setProperty('display', 'none', 'important');
                 videoStylesSection.classList.add('hidden');
             }
+
+            if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
         }
 
         function openEditFromHistory() {

@@ -2780,8 +2780,8 @@
   .pt-8 {
     padding-top: 2rem;
   }
-  .pt-\[112px\] {
-    padding-top: 112px;
+  .pt-\[80px\] {
+    padding-top: 80px;
   }
   .pr-2 {
     padding-right: 0.5rem;
@@ -4902,6 +4902,11 @@
       padding-block: 5rem;
     }
   }
+  .sm\:pt-\[88px\] {
+    @media (width >= 640px) {
+      padding-top: 88px;
+    }
+  }
   .sm\:pb-0 {
     @media (width >= 640px) {
       padding-bottom: 0;
@@ -5154,6 +5159,11 @@
       padding-block: 3rem;
     }
   }
+  .lg\:pt-\[96px\] {
+    @media (width >= 1024px) {
+      padding-top: 96px;
+    }
+  }
   .lg\:text-6xl {
     @media (width >= 1024px) {
       font-size: 3.75rem;
@@ -5170,9 +5180,9 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
-  .xl\:grid-cols-\[280px_1fr_260px\] {
+  .xl\:grid-cols-\[minmax\(240px\,280px\)_1fr_minmax\(220px\,260px\)\] {
     @media (width >= 1280px) {
-      grid-template-columns: 280px 1fr 260px;
+      grid-template-columns: minmax(240px,280px) 1fr minmax(220px,260px);
     }
   }
   .xl\:p-8 {
@@ -5190,9 +5200,9 @@
       padding-inline: 3rem;
     }
   }
-  .\32 xl\:grid-cols-\[300px_1fr_280px\] {
+  .\32 xl\:grid-cols-\[minmax\(260px\,300px\)_1fr_minmax\(240px\,280px\)\] {
     @media (width >= 1440px) {
-      grid-template-columns: 300px 1fr 280px;
+      grid-template-columns: minmax(260px,300px) 1fr minmax(240px,280px);
     }
   }
   .\32 xl\:px-16 {
