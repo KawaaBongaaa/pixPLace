@@ -88,6 +88,11 @@ class PortalLoader {
             console.log(`Form ${formType} loaded`);
             // Отправляем тему после загрузки
             this.sendThemeToIframe(iframe);
+            // Отправляем текущий контекст вкладки для фильтрации моделей
+            const currentTab = window._currentGenerationTab || 'image';
+            setTimeout(() => {
+                this.sendToIframe(iframe, { type: 'set-context', mode: currentTab });
+            }, 50);
         };
 
         iframe.onerror = (error) => {
@@ -345,17 +350,33 @@ class PortalLoader {
                 z-index: 2000000 !important;
                 width: 100vw !important;
                 height: 100vh !important;
-                background: rgba(0, 0, 0, 0.95) !important;
-                backdrop-filter: blur(10px) !important;
+                background: transparent !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
                 border: none !important;
                 pointer-events: auto !important;
-                transition: background 0.2s ease, backdrop-filter 0.2s ease !important;
             }
             .portal-container-modal-active {
                 z-index: 2000000 !important;
             }
             .portal-any-modal-open {
                 overflow: hidden !important;
+            }
+            /*
+             * KEY FIX: When a portal modal is open, neutralize backdrop-filter on any
+             * ancestor of the iframe. In Chrome/Safari, backdrop-filter (and filter)
+             * creates a new CSS "containing block" for position:fixed descendants.
+             * This traps the iframe inside the 220×44px portal container instead of
+             * the full viewport.
+             */
+            .portal-any-modal-open #promptCardInner,
+            .portal-any-modal-open .layout-section-prompt,
+            .portal-any-modal-open .generation-form {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                filter: none !important;
+                transform: none !important;
+                will-change: auto !important;
             }
         `;
         document.head.appendChild(style);
