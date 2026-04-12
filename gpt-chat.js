@@ -141,11 +141,14 @@ export function createChatButton() {
     document.body.appendChild(chatBtn);
 
     chatBtn.onclick = () => {
-        // Trigger haptic if available
         if (typeof triggerHaptic === 'function') triggerHaptic('light');
-        
-        // Redirect to standalone chat page
-        window.location.href = 'chat.html';
+        if (typeof window.showAICoach === 'function') {
+            window.showAICoach();
+        } else if (window.AICoach && typeof window.AICoach.show === 'function') {
+            window.AICoach.show();
+        } else {
+            window.location.href = 'chat.html'; // fallback
+        }
     };
 
     console.log('🧠 AI Chat floating button created (Redirect Mode)');
