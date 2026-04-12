@@ -815,12 +815,6 @@
             margin-bottom: 0 !important;
         }
 
-        /* Hide the picker button when the modal is open to prevent "strip" flash */
-        body.portal-modal-open #modelPickerBtn {
-            opacity: 0 !important;
-            pointer-events: none !important;
-            transition: opacity 0.2s ease;
-        }
     </style>
 </head>
 
@@ -1789,6 +1783,32 @@
                     if (!data || !data.type) return;
 
                     switch (data.type) {
+                        case 'modal-opened-rect':
+                            const wrapper = document.getElementById('modelPickerWrapper');
+                            if (wrapper && data.rect) {
+                                wrapper.style.position = 'fixed';
+                                wrapper.style.top = data.rect.top + 'px';
+                                wrapper.style.left = data.rect.left + 'px';
+                                wrapper.style.width = data.rect.width + 'px';
+                                wrapper.style.height = data.rect.height + 'px';
+                                wrapper.style.zIndex = '2147483647';
+                                wrapper.style.margin = '0';
+                            }
+                            break;
+
+                        case 'modal-closed-rect':
+                            const wrapperClose = document.getElementById('modelPickerWrapper');
+                            if (wrapperClose) {
+                                wrapperClose.style.position = '';
+                                wrapperClose.style.top = '';
+                                wrapperClose.style.left = '';
+                                wrapperClose.style.width = '';
+                                wrapperClose.style.height = '';
+                                wrapperClose.style.zIndex = '';
+                                wrapperClose.style.margin = '';
+                            }
+                            break;
+
                         case 'set-theme':
                             if (data.theme === 'dark') {
                                 document.body.classList.add('dark');

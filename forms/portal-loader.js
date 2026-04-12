@@ -203,12 +203,23 @@ class PortalLoader {
                         this.container.classList.add('portal-container-modal-active');
                         document.body.classList.add('portal-any-modal-open');
 
+                        // Send absolute positioning to keep the button in place
+                        const rect = this.container.getBoundingClientRect();
+                        senderIframe.contentWindow.postMessage({
+                            type: 'modal-opened-rect',
+                            rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
+                        }, '*');
+
                         // Задержка для плавной анимации фона
                         setTimeout(() => {
                             senderIframe.classList.add('portal-modal-open-anim');
                         }, 10);
                     } else {
                         senderIframe.classList.remove('portal-modal-open-anim');
+                        
+                        // Tell iframe to restore button positioning
+                        senderIframe.contentWindow.postMessage({ type: 'modal-closed-rect' }, '*');
+
                         setTimeout(() => {
                             senderIframe.classList.remove('portal-modal-active');
                             // Проверяем, нет ли других открытых модалов перед удалением классов с контейнера/body
@@ -355,6 +366,7 @@ class PortalLoader {
                 -webkit-backdrop-filter: none !important;
                 border: none !important;
                 pointer-events: auto !important;
+                transition: none !important;
             }
             .portal-container-modal-active {
                 z-index: 2000000 !important;
@@ -367,7 +379,7 @@ class PortalLoader {
              * ancestor of the iframe. In Chrome/Safari, backdrop-filter (and filter)
              * creates a new CSS "containing block" for position:fixed descendants.
              * This traps the iframe inside the 220×44px portal container instead of
-             * the full viewport.
+             * the full viewport. Disable transitions to prevent jumpy layout shifts.
              */
             .portal-any-modal-open #promptCardInner,
             .portal-any-modal-open .layout-section-prompt,
@@ -377,6 +389,7 @@ class PortalLoader {
                 filter: none !important;
                 transform: none !important;
                 will-change: auto !important;
+                transition: none !important;
             }
         `;
         document.head.appendChild(style);
