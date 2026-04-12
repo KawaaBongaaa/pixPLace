@@ -1419,6 +1419,9 @@
   .min-h-screen {
     min-height: 100vh;
   }
+  .\!w-full {
+    width: 100% !important;
+  }
   .w-0\.5 {
     width: 0.125rem;
   }
@@ -1519,6 +1522,9 @@
   .w-px {
     width: 1px;
   }
+  .\!max-w-none {
+    max-width: none !important;
+  }
   .max-w-2xl {
     max-width: var(--container-2xl);
   }
@@ -1575,9 +1581,6 @@
   }
   .max-w-none {
     max-width: none;
-  }
-  .max-w-screen-2xl {
-    max-width: 1440px;
   }
   .max-w-sm {
     max-width: var(--container-sm);
@@ -1791,6 +1794,9 @@
   }
   .items-start {
     align-items: flex-start;
+  }
+  .items-stretch {
+    align-items: stretch;
   }
   .justify-between {
     justify-content: space-between;
@@ -5164,9 +5170,9 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
-  .xl\:grid-cols-\[280px_minmax\(0\,1fr\)_260px\] {
+  .xl\:grid-cols-\[280px_1fr_260px\] {
     @media (width >= 1280px) {
-      grid-template-columns: 280px minmax(0,1fr) 260px;
+      grid-template-columns: 280px 1fr 260px;
     }
   }
   .xl\:p-8 {
@@ -5184,9 +5190,9 @@
       padding-inline: 3rem;
     }
   }
-  .\32 xl\:grid-cols-\[320px_minmax\(0\,1fr\)_300px\] {
+  .\32 xl\:grid-cols-\[300px_1fr_280px\] {
     @media (width >= 1440px) {
-      grid-template-columns: 320px minmax(0,1fr) 300px;
+      grid-template-columns: 300px 1fr 280px;
     }
   }
   .\32 xl\:px-16 {

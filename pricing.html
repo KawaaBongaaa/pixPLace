@@ -483,7 +483,8 @@
     </script>
 </head>
 
-<body class="min-h-screen h-full flex flex-col relative overflow-x-hidden overflow-y-auto" style="-webkit-overflow-scrolling: touch;">
+<body class="min-h-screen h-full flex flex-col relative overflow-x-hidden overflow-y-auto"
+    style="-webkit-overflow-scrolling: touch;">
     <!-- Portal Loader Overlay -->
     <div id="portalLoader" class="portal-loader">
         <div class="loader-orbit">
@@ -532,7 +533,8 @@
         </div>
 
         <div class="w-full max-w-5xl mt-6 md:mt-4 mb-8 flex justify-center sm:px-0">
-            <div class="glass-panel rounded-[1.25rem] p-1.5 sm:p-2 border border-white/10 flex flex-row justify-between sm:justify-center w-full sm:w-auto mt-2 relative z-20 shadow-lg gap-1 sm:gap-2">
+            <div
+                class="glass-panel rounded-[1.25rem] p-1.5 sm:p-2 border border-white/10 flex flex-row justify-between sm:justify-center w-full sm:w-auto mt-2 relative z-20 shadow-lg gap-1 sm:gap-2">
                 <button
                     class="billing-toggle-btn relative px-2 py-2 sm:px-6 sm:py-2.5 rounded-xl text-[12px] sm:text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all flex-1 sm:flex-none text-center"
                     data-billing="quarterly" onclick="setBillingPeriod('quarterly', event)">
@@ -1422,11 +1424,11 @@
                 if (window.Telegram?.WebApp?.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
                 }
-                
+
                 // Show a stylized warning instead of just an alert
                 const title = "Premium Required";
                 const body = "One-time credit packs are available ONLY for Pro and Studio members. Please upgrade your plan first to unlock this option.";
-                
+
                 // Use the existing modal structure to show the warning
                 const modal = document.getElementById('payment-modal');
                 if (modal) {
@@ -1434,10 +1436,10 @@
                     const bodyEl = document.getElementById('payment-modal-body');
                     const usdBtn = document.getElementById('usd-pay-btn');
                     const usdtBtn = document.getElementById('usdt-pay-btn');
-                    
+
                     if (titleEl) titleEl.textContent = title;
                     if (bodyEl) bodyEl.textContent = body;
-                    
+
                     // Modify buttons to CTA for Pro
                     if (usdBtn) {
                         usdBtn.innerHTML = `
@@ -1446,8 +1448,8 @@
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 </div>
                                 <div class="text-left">
-                                    <div class="text-lg font-bold text-white">Upgrade to Pro</div>
-                                    <div class="text-xs text-indigo-300">Unlock all premium features</div>
+                                    <div class="text-lg font-bold text-white">Upgrade to Premium</div>
+                                    <div class="text-xs text-indigo-300">Unlock all features</div>
                                 </div>
                             </div>
                             <div class="text-indigo-400 font-black tracking-wider">GO —></div>
@@ -1457,16 +1459,16 @@
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         };
                     }
-                    
+
                     if (usdtBtn) {
                         usdtBtn.classList.add('hidden'); // Hide the second button for the warning
                     }
-                    
+
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
                     return;
                 }
-                
+
                 alert(body);
                 return;
             }
@@ -1484,7 +1486,7 @@
             // 🔥 RESET BUTTON STATES (in case they were changed by premium warning)
             if (usdBtn) {
                 usdBtn.classList.remove('hidden');
-                usdBtn.style.display = ''; 
+                usdBtn.style.display = '';
                 // Re-populate original HTML if it was changed
                 usdBtn.innerHTML = `
                     <div class="flex items-center gap-4 sm:gap-5">
