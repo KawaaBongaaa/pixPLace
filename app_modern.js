@@ -107,7 +107,7 @@ const CONFIG = {
     PREVIEW_JPEG_QUALITY: 0.9,
 
     // UI/UX Settings
-    
+
     MAINTENANCE_MODE: false // Keep hardcoded for safety
 };
 // 🚀 Экспорт CONFIG для доступа из других модулей (ai-coach.js)
@@ -1042,6 +1042,8 @@ function updateImageUploadVisibility() {
     const imageCount = userImageState.images.length;
     const hasImages = imageCount > 0;
 
+    // Removed early return for edit mode, we still want inline button logic to work
+
     const modeSelect = document.getElementById('modeSelect');
     let shouldShowUploadButton, shouldShowPreview;
 
@@ -1130,7 +1132,10 @@ function updateImageUploadVisibility() {
     }
 
     if (urlContainer) {
-        if (shouldShowUploadButton) {
+        if (window._currentGenerationTab === 'edit') {
+            urlContainer.style.setProperty('display', 'none', 'important');
+            urlContainer.classList.add('flux-shnel-hidden', 'hidden');
+        } else if (shouldShowUploadButton) {
             urlContainer.style.setProperty('display', 'block', 'important');
             urlContainer.classList.remove('flux-shnel-hidden', 'hidden');
         } else {
@@ -1204,7 +1209,12 @@ async function updatePromptVisibility() {
         if (negPromptSec) negPromptSec.style.setProperty('display', 'none', 'important');
         if (imageStylesSection) { imageStylesSection.style.setProperty('display', 'none', 'important'); imageStylesSection.classList.add('hidden'); }
         if (videoStylesSection) { videoStylesSection.style.setProperty('display', 'none', 'important'); videoStylesSection.classList.add('hidden'); }
-        console.log('📝 Sound tab: hiding size/resolution/negativePrompt/styleChips');
+        // Also hide image upload bar — not needed in sound tab
+        const urlContainer = document.getElementById('urlInputContainer');
+        if (urlContainer) urlContainer.style.setProperty('display', 'none', 'important');
+        const preview = document.getElementById('userImagePreview');
+        if (preview) { preview.style.setProperty('display', 'none', 'important'); preview.classList.add('hidden'); }
+        console.log('📝 Sound tab: hiding size/resolution/negativePrompt/styleChips/upload');
         return;
     }
 
@@ -1268,15 +1278,15 @@ async function updatePromptVisibility() {
 // Обновляем видимость интерфейса при переключении таба
 document.addEventListener('tab:changed', (e) => {
     const newTab = e?.detail?.tab || window._currentGenerationTab || 'image';
-    
+
     // При переходе на Edit — скрываем системные секции, если изображение еще не загружено
     if (newTab === 'edit') {
         const promptSection = document.getElementById('promptFormGroup');
         const imageStylesSection = document.getElementById('imageStylesSection');
         const videoStylesSection = document.getElementById('videoStylesSection');
-        
+
         const hasEditImage = window._editImageBlob || window._editImageUrl;
-        
+
         // Скрываем промпт и стили изображений только если НЕТ загруженного изображения
         if (!hasEditImage) {
             if (promptSection) promptSection.style.display = 'none';
@@ -1285,7 +1295,7 @@ document.addEventListener('tab:changed', (e) => {
                 imageStylesSection.classList.add('hidden');
             }
         }
-        
+
         // Секцию видео-стилей в режиме Edit скрываем всегда
         if (videoStylesSection) {
             videoStylesSection.style.setProperty('display', 'none', 'important');
@@ -1293,6 +1303,7 @@ document.addEventListener('tab:changed', (e) => {
         }
     }
     updatePromptVisibility();
+    updateSizeSelectVisibility();
 });
 
 // ===== Функция для обновления видимости поля negative prompt =====
@@ -1375,7 +1386,7 @@ async function updateSizeSelectVisibility() {
     const currentMode = await getCurrentSelectedMode();
 
     // Скрываем размеры для Sound и Edit вкладок
-    const activeTabForSize = document.querySelector('.tab-pane.active')?.dataset.tab || 'image';
+    const activeTabForSize = window._currentGenerationTab || 'image';
     if (activeTabForSize === 'sound') {
         sizeGroup.style.setProperty('display', 'none', 'important');
         sizeGroup.classList.add('hidden');
@@ -1384,10 +1395,17 @@ async function updateSizeSelectVisibility() {
         return;
     }
     if (activeTabForSize === 'edit') {
-        // Edit tab hides the size (aspect ratio) selector but keeps resolutionGroup
-        // visible for nano_banana_2 / nano_banana_pro models inside Edit
-        sizeGroup.style.setProperty('display', 'none', 'important');
-        sizeGroup.classList.add('hidden');
+        // In edit mode: show size for nano_banana family and qwen_image_edit
+        const editModelsWithSizes = ['nano_banana', 'nano_banana_2', 'nano_banana_pro', 'qwen_image_edit'];
+        if (editModelsWithSizes.includes(currentMode)) {
+            sizeGroup.style.removeProperty('display');
+            sizeGroup.style.display = 'block';
+            sizeGroup.classList.remove('hidden');
+            updateSizeOptionsForMode(currentMode);
+        } else {
+            sizeGroup.style.setProperty('display', 'none', 'important');
+            sizeGroup.classList.add('hidden');
+        }
         // resolutionGroup visibility handled by updateResolutionSelectVisibility()
         return;
     }
@@ -1479,7 +1497,7 @@ async function updateResolutionSelectVisibility() {
     // 🔥 FIX: In Edit mode, use window._editModel instead of the Image-tab mode
     const activeTabNow = window._currentGenerationTab || 'image';
     if (activeTabNow === 'edit') {
-        const editModel = window._editModel || 'nano_banana_pro';
+        const editModel = window._editModel || document.getElementById('modeSelect')?.value || 'nano_banana';
         const showRes = ['nano_banana_2', 'nano_banana_pro'].includes(editModel);
         if (showRes) {
             resolutionGroup.style.removeProperty('display');
@@ -1814,6 +1832,16 @@ async function onUserImageChange(e) {
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             console.log(`🔍 Validating file ${i + 1}: ${file.name} (${file.size} bytes, ${file.type})`);
+
+            // Duplicate detection — skip if same name+size already loaded
+            const isDuplicate = userImageState.images.some(img =>
+                img.file && img.file.name === file.name && img.file.size === file.size
+            );
+            if (isDuplicate) {
+                console.warn(`⚠️ Duplicate image skipped: ${file.name}`);
+                if (window.showToast) window.showToast('warning', `Image "${file.name}" is already added.`);
+                continue;
+            }
 
             if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
                 const errorMsg = `Файл ${file.name}: недопустимый формат. Разрешено: ${CONFIG.ALLOWED_TYPES.join(', ')}`;
@@ -2296,7 +2324,76 @@ async function uploadUserImages() {
 
 // 📱 Telegram WebApp Integration - УДАЛЕНА: дублирующая инициализация, теперь только в services.js
 
+// ===== 🔗 URL PARAMS: Pre-fill prompt and/or pre-load image from deep link =====
+// Called AFTER initializeUI() + initUserImageUpload() so state is fully ready.
+//
+// Supported params:
+//   ?prompt=...       → fills #promptInput
+//   ?image_url=...    → loads image into preview (Images tab)
+//   pending_prompt    → localStorage fallback (from landing page)
+//
+// Example link with image:
+//   https://app.pixplace.space/?image_url=https%3A%2F%2Fcdn.example.com%2Fphoto.jpg
+// Example link with prompt + UTM:
+//   https://app.pixplace.space/?prompt=A%20cat&utm_source=telegram&utm_campaign=group_post
+//
+async function applyUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlPrompt   = urlParams.get('prompt');
+    const urlImageUrl = urlParams.get('image_url');
+    const urlSource   = urlParams.get('utm_source') || urlParams.get('source');
 
+    let applied = false;
+
+    // 1️⃣  Pre-fill prompt textarea
+    if (urlPrompt) {
+        console.log(`📝 [applyUrlParams] prompt param found (source: ${urlSource || 'unknown'})`);
+        const promptInput = document.getElementById('promptInput');
+        if (promptInput) {
+            promptInput.value = urlPrompt;
+            promptInput.dispatchEvent(new Event('input'));
+            applied = true;
+        }
+    }
+
+    // 2️⃣  Pre-load image by URL → show image preview
+    if (urlImageUrl) {
+        console.log(`🖼️ [applyUrlParams] image_url param found → ${urlImageUrl}`);
+        // Switch to image tab if a tab switcher exists
+        const imageTab = document.querySelector('[data-tab="image"]');
+        if (imageTab) imageTab.click();
+        // Give tab switch a moment to settle, then load the image
+        setTimeout(() => {
+            handleUrlAdd(urlImageUrl);
+        }, 300);
+        applied = true;
+    }
+
+    // 3️⃣  Fallback: pending_prompt from localStorage (set by landing page)
+    if (!urlPrompt) {
+        const pendingPrompt = localStorage.getItem('pending_prompt');
+        if (pendingPrompt) {
+            console.log('📝 [applyUrlParams] pending_prompt from localStorage:', pendingPrompt);
+            const promptInput = document.getElementById('promptInput');
+            if (promptInput) {
+                promptInput.value = pendingPrompt;
+                promptInput.dispatchEvent(new Event('input'));
+                applied = true;
+            }
+            localStorage.removeItem('pending_prompt');
+        }
+    }
+
+    // 4️⃣  Clean URL: strip app params, keep utm_ for analytics
+    if (applied) {
+        const cleanParams = new URLSearchParams();
+        for (const [k, v] of urlParams) {
+            if (k.startsWith('utm_')) cleanParams.set(k, v);
+        }
+        const cleanSearch = cleanParams.toString() ? '?' + cleanParams.toString() : '';
+        window.history.replaceState({}, document.title, window.location.pathname + cleanSearch);
+    }
+}
 
 // 🚀 App Initialization
 document.addEventListener('DOMContentLoaded', async function () {
@@ -2357,44 +2454,7 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     try {
         services = await initializeGlobalServices(appState); // ПЕРЕДАЕМ СУЩЕСТВУЮЩИЙ appState!
 
-        // 🔥 НОВОЕ: Проверка URL параметров (prompt и source) для автозаполнения
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlPrompt = urlParams.get('prompt');
-        const urlSource = urlParams.get('source');
-
-        if (urlPrompt) {
-            console.log(`📝 Found prompt from URL (source: ${urlSource || 'unknown'})`);
-            const promptInput = document.getElementById('promptInput');
-            if (promptInput) {
-                promptInput.value = urlPrompt;
-                // trigger input event after a small delay to ensure UI is ready
-                setTimeout(() => {
-                    promptInput.dispatchEvent(new Event('input'));
-                    // Очищаем URL от параметров после применения
-                    const newUrl = window.location.pathname;
-                    window.history.replaceState({}, document.title, newUrl);
-                }, 100);
-            }
-        }
-
-        // 🔥 НОВОЕ: Проверка входящего промпта после инициализации сервисов
-        const pendingPrompt = localStorage.getItem('pending_prompt');
-        if (pendingPrompt) {
-            console.log('📝 Found pending prompt from landing:', pendingPrompt);
-            const promptInput = document.getElementById('promptInput');
-            if (promptInput) {
-                // Если промпт уже задан через URL, не перезаписываем его
-                if (!urlPrompt) {
-                    promptInput.value = pendingPrompt;
-                    // trigger input event after a small delay to ensure UI is ready
-                    setTimeout(() => {
-                        promptInput.dispatchEvent(new Event('input'));
-                    }, 100);
-                }
-            }
-            // Clear after use
-            localStorage.removeItem('pending_prompt');
-        }
+        // URL params are applied AFTER full UI init (see applyUrlParams() call below)
     } catch (error) {
         console.error('❌ Failed to initialize global services:', error);
         // Fallback - continue without services for basic functionality
@@ -2522,6 +2582,9 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
 
     initializeUI();
     initUserImageUpload();
+
+    // 🔥 URL PARAMS: apply after full UI + image upload init
+    applyUrlParams();
 
 }, 500);
 
