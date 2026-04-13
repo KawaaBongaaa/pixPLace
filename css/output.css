@@ -1869,9 +1869,9 @@
       margin-block-end: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
     }
   }
-  .gap-x-8 {
-    -moz-column-gap: 2rem;
-         column-gap: 2rem;
+  .gap-x-5 {
+    -moz-column-gap: 1.25rem;
+         column-gap: 1.25rem;
   }
   .space-x-6 {
     :where(& > :not(:last-child)) {

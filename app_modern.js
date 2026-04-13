@@ -86,7 +86,7 @@ const CONFIG = {
     NANO_BANANA_PRO_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook-test/nano-banana-pro',
     N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/enhance_img_or_removebg',
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
-    Z_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/Z-Image',
+    Z_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/Z-Image',
     QWEN_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/qwen-image',
     SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/suno_audio_from_text',
     SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/suno_audio_from_image',
