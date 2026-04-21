@@ -2295,7 +2295,7 @@
                                     <span data-i18n="footer_image_edit">Image Edit</span>
                                 </a></li>
                             <li><a href="#"
-                                    onclick="if(window.appState) window.appState.setModeState('edit', {model:'background_removal'}); switchGenerationTab('edit'); scrollToGeneration(); return false;"
+                                    onclick="menuNavTo('edit','background_removal'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2306,7 +2306,7 @@
                         </ul>
                         <ul class="space-y-4">
                             <li><a href="#"
-                                    onclick="if(window.appState) window.appState.setModeState('edit', {model:'upscale_image'}); switchGenerationTab('edit'); scrollToGeneration(); return false;"
+                                    onclick="menuNavTo('edit','upscale_image'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2351,7 +2351,7 @@
                                     <span data-i18n="footer_interior_design">Interior Design</span>
                                 </a></li>
                             <li><a href="#"
-                                    onclick="if(window.appState) window.appState.setModeState('image', {model:'print_maker'}); switchGenerationTab('image'); scrollToGeneration(); return false;"
+                                    onclick="menuNavTo('image','print_maker'); scrollToGeneration(); return false;"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group leading-tight">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3496,6 +3496,13 @@
                             Background</button>
                         <button class="menu-sub-item"
                             onclick="menuNavTo('edit','upscale_image')">Upscale / Enhance</button>
+                        <div class="border-t border-gray-100 dark:border-gray-800 my-1"></div>
+                        <button class="menu-sub-item"
+                            onclick="menuNavTo('edit','nano_banana')">Nano Banana Edit</button>
+                        <button class="menu-sub-item"
+                            onclick="menuNavTo('edit','nano_banana_2')">Nano Banana 2 Edit</button>
+                        <button class="menu-sub-item"
+                            onclick="menuNavTo('edit','nano_banana_pro')">Nano Banana Pro Edit</button>
                     </div>
                 </div>
 
@@ -3513,16 +3520,15 @@
 
             <!-- ========== UTILITY LINKS ========== -->
             <div class="space-y-1 border-b border-gray-200 dark:border-gray-700/50 pb-2 mb-2">
-                <!-- Model Cost -->
+                <!-- Pricing -->
                 <button
-                    class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                    onclick="openModelCostModal(); toggleUserMenu();">
-                    <svg class="w-4 h-4 opacity-60" viewBox="0 0 24 24" fill="none"
+                    class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors cursor-pointer"
+                    onclick="if(window.openSubscriptionPlans) openSubscriptionPlans(); toggleUserMenu();">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="1" x2="12" y2="23" />
-                        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                        <path d="M20 7h-7L10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
                     </svg>
-                    Model Cost
+                    <span data-i18n="footer_pricing">Pricing</span>
                 </button>
                 <!-- Affiliate Program -->
                 <button
