@@ -41,6 +41,15 @@ export class AppStateManager {
             // Стиль (для генерации изображений)
             selectedStyle: '',
 
+            // 🔥 MODE-SPECIFIC STATE: Each mode persists its own settings
+            activeMode: 'image',
+            modesState: {
+                image: { model: 'z_image', modelName: 'Z-Image Turbo', prompt: '', negativePrompt: '', size: 'auto', imageCount: 1, quality: 2, style: '' },
+                edit:  { model: 'qwen_image_edit', modelName: 'Qwen Image Edit', prompt: '', negativePrompt: '', size: 'square', imageCount: 1, quality: 2, style: '' },
+                video: { model: 'image_to_video', modelName: 'Luma AI', prompt: '', negativePrompt: '', size: 'auto', imageCount: 1, quality: 2, style: '' },
+                music: { model: 'audio_from_text', modelName: 'Audio from Text', prompt: '', negativePrompt: '', size: 'auto', imageCount: 1, quality: 2, style: '' }
+            },
+
             // Таймеры
             startTime: null,
             timerInterval: null,
@@ -51,6 +60,9 @@ export class AppStateManager {
             // UI состояние
             isGenerating: false
         };
+
+        // Load persisted modes state from localStorage
+        this._loadModesState();
     }
 
     // Подписка на изменения
@@ -534,6 +546,51 @@ export class AppStateManager {
     setImageState(imageState) {
         this.updateState({ userImageState: imageState });
     }
+
+    // ========== MODE-SPECIFIC STATE MANAGEMENT ==========
+
+    /** Get state for a specific mode */
+    getModeState(mode) {
+        return this.state.modesState[mode] || null;
+    }
+
+    /** Update state for a specific mode (partial update, merges) */
+    setModeState(mode, updates) {
+        if (!this.state.modesState[mode]) return;
+        this.state.modesState[mode] = { ...this.state.modesState[mode], ...updates };
+        this._saveModesState();
+    }
+
+    /** Save current modesState to localStorage (lightweight) */
+    _saveModesState() {
+        try {
+            localStorage.setItem('pixplace_modesState', JSON.stringify(this.state.modesState));
+        } catch (e) {
+            console.warn('⚠️ Failed to save modesState:', e);
+        }
+    }
+
+    /** Load persisted modesState from localStorage */
+    _loadModesState() {
+        try {
+            const raw = localStorage.getItem('pixplace_modesState');
+            if (raw) {
+                const saved = JSON.parse(raw);
+                // Merge saved data over defaults (preserves new keys added in code)
+                for (const mode of Object.keys(this.state.modesState)) {
+                    if (saved[mode]) {
+                        this.state.modesState[mode] = { ...this.state.modesState[mode], ...saved[mode] };
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('⚠️ Failed to load modesState:', e);
+        }
+    }
+
+    /** Get the currently active mode name */
+    get activeMode() { return this.state.activeMode; }
+    set activeMode(mode) { this.state.activeMode = mode; }
 
     // Сериализация состояния для localStorage
     serialize() {
