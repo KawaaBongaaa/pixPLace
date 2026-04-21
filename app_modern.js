@@ -1116,7 +1116,8 @@ function updateImageUploadVisibility() {
         // Batch Upload Button Logic
         const batchBtn = document.getElementById('batchUploadBtn');
         if (batchBtn) {
-            if (isProcessMode) {
+            // 🔥 Only show batch button in 'image' tab, not in 'edit' or others
+            if (isProcessMode && window._currentGenerationTab === 'image') {
                 batchBtn.classList.remove('hidden');
                 batchBtn.style.setProperty('display', 'inline-flex', 'important');
             } else {
