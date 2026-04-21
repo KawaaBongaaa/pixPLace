@@ -1185,9 +1185,6 @@
   .mt-1 {
     margin-top: 0.25rem;
   }
-  .mt-1\.5 {
-    margin-top: 0.375rem;
-  }
   .mt-2 {
     margin-top: 0.5rem;
   }
@@ -1415,9 +1412,6 @@
   }
   .max-h-\[92vh\] {
     max-height: 92vh;
-  }
-  .max-h-\[120px\] {
-    max-height: 120px;
   }
   .min-h-0 {
     min-height: 0;
@@ -1797,6 +1791,9 @@
   }
   .flex-row {
     flex-direction: row;
+  }
+  .flex-nowrap {
+    flex-wrap: nowrap;
   }
   .flex-wrap {
     flex-wrap: wrap;
@@ -2771,9 +2768,6 @@
   .p-8 {
     padding: 2rem;
   }
-  .\!px-2 {
-    padding-inline: 0.5rem !important;
-  }
   .\!px-2\.5 {
     padding-inline: 0.625rem !important;
   }
@@ -2794,9 +2788,6 @@
   }
   .px-4 {
     padding-inline: 1rem;
-  }
-  .px-5 {
-    padding-inline: 1.25rem;
   }
   .px-6 {
     padding-inline: 1.5rem;
