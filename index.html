@@ -1946,84 +1946,164 @@
                                         </div>
                                     </div>
 
-                                    <!-- Image Style Chips (Moved from iframe to prevent clipping) -->
-                                    <div id="imageStylesSection" class="px-5 mb-4 max-h-[120px] overflow-y-auto w-full transition-all duration-300">
-                                        <div class="flex flex-wrap gap-1.5" id="imageStylesContainer">
-                                            <!-- High-Converting Realism & Photography -->
-                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="breathtaking photography, highly detailed, 8k resolution, shot on RED camera, cinematic lighting" data-style="Photography">Photography</button>
-                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="hyper-realistic illustration, incredibly detailed, octane render, unreal engine 5, volumetrics" data-style="Hyper-Realistic">Hyper-Realism</button>
-                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="masterpiece oil painting, classical style, chiaroscuro, intricate details, gallery quality" data-style="Oil Painting">Oil Painting</button>
-                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="anime style, studio ghibli, makoto shinkai style, vibrant colors, detailed scenery" data-style="Anime">Anime</button>
-                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="vintage retro aesthetic, 35mm film, grainy, film burn, 1980s polaroid" data-style="Retro Film">Retro Film</button>
-                                            
-                                            <!-- Quick expandable for more -->
-                                            <button type="button" id="showMoreImageStyles" class="style-chip-more !px-2 !py-1" style="background: rgba(100,116,139,0.1); border: 1px dashed rgba(100,116,139,0.4);">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-                                                More
-                                            </button>
-
-                                            <!-- Hidden Extra Styles -->
-                                            <div id="moreImageStyles" class="hidden flex flex-wrap gap-1.5 w-full mt-1.5">
-                                                <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="3D animation style, pixar style, disney style, soft lighting, cute" data-style="3D Render">3D Render</button>
-                                                <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="cyberpunk style, neon lights, dystopian future, holographic elements, detailed city" data-style="Cyberpunk">Cyberpunk</button>
-                                                <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="watercolor painting, fluid ink, expressive brushstrokes, ethereal, soft wash" data-style="Watercolor">Watercolor</button>
-                                                <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="minimalist design, vector art, flat colors, clean lines, modern aesthetic" data-style="Minimalist">Minimalist</button>
-                                                <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="dark fantasy, gothic, moody atmosphere, intricate shadows, grimdark" data-style="Dark Fantasy">Dark Fantasy</button>
-                                            </div>
+                                    <!-- Image Style Chips — Tabbed Professional Library -->
+                                    <div id="imageStylesSection" class="px-3 mb-3 w-full transition-all duration-300">
+                                        <!-- Category tabs -->
+                                        <div class="flex flex-nowrap gap-1 overflow-x-auto pb-1 mb-2" id="chipCategoryTabs" style="scrollbar-width:none;">
+                                            <button type="button" class="chip-cat-btn active whitespace-nowrap" data-cat="styles">✨ Styles</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="characters">🧑 Characters</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="photography">📷 Photography</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="interior">🏠 Interior</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="fashion">👗 Fashion</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="product">📦 Product</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="brand">🎨 Branding</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="design">🖥 UI / Design</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="promo">📣 Promo</button>
+                                            <button type="button" class="chip-cat-btn whitespace-nowrap" data-cat="illustrate">🖌 Illustration</button>
+                                        </div>
+                                        <!-- STYLES -->
+                                        <div class="chip-category flex flex-wrap gap-1.5" data-cat="styles">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="breathtaking photography, highly detailed, 8k resolution, RED camera, cinematic lighting">Photography</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="hyper-realistic illustration, octane render, unreal engine 5, global illumination, volumetrics">Hyper-Realism</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="masterpiece oil painting, chiaroscuro, intricate brushwork, gallery quality">Oil Painting</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="anime style, studio ghibli aesthetic, makoto shinkai palette, vibrant, detailed scenery">Anime</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="vintage 35mm film, grain overlay, faded warm tones, 1980s polaroid aesthetic">Retro Film</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="3D render, pixar style, smooth SSS, soft studio lighting, cinematic depth of field">3D Render</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="cyberpunk city, neon signs, rain-slicked streets, holographic overlays, atmospheric fog">Cyberpunk</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="loose watercolor painting, wet-on-wet technique, translucent glazes, soft edges, paper texture">Watercolor</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="minimalist flat design, negative space, clean vector lines, two-tone palette">Minimalist</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="dark gothic fantasy, dramatic chiaroscuro, intricate shadows, grimdark atmosphere">Dark Fantasy</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="vaporwave aesthetic, synthwave grid, pastel neons, chrome reflections, retro 80s vibes">Vaporwave</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="pencil sketch, graphite drawing, fine hatching, raw expressive linework">Sketch</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="pop art, roy lichtenstein halftone dots, bold primary colors, comic book outline">Pop Art</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="surrealist dreamscape, dali inspired, melting reality, otherworldly impossible geometry">Surrealism</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="low poly geometric art, isometric facets, flat pastel shading, clean modern">Low Poly</button>
+                                        </div>
+                                        <!-- CHARACTERS -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="characters">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="full body character concept art, dynamic pose, detailed costume design, front view, white background, professional character illustration">Character Design</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="heroic fantasy warrior, ornate battle armor, epic lighting, cinematic portrait, detailed metal texture, high fantasy illustration">Fantasy Hero</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="cute chibi character, big expressive eyes, pastel colors, kawaii anime style, soft shading, white background">Chibi / Kawaii</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="realistic character portrait, subsurface skin scattering, detailed eyes and hair, studio lighting, 8k photorealistic">Realistic Portrait</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="graphic novel character, bold ink outlines, dynamic action pose, stylized proportions, comic book coloring">Comic Hero</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="brand mascot design, friendly and approachable, vector-style, white background, multiple expression sheet">Brand Mascot</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="sci-fi cyborg character, glowing implants, futuristic armor, hard surface details, dramatic rim lighting, concept art">Sci-Fi Cyborg</button>
+                                        </div>
+                                        <!-- PHOTOGRAPHY -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="photography">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="professional editorial portrait, medium format camera, natural window light, shallow DOF, magazine quality">Editorial Portrait</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="macro photography, extreme close-up, f/2.8, stunning bokeh, highly detailed texture">Macro</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="aerial drone photography, golden hour, sweeping landscape, bird's-eye view, cinematic wide angle">Aerial / Drone</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="tilt-shift photography, miniature effect, blurred edges, vivid colors, urban landscape">Tilt-Shift</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="double exposure photography, two images blended, surreal artistic portrait, fine art film">Double Exposure</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="sports action photography, fast shutter, motion blur, dramatic stadium lighting, peak moment">Sports Action</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="street photography, candid moment, zone focus, black and white film, gritty urban textures, Leica style">Street B&W</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="long exposure night photography, light trails, star trails, smooth water, wide aperture, tripod shot">Long Exposure</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="boudoir fashion photography, intimate studio, soft diffused lighting, professional retouching, elegant and artistic">Boudoir</button>
+                                        </div>
+                                        <!-- INTERIOR -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="interior">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="luxury interior design, modern living room, bespoke furniture, warm indirect lighting, architectural photography, ultra-wide lens, 8k render">Modern Interior</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="architectural exterior visualization, contemporary facade, lush landscaping, golden hour sunlight, photorealistic 3D render">Architectural Exterior</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="minimalist Japandi interior, wabi-sabi, natural materials, neutral palette, tatami, zen atmosphere">Japandi Style</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="industrial loft interior, exposed brick, Edison bulbs, raw concrete, steel beams, moody atmospheric lighting">Industrial Loft</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="high-end kitchen design render, marble countertops, integrated appliances, studio lighting, ultra-realistic 3D">Kitchen Design</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="spa bathroom concept, travertine stone, warm candlelight, hotel luxury, photorealistic render">Spa Bathroom</button>
+                                        </div>
+                                        <!-- FASHION -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="fashion">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="high fashion editorial photography, model on runway, dramatic lighting, Vogue magazine style">Fashion Editorial</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="clothing print design, seamless pattern, repeat tile, fashion textile, high resolution flat art, print-ready">Clothing Print</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="t-shirt graphic design, DTG print ready, transparent PNG, bold expressive artwork, streetwear aesthetic">T-Shirt Print</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="accessories product shoot, handbag, watch, sunglasses, white studio background, professional lighting, high detail">Accessories Shoot</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="sticker design, cute illustrated character, bold die-cut outline, white background, kawaii or streetwear style">Sticker Design</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="sneaker product photography, floating on gradient, studio lighting, hero shot, high resolution, commercial">Sneaker Hero</button>
+                                        </div>
+                                        <!-- PRODUCT -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="product">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="product mockup, premium cosmetic packaging, isolated white background, studio reflection, photorealistic 3D render">Cosmetics Mockup</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="e-commerce product photography, white seamless background, soft box lighting, sharp detail, Amazon-ready">E-Commerce Shot</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="lifestyle product photography, product in use, natural environment, warm tones, aspirational editorial composition">Lifestyle Product</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="food photography, overhead flat lay, moody dramatic lighting, garnish details, restaurant editorial quality">Food Photography</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="premium packaging design mockup, box with logo, foil embossing, luxury unboxing, photorealistic 3D">Packaging Mockup</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="tech gadget product render, sleek device, dramatic dark background, floating, studio highlights, cinematic">Tech Product</button>
+                                        </div>
+                                        <!-- BRANDING -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="brand">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="minimal modern logo design, wordmark, vector, clean negative space, professional brand identity, white background">Logo Design</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="brand identity system, logo + color palette + typography, mockup on card and letterhead, professional">Brand Identity</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="mascot logo design, friendly character with brand name, vector illustration, white background">Mascot Logo</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="icon set, 12 matching icons, pixel-perfect, line art style, consistent stroke, professional UI kit">Icon Set</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="brand pattern design, seamless repeat tile, brand colors, elegant and modern, textile or wallpaper use">Brand Pattern</button>
+                                        </div>
+                                        <!-- UI / DESIGN -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="design">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="mobile app UI design, iOS dark mode, glassmorphism cards, smooth gradients, modern typography, Figma-ready">Mobile App UI</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="SaaS web dashboard, data visualization, clean sidebar layout, professional UX, responsive design mockup">Web Dashboard</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="landing page hero section, conversion-optimized layout, modern web design, gradient background, CTA button">Landing Page</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="planner page design, weekly template, minimal aesthetic, illustrated icons, print-ready PDF layout">Planner Design</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="infographic design, data visualization, colorful flat icons, clean layout, professional presentation">Infographic</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="presentation slide design, corporate keynote, clean layout, brand colors, professional pitch deck">Pitch Deck Slide</button>
+                                        </div>
+                                        <!-- PROMO -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="promo">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="event flyer design, vibrant promotional poster, bold typography, nightclub or festival aesthetic, print-ready A4">Event Flyer</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="social media post design, Instagram square 1080x1080, bold text overlay, brand colors, modern aesthetic">Social Media Post</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="billboard design, large format print, bold minimal layout, high contrast, impactful typography">Billboard</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="book cover design, dramatic typography, illustrated scene, genre color grade, Amazon KDP ready">Book Cover</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="email newsletter header, clean design, brand colors, promotional banner, 600px wide, corporate style">Newsletter Banner</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="YouTube thumbnail design, bold text, expressive face, high contrast, click-worthy composition, 1280x720">YouTube Thumbnail</button>
+                                        </div>
+                                        <!-- ILLUSTRATION -->
+                                        <div class="chip-category hidden flex flex-wrap gap-1.5" data-cat="illustrate">
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="editorial illustration, New Yorker style, detailed pen and ink, sophisticated color wash, conceptual storytelling">Editorial Illustration</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="children's book illustration, warm gouache paint, whimsical characters, soft rounded shapes, storybook wonder">Children's Book</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="ink and watercolor illustration, expressive loose brushwork, limited color palette, graphic novel aesthetic">Ink & Wash</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="concept art, game environment, atmospheric matte painting, cinematic sci-fi or fantasy, ArtStation quality">Concept Art</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="botanical illustration, scientific accuracy, vintage watercolor and fine ink, natural history style, white bg">Botanical Art</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="risograph print illustration, limited 2-color offset look, textured grain, retro zine aesthetic, graphic and bold">Risograph</button>
+                                            <button type="button" class="style-chip !px-2.5 !py-1" data-phrase="geometric abstract art, sacred geometry, intricate symmetry, vibrant color gradients, digital art">Geometric Abstract</button>
                                         </div>
                                     </div>
+                                    <style>
+                                        .chip-cat-btn{padding:3px 10px;font-size:11px;font-weight:600;border-radius:20px;border:1px solid rgba(100,116,139,.3);background:rgba(100,116,139,.08);color:#64748b;cursor:pointer;transition:background .15s,color .15s}
+                                        .chip-cat-btn.active,.chip-cat-btn:hover{background:rgba(59,130,246,.15);color:#3b82f6;border-color:rgba(59,130,246,.4)}
+                                        #chipCategoryTabs::-webkit-scrollbar{display:none}
+                                        .chip-category{min-height:28px}
+                                    </style>
                                     <script>
                                         document.addEventListener('DOMContentLoaded', () => {
-                                            const container = document.getElementById('imageStylesContainer');
-                                            if(!container) return;
-                                            
+                                            const section = document.getElementById('imageStylesSection');
+                                            if (!section) return;
+                                            const tabBar = document.getElementById('chipCategoryTabs');
+                                            tabBar && tabBar.addEventListener('click', e => {
+                                                const btn = e.target.closest('.chip-cat-btn');
+                                                if (!btn) return;
+                                                const cat = btn.dataset.cat;
+                                                tabBar.querySelectorAll('.chip-cat-btn').forEach(b => b.classList.toggle('active', b === btn));
+                                                section.querySelectorAll('.chip-category').forEach(div => div.classList.toggle('hidden', div.dataset.cat !== cat));
+                                            });
                                             function selectStyle(chip) {
-                                                if (chip.id === 'showMoreImageStyles') return;
-                                                // Animation
-                                                chip.classList.add('active');
-                                                chip.blur();
+                                                chip.classList.add('active'); chip.blur();
                                                 chip.style.transform = 'scale(0.92)';
                                                 setTimeout(() => chip.style.transform = '', 120);
                                                 setTimeout(() => chip.classList.remove('active'), 400);
-
-                                                const promptInput = document.getElementById('promptInput');
-                                                if (!promptInput) return;
-                                                const phrase = chip.getAttribute('data-phrase');
-                                                const textToInject = phrase || chip.textContent.trim();
-                                                
-                                                const current = promptInput.value.trim();
-                                                if (current) {
-                                                    promptInput.value = current + ', ' + textToInject;
-                                                } else {
-                                                    promptInput.value = textToInject;
-                                                }
-                                                promptInput.dispatchEvent(new Event('input', { bubbles: true }));
-                                                
-                                                promptInput.style.transition = 'box-shadow 0.3s ease';
-                                                promptInput.style.boxShadow = '0 0 0 2px var(--ds-blue-600)';
-                                                setTimeout(() => promptInput.style.boxShadow = '', 300);
+                                                const inp = document.getElementById('promptInput');
+                                                if (!inp) return;
+                                                const txt = chip.getAttribute('data-phrase') || chip.textContent.trim();
+                                                const cur = inp.value.trim();
+                                                inp.value = cur ? cur + ', ' + txt : txt;
+                                                inp.dispatchEvent(new Event('input', {bubbles:true}));
+                                                inp.style.transition = 'box-shadow 0.3s ease';
+                                                inp.style.boxShadow = '0 0 0 2px #3b82f6';
+                                                setTimeout(() => inp.style.boxShadow = '', 350);
                                             }
-
-                                            container.addEventListener('click', (e) => {
+                                            section.addEventListener('click', e => {
                                                 const chip = e.target.closest('.style-chip');
-                                                if(chip) selectStyle(chip);
+                                                if (chip) selectStyle(chip);
                                             });
-
-                                            const btn = document.getElementById('showMoreImageStyles');
-                                            const more = document.getElementById('moreImageStyles');
-                                            if(btn && more) {
-                                                btn.addEventListener('click', () => {
-                                                    more.classList.toggle('hidden');
-                                                    if(more.classList.contains('hidden')) {
-                                                        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> More`;
-                                                    } else {
-                                                        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path></svg> Less`;
-                                                    }
-                                                });
-                                            }
                                         });
                                     </script>
-
                                     <!-- Model Selector + Generate Button (grouped together on desktop) -->
                                     <div
                                         class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto order-2 sm:order-none">
