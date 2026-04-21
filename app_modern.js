@@ -1079,7 +1079,8 @@ function clearUserImage() {
     }));
 
     // Ensure edit mode properly reverts to its own local dropzone
-    if (window._currentGenerationTab === 'edit') {
+    const currentTab = window._currentGenerationTab || (window.appState && window.appState.activeMode) || 'image';
+    if (currentTab === 'edit') {
         if (typeof window.clearEditImage === 'function') {
             window.clearEditImage(true);
         }
