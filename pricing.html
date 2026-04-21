@@ -1194,10 +1194,10 @@
                                 <div class="w-8 h-8 bg-white/5 rounded-xl flex items-center justify-center mb-3 text-gray-400 group-hover:text-blue-400 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A3.333 3.333 0 0121 4.833v5.667c0 4.167-2.833 8.083-6.667 9.5a13.333 13.333 0 01-6.666-9.5V4.833c0-1.833 1.333-3.333 3.333-3.333h4c.834 0 1.5.666 1.5 1.5s-.666 1.5-1.5 1.5h-4c-1.333 0-2.333 1-2.333 2.333v4.667c0 3.167 2.167 6.167 5.167 7.167a10.167 10.167 0 005.166-7.167V4.833c0-.666.5-1.333 1.167-1.333h.5c.833 0 1.5.667 1.5 1.5z"></path></svg>
                                 </div>
-                                <h4 class="text-lg font-bold text-blue-400 mb-1">PREMIUM STATUS</h4>
+                                <h4 class="text-lg font-bold text-blue-400 mb-1">PRO ACCESS</h4>
                                 <p class="text-gray-500 text-sm font-medium uppercase tracking-wide text-center">Trial Quest • <span class="text-white">100 Credits</span></p>
                             </div>
-                            <button onclick="window.open('https://t.me/pixplace_public/6/643', '_blank')" class="w-full py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-bold text-sm rounded-xl transition-all border border-blue-400/20 uppercase tracking-widest mt-4">Start Quest</button>
+                            <button onclick="window.open('https://t.me/pixplace_support', '_blank')" class="w-full py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-bold text-sm rounded-xl transition-all border border-blue-400/20 uppercase tracking-widest mt-4">Start Quest</button>
                         </div>
 
                         <!-- Card 2: Evolution (Popular) -->
@@ -2092,6 +2092,57 @@
                         class="text-emerald-400 font-black text-sm sm:text-base uppercase tracking-wider group-hover:translate-x-1 transition-transform">
                         USDT —></div>
                 </button>
+            </div>
+
+            <!-- ========== MODEL COST TABLE ========== -->
+            <div id="model-cost" class="mt-14 sm:mt-16 pt-8 border-t border-white/5">
+                <h2 class="text-2xl sm:text-3xl font-black text-center mb-2 bg-gradient-to-r from-blue-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+                    Model Cost
+                </h2>
+                <p class="text-sm text-gray-400 text-center mb-8">Credits per generation across all AI models</p>
+
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <table class="w-full text-sm text-left">
+                        <thead>
+                            <tr class="border-b border-white/10 text-gray-400 uppercase text-[11px] tracking-wider">
+                                <th class="px-4 sm:px-6 py-3 font-semibold">Model</th>
+                                <th class="px-3 py-3 font-semibold text-center hidden sm:table-cell">Type</th>
+                                <th class="px-3 py-3 font-semibold text-center">Category</th>
+                                <th class="px-4 sm:px-6 py-3 font-semibold text-right">Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <!-- Image Models -->
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Nano Banana</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">3 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Nano Banana 2</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img / edit</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">5–11 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Nano Banana Pro</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img / edit</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-amber-400">12–16 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Z-Image Turbo</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">3 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Qwen Image</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">4 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Flux Pro Advanced</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img / img2img</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">4 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Flux Fast</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">1 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Print on Demand</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img / img2img</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">5 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Stickers</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img / img2img</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">5 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Dreamshaper XL</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2img / img2img</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">1 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors opacity-50"><td class="px-4 sm:px-6 py-3 font-medium text-white">Vector <span class="text-[10px] text-amber-400 ml-1">soon coming</span></td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">—</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400">Image</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-gray-500">—</td></tr>
+
+                            <!-- Edit Models -->
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Qwen Image Edit</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">edit</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-400">Edit</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">4 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Enhance Image</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">img2img / edit</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-400">Edit</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">5 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Remove Background</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">img2img / edit</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-400">Edit</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">2 Cr</td></tr>
+
+                            <!-- Video Models -->
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Luma AI</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">img2vid</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400">Video</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-amber-400">20 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Kling AI</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">img2vid</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400">Video</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-amber-400">25 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Hailuo AI</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">img2vid</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400">Video</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-amber-400">20 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Runway Gen-3</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">img2vid</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400">Video</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-amber-400">30 Cr</td></tr>
+
+                            <!-- Music Models -->
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Audio from Text</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">txt2audio</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400">Music</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">5 Cr</td></tr>
+                            <tr class="hover:bg-white/[0.03] transition-colors"><td class="px-4 sm:px-6 py-3 font-medium text-white">Audio from Image</td><td class="px-3 py-3 text-center text-gray-400 hidden sm:table-cell">img2audio</td><td class="px-3 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400">Music</span></td><td class="px-4 sm:px-6 py-3 text-right font-bold text-emerald-400">5 Cr</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-[10px] text-gray-500 text-center mt-3 italic">Costs may vary based on image size and quality settings. Credit packs and subscription plans include discounts.</p>
             </div>
 
             <!-- Trust Badges -->
