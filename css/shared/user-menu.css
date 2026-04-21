@@ -21,7 +21,8 @@ x§/* ==========================================================================
     position: fixed;
     top: 52px;
     right: 12px;
-    z-index: 100000; /* 🔥 HIGH z-index to escape stacking context traps */
+    z-index: 9999999 !important; /* 🔥 EXTREMELY HIGH z-index to escape all stacking context traps */
+    pointer-events: auto !important; /* 🔥 Allow clicks even if parent has pointer-events: none */
     padding: 0;
     visibility: hidden;
     transform: translateY(-8px) scale(0.97);
