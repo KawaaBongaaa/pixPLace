@@ -34,18 +34,31 @@ function createGenerationResultModal(item) {
 
     const getStyleName = (type) => {
         const modeMap = {
-            'nano_banana': 'nano_banana',
-            'fast_generation': 'fast_generation',
-            'pixplace_pro': 'pixplace_pro',
-            'background_removal': 'background_removal',
-            'upscale_image': 'upscale_image',
-            'print_maker': 'print_maker'
+            'nano_banana': 'Nano Banana',
+            'nano_banana_2': 'Nano Banana 2',
+            'nano_banana_pro': 'Nano Banana Pro',
+            'z_image': 'Z-Image Turbo',
+            'fast_generation': 'Flux Fast',
+            'pixplace_pro': 'Flux Pro Advanced',
+            'qwen_image': 'Qwen Image',
+            'qwen_image_edit': 'Qwen Image Edit',
+            'background_removal': 'Remove Background',
+            'upscale_image': 'Enhance Image',
+            'print_maker': 'Print on Demand',
+            'sticker_maker': 'Stickers',
+            'dreamshaper_xl': 'Dreamshaper XL',
+            'image_to_video': 'Luma AI',
+            'kling_video': 'Kling AI',
+            'hailuo_video': 'Hailuo AI',
+            'runway_gen3': 'Runway Gen-3',
+            'audio_from_text': 'Audio from Text',
+            'audio_from_image': 'Audio from Image'
         };
         const mode = item.mode || item.type || 'fast_generation';
-        return mode in modeMap ? mode : 'fast_generation';
+        return modeMap[mode] || mode;
     };
 
-    const costAmount = item.generation_cost || item.cost || item.amount || -10;
+    const costAmount = item.generation_cost || item.cost || item.amount || 0;
     const currency = item.cost_currency || item.currency || 'Cr';
 
     modal = document.createElement('div');
