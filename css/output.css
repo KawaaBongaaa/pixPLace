@@ -1759,6 +1759,9 @@
   .flex-row {
     flex-direction: row;
   }
+  .flex-nowrap {
+    flex-wrap: nowrap;
+  }
   .flex-wrap {
     flex-wrap: wrap;
   }
@@ -1902,6 +1905,9 @@
   }
   .overflow-visible {
     overflow: visible;
+  }
+  .overflow-x-auto {
+    overflow-x: auto;
   }
   .overflow-x-hidden {
     overflow-x: hidden;
@@ -2718,6 +2724,9 @@
   .p-8 {
     padding: 2rem;
   }
+  .\!px-2\.5 {
+    padding-inline: 0.625rem !important;
+  }
   .px-1 {
     padding-inline: 0.25rem;
   }
@@ -2738,6 +2747,9 @@
   }
   .px-6 {
     padding-inline: 1.5rem;
+  }
+  .\!py-1 {
+    padding-block: 0.25rem !important;
   }
   .py-0\.5 {
     padding-block: 0.125rem;
