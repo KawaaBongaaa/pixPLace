@@ -79,7 +79,7 @@ class PortalLoader {
         const iframe = document.createElement('iframe');
         iframe.id = `form-iframe-${formType}`;
         iframe.className = 'form-iframe w-full h-full border-0 bg-transparent';
-        iframe.src = `${this.options.basePath}${formType}-form.html`;
+        iframe.src = `${this.options.basePath}${formType}-form.html?v=${Date.now()}`;
         iframe.loading = 'lazy';
         iframe.setAttribute('data-form-type', formType);
 
@@ -188,6 +188,14 @@ class PortalLoader {
                         window.modeCardsExports.selectModeCard(data.mode);
                     }
                 }
+                // 🔥 PERSIST model selection to modesState for current active tab
+                if (window.appState && window.appState.setModeState) {
+                    const activeMode = window.appState.activeMode || window._currentGenerationTab || 'image';
+                    window.appState.setModeState(activeMode, {
+                        model: data.mode,
+                        modelName: data.name
+                    });
+                }
                 break;
 
             case 'modal-toggle':
@@ -216,7 +224,7 @@ class PortalLoader {
                         }, 10);
                     } else {
                         senderIframe.classList.remove('portal-modal-open-anim');
-                        
+
                         // Tell iframe to restore button positioning
                         senderIframe.contentWindow.postMessage({ type: 'modal-closed-rect' }, '*');
 
@@ -228,6 +236,27 @@ class PortalLoader {
                                 this.container.classList.remove('portal-container-modal-active');
                                 document.body.classList.remove('portal-any-modal-open');
                             }
+                        }, 300);
+                    }
+                }
+                break;
+
+            case 'inject-style':
+                if (data.text) {
+                    const promptInput = document.getElementById('promptInput');
+                    if (promptInput) {
+                        const current = promptInput.value.trim();
+                        if (current) {
+                            promptInput.value = current + ', ' + data.text;
+                        } else {
+                            promptInput.value = data.text;
+                        }
+                        promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        
+                        promptInput.style.transition = 'box-shadow 0.3s ease';
+                        promptInput.style.boxShadow = '0 0 0 2px var(--ds-blue-600)';
+                        setTimeout(() => {
+                            promptInput.style.boxShadow = '';
                         }, 300);
                     }
                 }
@@ -369,10 +398,15 @@ class PortalLoader {
                 transition: none !important;
             }
             .portal-container-modal-active {
-                z-index: 2000000 !important;
+                z-index: 2000001 !important;
+                transition: none !important;
             }
             .portal-any-modal-open {
                 overflow: hidden !important;
+            }
+            #form-portal-container iframe,
+            [id^="portal-iframe-"] {
+                transition: none !important;
             }
             /*
              * KEY FIX: When a portal modal is open, neutralize backdrop-filter on any

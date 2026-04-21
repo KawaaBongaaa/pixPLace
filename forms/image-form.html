@@ -69,6 +69,8 @@
 
         .form-container {
             padding: 16px;
+            max-width: 640px;
+            margin: 0 auto;
         }
 
         /* Model Picker Styles */
@@ -299,6 +301,8 @@
         }
 
         .model-item-badge {
+            display: none !important; /* 🔥 Price badges removed per design */
+
             font-size: 12px;
             font-weight: 700;
             color: #10b981;
@@ -1039,6 +1043,41 @@
                                     </div>
                                     <span class="model-item-badge">5 Cr</span>
                                 </div>
+                                <div class="model-item" data-mode="sticker_maker">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.5 0 2.93-.33 4.22-.92L20 22l-1.08-3.78C20.24 16.53 22 13.93 22 12c0-5.52-4.48-10-10-10z"
+                                                stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                            <circle cx="8" cy="11" r="1.2" fill="currentColor" />
+                                            <circle cx="12" cy="11" r="1.2" fill="currentColor" />
+                                            <circle cx="16" cy="11" r="1.2" fill="currentColor" />
+                                            <path d="M8 15c1.5 1.5 6.5 1.5 8 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Stickers</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">img2img</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">5 Cr</span>
+                                </div>
+                                <div class="model-item" data-mode="vector_coming" style="opacity: 0.5; pointer-events: none;">
+                                    <span class="model-item-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <polygon points="12,2 22,12 12,22 2,12" stroke="currentColor" stroke-width="1.5" fill="none" />
+                                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.2" />
+                                        </svg>
+                                    </span>
+                                    <div class="model-item-info">
+                                        <span class="model-item-name">Vector</span>
+                                        <span class="model-item-tags">
+                                            <span class="tag" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white;">soon coming</span>
+                                        </span>
+                                    </div>
+                                    <span class="model-item-badge">—</span>
+                                </div>
                                 <div class="model-item" data-mode="dreamshaper_xl">
                                     <span class="model-item-icon">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1105,73 +1144,7 @@
                     </div> <!-- /modelDropdown -->
                 </div>
             </div>
-            <div class="style-chips-section" style="margin-top: 24px;">
-                <div class="style-chips-header">
-                    <span class="style-chips-label">Professional Use Cases</span>
-                    <span class="style-chips-hint">Click to add relevant phrases to prompt</span>
-                </div>
-                <div class="style-chips">
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="interior design, modern living room, 3D rendering">Interior Design</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="architectural visualization, exterior facade, daylight">Architecture</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="product photography, white background, studio lighting">Product
-                        Photography</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="fashion photography, model posing, editorial">Fashion</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="logo design, minimalist, vector">Logo Design</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="infographic, data visualization, colorful">Infographic</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="packaging design, label, mockup">Packaging</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="social media post, Instagram square, trendy">Social Media</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="book cover, typography, dramatic">Book Cover</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="website banner, hero image, modern">Website Banner</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="camera angle low shot, wide lens, perspective">Camera Angle</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="macro lens, close-up, detailed">Macro Lens</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="aerial view, drone, landscape">Aerial View</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="isometric view, 3D illustration, technical">Isometric</button>
-                    <button type="button" class="style-chip professional-chip"
-                        data-phrase="flat lay, overhead, arranged objects">Flat Lay</button>
-                </div>
-                <div class="style-chips-more">
-                    <button type="button" id="showMoreProfessional" class="style-more-btn">Show more professional
-                        cases...</button>
-                    <div id="moreProfessionalContainer" class="hidden">
-                        <div class="style-chips style-chips-secondary">
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="UI design, dashboard, wireframe">UI Design</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="icon set, pixel perfect, consistent">Icon Set</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="character design, concept art, fantasy">Character Design</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="texture, seamless pattern, tileable">Texture</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="blueprint, technical drawing, measurements">Blueprint</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="storyboard, comic panel, narrative">Storyboard</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="mood board, collage, inspiration">Mood Board</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="presentation slide, corporate, clean">Presentation Slide</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="billboard, large format, bold">Billboard</button>
-                            <button type="button" class="style-chip professional-chip"
-                                data-phrase="merchandise, t-shirt print, wearable">Merchandise</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             <!-- Prompt Input Section -->
             <div class="prompt-section">
                 <label for="promptInput" class="prompt-label">Describe what you want to generate</label>
@@ -1227,135 +1200,6 @@
             </div>
 
             <!-- Style Chips - Enhanced with more styles -->
-            <div class="style-chips-section">
-                <div class="style-chips-header">
-                    <span class="style-chips-label">Style Chips</span>
-                    <span class="style-chips-hint">Choose a visual style (optional)</span>
-                </div>
-                <div class="style-chips">
-
-                    <button type="button" class="style-chip" data-style="isometric"
-                        title="Isometric view">Isometric</button>
-                    <button type="button" class="style-chip" data-style="comic_book" title="Comic book style">Comic
-                        Book</button>
-                    <button type="button" class="style-chip" data-style="solarpunk"
-                        title="Eco-futurism">SolarPunk</button>
-                    <button type="button" class="style-chip" data-style="street_art" title="Street art">Street
-                        Art</button>
-                    <button type="button" class="style-chip" data-style="steampunk"
-                        title="Victorian machinery">Steampunk</button>
-                    <button type="button" class="style-chip" data-style="cute" title="Kawaii cute">Cute</button>
-                    <button type="button" class="style-chip" data-style="realistic"
-                        title="Photorealistic images">Realistic</button>
-                    <button type="button" class="style-chip" data-style="photography"
-                        title="Professional photography">Photography</button>
-                    <button type="button" class="style-chip" data-style="cinematic"
-                        title="Movie-like visuals">Cinematic</button>
-                    <button type="button" class="style-chip" data-style="cyberpunk"
-                        title="Neon futuristic">Cyberpunk</button>
-                    <button type="button" class="style-chip" data-style="fantasy"
-                        title="Magical fantasy world">Fantasy</button>
-                    <button type="button" class="style-chip" data-style="scifi" title="Science fiction">Sci-Fi</button>
-                    <button type="button" class="style-chip" data-style="anime"
-                        title="Japanese animation">Anime</button>
-                    <button type="button" class="style-chip" data-style="manga"
-                        title="Japanese comic style">Manga</button>
-
-                </div>
-                <div class="style-chips-more">
-                    <button type="button" id="showMoreStyles" class="style-more-btn">Show more styles...</button>
-                    <div id="moreStylesContainer" class="hidden">
-                        <div class="style-chips style-chips-secondary">
-                            <button type="button" class="style-chip" data-style="paper_cut">Paper Cut</button>
-                            <button type="button" class="style-chip" data-style="claymation">Claymation</button>
-                            <button type="button" class="style-chip" data-style="origami">Origami</button>
-                            <button type="button" class="style-chip" data-style="stained_glass">Stained Glass</button>
-                            <button type="button" class="style-chip" data-style="mosaic">Mosaic</button>
-                            <button type="button" class="style-chip" data-style="tattoo">Tattoo</button>
-                            <button type="button" class="style-chip" data-style="sketch">Sketch</button>
-                            <button type="button" class="style-chip" data-style="charcoal">Charcoal</button>
-                            <button type="button" class="style-chip" data-style="pastel">Pastel</button>
-                            <button type="button" class="style-chip" data-style="chalkboard">Chalkboard</button>
-                            <button type="button" class="style-chip" data-style="cartoon"
-                                title="Western cartoon">Cartoon</button>
-                            <button type="button" class="style-chip" data-style="disney"
-                                title="Disney animation style">Disney</button>
-                            <button type="button" class="style-chip" data-style="pixar"
-                                title="Pixar 3D style">Pixar</button>
-                            <button type="button" class="style-chip" data-style="watercolor"
-                                title="Watercolor painting">Watercolor</button>
-                            <button type="button" class="style-chip" data-style="oil_painting" title="Oil painting">Oil
-                                Painting</button>
-                            <button type="button" class="style-chip" data-style="digital_art"
-                                title="Digital artwork">Digital Art</button>
-                            <button type="button" class="style-chip" data-style="concept_art"
-                                title="Concept art">Concept
-                                Art</button>
-                            <button type="button" class="style-chip" data-style="vector"
-                                title="Vector graphics">Vector</button>
-                            <button type="button" class="style-chip" data-style="low_poly" title="Low polygon 3D">Low
-                                Poly</button>
-                            <button type="button" class="style-chip" data-style="pixel_art" title="Pixel art">Pixel
-                                Art</button>
-                            <button type="button" class="style-chip" data-style="retro"
-                                title="80s/90s retro">Retro</button>
-                            <button type="button" class="style-chip" data-style="vaporwave"
-                                title="Vaporwave aesthetic">Vaporwave</button>
-                            <button type="button" class="style-chip" data-style="synthwave"
-                                title="Synthwave style">Synthwave</button>
-                            <button type="button" class="style-chip" data-style="minimalist"
-                                title="Minimal design">Minimalist</button>
-                            <button type="button" class="style-chip" data-style="abstract"
-                                title="Abstract art">Abstract</button>
-                            <button type="button" class="style-chip" data-style="surrealism"
-                                title="Surreal art">Surrealism</button>
-                            <button type="button" class="style-chip" data-style="impressionism"
-                                title="Impressionist painting">Impressionism</button>
-                            <button type="button" class="style-chip" data-style="renaissance"
-                                title="Renaissance art">Renaissance</button>
-                            <button type="button" class="style-chip" data-style="baroque"
-                                title="Baroque style">Baroque</button>
-                            <button type="button" class="style-chip" data-style="art_nouveau" title="Art Nouveau">Art
-                                Nouveau</button>
-                            <button type="button" class="style-chip" data-style="art_deco" title="Art Deco">Art
-                                Deco</button>
-                            <button type="button" class="style-chip" data-style="popart" title="Pop Art">Pop
-                                Art</button>
-                            <button type="button" class="style-chip" data-style="graffiti"
-                                title="Graffiti style">Graffiti</button>
-                            <button type="button" class="style-chip" data-style="horror"
-                                title="Horror theme">Horror</button>
-                            <button type="button" class="style-chip" data-style="lovecraftian"
-                                title="Lovecraft cosmic horror">Lovecraftian</button>
-                            <button type="button" class="style-chip" data-style="gothic"
-                                title="Gothic style">Gothic</button>
-                            <button type="button" class="style-chip" data-style="fairy_tale" title="Fairy tale">Fairy
-                                Tale</button>
-                            <button type="button" class="style-chip" data-style="whimsical"
-                                title="Whimsical playful">Whimsical</button>
-                            <button type="button" class="style-chip" data-style="macabre"
-                                title="Dark macabre">Macabre</button>
-                            <button type="button" class="style-chip" data-style="dystopian"
-                                title="Dystopian future">Dystopian</button>
-                            <button type="button" class="style-chip" data-style="utopian"
-                                title="Utopian future">Utopian</button>
-                            <button type="button" class="style-chip" data-style="biopunk"
-                                title="Biological technology">BioPunk</button>
-                            <button type="button" class="style-chip" data-style="neon">Neon</button>
-                            <button type="button" class="style-chip" data-style="holographic">Holographic</button>
-                            <button type="button" class="style-chip" data-style="glitch">Glitch</button>
-                            <button type="button" class="style-chip" data-style="cyber_gothic">Cyber Gothic</button>
-                            <button type="button" class="style-chip"
-                                data-style="post_apocalyptic">Post-Apocalyptic</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Professional Use Cases -->
-
-
-            <!-- Additional Controls -->
             <div class="form-controls">
                 <div class="control-group">
                     <span class="control-label">Number of images</span>
@@ -1391,7 +1235,6 @@
             <!-- Generate Button -->
             <button type="button" id="generateBtn" class="generate-btn">
                 <span>Generate Image</span>
-                <span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">(3 credits)</span>
             </button>
 
             <!-- Status Message -->
@@ -1464,7 +1307,7 @@
                         item.addEventListener('click', function () {
                             selectedModel = this.getAttribute('data-mode');
                             selectedModelName = this.querySelector('.model-item-name').textContent;
-                            const badge = this.querySelector('.model-item-badge').textContent;
+                            const badge = this.querySelector('.model-item-badge')?.textContent || '';
 
                             // Close dropdown and notify parent
                             dropdown.classList.remove('open');
@@ -1496,14 +1339,9 @@
                     });
                 }
 
-                // Update generate button cost based on model badge
+                // Update generate button cost - badges removed, function is now a no-op
                 function updateGenerateButtonCost(badgeText) {
-                    const btn = document.getElementById('generateBtn');
-                    const creditMatch = badgeText.match(/(\d+)/);
-                    if (creditMatch) {
-                        const credits = creditMatch[1];
-                        btn.innerHTML = `<span>Generate Image</span><span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">(${credits} credits)</span>`;
-                    }
+                    // Price badges removed from UI. Cost info is now in the Model Cost page.
                 }
 
                 // Size options configuration
@@ -1743,7 +1581,7 @@
                         // Simulate generation (in real app, this would be handled by parent)
                         setTimeout(() => {
                             generateBtn.disabled = false;
-                            generateBtn.innerHTML = '<span>Generate Image</span><span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">(3 credits)</span>';
+                            generateBtn.innerHTML = '<span>Generate Image</span>';
                             showStatus('Generation request sent successfully!', 'success');
                         }, 1000);
                     });
@@ -2063,77 +1901,6 @@
                     });
                 }
 
-                // Enhanced style chips functionality
-                const styleChips = document.querySelectorAll('.style-chip');
-                let selectedStyle = 'none';
-
-                // Function to handle style selection
-                function selectStyle(chip) {
-                    styleChips.forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    selectedStyle = chip.getAttribute('data-style');
-
-                    // Visual feedback
-                    chip.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        chip.style.transform = '';
-                    }, 150);
-                }
-
-                // Add click handlers to all style chips
-                styleChips.forEach(chip => {
-                    chip.addEventListener('click', () => selectStyle(chip));
-                });
-
-                // Set default active chip (No Style)
-                const defaultStyleChip = document.querySelector('.style-chip[data-style="none"]');
-                if (defaultStyleChip) {
-                    defaultStyleChip.classList.add('active');
-                }
-
-                // Show more styles functionality
-                const showMoreBtn = document.getElementById('showMoreStyles');
-                const moreStylesContainer = document.getElementById('moreStylesContainer');
-
-                if (showMoreBtn && moreStylesContainer) {
-                    showMoreBtn.addEventListener('click', () => {
-                        const isHidden = moreStylesContainer.classList.contains('hidden');
-                        if (isHidden) {
-                            moreStylesContainer.classList.remove('hidden');
-                            showMoreBtn.textContent = 'Show fewer styles...';
-                        } else {
-                            moreStylesContainer.classList.add('hidden');
-                            showMoreBtn.textContent = 'Show more styles...';
-                        }
-                    });
-
-                    // Also add click handlers to secondary style chips
-                    const secondaryChips = moreStylesContainer.querySelectorAll('.style-chip');
-                    secondaryChips.forEach(chip => {
-                        chip.addEventListener('click', () => selectStyle(chip));
-                    });
-                }
-
-                // Style search/filter functionality (optional enhancement)
-                function filterStyles(searchTerm) {
-                    styleChips.forEach(chip => {
-                        const styleName = chip.textContent.toLowerCase();
-                        const styleData = chip.getAttribute('data-style').toLowerCase();
-                        const matches = styleName.includes(searchTerm.toLowerCase()) ||
-                            styleData.includes(searchTerm.toLowerCase());
-                        chip.style.display = matches ? 'flex' : 'none';
-                    });
-                }
-
-                // Add search input if needed (commented out for now)
-                /*
-                const styleSearch = document.createElement('input');
-                styleSearch.type = 'text';
-                styleSearch.placeholder = 'Search styles...';
-                styleSearch.className = 'style-search';
-                styleSearch.addEventListener('input', (e) => filterStyles(e.target.value));
-                document.querySelector('.style-chips-section').prepend(styleSearch);
-                */
 
                 // Update form data collection to include new fields
                 const originalGenerateHandler = generateBtn.onclick;
@@ -2176,7 +1943,7 @@
                     // Simulate generation (in real app, this would be handled by parent)
                     setTimeout(() => {
                         generateBtn.disabled = false;
-                        generateBtn.innerHTML = '<span>Generate Image</span><span style="font-size: 12px; opacity: 0.8; margin-left: 8px;">(3 credits)</span>';
+                        generateBtn.innerHTML = '<span>Generate Image</span>';
                         showStatus('Generation request sent successfully!', 'success');
                     }, 1000);
                 });
