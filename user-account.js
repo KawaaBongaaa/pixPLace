@@ -1190,6 +1190,21 @@ function toggleMenuCategory(btn) {
  * Navigate from menu: switch to the given tab and select the model
  */
 function menuNavTo(tab, model) {
+    console.log(`🚀 menuNavTo triggered: tab=${tab}, model=${model}`);
+
+    // 🔥 FIX: Update state FIRST so switchTab/restoreModeState sees the new model immediately
+    if (model && window.appState && window.appState.setModeState) {
+        window.appState.setModeState(tab, { model });
+    }
+
+    // Switch tab (image, video, edit, music)
+    if (typeof window.switchTab === 'function') {
+        window.switchTab(tab);
+    } else {
+        const tabBtn = document.querySelector(`.generation-tab[data-tab="${tab}"]`);
+        if (tabBtn) tabBtn.click();
+    }
+
     // Close the user menu
     if (typeof toggleUserMenu === 'function') {
         const menu = document.getElementById('userMenuDropdown');
@@ -1198,29 +1213,16 @@ function menuNavTo(tab, model) {
         }
     }
 
-    // Switch tab (image, video, edit, music)
-    if (typeof window.switchTab === 'function') {
-        window.switchTab(tab);
-    } else {
-        // Fallback: click the tab button
-        const tabBtn = document.querySelector(`.generation-tab[data-tab="${tab}"]`);
-        if (tabBtn) tabBtn.click();
-    }
-
-    // Select the model after a small delay for the tab to initialize
-    setTimeout(() => {
-        if (model) {
+    // If a specific model was requested, force its selection in UI to be safe
+    if (model) {
+        setTimeout(() => {
             if (typeof window.selectModeCard === 'function') {
                 window.selectModeCard(model);
             } else if (window.modeCardsExports?.selectModeCard) {
                 window.modeCardsExports.selectModeCard(model);
             }
-            // Persist to modesState
-            if (window.appState && window.appState.setModeState) {
-                window.appState.setModeState(tab, { model });
-            }
-        }
-    }, 150);
+        }, 150);
+    }
 }
 
 // Expose new functions globally
