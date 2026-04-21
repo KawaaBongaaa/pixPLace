@@ -612,7 +612,7 @@ function showAllHistory() {
         const element = document.createElement('div');
         element.className = 'history-mini';
         element.id = `history-${item.id || item.generation_id}`;
-        element.onclick = () => viewHistoryItem(item.id || item.generation_id);
+        element.setAttribute('data-item-id', item.id || item.generation_id); // 🔥 For event delegation
 
         element.innerHTML = `
             <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMvb3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIj48L21lY3Q+PC9zdmc+"
@@ -631,6 +631,12 @@ function showAllHistory() {
 
         return element.outerHTML;
     }).join('');
+
+    // 🔥 FIX: Re-bind click handlers since outerHTML strips JS event listeners
+    historyList.querySelectorAll('.history-mini[data-item-id]').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.onclick = () => viewHistoryItem(el.getAttribute('data-item-id'));
+    });
 
     // Подключаем Observer ко всем новым картинкам
     const newImages = historyList.querySelectorAll('img[data-src]');

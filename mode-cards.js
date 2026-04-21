@@ -70,20 +70,18 @@ export function selectModeCard(mode) {
         const dd = document.getElementById('modelDropdown');
         if (dd) dd.classList.add('hidden');
 
-        // 🔥 ДОБАВЛЕНО: Прокрутка к полю ввода и фокус
-        const promptInput = document.getElementById('promptInput');
-        const promptFormGroup = document.getElementById('promptFormGroup');
-        if (promptInput && promptFormGroup) {
-            // Мягкая прокрутка
-            promptFormGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // Задержка фокуса, чтобы анимация прокрутки не дрожала
+        // 🔥 HIGHLIGHT: Pulse the model selection toggle instead of scrolling
+        const modelToggle = document.getElementById('modelSelectToggle') || document.getElementById('chooseModelBtn');
+        if (modelToggle) {
+            modelToggle.style.transition = 'box-shadow 0.3s, transform 0.3s';
+            modelToggle.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.5)';
+            modelToggle.style.transform = 'scale(1.03)';
             setTimeout(() => {
-                promptInput.focus();
-                console.log('✅ Focus prioritized on prompt input');
-            }, 600);
+                modelToggle.style.boxShadow = '';
+                modelToggle.style.transform = '';
+            }, 1200);
         }
-    }, 400); // 400ms для комфортного восприятия
+    }, 200);
 
 
     // Диспатчим событие для обновления UI в navigation-manager.js и app_modern.js

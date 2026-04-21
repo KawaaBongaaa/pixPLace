@@ -1164,6 +1164,69 @@ window.openLanguageModal = openLanguageModal;
 window.closeLanguageModal = closeLanguageModal;
 window.selectLanguageFromModal = selectLanguageFromModal;
 
+// ========== NEW MENU NAVIGATION FUNCTIONS ==========
+
+/**
+ * Toggle a category dropdown in the user menu
+ */
+function toggleMenuCategory(btn) {
+    const category = btn.closest('.menu-category');
+    if (!category) return;
+    const items = category.querySelector('.menu-cat-items');
+    const chevron = btn.querySelector('.menu-chevron');
+    if (!items) return;
+
+    const isOpen = !items.classList.contains('hidden');
+    if (isOpen) {
+        items.classList.add('hidden');
+        if (chevron) chevron.classList.remove('open');
+    } else {
+        items.classList.remove('hidden');
+        if (chevron) chevron.classList.add('open');
+    }
+}
+
+/**
+ * Navigate from menu: switch to the given tab and select the model
+ */
+function menuNavTo(tab, model) {
+    // Close the user menu
+    if (typeof toggleUserMenu === 'function') {
+        const menu = document.getElementById('userMenuDropdown');
+        if (menu && menu.classList.contains('show')) {
+            toggleUserMenu();
+        }
+    }
+
+    // Switch tab (image, video, edit, music)
+    if (typeof window.switchTab === 'function') {
+        window.switchTab(tab);
+    } else {
+        // Fallback: click the tab button
+        const tabBtn = document.querySelector(`.generation-tab[data-tab="${tab}"]`);
+        if (tabBtn) tabBtn.click();
+    }
+
+    // Select the model after a small delay for the tab to initialize
+    setTimeout(() => {
+        if (model) {
+            if (typeof window.selectModeCard === 'function') {
+                window.selectModeCard(model);
+            } else if (window.modeCardsExports?.selectModeCard) {
+                window.modeCardsExports.selectModeCard(model);
+            }
+            // Persist to modesState
+            if (window.appState && window.appState.setModeState) {
+                window.appState.setModeState(tab, { model });
+            }
+        }
+    }, 150);
+}
+
+// Expose new functions globally
+window.toggleMenuCategory = toggleMenuCategory;
+window.menuNavTo = menuNavTo;
+
 // Экспортируем функции модуля
 export {
     initUserAccount,

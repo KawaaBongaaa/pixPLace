@@ -1034,6 +1034,63 @@ function trimImagesForMode(newMode) {
 }
 
 
+// 🔥 FIX: Missing clearUserImage function — critical for Edit mode delete-image-restore-upload
+function clearUserImage() {
+    console.log('🗑️ clearUserImage: Removing all user images');
+
+    // Clear state
+    userImageState.images = [];
+
+    // Clear file input
+    const input = document.getElementById('userImage');
+    if (input) input.value = '';
+
+    // Clear preview
+    const preview = document.getElementById('userImagePreview');
+    if (preview) {
+        preview.innerHTML = '';
+        preview.classList.add('hidden');
+    }
+
+    // Clear previews container
+    const previewContainer = document.getElementById('previewContainer');
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
+        previewContainer.classList.add('hidden');
+    }
+
+    // Show upload container again
+    const urlContainer = document.getElementById('urlInputContainer');
+    if (urlContainer) {
+        urlContainer.classList.remove('hidden');
+        urlContainer.style.display = '';
+    }
+
+    // Clear batch filename preview
+    const fileName = document.querySelector('.file-name-preview');
+    if (fileName) fileName.remove();
+
+    // Update visibility
+    updateImageUploadVisibility();
+
+    // Notify other modules
+    document.dispatchEvent(new CustomEvent('images:updated', {
+        detail: { imageCount: 0 }
+    }));
+
+    // Ensure edit mode properly reverts to its own local dropzone
+    if (window._currentGenerationTab === 'edit') {
+        if (typeof window.clearEditImage === 'function') {
+            window.clearEditImage(true);
+        }
+    }
+
+    console.log('✅ clearUserImage: Upload field restored');
+}
+
+// Expose globally for edit mode
+window.clearUserImage = clearUserImage;
+
 // ===== Глобальная функция для обновления видимости UI загрузки изображений =====
 function updateImageUploadVisibility() {
     const urlContainer = document.getElementById('urlInputContainer');
@@ -2345,9 +2402,9 @@ async function uploadUserImages() {
 async function applyUrlParams() {
     const rawSearch = window.location.search;
     const urlParams = new URLSearchParams(rawSearch);
-    const urlPrompt   = urlParams.get('prompt');
-    let   urlImageUrl = urlParams.get('image_url');
-    const urlSource   = urlParams.get('utm_source') || urlParams.get('source');
+    const urlPrompt = urlParams.get('prompt');
+    let urlImageUrl = urlParams.get('image_url');
+    const urlSource = urlParams.get('utm_source') || urlParams.get('source');
 
 
     let applied = false;

@@ -490,6 +490,11 @@ function initTabs() {
 
 // ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ВКЛАДКИ (перенесено из mode-cards.js)
 function switchTab(tabType) {
+    const previousTab = activeTab;
+
+    // 🔥 SAVE outgoing mode state to appState.modesState
+    _saveModeStateFromDOM(previousTab);
+
     // Обновляем активную вкладку
     activeTab = tabType;
 
@@ -533,6 +538,14 @@ function switchTab(tabType) {
         }
     }
 
+    // 🔥 RESTORE incoming mode state from appState.modesState → push to iframe
+    _restoreModeStateToDOM(tabType);
+
+    // 🔥 Update activeMode in appState
+    if (window.appState) {
+        window.appState.activeMode = tabType;
+    }
+
     // 🔥 ДОБАВЛЕНО: Обновляем текст кнопки generate при переключении таба
     updateGenerateButtonText();
 
@@ -541,7 +554,68 @@ function switchTab(tabType) {
         detail: { tab: tabType }
     }));
 
-    console.log(`🔄 Switched to tab: ${tabType}`);
+    console.log(`🔄 Switched to tab: ${tabType} (from ${previousTab})`);
+}
+
+// ========== MODE STATE PERSISTENCE HELPERS ==========
+
+/**
+ * Captures current DOM state (prompt, model, settings) and saves to appState.modesState
+ */
+function _saveModeStateFromDOM(mode) {
+    if (!window.appState || !window.appState.getModeState) return;
+    if (!mode) return;
+
+    try {
+        // Collect data from the portal iframe via appState (iframe reports model-selected)
+        // We also grab prompt from the iframe if possible, but primarily we rely on the
+        // appState.modesState which is updated in real-time by model-selected events.
+        // The prompt is harder to get from the iframe, so we use any cached value.
+        const currentState = window.appState.getModeState(mode) || {};
+
+        // Save whatever is already accumulated (model selections are synced in real-time)
+        window.appState.setModeState(mode, currentState);
+        console.log(`💾 Saved mode state for "${mode}":`, currentState.model, currentState.modelName);
+    } catch (e) {
+        console.warn('⚠️ _saveModeStateFromDOM error:', e);
+    }
+}
+
+/**
+ * Restores state from appState.modesState and pushes to the active portal iframe
+ */
+function _restoreModeStateToDOM(mode) {
+    if (!window.appState || !window.appState.getModeState) return;
+
+    try {
+        const modeState = window.appState.getModeState(mode);
+        if (!modeState) return;
+
+        // Push restored model to mode-cards
+        if (modeState.model) {
+            if (typeof window.selectModeCard === 'function') {
+                window.selectModeCard(modeState.model);
+            } else if (window.modeCardsExports?.selectModeCard) {
+                window.modeCardsExports.selectModeCard(modeState.model);
+            }
+        }
+
+        // Push restored state to the portal iframe (set-form-data)
+        if (window.portalLoader && window.portalLoader.currentIframe) {
+            setTimeout(() => {
+                window.portalLoader.sendToCurrentIframe({
+                    type: 'set-form-data',
+                    model: modeState.model,
+                    prompt: modeState.prompt || '',
+                    size: modeState.size || 'auto'
+                });
+            }, 100); // Small delay to ensure iframe is ready after tab switch
+        }
+
+        console.log(`♻️ Restored mode state for "${mode}":`, modeState.model, modeState.modelName);
+    } catch (e) {
+        console.warn('⚠️ _restoreModeStateToDOM error:', e);
+    }
 }
 
 // ФУНКЦИЯ ПОКАЗА СОДЕРЖАНИЯ ВКЛАДКИ (перенесено из mode-cards.js)
