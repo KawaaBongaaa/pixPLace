@@ -384,7 +384,7 @@ async function useImageForGeneration(imageUrl, itemId) {
                 const res = await fetch(imageUrl);
                 imageBlob = await res.blob();
                 console.log('✅ Blob fetched from blob URL, size:', imageBlob.size);
-            } catch(e) {
+            } catch (e) {
                 console.warn('⚠️ Could not fetch blob URL:', e);
             }
         }
