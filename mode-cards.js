@@ -8,31 +8,47 @@ let activeTab = 'image';
 
 // ЭКСПОРТИРУЕМ ФУНКЦИЮ ДЛЯ ПОЛУЧЕНИЯ ВЫБРАННОГО РЕЖИМА
 export function getSelectedMode() {
-    const mode = activeTab === 'video' ? selectedVideoMode : selectedImageMode;
-    // Убрали спам в консоль
-    // console.log('🎛️ getSelectedMode() called:', { ... });
-    return mode;
+    // Приоритет: appState per-tab → локальная переменная
+    const currentTab = window._currentGenerationTab || activeTab || 'image';
+    if (window.appState?.getModeState) {
+        const saved = window.appState.getModeState(currentTab);
+        if (saved?.model) return saved.model;
+    }
+    return activeTab === 'video' ? selectedVideoMode : selectedImageMode;
 }
 
 // ЭКСПОРТИРУЕМ ФУНКЦИЮ ПРОГРАММНОГО ВЫБОРА РЕЖИМА
 export function setSelectedMode(mode) {
-    const isImageMode = ['nano_banana_pro', 'nano_banana', 'nano_banana_2', 'fast_generation', 'z_image', 'qwen_image', 'qwen_image_edit', 'pixplace_pro', 'dreamshaper_xl', 'background_removal', 'upscale_image', 'print_maker', 'sticker_maker'].includes(mode);
-    const isVideoMode = ['video_gen', 'image_to_video', 'video_edit'].includes(mode);
+    const isVideoMode = ['video_gen', 'image_to_video', 'video_edit', 'kling_video', 'hailuo_video', 'runway_gen3'].includes(mode);
+    const isMusicMode = ['audio_from_text', 'audio_from_image'].includes(mode);
+
+    // Определяем текущий таб — используем _currentGenerationTab как источник правды
+    const currentTab = window._currentGenerationTab || activeTab || 'image';
 
     if (isVideoMode) {
         selectedVideoMode = mode;
         activeTab = 'video';
-    } else if (isImageMode) {
-        selectedImageMode = mode;
-        activeTab = 'image';
+    } else if (isMusicMode) {
+        // music/sound tab — не трогаем selectedImageMode
+        activeTab = 'sound';
+    } else {
+        // image или edit — обновляем selectedImageMode только если мы на image табе
+        // чтобы edit-таб не перезаписывал image-таб
+        if (currentTab === 'image' || currentTab === 'video') {
+            selectedImageMode = mode;
+        }
+        activeTab = currentTab;
     }
 
-    // Синхронизируем с appState если доступен
+    // 🔥 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Сохраняем модель в appState per-tab bucket
+    if (window.appState?.setModeState) {
+        window.appState.setModeState(currentTab, { model: mode });
+    }
     if (window.appState) {
         window.appState.selectedMode = mode;
     }
 
-    console.log(`🎛️ Mode set to: ${mode} (tab: ${activeTab})`);
+    console.log(`🎛️ setSelectedMode: ${mode} → tab bucket: "${currentTab}"`);
 }
 
 // МИНИМАЛЬНЫЕ ЗАГЛУШКИ ДЛЯ СОВМЕСТИМОСТИ ИМПОРТА ИЗ navigation-manager.js

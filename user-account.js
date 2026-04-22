@@ -1192,17 +1192,33 @@ function toggleMenuCategory(btn) {
 function menuNavTo(tab, model) {
     console.log(`🚀 menuNavTo triggered: tab=${tab}, model=${model}`);
 
-    // 🔥 FIX: Update state FIRST so switchTab/restoreModeState sees the new model immediately
+    // 🔥 'music' is an alias — actual DOM tab is 'sound'
+    const actualTab = tab === 'music' ? 'sound' : tab;
+
+    // Update state FIRST so switchTab/restoreModeState sees the new model immediately
     if (model && window.appState && window.appState.setModeState) {
-        window.appState.setModeState(tab, { model });
+        window.appState.setModeState(actualTab, { model });
     }
 
-    // Switch tab (image, video, edit, music)
+    // Switch tab using the correct tab name
     if (typeof window.switchTab === 'function') {
-        window.switchTab(tab);
+        window.switchTab(actualTab);
     } else {
-        const tabBtn = document.querySelector(`.generation-tab[data-tab="${tab}"]`);
+        const tabBtn = document.querySelector(`.generation-tab[data-tab="${actualTab}"]`);
         if (tabBtn) tabBtn.click();
+        else {
+            // Fallback: try switchGenerationTab (index.html native function)
+            if (typeof window.switchGenerationTab === 'function') {
+                window.switchGenerationTab(actualTab);
+            }
+        }
+    }
+
+    // For audio models: also switch the sound sub-tab
+    if (model === 'audio_from_text' && typeof window.switchSoundTab === 'function') {
+        setTimeout(() => window.switchSoundTab('text'), 100);
+    } else if (model === 'audio_from_image' && typeof window.switchSoundTab === 'function') {
+        setTimeout(() => window.switchSoundTab('image'), 100);
     }
 
     // Close the user menu
@@ -1213,8 +1229,9 @@ function menuNavTo(tab, model) {
         }
     }
 
-    // If a specific model was requested, force its selection in UI to be safe
-    if (model) {
+    // If a specific model was requested, force its selection in UI
+    // (only for non-audio models to avoid interfering with sound tab logic)
+    if (model && !['audio_from_text', 'audio_from_image'].includes(model)) {
         setTimeout(() => {
             if (typeof window.selectModeCard === 'function') {
                 window.selectModeCard(model);
