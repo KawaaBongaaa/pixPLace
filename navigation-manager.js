@@ -516,14 +516,21 @@ function switchTab(tabType) {
     // Показываем содержание вкладки
     showTab(tabType);
 
+    // 🔥 ВАЖНО: устанавливаем _currentGenerationTab ДО вызова selectModeCard,
+    // чтобы setSelectedMode знал в какой bucket сохранять модель
+    window._currentGenerationTab = tabType;
+
     if (tabType === 'video') {
-        // Синхронно выбираем режим для video таба, чтобы обновить состояние в mode-cards.js
-        selectModeCard('image_to_video');
-    }
-    if (tabType === 'image') {
-        const currentImageMode = selectedImageMode || 'nano_banana_pro';
-        console.log(`🔄 Switching back to image tab, restoring mode: ${currentImageMode}`);
-        selectModeCard(currentImageMode);
+        // Восстанавливаем из appState, иначе дефолт
+        const savedVideoModel = window.appState?.getModeState('video')?.model || 'image_to_video';
+        selectModeCard(savedVideoModel);
+    } else if (tabType === 'image') {
+        // 🔥 ИСПРАВЛЕНИЕ: читаем из appState.getModeState('image') — не из selectedImageMode (который мог быть загрязнён edit-табом)
+        const savedImageModel = window.appState?.getModeState('image')?.model
+                             || selectedImageMode
+                             || 'z_image';
+        console.log(`🔄 Restoring image tab model from appState: ${savedImageModel}`);
+        selectModeCard(savedImageModel);
     }
 
     // --- FIXED: Restore Edit tab state (Step 2 if image exists) ---

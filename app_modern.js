@@ -1338,6 +1338,11 @@ async function updatePromptVisibility() {
 document.addEventListener('tab:changed', (e) => {
     const newTab = e?.detail?.tab || window._currentGenerationTab || 'image';
 
+    // 🔥 Sync with appState
+    if (window.appState && !window._isRestoring) {
+        window.appState.activeMode = newTab;
+    }
+
     // При переходе на Edit — скрываем системные секции, если изображение еще не загружено
     if (newTab === 'edit') {
         const promptSection = document.getElementById('promptFormGroup');
@@ -1817,6 +1822,11 @@ async function handleUrlAdd(url) {
         updateSizeSelectVisibility();
         updateImageUploadVisibility();
 
+        // 🔥 Sync with appState
+        if (window.appState) {
+            window.appState.setImageState(userImageState);
+        }
+
         document.dispatchEvent(new CustomEvent('images:updated', {
             detail: { imageCount: userImageState.images.length }
         }));
@@ -2187,6 +2197,15 @@ function removeImage(imageId) {
 
     // Обновление видимости кнопки и превью согласно логике режима
     updateImageUploadVisibility();
+
+    // 🔥 ИСПРАВЛЕНИЕ БАГ 2: Если удалили последнее изображение в режиме Edit —
+    // сбрасываем интерфейс на шаг 1 (дропзона)
+    if (!userImageState.images.length && window._currentGenerationTab === 'edit') {
+        if (typeof window.clearEditImage === 'function') {
+            console.log('🔄 Last image removed in Edit tab — resetting to Step 1');
+            window.clearEditImage(true); // true = не вызывать clearAllImages повторно
+        }
+    }
 
     // 🔥 ДОБАВЛЕНИЕ: Диспатчим событие изменения изображений для обновления UI (strength slider и др.)
     document.dispatchEvent(new CustomEvent('images:updated', {
@@ -3973,4 +3992,3 @@ window.toggleVideoMoreStyles = function () {
     container.classList.toggle('hidden', !isHidden);
     if (btn) btn.textContent = isHidden ? 'Less ▴' : 'More ▾';
 };
-

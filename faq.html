@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Knowledge Base | pixPLace Ai Help Center</title>
+    <meta name="description"
+        content="Professional guide to pixPLace AI. Master Nano Banana Pro, Flux, Z-Image, and Semantic Editing with our detailed technical breakdown.">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/output.css">
+    <link rel="stylesheet" href="css/shared/brain-animation.css">
+
+    <style>
+        :root {
+            --glass-bg: rgba(15, 15, 20, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        [data-theme="light"] {
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        body {
+            background-color: #09090b;
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            background: var(--glass-bg);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Navigation Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        /* Portal Sections */
+        .portal-section {
+            margin-bottom: 120px;
+            scroll-margin-top: 120px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .portal-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mechanics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .mechanic-card {
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .mechanic-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .step-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 12px;
+        }
+
+        .badge {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+        }
+
+        .badge-pro {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: white;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        .badge-turbo {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .pro-tip {
+            border-left: 4px solid var(--accent-blue);
+            background: rgba(59, 130, 246, 0.05);
+            padding: 16px 20px;
+            border-radius: 0 16px 16px 0;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-[100] glass-panel !rounded-none border-b border-white/5 bg-slate-950/80">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div
+                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </div>
+                <span class="text-sm font-bold tracking-tight">Return to App</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <span class="text-2xl font-black gradient-text tracking-tighter">pixPLace</span>
+                <span class="h-4 w-[1px] bg-white/20"></span>
+                <span class="text-[9px] font-black bg-white/10 px-2 py-0.5 rounded-md tracking-widest text-slate-400">CORE DOCS</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6 pt-32 pb-24">
+        <div class="flex gap-16">
+            <!-- Sidebar Navigation -->
+            <aside class="w-64 flex-shrink-0 sidebar">
+                <div class="space-y-10">
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 px-4">
+                            Fundamentals</h4>
+                        <nav class="space-y-1">
+                            <a href="#intro" class="nav-link active">
+                                <span>🚀</span> Overview
+                            </a>
+                            <a href="#credits" class="nav-link">
+                                <span>💎</span> Credit Economy
+                            </a>
+                        </nav>
+                    </div>
+
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 px-4">Image Generation</h4>
+                        <nav class="space-y-1">
+                            <a href="#z-image-turbo" class="nav-link">
+                                <span>⚡</span> Z-Image Turbo
+                            </a>
+                            <a href="#nano-banana-pro" class="nav-link">
+                                <span>🍌</span> Nano Banana Pro
+                            </a>
+                            <a href="#flux-pro" class="nav-link">
+                                <span>✨</span> Flux Pro Advanced
+                            </a>
+                            <a href="#print-maker" class="nav-link">
+                                <span>🖨️</span> Print Maker SDXL
+                            </a>
+                        </nav>
+                    </div>
+
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 px-4">Editing Suite</h4>
+                        <nav class="space-y-1">
+                            <a href="#qwen-edit" class="nav-link">
+                                <span>🎨</span> Semantic Qwen Edit
+                            </a>
+                            <a href="#tools" class="nav-link">
+                                <span>🧹</span> Post-Processing
+                            </a>
+                        </nav>
+                    </div>
+
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 px-4">Multimedia</h4>
+                        <nav class="space-y-1">
+                            <a href="#video-gen" class="nav-link">
+                                <span>🎬</span> Video Production
+                            </a>
+                            <a href="#audio-gen" class="nav-link">
+                                <span>🎵</span> Music Production
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 min-w-0">
+
+                <!-- SECTION: Intro -->
+                <section id="intro" class="portal-section visible">
+                    <h1 class="text-5xl sm:text-7xl font-black mb-8 leading-[1.1] tracking-tight">Engineering <span
+                            class="gradient-text">Visual Intelligence.</span></h1>
+                    <p class="text-xl text-slate-400 mb-12 leading-relaxed max-w-3xl">
+                        Welcome to the official pixPLace technical documentation. This portal is designed to bridge the gap between creative vision and AI mechanics. 
+                    </p>
+
+                    <div class="glass-panel p-10 border-blue-500/20 bg-blue-500/5 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full -mr-16 -mt-16"></div>
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] animate-pulse"></span>
+                            Core Workflow
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="space-y-3">
+                                <div class="step-pill">1</div>
+                                <h5 class="font-bold text-sm">Mode Selection</h5>
+                                <p class="text-xs text-slate-400 leading-relaxed">Choose your medium: Text-to-Image, Photo Editing, Video, or Music.</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="step-pill">2</div>
+                                <h5 class="font-bold text-sm">Model Mapping</h5>
+                                <p class="text-xs text-slate-400 leading-relaxed">Select the algorithm best suited for your task (e.g., Flux for text, Nano for retouching).</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="step-pill">3</div>
+                                <h5 class="font-bold text-sm">Guided Generation</h5>
+                                <p class="text-xs text-slate-400 leading-relaxed">Use reference images and style chips to direct the AI's semantic focus.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: Credits -->
+                <section id="credits" class="portal-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="badge badge-turbo">Platform Economy</span>
+                        <h2 class="text-4xl font-black">Credits & Computation</h2>
+                    </div>
+                    <p class="text-lg text-slate-400 mb-10 leading-relaxed">
+                        pixPLace uses a credit-based system reflecting the real-world GPU power required for each task. Your balance is updated in real-time.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="mechanic-card bg-emerald-500/5 border-emerald-500/20">
+                            <h4 class="font-black mb-4 flex items-center gap-2 text-emerald-400">
+                                💎 SMART BALANCE
+                            </h4>
+                            <p class="text-sm text-slate-400 leading-relaxed">
+                                Our system automatically calculates the cost before you click "Generate". Top-ups are processed instantly via Telegram Stars.
+                            </p>
+                        </div>
+                        <div class="mechanic-card bg-blue-500/5 border-blue-500/20">
+                            <h4 class="font-black mb-4 flex items-center gap-2 text-blue-400">
+                                📊 CONSUMPTION TABLE
+                            </h4>
+                            <div class="space-y-3 text-[11px] font-medium">
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-slate-500 uppercase">Z-Image Turbo</span>
+                                    <span class="text-white">1.0 CR</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-slate-500 uppercase">Nano Banana Pro</span>
+                                    <span class="text-white">5.0 CR</span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-slate-500 uppercase">Flux Pro Advanced</span>
+                                    <span class="text-white">8.0 CR</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500 uppercase">Video (Luma / Kling)</span>
+                                    <span class="text-white">20.0 CR</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: Z-Image Turbo -->
+                <section id="z-image-turbo" class="portal-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="badge badge-turbo">Ultra Fast</span>
+                        <h2 class="text-4xl font-black">Z-Image Turbo</h2>
+                    </div>
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                        The ultimate tool for <b>Rapid Iteration</b>. Z-Image Turbo uses a specialized single-step distillation process, generating high-quality 1024x1024 visuals in under 3 seconds.
+                    </p>
+                    <div class="mechanics-grid">
+                        <div class="mechanic-card">
+                            <h4 class="font-bold mb-2 text-blue-400">Latency: < 3s</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Optimized for brainstorms. Get your first draft almost instantly.</p>
+                        </div>
+                        <div class="mechanic-card">
+                            <h4 class="font-bold mb-2 text-blue-400">Style Adherence</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Highly responsive to Style Chips. Perfect for consistent thematic art.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: Nano Banana Pro -->
+                <section id="nano-banana-pro" class="portal-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="badge badge-pro">High-Fidelity Studio</span>
+                        <h2 class="text-4xl font-black">Nano Banana Pro</h2>
+                    </div>
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                        Our premium "Image-to-Image" engine. Pro is engineered for <b>Subject Consistency</b>—the ability to take a real person or object and place them in any scenario while keeping them 100% recognizable.
+                    </p>
+
+                    <div class="mechanics-grid mb-8">
+                        <div class="mechanic-card border-l-2 border-yellow-500">
+                            <h4 class="font-bold mb-3 text-white">Quad-Reference (1-4 Photos)</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                Upload up to 4 photos. The AI calculates a 3D semantic map of the subject. Use this for "Digital Photoshoots" where you need the same person in different outfits or locations.
+                            </p>
+                        </div>
+                        <div class="mechanic-card border-l-2 border-purple-500">
+                            <h4 class="font-bold mb-3 text-white">Smart Fidelity</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                Nano Banana Pro does not use a Strength slider. It uses <b>Automated Subject Isolation</b>—it knows which pixels belong to the face and keeps them sharp while rebuilding the rest of the world.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pro-tip">
+                        <span class="font-black text-blue-500 mr-2">PRO TIP:</span>
+                        For best results, upload photos with different angles (Front, Side, 3/4) to help the AI learn the full geometry of the subject.
+                    </div>
+                </section>
+
+                <!-- SECTION: Flux Pro -->
+                <section id="flux-pro" class="portal-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="badge badge-pro">Typography King</span>
+                        <h2 class="text-4xl font-black">Flux Pro Advanced</h2>
+                    </div>
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                        The current State-of-the-Art in AI. Flux Pro excels at <b>Human Anatomy</b> (perfect hands/eyes) and <b>Embedded Text</b>. It is the only model that can reliably "write" on objects within the image.
+                    </p>
+                    <div class="glass-panel p-8 bg-purple-500/5 border-purple-500/20">
+                        <h4 class="font-bold text-sm mb-4">Text Rendering Guide:</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-400">
+                            <div class="p-3 bg-black/30 rounded-lg">
+                                <p class="text-purple-400 font-bold mb-1">Method:</p>
+                                Put your desired text in double quotes inside the prompt.
+                            </div>
+                            <div class="p-3 bg-black/30 rounded-lg">
+                                <p class="text-purple-400 font-bold mb-1">Example:</p>
+                                <i>"A cyberpunk city with a neon sign that says 'NEO-TOKYO'"</i>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: Print Maker -->
+                <section id="print-maker" class="portal-section">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="badge badge-turbo">Creative Control</span>
+                        <h2 class="text-4xl font-black">Print Maker SDXL</h2>
+                    </div>
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                        Designed for <b>Graphic Designers and Merch Creators</b>. This is the only model in pixPLace that provides a manual <b>Image Strength</b> slider for granular control over transformation.
+                    </p>
+                    <div class="mechanics-grid">
+                        <div class="mechanic-card bg-blue-500/5">
+                            <h4 class="font-bold text-sm mb-2">Strength 0.1 - 0.3</h4>
+                            <p class="text-[11px] text-slate-500">"Creative Exploration". The AI uses your image only for color palette and basic layout, generating 90% new content.</p>
+                        </div>
+                        <div class="mechanic-card bg-blue-500/5">
+                            <h4 class="font-bold text-sm mb-2">Strength 0.4 - 0.6</h4>
+                            <p class="text-[11px] text-slate-500">"Style Transfer". Best for taking a pencil sketch and turning it into a professional 3D render or vector illustration.</p>
+                        </div>
+                        <div class="mechanic-card bg-blue-500/5">
+                            <h4 class="font-bold text-sm mb-2">Strength 0.7 - 0.9</h4>
+                            <p class="text-[11px] text-slate-500">"Quality Restoration". Used to clean up low-res logos, remove artifacts, or add slight textures without changing the design.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: Qwen Edit -->
+                <section id="qwen-edit" class="portal-section">
+                    <h2 class="text-4xl font-black mb-6">Semantic Qwen Edit</h2>
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                        The world's first <b>Instruction-Based</b> image editor. It doesn't just re-generate; it understands "verbs" and "objects". 
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="mechanic-card border-red-500/20">
+                            <span class="text-[10px] font-black text-red-500 uppercase block mb-2">Descriptive (Old Way)</span>
+                            <p class="text-sm italic text-slate-500">"A man with a blue hat in a park"</p>
+                            <p class="text-[10px] mt-2 opacity-50">Result: AI might change everything to fit the description.</p>
+                        </div>
+                        <div class="mechanic-card border-emerald-500/20">
+                            <span class="text-[10px] font-black text-emerald-500 uppercase block mb-2">Instructive (Qwen Way)</span>
+                            <p class="text-sm italic text-white">"Change his blue hat to a red crown"</p>
+                            <p class="text-[10px] mt-2 opacity-50">Result: Everything stays same, only the hat changes.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: Tools -->
+                <section id="tools" class="portal-section">
+                    <h2 class="text-4xl font-black mb-10">Post-Processing Tools</h2>
+                    <div class="space-y-8">
+                        <div class="glass-panel p-8">
+                            <h4 class="text-xl font-bold mb-4">Alpha Background Removal</h4>
+                            <p class="text-sm text-slate-400 leading-relaxed mb-4">
+                                Our segmentation AI is trained on studio photography. It identifies the "Subject" vs "Environment" and generates a clean PNG transparency. Ideal for creating stickers or website assets.
+                            </p>
+                        </div>
+                        <div class="glass-panel p-8">
+                            <h4 class="text-xl font-bold mb-4">Pixel-Perfect Upscaling</h4>
+                            <p class="text-sm text-slate-400 leading-relaxed">
+                                Unlike simple bicubic scaling, our HD Upscaler "re-paints" missing details. It uses <b>Generative Super-Resolution</b> to sharpen edges and hallucinate fine textures (like skin pores or fabric weave) that weren't in the original.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: Multimedia -->
+                <section id="video-gen" class="portal-section">
+                    <h2 class="text-4xl font-black mb-6">Video Generation</h2>
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                        Turn static frames into <b>Motion Masterpieces</b>. 
+                    </p>
+                    <div class="mechanic-card bg-slate-800/50">
+                        <h5 class="font-bold mb-2">Frame Continuity</h5>
+                        <p class="text-xs text-slate-400">We use the 1st frame as a strict anchor. The AI calculates "optical flow" to animate hair, water, and camera pans while preserving the original image's look.</p>
+                    </div>
+                </section>
+
+                <section id="audio-gen" class="portal-section">
+                    <h2 class="text-4xl font-black mb-6">Music & Sound (Suno)</h2>
+                    <p class="text-lg text-slate-400 mb-8 leading-relaxed">
+                        Full-spectrum audio generation. From ambient soundscapes to 2-minute vocal tracks. Use our <b>Style Chips</b> to instantly set the BPM, mood, and genre.
+                    </p>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-16 bg-slate-950">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex justify-center gap-10 mb-8">
+                <a href="#" class="text-sm text-slate-500 hover:text-blue-400 transition-colors">Privacy Policy</a>
+                <a href="#" class="text-sm text-slate-500 hover:text-blue-400 transition-colors">Terms of Service</a>
+                <a href="mailto:support@pixplace.space" class="text-sm text-slate-500 hover:text-blue-400 transition-colors">Legal Contact</a>
+            </div>
+            <p class="text-slate-600 text-xs tracking-widest uppercase">&copy; 2026 pixPLace Ai Studio • Modular Knowledge Base v2.1</p>
+        </div>
+    </footer>
+
+    <!-- Script for animations and navigation -->
+    <script>
+        // Reveal sections on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+
+                    // Update active nav link
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href === `#${id}`) {
+                            link.classList.add('active');
+                        } else {
+                            link.classList.remove('active');
+                        }
+                    });
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.portal-section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 120,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

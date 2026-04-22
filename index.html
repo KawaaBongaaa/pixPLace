@@ -191,34 +191,32 @@
         window.manualExpand = manualExpand;
 
         // 🔥 LAZY LOADING для модала результатов генерации
-        let modalModuleLoaded = false;
-
-        // Инициализация lazy loading при первом обращении
-        window.showGenerationResultModal = async function (item) {
-            console.log('📸 showGenerationResultModal called, checking if module loaded...');
-
-            if (!modalModuleLoaded) {
-                console.log('🚀 First call - loading modal module dynamically...');
-
-                try {
-                    // Настоящий динамический импорт модуля
-                    await import('./modals/generation-result-modal.js');
-                    modalModuleLoaded = true;
-                    console.log('✅ Modal module loaded successfully via dynamic import');
-                } catch (error) {
-                    console.error('❌ Failed to load modal module:', error);
-                    return;
-                }
+        // Модуль загружен статично через <script type="module"> ниже — dynamic import() убран
+        window.showGenerationResultModal = function (item) {
+            if (typeof window.createGenerationResultModal === 'function') {
+                window.createGenerationResultModal(item);
+            } else {
+                console.error('❌ createGenerationResultModal not ready yet. Check modals/generation-result-modal.js load.');
             }
-
-            // Теперь модуль загружен, вызываем функцию создания модала
-            window.createGenerationResultModal(item);
         };
 
-        // Резервная функция для совместимости
         window.closeGenerationResultModal = function () {
-            console.log('🔒 closeGenerationResultModal called (fallback)');
-            // Функция будет переопределена после загрузки модуля
+            const modal = document.getElementById('generationResultModal');
+            if (modal) modal.classList.remove('show');
+        };
+
+        // 🔥 GPT Chat: открывает AI Coach из user menu
+        window.openGptChat = function () {
+            if (typeof window.showAICoach === 'function') {
+                window.showAICoach();
+            } else if (window.AICoach && typeof window.AICoach.show === 'function') {
+                window.AICoach.show();
+            } else {
+                // Fallback: кликаем кнопку AI Coach на главном экране
+                const btn = document.getElementById('aiCoachBtn') || document.querySelector('[data-action="ai-coach"]');
+                if (btn) btn.click();
+                else console.warn('AI Coach not available yet');
+            }
         };
 
     </script>
@@ -256,6 +254,9 @@
     <link rel="modulepreload" href="store/app-state.js">
     <link rel="modulepreload" href="screen-manager.js">
     <link rel="modulepreload" href="dictionary-manager.js">
+
+    <!-- 🎨 Generation Result Modal — loaded statically as module (avoids dynamic import failures) -->
+    <script type="module" src="./modals/generation-result-modal.js"></script>
 
 </head>
 
@@ -2371,6 +2372,16 @@
                     <h3 class="text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-[0.2em] mb-6"
                         data-i18n="footer_resources">Community & Resources</h3>
                     <ul class="space-y-4">
+                        <li><a href="faq.html"
+                                class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
+                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" />
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                </svg>
+                                <span data-i18n="footer_faq_guide">FAQ & User Guide</span>
+                            </a></li>
                         <li><a href="https://t.me/pixplace_public/20" target="_blank"
                                 class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                 <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
@@ -2795,11 +2806,14 @@
                         if (promptSection) promptSection.style.display = 'none';
                     }
 
-                    // Set default model to nano_banana when entering edit tab
+                    // Set default model for edit tab only if nothing is saved for this tab yet
+                    // ⚠️ We do NOT dispatch a 'change' event here because that would
+                    // write into the image-tab's appState bucket (since _currentGenerationTab
+                    // is still 'image' at this point in the flow).
                     const selEdit = document.getElementById('modeSelect');
                     if (selEdit && !['nano_banana', 'nano_banana_2', 'nano_banana_pro', 'qwen_image_edit', 'background_removal', 'upscale_image'].includes(selEdit.value)) {
                         selEdit.value = 'nano_banana';
-                        selEdit.dispatchEvent(new Event('change', { bubbles: true }));
+                        // NOTE: intentionally no dispatchEvent — avoids corrupting image appState bucket
                     }
                 } else if (tabName === 'sound') {
                     // Sound — show prompt for "Audio from Text", hide image styles & upload bar
@@ -2812,6 +2826,11 @@
                     switchSoundTab('image');
                 }
                 window._currentGenerationTab = tabName;
+
+                // Update AppState for persistence
+                if (window.appState && !window._isRestoring) {
+                    window.appState.activeMode = tabName;
+                }
 
                 // Notify app_modern.js listeners so it can update prompt/UI for this tab
                 document.dispatchEvent(new CustomEvent('tab:changed', { detail: { tab: tabName } }));
@@ -2845,7 +2864,59 @@
                 document.querySelectorAll('.generation-tab').forEach(btn => {
                     btn.addEventListener('click', () => switchGenerationTab(btn.dataset.tab));
                 });
-                switchGenerationTab('image');
+
+                // RESTORATION LOGIC
+                const doRestore = () => {
+                    if (window._isRestoring) return;
+                    window._isRestoring = true;
+
+                    try {
+                        const state = window.appState;
+                        if (!state) return;
+
+                        const mode = state.activeMode || 'image';
+                        console.log('🔄 Restoring Session:', mode);
+
+                        // 1. Switch Tab
+                        switchGenerationTab(mode);
+
+                        // 2. Restore Prompt
+                        const promptInput = document.getElementById('promptInput');
+                        const savedPrompt = (state.getModeState(mode) || {}).prompt || '';
+                        if (promptInput && savedPrompt) {
+                            promptInput.value = savedPrompt;
+                            // Update counter & height without heavy side-effects
+                            promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+
+                        // 3. Restore Model Select (if element exists)
+                        const modeSelect = document.getElementById('modeSelect');
+                        const savedModel = (state.getModeState(mode) || {}).model;
+                        if (modeSelect && savedModel && modeSelect.value !== savedModel) {
+                            modeSelect.value = savedModel;
+                            // Only trigger change if it's not the default to avoid unnecessary UI redraws
+                            modeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    } finally {
+                        window._isRestoring = false;
+                    }
+                };
+
+                if (window.appState) {
+                    doRestore();
+                } else {
+                    document.addEventListener('app:ready', () => setTimeout(doRestore, 100), { once: true });
+                }
+
+                // LISTENERS FOR REAL-TIME SAVING
+                const pInput = document.getElementById('promptInput');
+                if (pInput) {
+                    pInput.addEventListener('input', (e) => {
+                        if (window.appState && !window._isRestoring) {
+                            window.appState.setModeState(window._currentGenerationTab || 'image', { prompt: e.target.value });
+                        }
+                    });
+                }
             });
 
             window.switchGenerationTab = switchGenerationTab;
@@ -3005,6 +3076,8 @@
                 if (promptDivider) promptDivider.style.display = 'none';
             }
         }
+        // Expose for external modules (user-account.js menuNavTo)
+        window.switchSoundTab = switchSoundTab;
 
         // ============================================================
         // EDIT IMAGE FLOW
@@ -3300,25 +3373,21 @@
 
     <!-- Global User Menu (moved from header to escape stacking context) -->
     <div class="user-menu-dropdown floating-menu-dropdown"
-        style="position:fixed; top:60px; right:12px; max-width:calc(100vw - 24px); width:260px;"
-        id="userMenuDropdown">
+        style="position:fixed; top:60px; right:12px; max-width:calc(100vw - 24px); width:260px;" id="userMenuDropdown">
         <div class="user-account-info">
-            <div class="user-display-name text-center font-bold text-lg mb-2 capitalize"
-                id="userMenuNameFull">
+            <div class="user-display-name text-center font-bold text-lg mb-2 capitalize" id="userMenuNameFull">
                 <!-- Content will be replaced by JavaScript -->
             </div>
         </div>
         <div class="user-menu-actions space-y-1.5">
             <!-- Top Row: Language and Theme Settings -->
-            <div
-                class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700/50 pb-1.5 mb-1.5">
+            <div class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700/50 pb-1.5 mb-1.5">
                 <button
                     class="user-action-btn language-btn flex flex-1 justify-center items-center py-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
-                    id="inMenuLangToggle"
-                    onclick="if(window.openLanguageModal) openLanguageModal();"
+                    id="inMenuLangToggle" onclick="if(window.openLanguageModal) openLanguageModal();"
                     title="Change Language">
-                    <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10" />
                         <path d="M2 12h20" />
                         <path
@@ -3329,14 +3398,14 @@
                 <button
                     class="user-action-btn theme-btn flex flex-1 justify-center items-center py-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
                     onclick="toggleTheme()" title="Toggle Theme">
-                    <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="5" />
                         <path
                             d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                     </svg>
-                    <svg class="w-5 h-5 hidden text-gray-700 dark:text-gray-300" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="w-5 h-5 hidden text-gray-700 dark:text-gray-300" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                     </svg>
                 </button>
@@ -3346,10 +3415,9 @@
             <div id="userMenuAuthActions"
                 class="hidden space-y-1.5 border-b border-gray-200 dark:border-gray-700/50 pb-2 mb-2"
                 style="display: none !important;">
-                <button class="user-action-btn history-btn text-left"
-                    onclick="openFinancialHistory()">
-                    <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2">
+                <button class="user-action-btn history-btn text-left" onclick="openFinancialHistory()">
+                    <svg class="w-5 h-5 mr-2 inline-block relative -top-0.5" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
                         <line x1="2" y1="12" x2="22" y2="12" />
                         <line x1="2" y1="16" x2="22" y2="16" />
                         <line x1="2" y1="20" x2="22" y2="20" />
@@ -3370,41 +3438,36 @@
                         class="menu-cat-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                         onclick="toggleMenuCategory(this)">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="3" />
                                 <circle cx="8.5" cy="8.5" r="1.5" />
                                 <path d="M21 15l-5-5L5 21" />
                             </svg>
                             Ai Image
                         </span>
-                        <svg class="w-3.5 h-3.5 transition-transform duration-200 menu-chevron"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200 menu-chevron" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M6 9l6 6 6-6" />
                         </svg>
                     </button>
                     <div class="menu-cat-items hidden pl-4 pr-1 space-y-0.5 mt-0.5">
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('image','nano_banana')">Nano Banana</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('image','nano_banana_2')">Nano Banana 2</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('image','nano_banana_pro')">Nano Banana Pro</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('image','nano_banana')">Nano Banana</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('image','nano_banana_2')">Nano Banana
+                            2</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('image','nano_banana_pro')">Nano Banana
+                            Pro</button>
                         <button class="menu-sub-item" onclick="menuNavTo('image','z_image')">Z-Image
                             Turbo</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('image','pixplace_pro')">Flux Pro Advanced</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('image','fast_generation')">Flux Fast</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('image','pixplace_pro')">Flux Pro
+                            Advanced</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('image','fast_generation')">Flux Fast</button>
                         <button class="menu-sub-item" onclick="menuNavTo('image','qwen_image')">Qwen
                             Image</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('image','print_maker')">Print on Demand</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('image','sticker_maker')">Stickers</button>
-                        <button class="menu-sub-item"
-                            style="opacity:0.45;pointer-events:none;">Vector <span
+                        <button class="menu-sub-item" onclick="menuNavTo('image','print_maker')">Print on
+                            Demand</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('image','sticker_maker')">Stickers</button>
+                        <button class="menu-sub-item" style="opacity:0.45;pointer-events:none;">Vector <span
                                 style="font-size:10px;color:#f59e0b;margin-left:4px;">soon</span></button>
                     </div>
                 </div>
@@ -3415,28 +3478,23 @@
                         class="menu-cat-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                         onclick="toggleMenuCategory(this)">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <polygon points="23 7 16 12 23 17 23 7" />
                                 <rect x="1" y="5" width="15" height="14" rx="2" />
                             </svg>
                             Ai Video
                         </span>
-                        <svg class="w-3.5 h-3.5 transition-transform duration-200 menu-chevron"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200 menu-chevron" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M6 9l6 6 6-6" />
                         </svg>
                     </button>
                     <div class="menu-cat-items hidden pl-4 pr-1 space-y-0.5 mt-0.5">
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('video','image_to_video')">Luma AI</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('video','kling_video')">Kling AI</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('video','hailuo_video')">Hailuo AI</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('video','runway_gen3')">Runway Gen-3</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('video','image_to_video')">Luma AI</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('video','kling_video')">Kling AI</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('video','hailuo_video')">Hailuo AI</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('video','runway_gen3')">Runway Gen-3</button>
                     </div>
                 </div>
 
@@ -3446,25 +3504,23 @@
                         class="menu-cat-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                         onclick="toggleMenuCategory(this)">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M9 18V5l12-2v13" />
                                 <circle cx="6" cy="18" r="3" />
                                 <circle cx="18" cy="16" r="3" />
                             </svg>
                             Ai Music
                         </span>
-                        <svg class="w-3.5 h-3.5 transition-transform duration-200 menu-chevron"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200 menu-chevron" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M6 9l6 6 6-6" />
                         </svg>
                     </button>
                     <div class="menu-cat-items hidden pl-4 pr-1 space-y-0.5 mt-0.5">
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('music','audio_from_text')">Audio from Text</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('music','audio_from_image')">Audio from
+                        <button class="menu-sub-item" onclick="menuNavTo('music','audio_from_text')">Audio from
+                            Text</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('music','audio_from_image')">Audio from
                             Image</button>
                     </div>
                 </div>
@@ -3475,34 +3531,32 @@
                         class="menu-cat-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                         onclick="toggleMenuCategory(this)">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
+                            <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
                                 <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                             </svg>
                             Generative Edit
                         </span>
-                        <svg class="w-3.5 h-3.5 transition-transform duration-200 menu-chevron"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200 menu-chevron" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M6 9l6 6 6-6" />
                         </svg>
                     </button>
                     <div class="menu-cat-items hidden pl-4 pr-1 space-y-0.5 mt-0.5">
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('edit','qwen_image_edit')">Qwen Image Edit</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('edit','background_removal')">Remove
+                        <button class="menu-sub-item" onclick="menuNavTo('edit','qwen_image_edit')">Qwen Image
+                            Edit</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('edit','background_removal')">Remove
                             Background</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('edit','upscale_image')">Upscale / Enhance</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('edit','upscale_image')">Upscale /
+                            Enhance</button>
                         <div class="border-t border-gray-100 dark:border-gray-800 my-1"></div>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('edit','nano_banana')">Nano Banana Edit</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('edit','nano_banana_2')">Nano Banana 2 Edit</button>
-                        <button class="menu-sub-item"
-                            onclick="menuNavTo('edit','nano_banana_pro')">Nano Banana Pro Edit</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('edit','nano_banana')">Nano Banana
+                            Edit</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('edit','nano_banana_2')">Nano Banana 2
+                            Edit</button>
+                        <button class="menu-sub-item" onclick="menuNavTo('edit','nano_banana_pro')">Nano Banana Pro
+                            Edit</button>
                     </div>
                 </div>
 
@@ -3510,8 +3564,8 @@
                 <button
                     class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                     onclick="if(window.openGptChat) openGptChat(); toggleUserMenu();">
-                    <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                     </svg>
                     Gpt Chat
@@ -3524,8 +3578,7 @@
                 <button
                     class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors cursor-pointer"
                     onclick="if(window.openSubscriptionPlans) openSubscriptionPlans(); toggleUserMenu();">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 7h-7L10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
                     </svg>
                     <span data-i18n="footer_pricing">Pricing</span>
@@ -3534,8 +3587,7 @@
                 <button
                     class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
                     onclick="openAffiliateProgram(); toggleUserMenu();">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path
                             d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
@@ -3544,13 +3596,12 @@
                 </button>
             </div>
 
-            <div id="userMenuLogoutBtnWrap"
-                class="hidden pt-2 mt-2 border-t border-gray-200 dark:border-gray-700/50">
+            <div id="userMenuLogoutBtnWrap" class="hidden pt-2 mt-2 border-t border-gray-200 dark:border-gray-700/50">
                 <button
                     class="w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-500 dark:hover:text-red-400 dark:hover:bg-red-500/10 text-left cursor-pointer"
                     onclick="handleLogout()">
-                    <svg class="w-4 h-4 mr-2.5 flex-shrink-0" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4 mr-2.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                         <polyline points="16 17 21 12 16 7" />
                         <line x1="21" y1="12" x2="9" y2="12" />
