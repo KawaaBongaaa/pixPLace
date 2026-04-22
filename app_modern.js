@@ -79,15 +79,15 @@ const CONFIG = {
 
     // Webhook URLs — injected by GitHub Actions (deploy.yml) via repository secrets
     // ⚠️ Do NOT put real URLs here — they are replaced at deploy time
-    WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/basic-model',
-    CHAT_WEBHOOK_URL: 'https://hook.us2.make.com/xsj1a14x1qaterd8fcxrs8e91xwhvjh6',
-    NANO_BANANA_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook-test/nano-banana',
-    NANO_BANANA_2_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook-test/nano-banana-2',
-    NANO_BANANA_PRO_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook-test/nano-banana-pro',
+    WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/basic-model',
+    CHAT_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/pixplace_chat',
+    NANO_BANANA_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook/nano_banana',
+    NANO_BANANA_2_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook/nano-banana-2',
+    NANO_BANANA_PRO_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook/nano-banana-pro',
     N8N_ENHANCE_OR_REMBG_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/enhance_img_or_removebg',
     HISTORY_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/get-generation-history',
     Z_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/Z-Image',
-    QWEN_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/qwen-image',
+    QWEN_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/qwen-image',
     SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/suno_audio_from_text',
     SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook-test/suno_audio_from_image',
 
