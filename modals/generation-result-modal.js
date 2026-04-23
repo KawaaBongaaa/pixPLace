@@ -152,8 +152,8 @@ function createGenerationResultModal(item) {
                                 <span class="meta-value">${itemDate.toLocaleString()}</span>
                             </div>
                             <div class="result-meta-item">
-                                <span class="meta-label">${window.appState?.translate?.('mode_label_modal') || 'Mode:'}</span>
-                                <span class="meta-value">${window.appState?.translate?.('mode_' + getStyleName('') || getStyleName('')) || 'AI Generation'}</span>
+                                <span class="meta-label">${window.appState?.translate?.('mode_label_modal') || 'Model:'}</span>
+                                <span class="meta-value">${window.appState?.translate?.(getStyleName('')) || 'AI Generation'}</span>
                             </div>
                             <div class="result-meta-item">
                                 <span class="meta-label">${window.appState?.translate?.('charged_label') || 'Charged:'}</span>
