@@ -58,8 +58,10 @@ function createGenerationResultModal(item) {
         return modeMap[mode] || mode;
     };
 
-    const costAmount = item.generation_cost || item.cost || item.amount || 0;
+    const costAmount = item.generation_cost ?? item.cost ?? item.amount ?? null;
     const currency = item.cost_currency || item.currency || 'Cr';
+    // costDisplay: показываем '-' если стоимость неизвестна (null/undefined), иначе реальное значение
+    const costDisplay = (costAmount !== null && costAmount !== undefined) ? `${Math.abs(costAmount)} ${currency}` : '-';
 
     modal = document.createElement('div');
     modal.id = 'generationResultModal';
@@ -125,14 +127,14 @@ function createGenerationResultModal(item) {
                             <div class="prompt-text">${safeDescription}</div>
                         </div>
                         <div class="reuse-btn-row flex gap-1.5 w-full mt-2">
-                            <button class="reuse-prompt-btn flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white py-1.5 px-2.5 rounded-lg transition-all text-xs font-medium whitespace-nowrap" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}')" title="Use prompt only">
+                            <button class="reuse-prompt-btn flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white py-1.5 px-2.5 rounded-lg transition-all text-xs font-medium whitespace-nowrap" onclick="reusePrompt('${safeDescription.replace(/'/g, "\\'")}', '${item.mode || 'fast_generation'}')" title="Use prompt only">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                     <polyline points="14 2 14 8 20 8"></polyline>
                                 </svg>
                                 Use Prompt Only
                             </button>
-                            <button class="reuse-prompt-btn flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-600 text-white py-1.5 px-2.5 rounded-lg transition-all text-xs font-medium whitespace-nowrap" onclick="reusePromptAndImage('${safeDescription.replace(/'/g, "\\'")}', '${getStyleName('')}', '${imageSource}', '${item.id}')" title="Use prompt and image">
+                            <button class="reuse-prompt-btn flex items-center gap-1.5 bg-blue-600/80 hover:bg-blue-600 text-white py-1.5 px-2.5 rounded-lg transition-all text-xs font-medium whitespace-nowrap" onclick="reusePromptAndImage('${safeDescription.replace(/'/g, "\\'")}', '${item.mode || 'fast_generation'}', '${imageSource}', '${item.id}')" title="Use prompt and image">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -155,7 +157,7 @@ function createGenerationResultModal(item) {
                             </div>
                             <div class="result-meta-item">
                                 <span class="meta-label">${window.appState?.translate?.('charged_label') || 'Charged:'}</span>
-                                <span class="meta-value amount-negative">${Math.abs(costAmount)} ${currency}</span>
+                                <span class="meta-value amount-negative">${costDisplay}</span>
                             </div>
                         </div>
                     </div>
@@ -285,29 +287,24 @@ async function reusePromptAndImage(prompt, mode, imageUrl, itemId) {
 
 // Вспомогательная функция для обновления выбора режима в карусели
 function updateModeSelection(mode) {
-    // Используем новый API из mode-cards.js если доступен
-    if (window.modeCardsExports && window.modeCardsExports.selectModeByName) {
-        console.log('🔄 Using mode-cards API to select mode:', mode);
-        window.modeCardsExports.selectModeByName(mode);
-
-        // Синхронизируем старый hidden select для совместимости
-        const modeSelect = document.getElementById('modeSelect');
-        if (modeSelect) {
-            modeSelect.value = mode;
-        }
-    } else {
-        // Fallback для старого метода карусели
-        const modeCards = document.querySelectorAll('[data-mode]');
-        modeCards.forEach(card => {
-            const cardMode = card.getAttribute('data-mode');
-            if (cardMode === mode) {
-                // Кликаем по карточке режима чтобы активировать ее
-                setTimeout(() => {
-                    card.click();
-                }, 50);
-            }
-        });
+    // 🔥 ИСПРАВЛЕНИЕ: используем selectModeCard который обновляет и state и визуал
+    if (typeof window.selectModeCard === 'function') {
+        console.log('🔄 updateModeSelection → selectModeCard:', mode);
+        window.selectModeCard(mode);
+        return;
     }
+    // Fallback через modeCardsExports
+    if (window.modeCardsExports?.selectModeCard) {
+        window.modeCardsExports.selectModeCard(mode);
+        return;
+    }
+    // Последний fallback: кликаем по карточке с data-mode
+    const modeCards = document.querySelectorAll('[data-mode]');
+    modeCards.forEach(card => {
+        if (card.getAttribute('data-mode') === mode) {
+            setTimeout(() => card.click(), 50);
+        }
+    });
 }
 
 // Вспомогательная функция для переключения на экран генерации
