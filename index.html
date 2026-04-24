@@ -2784,6 +2784,15 @@
                     const editStep2 = document.getElementById('editStep2');
                     const editStep1 = document.getElementById('editStep1');
 
+                    // Защита от stale state: если в Images нет изображений, сбрасываем _editImageUrl
+                    // (мог остаться с предыдущей сессии если очищали не через clearAllImages)
+                    const imagesEmpty = !window.userImageState || window.userImageState.images.length === 0;
+                    if (imagesEmpty && _editImageUrl) {
+                        console.log('🔄 switchGenerationTab(edit): images cleared externally → forcing _editImageUrl = null');
+                        window._editImageUrl = null;
+                        window._editImageBlob = null;
+                    }
+
                     // If no dedicated edit image but Images mode has one, carry it over
                     if (!_editImageUrl && window.userImageState && window.userImageState.images.length > 0) {
                         const firstImg = window.userImageState.images[0];
