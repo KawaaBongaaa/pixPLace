@@ -228,6 +228,7 @@ export const en = {
     footer_privacy: "Privacy Policy",
     footer_terms: "Terms of Service",
     footer_support: "Support",
+    footer_faq_guide: "FAQ & User Guide",
 
     // ── Onboarding Flow v2 ───────────────────────────────────────
     ob_cinema_title: "Welcome to pixPLace",
