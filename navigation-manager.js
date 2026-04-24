@@ -475,10 +475,15 @@ function initTabs() {
         });
     });
 
-    // Показываем вкладку по умолчанию (Image)
+    // 🔥 ИСПРАВЛЕНИЕ: Читаем активный таб из window._currentGenerationTab,
+    // который уже установлен doRestore() → switchGenerationTab() ДО вызова initTabs().
+    // Без этого showTab('image') перекрывал восстановленный таб (edit/video/sound).
+    const restoredTab = window._currentGenerationTab || activeTab;
+    if (restoredTab !== activeTab) {
+        activeTab = restoredTab;
+        console.log(`🔄 initTabs: syncing activeTab to restored tab: "${restoredTab}"`);
+    }
     showTab(activeTab);
-
-    // Удалены старые функции работы с карточками режимов
 
     // Инициализация описания при загрузке
     const currentMode = getSelectedMode();

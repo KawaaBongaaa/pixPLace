@@ -224,16 +224,20 @@ class ScreenManager {
         console.log('🔄 displayFullResult: Redirecting to generationResultModal');
 
         // 🔥 ИСПОЛЬЗУЕМ ГЛОБАЛЬНУЮ ФУНКЦИЮ С LAZY LOADING
+        // 🔥 ИСПРАВЛЕНИЕ Charged=0: appState.currentGeneration может быть не установлен в live-потоке,
+        // поэтому смотрим и на window.currentGeneration (который ставит app_modern.js)
+        const gen = window.appState.currentGeneration || window.currentGeneration || {};
+
         const item = {
-            id: window.appState.currentGeneration?.id || Date.now(),
+            id: gen.id || gen.generation_id || Date.now(),
             result: result.image_url,
-            dataUrl: result.image_url, // Предпочитаем dataUrl для лучшей совместимости
-            prompt: window.appState.currentGeneration?.prompt || '',
-            mode: window.appState.currentGeneration?.mode || 'unknown',
-            style: window.appState.currentGeneration?.style || 'unknown',
-            generation_cost: window.appState.currentGeneration?.generation_cost,
-            cost_currency: window.appState.currentGeneration?.cost_currency || 'Cr',
-            timestamp: window.appState.currentGeneration?.timestamp || new Date().toISOString()
+            dataUrl: result.image_url,
+            prompt: gen.prompt || '',
+            mode: gen.mode || 'unknown',
+            style: gen.style || 'unknown',
+            generation_cost: gen.generation_cost ?? result.generation_cost ?? gen.credits_charged ?? gen.cost ?? null,
+            cost_currency: gen.cost_currency || result.cost_currency || 'Cr',
+            timestamp: gen.timestamp || new Date().toISOString()
         };
 
         // Глобальная функция сама управляет lazy loading

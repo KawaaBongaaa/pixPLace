@@ -2198,10 +2198,16 @@ function removeImage(imageId) {
     // Обновление видимости кнопки и превью согласно логике режима
     updateImageUploadVisibility();
 
-    // 🔥 ИСПРАВЛЕНИЕ БАГ 2: Если удалили последнее изображение в режиме Edit —
-    // сбрасываем интерфейс на шаг 1 (дропзона)
-    if (!userImageState.images.length && window._currentGenerationTab === 'edit') {
-        if (typeof window.clearEditImage === 'function') {
+    // 🔥 ИСПРАВЛЕНИЕ: Если удалили последнее изображение — сбрасываем edit image state
+    // независимо от текущего таба, чтобы при переходе в Edit показывался шаг 1 (дропзона)
+    if (!userImageState.images.length) {
+        if (window._editImageUrl || window._editImageBlob) {
+            window._editImageUrl = null;
+            window._editImageBlob = null;
+            console.log('🔄 Last image removed — _editImageUrl cleared (tab:', window._currentGenerationTab, ')');
+        }
+        // Если мы на Edit табе — дополнительно сбрасываем UI к шагу 1
+        if (window._currentGenerationTab === 'edit' && typeof window.clearEditImage === 'function') {
             console.log('🔄 Last image removed in Edit tab — resetting to Step 1');
             window.clearEditImage(true); // true = не вызывать clearAllImages повторно
         }
@@ -2239,6 +2245,14 @@ function clearAllImages() {
     }
 
     console.log('✅ All images cleared successfully');
+
+    // 🔥 ИСПРАВЛЕНИЕ БАГ: Также сбрасываем edit image state,
+    // чтобы при переходе в Edit после очистки показывался шаг 1 (дропзона)
+    if (window._editImageUrl || window._editImageBlob) {
+        window._editImageUrl = null;
+        window._editImageBlob = null;
+        console.log('🔄 Edit image state cleared alongside Images tab cleanup');
+    }
 
     // 🔥 ДОБАВЛЕНИЕ: Обновляем видимость после очистки
     setTimeout(() => updateImageUploadVisibility(), 50);
