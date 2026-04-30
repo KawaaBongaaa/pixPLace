@@ -217,20 +217,15 @@
         // Делаем функцию глобальной для доступа из других скриптов
         window.manualExpand = manualExpand;
 
-        // 🔥 LAZY LOADING для модала результатов генерации
-        // Модуль загружен статично через <script type="module"> ниже — dynamic import() убран
-        window.showGenerationResultModal = function (item) {
-            if (typeof window.createGenerationResultModal === 'function') {
-                window.createGenerationResultModal(item);
-            } else {
-                console.error('❌ createGenerationResultModal not ready yet. Check modals/generation-result-modal.js load.');
-            }
+        // 🎨 Generation Result Modal — portal iframe edition
+        // result-portal.js (type="module") overwrites these stubs after load.
+        // This placeholder queues any calls that arrive before the portal is ready.
+        let _grmQueue = [];
+        window.showGenerationResultModal = function(item) {
+            _grmQueue.push(item);
+            // Portal will drain queue when it sets window.showGenerationResultModal
         };
-
-        window.closeGenerationResultModal = function () {
-            const modal = document.getElementById('generationResultModal');
-            if (modal) modal.classList.remove('show');
-        };
+        window.closeGenerationResultModal = function() {};
 
         // 🔥 GPT Chat: открывает AI Coach из user menu
         window.openGptChat = function () {
@@ -285,8 +280,8 @@
     <link rel="modulepreload" href="screen-manager.js">
     <link rel="modulepreload" href="dictionary-manager.js">
 
-    <!-- 🎨 Generation Result Modal — loaded statically as module (avoids dynamic import failures) -->
-    <script type="module" src="./modals/generation-result-modal.js"></script>
+    <!-- 🎨 Generation Result Modal — portal iframe edition -->
+    <script type="module" src="./modals/result-portal.js"></script>
 
 </head>
 
