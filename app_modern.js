@@ -766,7 +766,7 @@ window.onUserImageChange = onUserImageChange;
 console.log('✅ onUserImageChange exported to global window scope');
 
 // Импорт функции загрузки strength slider из модуля
-import { loadStrengthSliderIfNeeded } from './strength-slider.js';
+
 
 // 🔥 ЭКСПОРТ createPreviewItem ДЛЯ ДОСТУПА ИЗ user-account.js
 window.createPreviewItem = createPreviewItem;
@@ -935,35 +935,16 @@ async function initializeUI() {
         }
     }
 
-    // 🆕 DO: Add event listeners for conditional strength slider loading
-    // Handle strength slider lazy loading based on mode + images
+    // Update style visibility and prompt when images change
     document.addEventListener('images:updated', async () => {
-        console.log('🎛️ Images updated - checking if strength slider needed');
-        await loadStrengthSliderIfNeeded();
-
-        // 🎨 Update style visibility when images change
         const currentMode = await getCurrentSelectedMode();
         if (window.updateStyleVisibilityForMode) {
             window.updateStyleVisibilityForMode(currentMode);
         }
-
-        // 📝 Refresh prompt visibility (important for Edit tab show/hide logic)
         await updatePromptVisibility();
     });
 
-    document.addEventListener('mode:changed', async (event) => {
-        const { mode } = event.detail || {};
-        console.log('🎛️ Mode changed to:', mode, '- checking if strength slider needed');
-        await loadStrengthSliderIfNeeded();
-    });
-
-    // 🆕 DO: Initial check for current conditions
-    // Check immediately if strength slider should be loaded for current state
-    setTimeout(async () => {
-        await loadStrengthSliderIfNeeded();
-    }, 100); // Small delay to ensure all UI is ready
-
-    console.log('✅ UI initialized with lazy loading + conditional strength slider');
+    console.log('✅ UI initialized with lazy loading');
 }
 
 
@@ -2435,14 +2416,48 @@ async function uploadUserImages() {
 //   https://app.pixplace.space/?prompt=A%20cat&utm_source=telegram&utm_campaign=group_post
 //
 async function applyUrlParams() {
-    const rawSearch = window.location.search;
-    const urlParams = new URLSearchParams(rawSearch);
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Parse Telegram start_param into urlParams
+    const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+    if (startParam) {
+        // Support key=value&key2=value2 or key=value_key2=value2
+        const pairs = startParam.includes('&') ? startParam.split('&') : startParam.split('_');
+        pairs.forEach(pair => {
+            const [key, value] = pair.split('=');
+            if (key && value) {
+                urlParams.set(key, decodeURIComponent(value));
+            }
+        });
+    }
+
     const urlPrompt = urlParams.get('prompt');
+    const urlMode = urlParams.get('mode');
+    const urlModel = urlParams.get('model');
     let urlImageUrl = urlParams.get('image_url');
     const urlSource = urlParams.get('utm_source') || urlParams.get('source');
 
-
     let applied = false;
+
+    // 0️⃣  Apply Mode and Model first so the correct UI is active
+    if (urlMode || urlModel) {
+        try {
+            if (urlMode) {
+                console.log(`🔀 [applyUrlParams] mode param found: ${urlMode}`);
+                const navModule = await import('./navigation-manager.js');
+                if (navModule.switchTab) navModule.switchTab(urlMode);
+                applied = true;
+            }
+            if (urlModel) {
+                console.log(`🎛️ [applyUrlParams] model param found: ${urlModel}`);
+                const modeCardsModule = await import('./mode-cards.js');
+                if (modeCardsModule.selectModeCard) modeCardsModule.selectModeCard(urlModel);
+                applied = true;
+            }
+        } catch (e) {
+            console.error('❌ Failed to apply mode/model from URL', e);
+        }
+    }
 
     // 1️⃣  Pre-fill prompt textarea
     if (urlPrompt) {
@@ -2451,6 +2466,12 @@ async function applyUrlParams() {
         if (promptInput) {
             promptInput.value = urlPrompt;
             promptInput.dispatchEvent(new Event('input'));
+            
+            // Also push to appState to prevent overwrite
+            const currentMode = urlMode || window._currentGenerationTab || 'image';
+            if (window.appState) {
+                window.appState.setModeState(currentMode, { prompt: urlPrompt });
+            }
             applied = true;
         }
     }
@@ -2697,7 +2718,7 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     // 🔥 URL PARAMS: apply after full UI + image upload init
     applyUrlParams();
 
-}, 500);
+});
 
 console.log('🚀 App shown by default - auth screen hidden');
 
