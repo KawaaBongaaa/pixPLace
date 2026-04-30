@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generation Result</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+  /* Backdrop */
+  #backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 0;
+  }
+  body.open #backdrop { opacity: 1; }
+
+  /* Panel */
+  #panel {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    max-height: 92dvh;
+    background: rgba(15,15,25,0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px 24px 0 0;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    z-index: 1;
+  }
+  body.open #panel { transform: translateY(0); }
+
+  @media (min-width: 640px) {
+    #panel {
+      top: 50%; left: 50%; right: auto; bottom: auto;
+      transform: translate(-50%,-50%) scale(0.95);
+      width: 100%; max-width: 760px;
+      max-height: 88vh;
+      border-radius: 20px;
+    }
+    body.open #panel { transform: translate(-50%,-50%) scale(1); }
+  }
+
+  /* Scrollable inner */
+  #scroll { overflow-y: auto; flex: 1; scrollbar-width: none; }
+  #scroll::-webkit-scrollbar { display: none; }
+
+  /* Social icon strip */
+  .share-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    cursor: pointer; transition: transform 0.18s, box-shadow 0.18s;
+    opacity: 0; transform: translateX(-20px);
+    transition: opacity 0.25s, transform 0.25s, box-shadow 0.18s;
+    flex-shrink: 0;
+  }
+  .share-icon.visible { opacity: 1; transform: translateX(0); }
+  .share-icon:hover { transform: scale(1.12) !important; }
+  .share-icon.active { box-shadow: 0 0 0 3px rgba(99,102,241,0.6), 0 2px 12px rgba(0,0,0,0.5); }
+
+  /* Fields */
+  .field-input {
+    width: 100%; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 10px;
+    padding: 8px 12px; color: #fff; font-size: 13px;
+    outline: none; resize: none;
+    transition: border-color 0.15s;
+  }
+  .field-input:focus { border-color: rgba(99,102,241,0.6); }
+  .field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+
+  /* Btn */
+  .btn-primary {
+    background: linear-gradient(135deg,#6366f1,#4f46e5);
+    color:#fff; border:none; border-radius:12px; padding:10px 16px;
+    font-size:13px; font-weight:700; cursor:pointer;
+    transition: opacity 0.15s, transform 0.15s;
+    width:100%;
+  }
+  .btn-primary:hover { opacity:0.9; transform:translateY(-1px); }
+  .btn-primary:active { transform:scale(0.97); }
+  .btn-ghost {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.15); border-radius:12px;
+    padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer;
+    transition: background 0.15s, transform 0.15s;
+    width:100%;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.14); }
+  .btn-ghost:active { transform:scale(0.97); }
+</style>
+</head>
+<body>
+
+<div id="backdrop" onclick="closeModal()"></div>
+
+<div id="panel">
+  <!-- Drag handle (mobile) -->
+  <div class="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0">
+    <div style="width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,0.25)"></div>
+  </div>
+
+  <!-- Close btn -->
+  <button onclick="closeModal()"
+    style="position:absolute;top:12px;right:12px;z-index:10;
+           width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
+           background:rgba(0,0,0,0.4);color:#fff;display:flex;align-items:center;justify-content:center;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+
+  <div id="scroll">
+    <!-- Image -->
+    <div style="position:relative;background:#000;width:100%;">
+      <img id="result-img" src="" alt="Generated"
+        style="width:100%;max-height:55vw;object-fit:contain;display:block;" />
+
+      <!-- Share strip (left side of image) -->
+      <div id="share-strip"
+        style="position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;">
+      </div>
+
+      <!-- Image bottom bar -->
+      <div style="position:absolute;bottom:0;inset-inline:0;
+                  background:linear-gradient(transparent,rgba(0,0,0,0.7));
+                  display:flex;align-items:center;justify-content:space-between;
+                  padding:8px 12px;">
+        <button id="btn-download" class="btn-ghost" style="width:auto;padding:6px 12px;font-size:12px;">
+          ↓ Download
+        </button>
+        <button id="btn-use" class="btn-primary" style="width:auto;padding:6px 14px;font-size:12px;">
+          ↗ Use for Generation
+        </button>
+      </div>
+    </div>
+
+    <!-- Share expand panel -->
+    <div id="share-panel" style="display:none;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.08);">
+      <p id="share-platform-label" style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;"></p>
+      <div id="share-fields" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <button id="share-go-btn" class="btn-primary" style="margin-top:10px;">Share →</button>
+    </div>
+
+    <!-- Info -->
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
+
+      <!-- Prompt -->
+      <div>
+        <p class="field-label">Prompt</p>
+        <p id="result-prompt"
+          style="color:rgba(255,255,255,0.85);font-size:13px;line-height:1.55;margin:0;
+                 overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;"></p>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+          <button id="btn-prompt-only" class="btn-ghost" style="width:auto;padding:6px 12px;font-size:12px;">📄 Use Prompt Only</button>
+          <button id="btn-prompt-img" class="btn-primary" style="width:auto;padding:6px 12px;font-size:12px;">🖼 Use Prompt & Image</button>
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 10px;">
+          <p class="field-label" style="margin:0 0 2px;">Date</p>
+          <p id="result-date" style="margin:0;font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></p>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 10px;">
+          <p class="field-label" style="margin:0 0 2px;">Model</p>
+          <p id="result-model" style="margin:0;font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></p>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 10px;">
+          <p class="field-label" style="margin:0 0 2px;">Cost</p>
+          <p id="result-cost" style="margin:0;font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);"></p>
+        </div>
+      </div>
+
+    </div><!-- /info -->
+  </div><!-- /scroll -->
+</div><!-- /panel -->
+
+<script>
+const MODEL_NAMES = {
+  nano_banana:'Nano Banana', nano_banana_2:'Nano Banana 2', nano_banana_pro:'Nano Banana Pro',
+  z_image:'Z-Image Turbo', fast_generation:'Flux Fast', pixplace_pro:'Flux Pro',
+  qwen_image:'Qwen Image', qwen_image_edit:'Qwen Image Edit',
+  background_removal:'Remove BG', upscale_image:'Enhance',
+  print_maker:'Print on Demand', sticker_maker:'Stickers',
+  dreamshaper_xl:'Dreamshaper XL', image_to_video:'Luma AI',
+  kling_video:'Kling AI', hailuo_video:'Hailuo AI', runway_gen3:'Runway Gen-3'
+};
+
+const PLATFORMS = [
+  { id:'telegram', label:'Telegram', color:'#29B6F6',
+    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>' },
+  { id:'pinterest', label:'Pinterest', color:'#E60023',
+    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>' },
+  { id:'twitter', label:'X / Twitter', color:'#000',
+    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 5.867zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' },
+  { id:'facebook', label:'Facebook', color:'#1877F2',
+    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' },
+  { id:'vk', label:'VK', color:'#0077FF',
+    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.525-2.049-1.714-1.033-1.01-1.49-.9-1.49.09v1.56c0 .47-.148.75-1.37.75-2.016 0-4.252-1.22-5.824-3.494C4.637 11.773 4.1 9.44 4.1 8.963c0-.275.11-.53.593-.53H6.44c.44 0 .61.2.78.67.86 2.47 2.3 4.637 2.893 4.637.22 0 .32-.1.32-.65V9.713c-.07-1.17-.686-1.27-.686-1.69 0-.2.165-.41.43-.41h2.74c.37 0 .5.2.5.63v3.39c0 .37.165.5.27.5.22 0 .4-.13.8-.53 1.24-1.39 2.12-3.52 2.12-3.52.12-.24.33-.47.77-.47h1.744c.524 0 .636.27.524.63-.22 1.02-2.34 4.006-2.34 4.006-.185.3-.25.43 0 .77.185.27.79.82 1.19 1.32.74.9 1.306 1.65 1.46 2.17.14.52-.14.78-.63.78z"/></svg>' }
+];
+
+let currentItem = null;
+let activePlatform = null;
+
+// ── helpers ────────────────────────────────────────────────────────────────
+function isTelegram() {
+  return !!(window.Telegram?.WebApp?.initData);
+}
+function buildDeepLink(item) {
+  if (isTelegram()) {
+    return 'https://t.me/pixplacebot/webapp?startapp=' + encodeURIComponent('view=' + (item.id||''));
+  }
+  return 'https://app.pixplace.space?view=' + encodeURIComponent(item.id||'');
+}
+function post(type, payload) {
+  window.parent.postMessage({ type, ...payload }, '*');
+}
+
+// ── open / close ───────────────────────────────────────────────────────────
+function openModal(item) {
+  currentItem = item;
+  activePlatform = null;
+
+  const src = item.dataUrl || item.result || item.imageUrl || '';
+  document.getElementById('result-img').src = src;
+  document.getElementById('result-prompt').textContent = item.prompt || item.description || '';
+
+  const d = item.timestamp ? new Date(item.timestamp) : new Date();
+  document.getElementById('result-date').textContent = d.toLocaleDateString();
+  document.getElementById('result-model').textContent = MODEL_NAMES[item.mode||item.type] || item.mode || '—';
+  const amt = item.generation_cost ?? item.cost ?? item.amount ?? null;
+  const cur = item.cost_currency || item.currency || 'Cr';
+  document.getElementById('result-cost').textContent = amt !== null ? Math.abs(amt) + ' ' + cur : '—';
+
+  renderShareStrip(item);
+  document.getElementById('share-panel').style.display = 'none';
+
+  // wire buttons
+  document.getElementById('btn-download').onclick = () => doDownload(src, item.id);
+  document.getElementById('btn-use').onclick      = () => post('use-image', { imageUrl: src, itemId: item.id });
+  document.getElementById('btn-prompt-only').onclick = () => post('reuse-prompt', { prompt: item.prompt||'', mode: item.mode||'fast_generation' });
+  document.getElementById('btn-prompt-img').onclick  = () => post('reuse-prompt-and-image', { prompt: item.prompt||'', mode: item.mode||'fast_generation', imageUrl: src, itemId: item.id });
+
+  requestAnimationFrame(() => document.body.classList.add('open'));
+}
+
+function closeModal() {
+  document.body.classList.remove('open');
+  setTimeout(() => post('close', {}), 300);
+}
+
+// ── share strip ────────────────────────────────────────────────────────────
+function renderShareStrip(item) {
+  const strip = document.getElementById('share-strip');
+  strip.innerHTML = '';
+  PLATFORMS.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'share-icon';
+    btn.style.background = p.color + 'cc';
+    btn.style.transitionDelay = (i * 60) + 'ms';
+    btn.title = p.label;
+    btn.setAttribute('data-pid', p.id);
+    btn.innerHTML = p.svg;
+    btn.onclick = () => handlePlatform(p, item);
+    strip.appendChild(btn);
+    requestAnimationFrame(() => setTimeout(() => btn.classList.add('visible'), 50));
+  });
+}
+
+function handlePlatform(p, item) {
+  const panel = document.getElementById('share-panel');
+  const fields = document.getElementById('share-fields');
+  const goBtn  = document.getElementById('share-go-btn');
+  const label  = document.getElementById('share-platform-label');
+
+  // toggle same
+  if (activePlatform === p.id) {
+    panel.style.display = 'none';
+    activePlatform = null;
+    document.querySelectorAll('.share-icon').forEach(b => b.classList.remove('active'));
+    return;
+  }
+  activePlatform = p.id;
+  document.querySelectorAll('.share-icon').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-pid="' + p.id + '"]').classList.add('active');
+
+  label.textContent = p.label;
+  fields.innerHTML = '';
+  goBtn.textContent = 'Share →';
+
+  const src = item.dataUrl || item.result || item.imageUrl || '';
+  const deepLink = buildDeepLink(item);
+  const prompt = (item.prompt || item.description || '').slice(0, 400);
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+  switch (p.id) {
+    case 'pinterest': {
+      fields.appendChild(mkField('Title', prompt.slice(0, 100), 'pin-title'));
+      fields.appendChild(mkField('Description', prompt, 'pin-desc', true));
+      fields.appendChild(mkField('Deep Link URL', deepLink, 'pin-link'));
+      goBtn.onclick = () => {
+        const t = id('pin-title').value;
+        const d2 = id('pin-desc').value.slice(0, 400);
+        const u = id('pin-link').value;
+        window.open('https://pinterest.com/pin/create/button/?url=' + enc(u) + '&media=' + enc(src) + '&description=' + enc(t + ' – ' + d2), '_blank');
+      };
+      break;
+    }
+    case 'telegram': {
+      if (isMobile) {
+        goBtn.textContent = 'Share via System…';
+        goBtn.onclick = () => nativeShare(src, prompt, deepLink);
+      } else {
+        fields.appendChild(mkField('Caption', prompt.slice(0, 200), 'tg-cap', true));
+        fields.appendChild(mkField('App Link', deepLink, 'tg-link'));
+        const hint = document.createElement('p');
+        hint.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.4);margin:4px 0 0;';
+        hint.textContent = 'Desktop: download image, then paste caption in Telegram.';
+        fields.appendChild(hint);
+        goBtn.textContent = 'Copy Link + Download';
+        goBtn.onclick = () => {
+          const cap = id('tg-cap').value;
+          const lnk = id('tg-link').value;
+          navigator.clipboard?.writeText(lnk + '\n\n' + cap);
+          doDownload(src, item.id);
+          post('toast', { type:'success', msg:'Link copied! Paste in Telegram.' });
+        };
+      }
+      break;
+    }
+    case 'twitter': {
+      fields.appendChild(mkField('Tweet', prompt.slice(0, 200) + ' ' + deepLink, 'tw-text', true));
+      goBtn.onclick = () => window.open('https://twitter.com/intent/tweet?text=' + enc(id('tw-text').value), '_blank');
+      break;
+    }
+    case 'facebook': {
+      fields.appendChild(mkField('Share URL', deepLink, 'fb-url'));
+      goBtn.onclick = () => window.open('https://www.facebook.com/sharer/sharer.php?u=' + enc(id('fb-url').value), '_blank');
+      break;
+    }
+    case 'vk': {
+      fields.appendChild(mkField('Caption', prompt.slice(0, 255), 'vk-desc', true));
+      fields.appendChild(mkField('URL', deepLink, 'vk-url'));
+      goBtn.onclick = () => window.open('https://vk.com/share.php?url=' + enc(id('vk-url').value) + '&title=' + enc(id('vk-desc').value), '_blank');
+      break;
+    }
+  }
+
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 80);
+}
+
+// ── utils ──────────────────────────────────────────────────────────────────
+function id(s) { return document.getElementById(s); }
+function enc(s) { return encodeURIComponent(s); }
+
+function mkField(labelText, val, fid, multi=false) {
+  const wrap = document.createElement('div');
+  const lbl = document.createElement('p');
+  lbl.className = 'field-label'; lbl.textContent = labelText; lbl.style.margin='0 0 4px';
+  const inp = document.createElement(multi ? 'textarea' : 'input');
+  inp.className = 'field-input'; inp.id = fid; inp.value = val;
+  if (multi) { inp.rows = 3; } else { inp.type = 'text'; }
+  wrap.appendChild(lbl); wrap.appendChild(inp);
+  return wrap;
+}
+
+function doDownload(src, itemId) {
+  const a = document.createElement('a');
+  a.href = src; a.download = 'pixplace-' + (itemId||Date.now()) + '.png';
+  a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  post('toast', { type:'success', msg:'Downloading…' });
+}
+
+async function nativeShare(src, text, url) {
+  try {
+    const res = await fetch(src); const blob = await res.blob();
+    const file = new File([blob], 'pixplace.jpg', { type: blob.type });
+    await navigator.share({ files:[file], title:'pixPLace', text, url });
+  } catch(e) {
+    navigator.clipboard?.writeText(url);
+    post('toast', { type:'info', msg:'Link copied!' });
+  }
+}
+
+// ── message listener (parent → iframe) ─────────────────────────────────────
+window.addEventListener('message', (e) => {
+  if (!e.data || typeof e.data !== 'object') return;
+  if (e.data.type === 'show-result' && e.data.item) {
+    openModal(e.data.item);
+  }
+  if (e.data.type === 'close-result') {
+    closeModal();
+  }
+  // dark mode sync
+  if (e.data.type === 'theme' && e.data.dark !== undefined) {
+    document.documentElement.classList.toggle('dark', e.data.dark);
+  }
+});
+
+// Keyboard ESC
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Ready
+window.parent.postMessage({ type: 'result-modal-ready' }, '*');
+</script>
+</body>
+</html>
