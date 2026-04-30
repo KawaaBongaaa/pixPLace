@@ -41,13 +41,14 @@ export class AppStateManager {
             // Стиль (для генерации изображений)
             selectedStyle: '',
 
-            // 🔥 MODE-SPECIFIC STATE: Each mode persists its own settings
+            // 🔥 MODE-SPECIFIC STATE: Each mode stores only what it actually uses.
+            // DeepLink overrides: prompt, model, image_url — all other fields stay at defaults.
             activeMode: 'image',
             modesState: {
-                image: { model: 'z_image', modelName: 'Z-Image Turbo', prompt: '', negativePrompt: '', size: 'auto', imageCount: 1, quality: 2, style: '' },
-                edit:  { model: 'qwen_image_edit', modelName: 'Qwen Image Edit', prompt: '', negativePrompt: '', size: 'square', imageCount: 1, quality: 2, style: '' },
-                video: { model: 'image_to_video', modelName: 'Luma AI', prompt: '', negativePrompt: '', size: 'auto', imageCount: 1, quality: 2, style: '' },
-                music: { model: 'audio_from_text', modelName: 'Audio from Text', prompt: '', negativePrompt: '', size: 'auto', imageCount: 1, quality: 2, style: '' }
+                image: { model: 'z_image', modelName: 'Z-Image Turbo', prompt: '', size: '1024x1024' },
+                edit: { model: 'qwen_image_edit', modelName: 'Qwen Image Edit', prompt: '', size: 'square' },
+                video: { model: 'image_to_video', modelName: 'Luma AI', prompt: '' },
+                sound: { model: 'suno', modelName: 'Suno AI', prompt: '', subMode: 'audio_from_text' }
             },
 
             // Таймеры
@@ -250,7 +251,7 @@ export class AppStateManager {
             user: { ...this.state.user, ...userData }
         };
         this.updateState(newState);
-        
+
         // 🔥 CRITICAL: If credentials/credits were in userData, save them to localStorage immediately
         if (userData.credits !== undefined && userData.credits !== null) {
             this.saveCurrentBalance();
@@ -557,40 +558,112 @@ export class AppStateManager {
     /** Update state for a specific mode (partial update, merges) */
     setModeState(mode, updates) {
         if (!this.state.modesState[mode]) return;
-        this.state.modesState[mode] = { ...this.state.modesState[mode], ...updates };
+
+        // Update the state object immutably so listeners can detect changes
+        const newModesState = { ...this.state.modesState };
+        newModesState[mode] = { ...newModesState[mode], ...updates };
+
+        // Use updateState to ensure listeners are notified
+        this.updateState({ modesState: newModesState });
+
         this._saveModesState();
     }
 
     /** Save current modesState to localStorage (lightweight) */
     _saveModesState() {
         try {
-            localStorage.setItem('pixplace_modesState', JSON.stringify(this.state.modesState));
+            const dataToSave = {
+                activeMode: this.state.activeMode,
+                modesState: this.state.modesState
+            };
+            localStorage.setItem('pixplace_modesState', JSON.stringify(dataToSave));
+
+            // 🔥 ALSO: Save image state metadata (safely)
+            this._saveImageState();
         } catch (e) {
             console.warn('⚠️ Failed to save modesState:', e);
         }
     }
 
+    _saveImageState() {
+        try {
+            // Save only metadata and small previews to avoid localStorage limits
+            const imagesToSave = this.state.userImageState.images.map(img => {
+                // If dataUrl is too big (e.g. > 1MB), don't persist the raw data, just the UUID
+                const persistData = (img.dataUrl && img.dataUrl.length < 500000) ? img.dataUrl : null;
+                return {
+                    id: img.id,
+                    uploadedUUID: img.uploadedUUID,
+                    dataUrl: persistData,
+                    name: img.file ? img.file.name : 'image'
+                };
+            });
+            localStorage.setItem('pixplace_imageState', JSON.stringify(imagesToSave));
+        } catch (e) {
+            console.warn('⚠️ Failed to save imageState:', e);
+        }
+    }
+
     /** Load persisted modesState from localStorage */
     _loadModesState() {
+        // 🕒 TTL: 24 hours since LAST VISIT.
+        // Compares current time with the timestamp of the user's previous page open.
+        // Resets mode settings (prompt/model) but NOT auth/balance.
+        const VISIT_TTL = 24 * 60 * 60 * 1000;
+        const now = Date.now();
+
         try {
+            // 1️⃣ Check when user last visited
+            const lastVisitRaw = localStorage.getItem('pixplace_last_visit');
+            const lastVisit = lastVisitRaw ? parseInt(lastVisitRaw, 10) : 0;
+            const isNewDay = lastVisit > 0 && (now - lastVisit) > VISIT_TTL;
+
+            // 2️⃣ Update last-visit timestamp immediately (this visit = now)
+            localStorage.setItem('pixplace_last_visit', String(now));
+
+            // 3️⃣ If >24h since last visit — wipe stale mode settings
+            if (isNewDay) {
+                console.log('🕒 [AppState] >24h since last visit — resetting mode settings to defaults.');
+                localStorage.removeItem('pixplace_modesState');
+                localStorage.removeItem('pixplace_imageState');
+                // Auth/balance keys are NOT touched here
+                return; // Use constructor defaults
+            }
+
+            // 4️⃣ Recent visit — restore saved state
             const raw = localStorage.getItem('pixplace_modesState');
             if (raw) {
                 const saved = JSON.parse(raw);
-                // Merge saved data over defaults (preserves new keys added in code)
+                if (saved.activeMode) this.state.activeMode = saved.activeMode;
+
+                const savedModes = saved.modesState || saved;
                 for (const mode of Object.keys(this.state.modesState)) {
-                    if (saved[mode]) {
-                        this.state.modesState[mode] = { ...this.state.modesState[mode], ...saved[mode] };
+                    if (savedModes[mode]) {
+                        // Merge on top of defaults (new fields automatically get defaults)
+                        this.state.modesState[mode] = { ...this.state.modesState[mode], ...savedModes[mode] };
                     }
                 }
             }
+
+            // Load Images (no separate TTL — cleared together with modesState above)
+            const rawImages = localStorage.getItem('pixplace_imageState');
+            if (rawImages) {
+                const savedImages = JSON.parse(rawImages);
+                this.state.userImageState.images = savedImages;
+            }
         } catch (e) {
-            console.warn('⚠️ Failed to load modesState:', e);
+            console.warn('⚠️ Failed to load state:', e);
         }
     }
 
     /** Get the currently active mode name */
     get activeMode() { return this.state.activeMode; }
-    set activeMode(mode) { this.state.activeMode = mode; }
+    set activeMode(mode) {
+        if (this.state.activeMode !== mode) {
+            this.state.activeMode = mode;
+            this._saveModesState();
+        }
+    }
 
     // Сериализация состояния для localStorage
     serialize() {
