@@ -72,6 +72,16 @@ class PortalLoader {
             this.currentIframe = this.iframeCache.get(formType);
             this.currentForm = formType;
             this.showCurrentIframe();
+            // 🔥 FIX: re-sync model on every tab restoration (cached iframes lose context)
+            const currentTab = window._currentGenerationTab || formType;
+            const savedModel = window.appState?.getModeState?.(currentTab)?.model || null;
+            setTimeout(() => {
+                this.sendToIframe(this.currentIframe, {
+                    type: 'set-context',
+                    mode: currentTab,
+                    ...(savedModel ? { selectedModel: savedModel } : {})
+                });
+            }, 30);
             return;
         }
 
@@ -252,7 +262,7 @@ class PortalLoader {
                             promptInput.value = data.text;
                         }
                         promptInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        
+
                         promptInput.style.transition = 'box-shadow 0.3s ease';
                         promptInput.style.boxShadow = '0 0 0 2px var(--ds-blue-600)';
                         setTimeout(() => {
