@@ -357,12 +357,17 @@ function updateUserMenuInfo() {
     }
 
     // Обновляем кредиты в хедере
+    // 🔥 FIX: check all possible locations where credits may be stored,
+    // so Telegram WebApp users with a loaded balance always see it.
     if (creditsElement) {
-        const credits = window.appState?.userCredits !== undefined && window.appState?.userCredits !== null
-            ? window.appState.userCredits
-            : (window.appState?.user?.credits !== undefined && window.appState?.user?.credits !== null
-                ? window.appState.user.credits
-                : '--');
+        const rawCredits =
+            window.appState?.userCredits ??
+            window.appState?.state?.user?.credits ??
+            window.appState?.user?.credits ??
+            null;
+        const credits = (rawCredits !== null && rawCredits !== undefined)
+            ? rawCredits
+            : '--';
         creditsElement.textContent = credits;
     }
 
@@ -384,9 +389,18 @@ function refreshTopUpButton() {
 
     const existingBtn = document.getElementById('headerTopUpBtn');
     const isAuthenticated = !!window.appState?.userId;
-    const credits = parseFloat(window.appState?.user?.credits ?? window.appState?.userCredits) || 0;
 
-    if (!isAuthenticated || credits > 0) {
+    // 🔥 FIX: Read from all possible locations (same as display logic above)
+    const rawCredits =
+        window.appState?.userCredits ??
+        window.appState?.state?.user?.credits ??
+        window.appState?.user?.credits ??
+        null;
+    const credits = parseFloat(rawCredits);
+
+    // Only show + button when user is auth'd AND credits are definitively 0 or less.
+    // If credits is NaN/null (still loading) — do NOT show + yet.
+    if (!isAuthenticated || isNaN(credits) || credits > 0) {
         existingBtn?.remove();
         return;
     }
