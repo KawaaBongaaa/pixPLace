@@ -1541,51 +1541,8 @@
                 // Initialize size selection based on default model
                 updateSizeForModel(selectedModel);
 
-                // Generate button click
-                if (generateBtn) {
-                    generateBtn.addEventListener('click', function () {
-                        const prompt = promptInput.value.trim();
-
-                        if (!prompt || prompt.length < 5) {
-                            showStatus('Please enter a description of at least 5 characters', 'error');
-                            return;
-                        }
-
-                        // Show loading state
-                        generateBtn.disabled = true;
-                        generateBtn.innerHTML = '<span>Generating...</span>';
-                        showStatus('Starting generation...', 'success');
-
-                        // Collect form data
-                        const sizeSelect = document.getElementById('sizeSelect');
-                        const formData = {
-                            type: 'image',
-                            model: selectedModel,
-                            modelName: selectedModelName,
-                            prompt: prompt,
-                            size: sizeSelect ? sizeSelect.value : 'auto',
-                            imageCount: document.getElementById('imageCountSlider').value,
-                            quality: document.getElementById('qualitySlider').value,
-                            timestamp: new Date().toISOString()
-                        };
-
-                        // Notify parent window
-                        if (window.parent) {
-                            window.parent.postMessage({
-                                type: 'form-submit',
-                                formType: 'image',
-                                data: formData
-                            }, '*');
-                        }
-
-                        // Simulate generation (in real app, this would be handled by parent)
-                        setTimeout(() => {
-                            generateBtn.disabled = false;
-                            generateBtn.innerHTML = '<span>Generate Image</span>';
-                            showStatus('Generation request sent successfully!', 'success');
-                        }, 1000);
-                    });
-                }
+                // NOTE: Generate button click handler is set up below (after image upload init)
+                // to ensure all form data (size, negativePrompt, referenceImages) is collected.
 
                 // Status message helper
                 function showStatus(message, type) {
@@ -1686,13 +1643,11 @@
 
                         case 'set-context':
                             // Filter model list based on the active generation mode
-                            // data.mode: 'image' = show all, 'edit' = only models with 'edit' tag
                             (function () {
                                 const filterMode = data.mode || 'image';
                                 const allItems = document.querySelectorAll('.model-item');
                                 allItems.forEach(function (item) {
                                     if (filterMode === 'edit') {
-                                        const hasEditTag = item.querySelector('.model-item-tags .tag');
                                         const tags = Array.from(item.querySelectorAll('.model-item-tags .tag')).map(t => t.textContent.trim());
                                         item.style.display = tags.includes('edit') ? '' : 'none';
                                     } else {
@@ -1704,6 +1659,26 @@
                                     const visible = Array.from(group.querySelectorAll('.model-item')).some(i => i.style.display !== 'none');
                                     group.style.display = visible ? '' : 'none';
                                 });
+
+                                // 🔥 FIX: restore the previously selected model for this tab
+                                if (data.selectedModel) {
+                                    const target = document.querySelector(
+                                        `.model-item[data-model="${data.selectedModel}"]`
+                                    );
+                                    if (target) {
+                                        // Deselect all, select target
+                                        document.querySelectorAll('.model-item.selected').forEach(el => el.classList.remove('selected'));
+                                        target.classList.add('selected');
+                                        // Update hidden input / global state used by generate handler
+                                        const modeInput = document.getElementById('modeInput') ||
+                                                          document.querySelector('input[name="mode"]');
+                                        if (modeInput) modeInput.value = data.selectedModel;
+                                        if (typeof window._selectedModel !== 'undefined') {
+                                            window._selectedModel = data.selectedModel;
+                                        }
+                                        console.log('✅ set-context: restored model', data.selectedModel);
+                                    }
+                                }
                             })();
                             break;
                     }
