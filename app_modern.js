@@ -534,7 +534,12 @@ class HistoryManager {
             if (Math.random() < 0.01) {
                 console.log(`✅ Cache hit for item ${item.id}`);
             }
-            return this.elementCache.get(cacheKey).cloneNode(true);
+            // 🔥 FIX: cloneNode(true) does NOT copy onclick/addEventListener handlers.
+            // Re-attach the click handler on every cache hit to prevent "stale-state" bug
+            // where history cards stop being clickable after new images are generated.
+            const cloned = this.elementCache.get(cacheKey).cloneNode(true);
+            cloned.onclick = () => viewHistoryItem(item.id);
+            return cloned;
         }
 
         // Убираем спам логирования - только в 5% случаев для отслеживания промахов
