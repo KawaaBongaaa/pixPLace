@@ -536,6 +536,10 @@ function switchTab(tabType) {
                              || 'z_image';
         console.log(`🔄 Restoring image tab model from appState: ${savedImageModel}`);
         selectModeCard(savedImageModel);
+    } else if (tabType === 'sound') {
+        const savedSoundModel = window.appState?.getModeState('sound')?.model || 'audio_from_text';
+        console.log(`🔄 Restoring sound tab model from appState: ${savedSoundModel}`);
+        selectModeCard(savedSoundModel);
     }
 
     // --- FIXED: Restore Edit tab state (Step 2 if image exists) ---

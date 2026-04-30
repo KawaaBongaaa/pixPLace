@@ -17,6 +17,27 @@ export function getSelectedMode() {
     return activeTab === 'video' ? selectedVideoMode : selectedImageMode;
 }
 
+// Model → default size mapping
+// When a model is selected, its default size is written to appState so the UI reflects it correctly.
+const MODEL_DEFAULT_SIZES = {
+    // Nano Banana family — "auto" (server picks optimal size)
+    nano_banana: 'auto',
+    nano_banana_2: 'auto',
+    nano_banana_pro: 'auto',
+    // Z-Image family
+    z_image: '1024x1024',
+    // Flux family
+    pixplace_pro: '1024x1024',
+    fast_generation: '1024x1024',
+    // Qwen — square (no resolution number)
+    qwen_image: 'square',
+    qwen_image_edit: 'square',
+    // Print / Sticker — standard 1024x1024
+    print_maker: '1024x1024',
+    sticker_maker: '1024x1024',
+    // background_removal and upscale_image: NO size param — omitted intentionally
+};
+
 // ЭКСПОРТИРУЕМ ФУНКЦИЮ ПРОГРАММНОГО ВЫБОРА РЕЖИМА
 export function setSelectedMode(mode) {
     const isVideoMode = ['video_gen', 'image_to_video', 'video_edit', 'kling_video', 'hailuo_video', 'runway_gen3'].includes(mode);
@@ -42,13 +63,17 @@ export function setSelectedMode(mode) {
 
     // 🔥 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Сохраняем модель в appState per-tab bucket
     if (window.appState?.setModeState) {
-        window.appState.setModeState(currentTab, { model: mode });
+        const stateUpdate = { model: mode };
+        // Apply model-specific default size if defined
+        const defaultSize = MODEL_DEFAULT_SIZES[mode];
+        if (defaultSize) stateUpdate.size = defaultSize;
+        window.appState.setModeState(currentTab, stateUpdate);
     }
     if (window.appState) {
         window.appState.selectedMode = mode;
     }
 
-    console.log(`🎛️ setSelectedMode: ${mode} → tab bucket: "${currentTab}"`);
+    console.log(`🎛️ setSelectedMode: ${mode} → tab bucket: "${currentTab}" | size: ${MODEL_DEFAULT_SIZES[mode] || 'unchanged'}`);
 }
 
 // МИНИМАЛЬНЫЕ ЗАГЛУШКИ ДЛЯ СОВМЕСТИМОСТИ ИМПОРТА ИЗ navigation-manager.js
