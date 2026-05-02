@@ -862,10 +862,14 @@ async function initializeUI() {
         });
     }
 
-    // Form submission
+    // Form submission — guard against duplicate listeners on re-init
     const form = document.querySelector('.generation-form');
-    if (form) {
+    if (form && !form.dataset.submitListenerAttached) {
+        form.dataset.submitListenerAttached = 'true';
         form.addEventListener('submit', generateImage);
+        console.log('✅ Generation form submit listener attached');
+    } else if (form) {
+        console.warn('⚠️ Generation form submit listener already attached — skipping duplicate registration');
     }
 
     // 🎯 LAZY LOAD: Initialize Mode Cards Component and Cost Badge
