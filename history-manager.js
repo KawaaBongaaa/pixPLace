@@ -217,6 +217,18 @@ function viewHistoryItem(id) {
         }
     }
 
+    // 2. FALLBACK: Ищем в локальном стейте (если кэш очищен)
+    if (!item) {
+        const generationHistory = window.appState?.externalHistory || window.appState?.generationHistory || [];
+        const found = generationHistory.find(g => g.id == id || g.generation_id == id);
+        if (found) {
+            item = found;
+            item.id = item.generation_id || item.id;
+            item.result = item.result || item.image_url;
+            console.log('✅ Found item in local appState history');
+        }
+    }
+
     if (item && (item.result || item.image_url)) {
         window.appState.currentGeneration = item;
 
