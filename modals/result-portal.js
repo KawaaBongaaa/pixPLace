@@ -3,6 +3,8 @@
  * Communicates with the iframe via postMessage.
  */
 
+import './generation-result-modal.js';
+
 let _iframe = null;
 let _ready = false;
 let _pendingItem = null;
