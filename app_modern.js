@@ -1084,7 +1084,7 @@ window.clearUserImage = clearUserImage;
 
 // ===== Глобальная функция для обновления видимости UI загрузки изображений =====
 // 🔥 EXPORT TO WINDOW FOR MODALS
-window.updateImageUploadVisibility = function() {
+window.updateImageUploadVisibility = function () {
     return updateImageUploadVisibility();
 };
 
@@ -2436,7 +2436,7 @@ async function uploadUserImages() {
 //
 async function applyUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     // Parse Telegram start_param into urlParams
     const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
     if (startParam) {
@@ -2505,7 +2505,7 @@ async function applyUrlParams() {
         if (promptInput) {
             promptInput.value = urlPrompt;
             promptInput.dispatchEvent(new Event('input'));
-            
+
             // Also push to appState to prevent overwrite
             const currentMode = urlMode || window._currentGenerationTab || 'image';
             if (window.appState) {
@@ -2536,6 +2536,19 @@ async function applyUrlParams() {
         // скачалось как blob, создалось превью, и переключился режим при необходимости.
         if (window.useImageForGeneration) {
             await window.useImageForGeneration(urlImageUrl, imageId);
+
+            // 🔥 КРИТИЧНО ДЛЯ РЕЖИМА EDIT: useImageForGeneration добавляет только в обычный userImageState
+            // Если мы находимся в режиме edit, нужно прокинуть картинку в его собственный UI
+            if (urlMode === 'edit' || window._currentGenerationTab === 'edit') {
+                const img = userImageState.images.find(i => i.id === imageId);
+                if (img) {
+                    window._editImageUrl = img.dataUrl || urlImageUrl;
+                    window._editImageBlob = img.blob || img.file;
+                    if (window._showEditStep2) {
+                        window._showEditStep2(window._editImageUrl);
+                    }
+                }
+            }
         } else {
             console.warn('⚠️ window.useImageForGeneration not ready, using fallback');
             userImageState.images.push({
