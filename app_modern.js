@@ -2540,7 +2540,8 @@ async function applyUrlParams() {
             // 🔥 КРИТИЧНО ДЛЯ РЕЖИМА EDIT: useImageForGeneration добавляет только в обычный userImageState
             // Если мы находимся в режиме edit, нужно прокинуть картинку в его собственный UI
             if (urlMode === 'edit' || window._currentGenerationTab === 'edit') {
-                const img = userImageState.images.find(i => i.id === imageId);
+                // useImageForGeneration создает свой собственный ID ('history_...'), поэтому берем последнюю добавленную картинку
+                const img = userImageState.images[userImageState.images.length - 1];
                 if (img) {
                     window._editImageUrl = img.dataUrl || urlImageUrl;
                     window._editImageBlob = img.blob || img.file;
