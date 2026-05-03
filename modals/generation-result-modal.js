@@ -413,10 +413,14 @@ async function useImageForGeneration(imageUrl, itemId) {
         window.userImageState.images.push(imageObj);
         console.log('✅ Added image to userImageState:', window.userImageState.images.length, 'images');
 
-        // 5. Создаем превью элемент напрямую
-        if (window.createPreviewItem) {
+        // 5. Обновляем превью через единый идемпотентный рендер
+        if (window.renderPreviews) {
+            window.renderPreviews();
+            console.log('✅ Previews rendered via renderPreviews');
+        } else if (window.createPreviewItem) {
+            // Fallback for older versions
             window.createPreviewItem(imageId, processedImageUrl, 'History Image');
-            console.log('✅ Preview item created');
+            console.log('✅ Preview item created via fallback');
         }
 
         // 6. Проверяем и переключаем режим если нужно
