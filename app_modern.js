@@ -1083,6 +1083,11 @@ function clearUserImage() {
 window.clearUserImage = clearUserImage;
 
 // ===== Глобальная функция для обновления видимости UI загрузки изображений =====
+// 🔥 EXPORT TO WINDOW FOR MODALS
+window.updateImageUploadVisibility = function() {
+    return updateImageUploadVisibility();
+};
+
 function updateImageUploadVisibility() {
     const urlContainer = document.getElementById('urlInputContainer');
     const preview = document.getElementById('userImagePreview');
@@ -2144,6 +2149,8 @@ function createPreviewItem(imageId, dataUrl, fileName) {
     setTimeout(() => updateInnerUploadButtonVisibility(), 50);
 }
 
+// 🔥 EXPORT TO WINDOW FOR MODALS
+window.createPreviewItem = createPreviewItem;
 
 // ===== Удаление изображения =====
 function removeImage(imageId) {
@@ -2247,6 +2254,9 @@ function clearAllImages() {
     // 🔥 ДОБАВЛЕНИЕ: Обновляем видимость после очистки
     setTimeout(() => updateImageUploadVisibility(), 50);
 }
+
+// 🔥 EXPORT TO WINDOW FOR MODALS
+window.clearAllImages = clearAllImages;
 
 // ===== Новое функция: Обновление видимости маленькой кнопки внутри превью =====
 function updateInnerUploadButtonVisibility() {
@@ -2430,12 +2440,32 @@ async function applyUrlParams() {
     // Parse Telegram start_param into urlParams
     const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
     if (startParam) {
-        // Support key=value&key2=value2 or key=value_key2=value2
-        const pairs = startParam.includes('&') ? startParam.split('&') : startParam.split('_');
+        // Support base64 encoded params or direct params (key=value&key2=value2)
+        let decodedParam = startParam;
+        try {
+            if (!startParam.includes('=') && !startParam.includes('&')) {
+                // Possible base64url
+                let b64 = startParam.replace(/-/g, '+').replace(/_/g, '/');
+                while (b64.length % 4) b64 += '=';
+                const decoded = atob(b64);
+                if (decoded.includes('=')) {
+                    decodedParam = decoded;
+                }
+            }
+        } catch (e) {
+            console.log('start_param is not base64');
+        }
+
+        // Only split by & to avoid breaking URLs that contain underscores
+        const pairs = decodedParam.split('&');
         pairs.forEach(pair => {
-            const [key, value] = pair.split('=');
-            if (key && value) {
-                urlParams.set(key, decodeURIComponent(value));
+            const splitIndex = pair.indexOf('=');
+            if (splitIndex > -1) {
+                const key = pair.substring(0, splitIndex);
+                const value = pair.substring(splitIndex + 1);
+                if (key && value) {
+                    urlParams.set(key, decodeURIComponent(value));
+                }
             }
         });
     }
@@ -2491,21 +2521,37 @@ async function applyUrlParams() {
     if (urlImageUrl) {
         console.log(`🖼️ [applyUrlParams] image_url → ${urlImageUrl}`);
 
-        // Add to userImageState directly (bypasses handleUrlAdd mode-limit checks)
         const imageId = 'url_param_' + Date.now();
-        userImageState.images.push({
-            id: imageId,
-            file: null,
-            blob: null,
-            dataUrl: urlImageUrl,
-            uploadedUrl: urlImageUrl
-        });
-        createPreviewItem(imageId, urlImageUrl, 'URL Image');
 
-        // Let the standard visibility function show the preview.
-        // With images.length > 0 and a mode that supports images (z_image default),
-        // it will correctly set shouldShowPreview = true.
-        updateImageUploadVisibility();
+        // Ensure useImageForGeneration is available
+        if (!window.useImageForGeneration) {
+            try {
+                await import('./modals/generation-result-modal.js');
+            } catch (e) {
+                console.warn('⚠️ Could not load generation-result-modal for deep link:', e);
+            }
+        }
+
+        // 🔥 ИСПРАВЛЕНИЕ: Используем useImageForGeneration, чтобы изображение 
+        // скачалось как blob, создалось превью, и переключился режим при необходимости.
+        if (window.useImageForGeneration) {
+            await window.useImageForGeneration(urlImageUrl, imageId);
+        } else {
+            console.warn('⚠️ window.useImageForGeneration not ready, using fallback');
+            userImageState.images.push({
+                id: imageId,
+                file: null,
+                blob: null,
+                dataUrl: urlImageUrl,
+                uploadedUrl: urlImageUrl
+            });
+            if (window.createPreviewItem) {
+                window.createPreviewItem(imageId, urlImageUrl, 'URL Image');
+            }
+            if (window.updateImageUploadVisibility) {
+                window.updateImageUploadVisibility();
+            }
+        }
 
         applied = true;
     }
