@@ -1991,9 +1991,8 @@ async function onUserImageChange(e) {
                 userImageState.images.push(imageObj);
                 console.log(`📦 Added to userImageState with Blob, total images: ${userImageState.images.length}`);
 
-                // Создаем превью элемент (используем DataURL для UI)
-                createPreviewItem(imageId, dataUrl, file.name);
-                console.log(`🖼️ Preview created for ${file.name}`);
+                // Создаем превью элемент (перенесено в renderPreviews)
+                console.log(`🖼️ Added to state for ${file.name}, will render later`);
 
                 processedCount++;
                 console.log(`✅ Successfully processed file ${i + 1}: ${file.name}`);
@@ -2014,31 +2013,12 @@ async function onUserImageChange(e) {
         if (processedCount > 0) {
             console.log('🎨 Updating UI for successful uploads');
 
-            // Показываем превью контейнер
-            if (preview) {
-                preview.classList.remove('hidden', 'flux-shnel-hidden');
-                console.log('✅ Preview container shown');
-            }
-
-            // Обновляем классы wrapper
-            const wrapper = document.getElementById('userImageWrapper');
-            if (wrapper) {
-                wrapper.classList.add('has-image');
-                wrapper.classList.remove('need-image');
-                console.log('✅ Wrapper classes updated');
-            }
+            // 🔥 Вызываем новый идемпотентный рендер
+            renderPreviews();
 
             // Обновяем видимость элементов
             updateSizeSelectVisibility();
             updateImageUploadVisibility();
-
-            // Принудительное показывание превью
-            const hasImages = userImageState.images.length > 0;
-            if (preview && hasImages) {
-                preview.classList.remove('flux-shnel-hidden', 'hidden');
-                preview.style.setProperty('display', 'block', 'important');
-                console.log('✅ Forced preview visibility');
-            }
 
             console.log(`🎯 Final state: ${userImageState.images.length} images uploaded successfully`);
 
@@ -2075,6 +2055,35 @@ async function onUserImageChange(e) {
         // Не даем ошибке распространиться выше
     }
 }
+
+// ===== Рендер всех превью на основе состояния =====
+function renderPreviews() {
+    const previewContainer = document.getElementById('previewContainer');
+    if (!previewContainer) return;
+    
+    // Очищаем контейнер
+    previewContainer.innerHTML = '';
+    
+    // Рендерим каждое изображение из состояния
+    userImageState.images.forEach(img => {
+        createPreviewItem(img.id, img.dataUrl, img.file?.name || 'History Image');
+    });
+    
+    // Обновляем видимость контейнера
+    const preview = document.getElementById('userImagePreview');
+    const wrapper = document.getElementById('userImageWrapper');
+    if (userImageState.images.length > 0) {
+        if (preview) {
+            preview.classList.remove('hidden', 'flux-shnel-hidden');
+            preview.style.setProperty('display', 'block', 'important');
+        }
+        if (wrapper) wrapper.classList.add('has-image');
+    } else {
+        if (preview) preview.classList.add('hidden');
+        if (wrapper) wrapper.classList.remove('has-image');
+    }
+}
+window.renderPreviews = renderPreviews;
 
 // ===== Создание превью элемента =====
 function createPreviewItem(imageId, dataUrl, fileName) {
@@ -2161,18 +2170,8 @@ function removeImage(imageId) {
     const input = document.getElementById('userImage');
     if (input) input.value = '';
 
-    // Удаляем превью элемент
-    const previewContainer = document.getElementById('previewContainer');
-    const item = previewContainer?.querySelector(`[data-id="${imageId}"]`);
-    if (item) item.remove();
-
-    // Если нет изображений, скрыть превью
-    if (!userImageState.images.length) {
-        const preview = document.getElementById('userImagePreview');
-        if (preview) preview.classList.add('hidden');
-        const wrapper = document.getElementById('userImageWrapper');
-        wrapper?.classList.remove('has-image');
-    }
+    // 🔥 Идемпотентный рендер
+    renderPreviews();
 
     // Показать кнопку загрузки если меньше лимита
     const chooseBtn = document.getElementById('chooseUserImage');
@@ -2223,23 +2222,8 @@ function clearAllImages() {
     // Очищаем состояние
     userImageState.images = [];
 
-    // Удаляем все превью элементы
-    const previewContainer = document.getElementById('previewContainer');
-    if (previewContainer) {
-        previewContainer.innerHTML = ''; // полная очистка контейнера
-    }
-
-    // Скрываем превью контейнер
-    const preview = document.getElementById('userImagePreview');
-    if (preview) {
-        preview.classList.add('hidden');
-    }
-
-    // Снимаем класс has-image с wrapper
-    const wrapper = document.getElementById('userImageWrapper');
-    if (wrapper) {
-        wrapper.classList.remove('has-image');
-    }
+    // 🔥 Идемпотентный рендер
+    renderPreviews();
 
     console.log('✅ All images cleared successfully');
 
@@ -2559,7 +2543,9 @@ async function applyUrlParams() {
                 dataUrl: urlImageUrl,
                 uploadedUrl: urlImageUrl
             });
-            if (window.createPreviewItem) {
+            if (window.renderPreviews) {
+                window.renderPreviews();
+            } else if (window.createPreviewItem) {
                 window.createPreviewItem(imageId, urlImageUrl, 'URL Image');
             }
             if (window.updateImageUploadVisibility) {
@@ -2781,11 +2767,11 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
     // 🔐 Немедленно обновляем UI (аватарка, logout) — updateUserMenuInfo() уже будет
     // дополнительно вызван в initializeUI() через setTimeout(150)
 
-    initializeUI();
+    await initializeUI();
     initUserImageUpload();
 
     // 🔥 URL PARAMS: apply after full UI + image upload init
-    applyUrlParams();
+    await applyUrlParams();
 
 });
 
