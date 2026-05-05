@@ -2060,15 +2060,15 @@ async function onUserImageChange(e) {
 function renderPreviews() {
     const previewContainer = document.getElementById('previewContainer');
     if (!previewContainer) return;
-    
+
     // Очищаем контейнер
     previewContainer.innerHTML = '';
-    
+
     // Рендерим каждое изображение из состояния
     userImageState.images.forEach(img => {
         createPreviewItem(img.id, img.dataUrl, img.file?.name || 'History Image');
     });
-    
+
     // Обновляем видимость контейнера
     const preview = document.getElementById('userImagePreview');
     const wrapper = document.getElementById('userImageWrapper');
@@ -2462,46 +2462,11 @@ async function applyUrlParams() {
 
     let applied = false;
 
-    // 0️⃣  Apply Mode and Model first so the correct UI is active
-    if (urlMode || urlModel) {
-        try {
-            if (urlMode) {
-                console.log(`🔀 [applyUrlParams] mode param found: ${urlMode}`);
-                const navModule = await import('./navigation-manager.js');
-                if (navModule.switchTab) navModule.switchTab(urlMode);
-                applied = true;
-            }
-            if (urlModel) {
-                console.log(`🎛️ [applyUrlParams] model param found: ${urlModel}`);
-                const modeCardsModule = await import('./mode-cards.js');
-                if (modeCardsModule.selectModeCard) modeCardsModule.selectModeCard(urlModel);
-                applied = true;
-            }
-        } catch (e) {
-            console.error('❌ Failed to apply mode/model from URL', e);
-        }
-    }
-
-    // 1️⃣  Pre-fill prompt textarea
-    if (urlPrompt) {
-        console.log(`📝 [applyUrlParams] prompt param found (source: ${urlSource || 'unknown'})`);
-        const promptInput = document.getElementById('promptInput');
-        if (promptInput) {
-            promptInput.value = urlPrompt;
-            promptInput.dispatchEvent(new Event('input'));
-
-            // Also push to appState to prevent overwrite
-            const currentMode = urlMode || window._currentGenerationTab || 'image';
-            if (window.appState) {
-                window.appState.setModeState(currentMode, { prompt: urlPrompt });
-            }
-            applied = true;
-        }
-    }
-
-    // 2️⃣  Pre-load image by URL → inject into state and show preview
-    // URLSearchParams correctly parses both encoded and unencoded image_url,
-    // including when UTM params follow: ?image_url=https://...webp&utm_source=telegram
+    // 0️⃣  Pre-load image by URL FIRST (before tab switch) so the image is ready
+    // when the tab switch handler checks _editImageUrl for edit mode.
+    // This is critical for edit mode deep links: if we switch tab first,
+    // switchGenerationTab('edit') sees no _editImageUrl → hides #promptFormGroup,
+    // which contains the shared #previewContainer where the preview should render.
     if (urlImageUrl) {
         console.log(`🖼️ [applyUrlParams] image_url → ${urlImageUrl}`);
 
@@ -2516,10 +2481,22 @@ async function applyUrlParams() {
             }
         }
 
-        // 🔥 ИСПРАВЛЕНИЕ: Используем useImageForGeneration, чтобы изображение 
-        // скачалось как blob, создалось превью, и переключился режим при необходимости.
+        // 🔥 FIX: Pre-set _editImageUrl BEFORE tab switch so edit tab sees the image
+        // when switchGenerationTab('edit') checks for hasImage.
+        if (urlMode === 'edit') {
+            window._editImageUrl = urlImageUrl;
+            window._editImageBlob = null; // blob will be set by useImageForGeneration
+        }
+
         if (window.useImageForGeneration) {
             await window.useImageForGeneration(urlImageUrl, imageId);
+
+            // 🔥 FIX: Force update UI after image generation (ensure preview appears)
+            setTimeout(() => {
+                if (window.renderPreviews) window.renderPreviews();
+                if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
+                console.log("✅ UI force-updated after useImageForGeneration");
+            }, 500);
 
             // 🔥 КРИТИЧНО ДЛЯ РЕЖИМА EDIT: useImageForGeneration добавляет только в обычный userImageState
             // Если мы находимся в режиме edit, нужно прокинуть картинку в его собственный UI
@@ -2554,6 +2531,43 @@ async function applyUrlParams() {
         }
 
         applied = true;
+    }
+
+    // 1️⃣  Apply Mode and Model AFTER image is loaded so edit tab sees _editImageUrl
+    if (urlMode || urlModel) {
+        try {
+            if (urlMode) {
+                console.log(`🔀 [applyUrlParams] mode param found: ${urlMode}`);
+                const navModule = await import('./navigation-manager.js');
+                if (navModule.switchTab) navModule.switchTab(urlMode);
+                applied = true;
+            }
+            if (urlModel) {
+                console.log(`🎛️ [applyUrlParams] model param found: ${urlModel}`);
+                const modeCardsModule = await import('./mode-cards.js');
+                if (modeCardsModule.selectModeCard) modeCardsModule.selectModeCard(urlModel);
+                applied = true;
+            }
+        } catch (e) {
+            console.error('❌ Failed to apply mode/model from URL', e);
+        }
+    }
+
+    // 2️⃣  Pre-fill prompt textarea
+    if (urlPrompt) {
+        console.log(`📝 [applyUrlParams] prompt param found (source: ${urlSource || 'unknown'})`);
+        const promptInput = document.getElementById('promptInput');
+        if (promptInput) {
+            promptInput.value = urlPrompt;
+            promptInput.dispatchEvent(new Event('input'));
+
+            // Also push to appState to prevent overwrite
+            const currentMode = urlMode || window._currentGenerationTab || 'image';
+            if (window.appState) {
+                window.appState.setModeState(currentMode, { prompt: urlPrompt });
+            }
+            applied = true;
+        }
     }
 
     // 3️⃣  Fallback: pending_prompt from localStorage (set by landing page)

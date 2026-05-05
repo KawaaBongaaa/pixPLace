@@ -221,11 +221,11 @@
         // result-portal.js (type="module") overwrites these stubs after load.
         // This placeholder queues any calls that arrive before the portal is ready.
         let _grmQueue = [];
-        window.showGenerationResultModal = function(item) {
+        window.showGenerationResultModal = function (item) {
             _grmQueue.push(item);
             // Portal will drain queue when it sets window.showGenerationResultModal
         };
-        window.closeGenerationResultModal = function() {};
+        window.closeGenerationResultModal = function () { };
 
         // 🔥 GPT Chat: открывает AI Coach из user menu
         window.openGptChat = function () {
@@ -3113,15 +3113,21 @@
             // Store src for state checks
             window._editImageUrl = src;
 
-            if (window.updateImageUploadVisibility) {
-                window.updateImageUploadVisibility();
-            }
-
-            // Show prompt + divider
+            // 🔥 FIX: Show prompt + divider FIRST so previewContainer is visible
+            // BEFORE calling updateImageUploadVisibility (which renders previews)
             const promptSection = document.getElementById('promptFormGroup');
             if (promptSection) promptSection.style.display = '';
             const divider = document.getElementById('promptDivider');
             if (divider) divider.style.display = '';
+
+            // 🔥 FIX: Now call updateImageUploadVisibility AFTER parent is visible
+            // and also force a renderPreviews call
+            if (window.renderPreviews) {
+                window.renderPreviews();
+            }
+            if (window.updateImageUploadVisibility) {
+                window.updateImageUploadVisibility();
+            }
 
             // Force-hide the image-mode upload bar (edit has its own dropzone)
             const uploadBar = document.getElementById('urlInputContainer');
