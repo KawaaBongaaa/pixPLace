@@ -11,7 +11,7 @@ import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
 import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=portal-1';
-import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback, extractBase64FromDataUrl, readFileAsArrayBuffer, arrayBufferToBlob, blobToDataURL, maybeCompressImageBlob } from './utils.js';
+import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback, extractBase64FromDataUrl, readFileAsArrayBuffer, arrayBufferToBlob, blobToDataURL, maybeCompressImageBlob, downloadAndConvertImage } from './utils.js';
 // 🚀 LAZY LOAD: AI Coach loaded on demand
 // import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem, updateHistoryDisplay, updateHistoryCount } from './history-manager.js';
@@ -2420,6 +2420,7 @@ async function uploadUserImages() {
 //
 async function applyUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
+    console.log('🔍 [applyUrlParams] called. URL:', window.location.href, '| Params:', Object.fromEntries(urlParams));
 
     // Parse Telegram start_param into urlParams
     const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
@@ -2472,47 +2473,62 @@ async function applyUrlParams() {
 
         const imageId = 'url_param_' + Date.now();
 
-        // Ensure useImageForGeneration is available
-        if (!window.useImageForGeneration) {
-            try {
-                await import('./modals/generation-result-modal.js');
-            } catch (e) {
-                console.warn('⚠️ Could not load generation-result-modal for deep link:', e);
-            }
-        }
-
         // 🔥 FIX: Pre-set _editImageUrl BEFORE tab switch so edit tab sees the image
         // when switchGenerationTab('edit') checks for hasImage.
         if (urlMode === 'edit') {
             window._editImageUrl = urlImageUrl;
-            window._editImageBlob = null; // blob will be set by useImageForGeneration
+            window._editImageBlob = null; // blob will be set by the loading process
         }
 
-        if (window.useImageForGeneration) {
-            await window.useImageForGeneration(urlImageUrl, imageId);
+        try {
+            console.log('🔄 Downloading deep link image via core logic...');
+            let imageBlob = null;
+            let processedImageUrl = urlImageUrl;
+            const isExternalUrl = urlImageUrl && !urlImageUrl.startsWith('data:') && !urlImageUrl.startsWith('blob:');
 
-            // 🔥 FIX: Force update UI after image generation (ensure preview appears)
-            setTimeout(() => {
-                if (window.renderPreviews) window.renderPreviews();
-                if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
-                console.log("✅ UI force-updated after useImageForGeneration");
-            }, 500);
+            if (urlImageUrl.startsWith('data:')) {
+                const res = await fetch(urlImageUrl);
+                imageBlob = await res.blob();
+            } else if (isExternalUrl) {
+                try {
+                    imageBlob = await downloadAndConvertImage(urlImageUrl);
+                    processedImageUrl = URL.createObjectURL(imageBlob);
+                } catch (e) {
+                    console.warn('⚠️ CORS blocked blob download for deep link:', e.message);
+                }
+            } else if (urlImageUrl.startsWith('blob:')) {
+                const res = await fetch(urlImageUrl);
+                imageBlob = await res.blob();
+            }
 
-            // 🔥 КРИТИЧНО ДЛЯ РЕЖИМА EDIT: useImageForGeneration добавляет только в обычный userImageState
-            // Если мы находимся в режиме edit, нужно прокинуть картинку в его собственный UI
+            const imageObj = {
+                id: imageId,
+                file: null,
+                blob: imageBlob,
+                dataUrl: processedImageUrl,
+                uploadedUrl: (!imageBlob && isExternalUrl) ? urlImageUrl : null
+            };
+
+            // 🔥 DEEP LINK FIX: Clear only image array, NOT _editImageUrl/_editImageBlob.
+            // clearAllImages() would wipe _editImageUrl that we just set for edit mode.
+            userImageState.images = [];
+            
+            userImageState.images.push(imageObj);
+            console.log('✅ Deep link image added to userImageState:', imageObj);
+
+            if (window.renderPreviews) window.renderPreviews();
+            if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
+
             if (urlMode === 'edit' || window._currentGenerationTab === 'edit') {
-                // useImageForGeneration создает свой собственный ID ('history_...'), поэтому берем последнюю добавленную картинку
-                const img = userImageState.images[userImageState.images.length - 1];
-                if (img) {
-                    window._editImageUrl = img.dataUrl || urlImageUrl;
-                    window._editImageBlob = img.blob || img.file;
-                    if (window._showEditStep2) {
-                        window._showEditStep2(window._editImageUrl);
-                    }
+                window._editImageUrl = imageObj.dataUrl || urlImageUrl;
+                window._editImageBlob = imageObj.blob || imageObj.file;
+                if (window._showEditStep2) {
+                    window._showEditStep2(window._editImageUrl);
                 }
             }
-        } else {
-            console.warn('⚠️ window.useImageForGeneration not ready, using fallback');
+        } catch (e) {
+            console.error('❌ Failed to process deep link image:', e);
+            // Fallback
             userImageState.images.push({
                 id: imageId,
                 file: null,
@@ -2520,14 +2536,8 @@ async function applyUrlParams() {
                 dataUrl: urlImageUrl,
                 uploadedUrl: urlImageUrl
             });
-            if (window.renderPreviews) {
-                window.renderPreviews();
-            } else if (window.createPreviewItem) {
-                window.createPreviewItem(imageId, urlImageUrl, 'URL Image');
-            }
-            if (window.updateImageUploadVisibility) {
-                window.updateImageUploadVisibility();
-            }
+            if (window.renderPreviews) window.renderPreviews();
+            if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
         }
 
         applied = true;

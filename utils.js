@@ -616,6 +616,39 @@ export function maybeCompressImageBlob(blob, maxW = 1024, maxH = 1024, quality =
     });
 }
 
+// Функция конвертации внешнего URL изображения в blob через Canvas/Fetch
+export async function downloadAndConvertImage(imageUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob(resolve, 'image/png');
+        };
+
+        img.onerror = (error) => {
+            console.warn('CORS blocked image loading via canvas, trying fetch method...', error);
+            fetch(imageUrl, {
+                mode: 'cors',
+                credentials: 'omit'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('CORS blocked or fetch failed');
+                    return response.blob();
+                })
+                .then(resolve)
+                .catch(reject);
+        };
+
+        img.src = imageUrl;
+    });
+}
+
 // 🔄 REMOVED: Old JS snowfall functions - migrated to CSS-only approach
 // The snowfall is now handle entirely via CSS with .snowfall-layer containers
 // Performance improved from 900 DOM elements to 0 JS-managed elements
