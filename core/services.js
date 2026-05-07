@@ -64,10 +64,8 @@ class TelegramService {
         // Если не в Telegram и нет хендшейка - сразу загружаем приложение без задержек!
         if (!isTelegramContext) {
             console.log('🌐 Regular browser context detected - bypassing Telegram SDK init.');
-
-            // Final Fallback: Clean URL but we resolve false since WebApp is bypassed
-            const cleanUrl = window.location.pathname + window.location.hash;
-            window.history.replaceState({}, document.title, cleanUrl);
+            // ⚠️ DO NOT clean URL here! image_url/mode/prompt params must survive for applyUrlParams().
+            // URL cleanup happens later inside applyUrlParams() after params are applied.
             return false;
         }
 
