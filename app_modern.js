@@ -2456,7 +2456,17 @@ async function applyUrlParams() {
     }
 
     const urlPrompt = urlParams.get('prompt');
-    const urlMode = urlParams.get('mode');
+    let urlMode = urlParams.get('mode');
+    
+    // Default mode if not specified: 'edit' if image exists, else 'z_image' if prompt exists
+    if (!urlMode) {
+        if (urlParams.get('image_url')) {
+            urlMode = 'edit';
+        } else if (urlPrompt || urlParams.get('model')) {
+            urlMode = 'z_image';
+        }
+    }
+
     const urlModel = urlParams.get('model');
     let urlImageUrl = urlParams.get('image_url');
     const urlSource = urlParams.get('utm_source') || urlParams.get('source');
