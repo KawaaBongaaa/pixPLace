@@ -2559,15 +2559,24 @@ async function applyUrlParams() {
     // 1️⃣  Apply Mode and Model AFTER image is loaded so edit tab sees _editImageUrl
     if (urlMode || urlModel) {
         try {
+            const navModule = await import('./navigation-manager.js');
+            const modeCardsModule = await import('./mode-cards.js');
+
             if (urlMode) {
                 console.log(`🔀 [applyUrlParams] mode param found: ${urlMode}`);
-                const navModule = await import('./navigation-manager.js');
                 if (navModule.switchTab) navModule.switchTab(urlMode);
+                
+                // 🔥 FIX: If we switched to 'image' tab and no model was specified,
+                // explicitly select 'z_image' (Flux) to ensure it's visually highlighted.
+                if (urlMode === 'image' && !urlModel && modeCardsModule.selectModeCard) {
+                    console.log('🎛️ [applyUrlParams] Auto-selecting z_image model for visual consistency');
+                    modeCardsModule.selectModeCard('z_image');
+                }
+                
                 applied = true;
             }
             if (urlModel) {
                 console.log(`🎛️ [applyUrlParams] model param found: ${urlModel}`);
-                const modeCardsModule = await import('./mode-cards.js');
                 if (modeCardsModule.selectModeCard) modeCardsModule.selectModeCard(urlModel);
                 applied = true;
             }
