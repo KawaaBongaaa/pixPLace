@@ -2457,13 +2457,16 @@ async function applyUrlParams() {
 
     const urlPrompt = urlParams.get('prompt');
     let urlMode = urlParams.get('mode');
-    
-    // Default mode if not specified: 'edit' if image exists, else 'z_image' if prompt exists
+
+    // Normalize mode: 'images' -> 'image'
+    if (urlMode === 'images') urlMode = 'image';
+
+    // Default mode if not specified: 'edit' if image exists, else 'image' if prompt exists
     if (!urlMode) {
         if (urlParams.get('image_url')) {
             urlMode = 'edit';
         } else if (urlPrompt || urlParams.get('model')) {
-            urlMode = 'z_image';
+            urlMode = 'image';
         }
     }
 
@@ -2522,7 +2525,7 @@ async function applyUrlParams() {
             // 🔥 DEEP LINK FIX: Clear only image array, NOT _editImageUrl/_editImageBlob.
             // clearAllImages() would wipe _editImageUrl that we just set for edit mode.
             userImageState.images = [];
-            
+
             userImageState.images.push(imageObj);
             console.log('✅ Deep link image added to userImageState:', imageObj);
 
