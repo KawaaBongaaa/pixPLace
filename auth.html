@@ -208,39 +208,85 @@
 
         // Render Google Sign-in button
         function renderGoogleBtn() {
+            console.log('[GSI] renderGoogleBtn() called. window.google:', !!window.google);
             const googleWrapper = document.getElementById('googleSignInWrapper');
-            if (!googleWrapper || !window.google) return;
+
+            if (!googleWrapper) {
+                console.error('[GSI] ❌ #googleSignInWrapper not found in DOM');
+                return;
+            }
+            if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+                console.warn('[GSI] ⚠️ google.accounts.id not available yet');
+                return;
+            }
+
             try {
+                console.log('[GSI] Initializing google.accounts.id...');
                 google.accounts.id.initialize({
                     client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
-                    callback: handleGoogleAuthCallback
+                    callback: handleGoogleAuthCallback,
+                    auto_select: false,
+                    cancel_on_tap_outside: false,
                 });
+
+                const wrapperWidth = googleWrapper.offsetWidth || 340;
+                console.log('[GSI] Rendering button, wrapper width:', wrapperWidth);
                 google.accounts.id.renderButton(googleWrapper, {
                     theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
                     size: 'large',
                     type: 'standard',
                     shape: 'rectangular',
-                    width: document.getElementById('googleSignInWrapper').offsetWidth || 314,
+                    width: wrapperWidth,
                 });
+                console.log('[GSI] ✅ Google button rendered successfully');
             } catch (e) {
-                console.error('Failed to render Google Auth button', e);
+                console.error('[GSI] ❌ Failed to render Google Auth button:', e);
+                // Show fallback toast
+                if (window.showToast) window.showToast('error', 'Google sign-in unavailable. Try Telegram or Email.');
             }
         }
 
-        // Wait for google script to be ready
-        window.onload = () => {
-            if (window.google) {
+        // Robust init: wait for both DOM and GSI script
+        function initGoogleAuth() {
+            console.log('[GSI] initGoogleAuth() called. google available:', !!window.google);
+            if (window.google?.accounts?.id) {
                 renderGoogleBtn();
             } else {
-                document.getElementById('google-gsi-script').onload = renderGoogleBtn;
+                // GSI script not loaded yet — attach to its onload
+                const gsiScript = document.getElementById('google-gsi-script');
+                if (gsiScript) {
+                    console.log('[GSI] Attaching to gsi-script onload event...');
+                    gsiScript.addEventListener('load', () => {
+                        console.log('[GSI] GSI script load event fired');
+                        renderGoogleBtn();
+                    });
+                    gsiScript.addEventListener('error', () => {
+                        console.error('[GSI] ❌ GSI script failed to load (network error or ad-blocker)');
+                        if (window.showToast) window.showToast('error', 'Could not load Google Sign-In.');
+                    });
+                } else {
+                    console.error('[GSI] ❌ #google-gsi-script element not found');
+                }
             }
+        }
 
-            // Check if already authenticated, if yes redirect back to index
+        // Use addEventListener instead of window.onload to avoid overwriting other handlers
+        window.addEventListener('load', () => {
+            console.log('[GSI] window load event fired');
+            initGoogleAuth();
+
+            // Check if already authenticated
             if (localStorage.getItem('telegram_auth_completed') === 'true' && localStorage.getItem('telegram_user')) {
-                console.log('User already authenticated. Redirecting to studio.');
+                console.log('[Auth] User already authenticated. Redirecting to studio.');
                 window.location.href = 'index.html';
             }
-        };
+        });
+
+        // Also try immediately if DOM is already interactive (cached page, fast connection)
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            console.log('[GSI] Document already ready, calling initGoogleAuth immediately');
+            initGoogleAuth();
+        }
     </script>
 </body>
 
