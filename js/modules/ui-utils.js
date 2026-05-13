@@ -340,17 +340,20 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
     // Pre-warm if not done yet
     if (!_pricingModal) prewarmPricingModal();
 
+    // Resolve user's current subscription plan to highlight in pricing page
+    const userPlan = (window.appState?.user?.subscription || '').toLowerCase() || '';
+
     // Navigate iframe to the correct tab
     const currentSrc = _pricingIframe?.getAttribute('src') || '';
+    const planParam = userPlan ? `&plan=${userPlan}` : '';
 
     if (initialTab === 'credits') {
-        // Append timestamp to force iframe reload every time — browser skips
-        // src reassignment if URL is identical (same #credits from prev click).
-        _pricingIframe.src = `pricing.html?mode=modal&_t=${Date.now()}#credits`;
-    } else if (!currentSrc.includes('pricing.html')) {
-        _pricingIframe.src = 'pricing.html?mode=modal';
+        // Timestamp forces reload every time (browser ignores same-URL reassignment)
+        _pricingIframe.src = `pricing.html?mode=modal${planParam}&_t=${Date.now()}#credits`;
+    } else {
+        // Plans tab — reload with plan param so active card gets highlighted
+        _pricingIframe.src = `pricing.html?mode=modal${planParam}&_t=${Date.now()}`;
     }
-    // else: already on pricing.html (plans tab) — no reload needed
 
     // Show modal
     _pricingModal.style.display = 'flex';
