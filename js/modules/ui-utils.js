@@ -259,86 +259,121 @@ export function showSubscriptionUpgradeModal({ featureName = 'this feature' } = 
     }
 }
 
+// ── Pricing Modal (singleton, pre-warm pattern) ─────────────────────────────
+let _pricingModal = null;
+let _pricingIframe = null;
+let _pricingCloseBtn = null;
+let _pricingContainer = null;
+
 /**
- * Shows a portal (iframe) to the pricing page within a modal.
- * @param {object} options - { initialTab?: 'plans' | 'credits' }
+ * Pre-warms the Pricing Modal by creating and hiding the iframe in the background.
+ * Call this once early (e.g. after app init) so the modal opens instantly.
  */
-export function showPricingModal({ initialTab = 'plans' } = {}) {
-    const modalId = 'pricing-portal-modal';
-    document.getElementById(modalId)?.remove();
+export function prewarmPricingModal() {
+    if (_pricingModal) return; // already created
+    console.log('💎 Pre-warming Pricing Modal iframe...');
 
-    // Construct URL with mode=modal for conditional styling
-    const url = `pricing.html?mode=modal${initialTab === 'credits' ? '#credits' : ''}`;
-
-    const modal = createElement('div', {
-        id: modalId,
-        className: 'fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-500',
-        style: 'z-index: 10000000 !important;', // 10 million - above everything
-        onclick: (e) => { if (e.target === modal) closeModal(); }
+    _pricingModal = createElement('div', {
+        id: 'pricing-portal-modal',
+        className: 'fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-500 pointer-events-none',
+        style: 'z-index: 10000000 !important; display: none;',
+        onclick: (e) => { if (e.target === _pricingModal) closePricingModal(); }
     });
 
-    const container = createElement('div', {
+    _pricingContainer = createElement('div', {
         className: 'relative w-full h-full max-w-7xl max-h-[92vh] sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl transform translate-y-full sm:translate-y-24 transition-all duration-500 ease-out bg-[#09090b] sm:mx-4',
     });
 
-    // Premium Floating Close Button
-    const closeBtn = createElement('button', {
+    _pricingCloseBtn = createElement('button', {
         className: 'absolute top-5 right-5 p-2 bg-black/50 hover:bg-white/10 text-white rounded-full backdrop-blur-md border border-white/10 transition-all cursor-pointer shadow-xl hover:scale-110 active:scale-90',
         style: 'z-index: 10000001 !important;',
         innerHTML: '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>',
-        onclick: closeModal
+        onclick: closePricingModal
     });
 
-    const iframe = createElement('iframe', {
-        src: url,
+    _pricingIframe = createElement('iframe', {
+        src: 'pricing.html?mode=modal',
         className: 'w-full h-full border-0',
+        loading: 'lazy',
         onload: () => {
-            iframe.style.opacity = '1';
+            _pricingIframe.style.opacity = '1';
+            console.log('✅ Pricing iframe loaded and ready');
         }
     });
-    iframe.style.opacity = '0';
-    iframe.style.transition = 'opacity 0.25s ease';
+    _pricingIframe.style.opacity = '0';
+    _pricingIframe.style.transition = 'opacity 0.3s ease';
 
-    container.appendChild(closeBtn);
-    container.appendChild(iframe);
-    modal.appendChild(container);
-    document.body.appendChild(modal);
+    _pricingContainer.appendChild(_pricingCloseBtn);
+    _pricingContainer.appendChild(_pricingIframe);
+    _pricingModal.appendChild(_pricingContainer);
+    document.body.appendChild(_pricingModal);
 
-    // Entrance Animation
-    requestAnimationFrame(() => {
-        modal.classList.remove('opacity-0');
-        container.classList.remove('translate-y-full', 'sm:translate-y-24');
-        container.classList.add('translate-y-0');
+    // Global message listener for iframe communication
+    window.addEventListener('message', (e) => {
+        if (!_pricingModal) return;
+        if (e.data === 'close-pricing-modal') {
+            closePricingModal();
+        } else if (e.data === 'hide-close-btn') {
+            if (_pricingCloseBtn) _pricingCloseBtn.style.display = 'none';
+        } else if (e.data === 'show-close-btn') {
+            if (_pricingCloseBtn) _pricingCloseBtn.style.display = 'block';
+        }
     });
+}
 
-    function closeModal() {
-        modal.classList.add('opacity-0');
-        container.classList.remove('translate-y-0');
-        container.classList.add('translate-y-full', 'sm:translate-y-24');
-        setTimeout(() => modal.remove(), 500);
+/**
+ * Shows a portal (iframe) to the pricing page within a modal.
+ * First call triggers pre-warm automatically.
+ * @param {object} options - { initialTab?: 'plans' | 'credits' }
+ */
+export function showPricingModal({ initialTab = 'plans' } = {}) {
+    // Pre-warm if not done yet
+    if (!_pricingModal) prewarmPricingModal();
+
+    // Navigate iframe to the correct tab if necessary
+    const targetUrl = `pricing.html?mode=modal${initialTab === 'credits' ? '#credits' : ''}`;
+    const currentSrc = _pricingIframe?.getAttribute('src') || '';
+    if (!currentSrc.includes(targetUrl.split('?')[0].split('#')[0])) {
+        _pricingIframe.src = targetUrl;
+    } else if (initialTab === 'credits' && !currentSrc.includes('#credits')) {
+        // Navigate to credits tab by postMessage if already loaded
+        try {
+            _pricingIframe.contentWindow?.postMessage({ type: 'switch-tab', tab: 'credits' }, '*');
+        } catch(e) {}
     }
 
-    // Accessibility: Escape key support (from parent window)
+    // Show modal
+    _pricingModal.style.display = 'flex';
+    _pricingModal.style.pointerEvents = 'auto';
+
+    // Entrance animation (double-rAF ensures display:flex has rendered first)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        _pricingModal.classList.remove('opacity-0');
+        _pricingContainer.classList.remove('translate-y-full', 'sm:translate-y-24');
+        _pricingContainer.classList.add('translate-y-0');
+    }));
+
+    // Escape key support
     const handleEsc = (e) => {
         if (e.key === 'Escape') {
-            closeModal();
+            closePricingModal();
             document.removeEventListener('keydown', handleEsc);
         }
     };
     document.addEventListener('keydown', handleEsc);
+}
 
-    // Listen for messages from iframe (e.g. to close modal via Esc within iframe)
-    const handleMessage = (e) => {
-        if (e.data === 'close-pricing-modal') {
-            closeModal();
-            window.removeEventListener('message', handleMessage);
-            document.removeEventListener('keydown', handleEsc);
-        } else if (e.data === 'hide-close-btn') {
-            closeBtn.style.display = 'none';
-        } else if (e.data === 'show-close-btn') {
-            closeBtn.style.display = 'block';
-        }
-    };
-    window.addEventListener('message', handleMessage);
+/**
+ * Hides the pricing modal with animation (does NOT destroy the iframe).
+ */
+export function closePricingModal() {
+    if (!_pricingModal) return;
+    _pricingModal.classList.add('opacity-0');
+    _pricingModal.style.pointerEvents = 'none';
+    _pricingContainer.classList.remove('translate-y-0');
+    _pricingContainer.classList.add('translate-y-full', 'sm:translate-y-24');
+    setTimeout(() => {
+        if (_pricingModal) _pricingModal.style.display = 'none';
+    }, 500);
 }
 
