@@ -433,6 +433,13 @@
             outline: 3px solid rgba(59, 130, 246, 0.9);
             outline-offset: 2px;
         }
+
+        /* Mobile card order: Pro first, then Touch, then Studio */
+        @media (max-width: 767px) {
+            .pricing-pro   { order: 1; }
+            .pricing-touch { order: 2; }
+            .pricing-studio { order: 3; }
+        }
     </style>
     <script>
         // 🔥 EARLY MODAL MODE DETECTION
@@ -476,6 +483,21 @@
 
                         // Otherwise, notify parent to close the portal iframe
                         window.parent.postMessage('close-pricing-modal', '*');
+                    }
+                });
+
+                // PARENT → IFRAME: switch-tab command (e.g. 'credits' from footer Get Credits button)
+                window.addEventListener('message', (e) => {
+                    if (e.data?.type !== 'switch-tab') return;
+                    if (e.data.tab === 'credits') {
+                        const tryOpen = () => {
+                            if (typeof window.handleCreditPackClick === 'function') {
+                                window.handleCreditPackClick();
+                            } else {
+                                setTimeout(tryOpen, 100);
+                            }
+                        };
+                        tryOpen();
                     }
                 });
             }
@@ -568,8 +590,8 @@
         <!-- Pricing Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 w-full max-w-5xl">
 
-            <!-- TOUCH PLAN — order-2 on mobile -->
-            <div class="pricing-card glass-panel rounded-3xl p-5 sm:p-6 flex flex-col relative animate-in slide-in-from-bottom-8 fade-in duration-700 order-2 md:order-1"
+            <!-- TOUCH PLAN — mobile: 2nd -->
+            <div class="pricing-card glass-panel rounded-3xl p-5 sm:p-6 flex flex-col relative animate-in slide-in-from-bottom-8 fade-in duration-700 pricing-touch"
                 style="animation-delay: 100ms;">
                 <div class="mb-5">
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Touch</h3>
@@ -684,8 +706,8 @@
                 </div>
             </div>
 
-            <!-- PRO Subscription (HIGHLIGHTED) — order-1 on mobile (first!) -->
-            <div class="pricing-card rounded-3xl p-5 sm:p-6 flex flex-col relative pro-glow bg-white dark:bg-gray-900 shadow-2xl animate-in slide-in-from-bottom-12 fade-in duration-700 md:-mt-2 md:mb-2 z-10 order-1 md:order-2"
+            <!-- PRO Subscription (HIGHLIGHTED) — mobile: 1st -->
+            <div class="pricing-card rounded-3xl p-5 sm:p-6 flex flex-col relative pro-glow bg-white dark:bg-gray-900 shadow-2xl animate-in slide-in-from-bottom-12 fade-in duration-700 md:-mt-2 md:mb-2 z-10 pricing-pro"
                 style="animation-delay: 200ms;">
                 <!-- Badge -->
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -807,8 +829,8 @@
                 </div>
             </div>
 
-            <!-- STUDIO PLAN — order-3 on mobile -->
-            <div class="pricing-card glass-panel rounded-3xl p-5 sm:p-6 flex flex-col relative animate-in slide-in-from-bottom-8 fade-in duration-700 order-3 md:order-3"
+            <!-- STUDIO PLAN — mobile: 3rd -->
+            <div class="pricing-card glass-panel rounded-3xl p-5 sm:p-6 flex flex-col relative animate-in slide-in-from-bottom-8 fade-in duration-700 pricing-studio"
                 style="animation-delay: 300ms;">
                 <!-- Badge -->
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -1400,8 +1422,22 @@
                             <div class="text-indigo-400 font-black tracking-wider">GO —></div>
                         `;
                         usdBtn.onclick = () => {
+                            // Close both modals: payment-modal + credit-offer-overlay
                             closePaymentModal();
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            if (typeof window.closeCreditModal === 'function') window.closeCreditModal();
+
+                            // Scroll to Pro card on this same page
+                            setTimeout(() => {
+                                const proCard = document.querySelector('.pricing-pro');
+                                if (proCard) {
+                                    proCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    proCard.style.transition = 'box-shadow 0.4s ease';
+                                    proCard.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.9), 0 0 50px rgba(139,92,246,0.35)';
+                                    setTimeout(() => { proCard.style.boxShadow = ''; }, 2000);
+                                } else {
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
+                            }, 350);
                         };
                     }
 
@@ -1869,48 +1905,133 @@
             </div>
 
             <!-- ========== MODEL COST TABLE (moved from payment-modal) ========== -->
-            <div id="model-cost" class="mt-20 mb-12 py-14 border-t border-b border-white/5">
-                <div class="max-w-4xl mx-auto px-4 sm:px-6">
+            <div id="model-cost" class="mt-20 mb-12 py-16 border-t border-b border-white/5">
+                <div class="max-w-2xl mx-auto px-4 sm:px-6">
                     <h2 class="text-3xl sm:text-4xl font-black text-center mb-2 bg-gradient-to-r from-blue-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Model Credit Costs</h2>
-                    <p class="text-sm text-gray-400 text-center mb-10">Full transparency — every model, every price.</p>
-                    <div class="rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-white/[0.02]">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left border-collapse">
-                                <thead><tr class="bg-white/5 text-gray-400 uppercase text-[10px] tracking-widest font-black">
-                                    <th class="px-6 py-4">Model</th>
-                                    <th class="px-4 py-4 text-center hidden md:table-cell">Type</th>
-                                    <th class="px-4 py-4 text-center">Category</th>
-                                    <th class="px-6 py-4 text-right">Credits</th>
-                                </tr></thead>
-                                <tbody class="divide-y divide-white/5">
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Nano Banana</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">3 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Nano Banana 2</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img / edit</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">5–11 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-amber-400 transition-colors">Nano Banana Pro</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img / edit</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-amber-400">12–16 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Z-Image Turbo</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">3 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Qwen Image</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">4 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Flux Pro Advanced</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img / img2img</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">4 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Flux Fast</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">1 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Print on Demand</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img / img2img</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">5 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Stickers</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img / img2img</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">5 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-blue-400 transition-colors">Dreamshaper XL</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2img / img2img</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Image</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">1 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-purple-400 transition-colors">Qwen Image Edit</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">edit</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20">Edit</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">4 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-purple-400 transition-colors">Enhance Image</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">img2img / edit</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20">Edit</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">5 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-purple-400 transition-colors">Remove Background</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">img2img / edit</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-purple-500/10 text-purple-400 border border-purple-500/20">Edit</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">2 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-rose-400 transition-colors">Seedance 1.0</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2vid / img2vid</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">Video</span></td><td class="px-6 py-3.5 text-right font-black text-amber-400">4 Cr<span class="text-gray-500 text-[9px] font-medium">/sec</span></td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-rose-400 transition-colors">Wan 2.1</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2vid / img2vid</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">Video</span></td><td class="px-6 py-3.5 text-right font-black text-amber-400">3 Cr<span class="text-gray-500 text-[9px] font-medium">/sec</span></td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-rose-400 transition-colors">Kling AI 1.5 Standard</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">img2vid</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">Video</span></td><td class="px-6 py-3.5 text-right font-black text-amber-400">4 Cr<span class="text-gray-500 text-[9px] font-medium">/sec</span></td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-rose-400 transition-colors">Kling AI 1.6 Pro</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">img2vid</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">Video</span></td><td class="px-6 py-3.5 text-right font-black text-amber-400">7 Cr<span class="text-gray-500 text-[9px] font-medium">/sec</span></td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-rose-400 transition-colors">Kling AI 2.0 Master</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">img2vid</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">Video</span></td><td class="px-6 py-3.5 text-right font-black text-amber-400">10 Cr<span class="text-gray-500 text-[9px] font-medium">/sec</span></td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-rose-400 transition-colors">Runway Gen-4</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">img2vid</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">Video</span></td><td class="px-6 py-3.5 text-right font-black text-amber-400">8 Cr<span class="text-gray-500 text-[9px] font-medium">/sec</span></td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-amber-400 transition-colors">Audio from Text</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">txt2audio</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">Music</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">5 Cr</td></tr>
-                                    <tr class="group hover:bg-white/[0.03] transition-colors"><td class="px-6 py-3.5 font-bold text-white group-hover:text-amber-400 transition-colors">Audio from Image</td><td class="px-4 py-3.5 text-center text-gray-500 text-xs hidden md:table-cell">img2audio</td><td class="px-4 py-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">Music</span></td><td class="px-6 py-3.5 text-right font-black text-emerald-400">5 Cr</td></tr>
-                                </tbody>
-                            </table>
+                    <p class="text-sm text-gray-500 text-center mb-10">Every model. Every price. No surprises.</p>
+
+                    <div class="space-y-1">
+
+                        <!-- Section: Image -->
+                        <div class="text-[10px] font-black uppercase tracking-widest text-blue-400/70 pt-2 pb-1 px-1">Image Generation</div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Nano Banana</span>
+                            <span class="text-sm font-bold text-emerald-400">3 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
                         </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Nano Banana 2</span>
+                            <span class="text-sm font-bold text-emerald-400">5–11 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Nano Banana Pro</span>
+                                <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-400">Premium</span>
+                            </div>
+                            <span class="text-sm font-bold text-amber-400">12–16 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Z-Image Turbo</span>
+                            <span class="text-sm font-bold text-emerald-400">3 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Qwen Image</span>
+                                <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-400">Premium</span>
+                            </div>
+                            <span class="text-sm font-bold text-emerald-400">4 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Flux Pro Advanced</span>
+                                <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-400">Premium</span>
+                            </div>
+                            <span class="text-sm font-bold text-emerald-400">4 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Flux Fast</span>
+                            <span class="text-sm font-bold text-emerald-400">1 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Print on Demand</span>
+                                <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-400">Premium</span>
+                            </div>
+                            <span class="text-sm font-bold text-emerald-400">5 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Stickers</span>
+                                <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-400">Premium</span>
+                            </div>
+                            <span class="text-sm font-bold text-emerald-400">5 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Dreamshaper XL</span>
+                            <span class="text-sm font-bold text-emerald-400">1 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+
+                        <!-- Section: Edit -->
+                        <div class="text-[10px] font-black uppercase tracking-widest text-purple-400/70 pt-5 pb-1 px-1">Image Editing</div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Qwen Image Edit</span>
+                                <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-400">Premium</span>
+                            </div>
+                            <span class="text-sm font-bold text-emerald-400">4 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Enhance Image</span>
+                            <span class="text-sm font-bold text-emerald-400">5 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Remove Background</span>
+                            <span class="text-sm font-bold text-emerald-400">2 cr <span class="text-gray-600 font-normal text-[11px]">/ image</span></span>
+                        </div>
+
+                        <!-- Section: Video -->
+                        <div class="text-[10px] font-black uppercase tracking-widest text-rose-400/70 pt-5 pb-1 px-1">AI Video</div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Seedance 1.0</span>
+                            <span class="text-sm font-bold text-amber-400">4 cr <span class="text-gray-600 font-normal text-[11px]">/ sec</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Wan 2.1</span>
+                            <span class="text-sm font-bold text-amber-400">3 cr <span class="text-gray-600 font-normal text-[11px]">/ sec</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Kling AI 1.5 Standard</span>
+                            <span class="text-sm font-bold text-amber-400">4 cr <span class="text-gray-600 font-normal text-[11px]">/ sec</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Kling AI 1.6 Pro</span>
+                            <span class="text-sm font-bold text-amber-400">7 cr <span class="text-gray-600 font-normal text-[11px]">/ sec</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Kling AI 2.0 Master</span>
+                            <span class="text-sm font-bold text-amber-400">10 cr <span class="text-gray-600 font-normal text-[11px]">/ sec</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Runway Gen-4</span>
+                            <span class="text-sm font-bold text-amber-400">8 cr <span class="text-gray-600 font-normal text-[11px]">/ sec</span></span>
+                        </div>
+
+                        <!-- Section: Music -->
+                        <div class="text-[10px] font-black uppercase tracking-widest text-amber-400/70 pt-5 pb-1 px-1">AI Music</div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Audio from Text</span>
+                            <span class="text-sm font-bold text-emerald-400">5 cr <span class="text-gray-600 font-normal text-[11px]">/ track</span></span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Audio from Image</span>
+                            <span class="text-sm font-bold text-emerald-400">5 cr <span class="text-gray-600 font-normal text-[11px]">/ track</span></span>
+                        </div>
+
                     </div>
-                    <p class="text-[11px] text-gray-500 text-center mt-5 italic opacity-60">* Costs may vary based on resolution and quality settings.</p>
+
+                    <p class="text-[11px] text-gray-600 text-center mt-8 italic">* Costs may vary based on resolution and quality settings.</p>
                 </div>
             </div>
+
 
             <div
                 class="mt-48 mb-40 px-6 text-center animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
