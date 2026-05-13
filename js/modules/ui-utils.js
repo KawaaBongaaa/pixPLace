@@ -313,6 +313,16 @@ export function prewarmPricingModal() {
         if (!_pricingModal) return;
         if (e.data === 'close-pricing-modal') {
             closePricingModal();
+        } else if (e.data?.type === 'open-pricing-plans') {
+            // User clicked "Upgrade to Premium" inside the iframe — close modal
+            // and scroll to the plan cards on the page behind it
+            closePricingModal();
+            setTimeout(() => {
+                const plansGrid = document.querySelector('.grid.grid-cols-1');
+                if (plansGrid) {
+                    plansGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 550);
         } else if (e.data === 'hide-close-btn') {
             if (_pricingCloseBtn) _pricingCloseBtn.style.display = 'none';
         } else if (e.data === 'show-close-btn') {
@@ -330,17 +340,17 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
     // Pre-warm if not done yet
     if (!_pricingModal) prewarmPricingModal();
 
-    // Navigate iframe to the correct tab if necessary
-    const targetUrl = `pricing.html?mode=modal${initialTab === 'credits' ? '#credits' : ''}`;
+    // Navigate iframe to the correct tab
     const currentSrc = _pricingIframe?.getAttribute('src') || '';
-    if (!currentSrc.includes(targetUrl.split('?')[0].split('#')[0])) {
-        _pricingIframe.src = targetUrl;
-    } else if (initialTab === 'credits' && !currentSrc.includes('#credits')) {
-        // Navigate to credits tab by postMessage if already loaded
-        try {
-            _pricingIframe.contentWindow?.postMessage({ type: 'switch-tab', tab: 'credits' }, '*');
-        } catch(e) {}
+
+    if (initialTab === 'credits') {
+        // Append timestamp to force iframe reload every time — browser skips
+        // src reassignment if URL is identical (same #credits from prev click).
+        _pricingIframe.src = `pricing.html?mode=modal&_t=${Date.now()}#credits`;
+    } else if (!currentSrc.includes('pricing.html')) {
+        _pricingIframe.src = 'pricing.html?mode=modal';
     }
+    // else: already on pricing.html (plans tab) — no reload needed
 
     // Show modal
     _pricingModal.style.display = 'flex';
