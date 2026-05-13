@@ -503,6 +503,61 @@
             }
         })();
     </script>
+
+    <!-- 🎯 Active plan highlight — applied after DOM is ready -->
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const activePlan = (params.get('plan') || '').toLowerCase(); // 'pro' | 'touch' | 'studio'
+            if (!activePlan) return;
+
+            document.addEventListener('DOMContentLoaded', () => {
+                // Map plan slug → card class
+                const cardMap = {
+                    pro:    '.pricing-pro',
+                    touch:  '.pricing-touch',
+                    studio: '.pricing-studio',
+                };
+                const selector = cardMap[activePlan];
+                if (!selector) return;
+
+                const card = document.querySelector(selector);
+                if (!card) return;
+
+                // 1. Inject "Current Plan" badge at the top of the card
+                const badge = document.createElement('div');
+                badge.className = 'absolute -top-4 right-4';
+                badge.innerHTML = `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider
+                        bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+                        <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Your Plan
+                    </span>`;
+                // Make card relative for badge positioning (it already is, but ensure)
+                card.style.position = 'relative';
+                card.insertBefore(badge, card.firstChild);
+
+                // 2. Add a subtle green ring to the card
+                card.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.4), 0 0 30px rgba(16,185,129,0.08)';
+                card.style.transition = 'box-shadow 0.3s ease';
+
+                // 3. Replace the CTA button with a "Active" state
+                const buyBtn = card.querySelector('button[onclick*="openPaymentModal"]');
+                if (buyBtn) {
+                    buyBtn.disabled = true;
+                    buyBtn.className = buyBtn.className.replace(/bg-\S+/g, '').replace(/hover:bg-\S+/g, '').trim();
+                    buyBtn.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/30', 'cursor-default', 'opacity-70');
+                    buyBtn.innerHTML = `
+                        <svg class="w-4 h-4 mr-2 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Active Subscription`;
+                }
+            });
+        })();
+    </script>
 </head>
 
 <body class="min-h-screen h-full flex flex-col relative overflow-x-hidden overflow-y-auto"
