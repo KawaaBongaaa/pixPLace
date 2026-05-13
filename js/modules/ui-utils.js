@@ -342,16 +342,32 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
 
     // Resolve user's current subscription plan to highlight in pricing page
     const userPlan = (window.appState?.user?.subscription || '').toLowerCase() || '';
-
-    // Navigate iframe to the correct tab
-    const currentSrc = _pricingIframe?.getAttribute('src') || '';
     const planParam = userPlan ? `&plan=${userPlan}` : '';
 
     if (initialTab === 'credits') {
+        // Hide iframe until credit overlay is fully open (prevents flash of pricing content)
+        _pricingIframe.style.opacity = '0';
+        _pricingIframe.style.transition = 'opacity 0.3s ease';
+
+        // Listen for credit modal ready signal from iframe
+        const onCreditsReady = (e) => {
+            if (e.data === 'credits-modal-ready' || e.data?.type === 'credits-modal-ready') {
+                window.removeEventListener('message', onCreditsReady);
+                _pricingIframe.style.opacity = '1';
+            }
+        };
+        window.addEventListener('message', onCreditsReady);
+
+        // Fallback: show iframe after 2s even if signal never comes
+        setTimeout(() => {
+            window.removeEventListener('message', onCreditsReady);
+            _pricingIframe.style.opacity = '1';
+        }, 2000);
+
         // Timestamp forces reload every time (browser ignores same-URL reassignment)
         _pricingIframe.src = `pricing.html?mode=modal${planParam}&_t=${Date.now()}#credits`;
     } else {
-        // Plans tab — reload with plan param so active card gets highlighted
+        _pricingIframe.style.opacity = '1';
         _pricingIframe.src = `pricing.html?mode=modal${planParam}&_t=${Date.now()}`;
     }
 
