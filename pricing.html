@@ -453,23 +453,23 @@
                     document.documentElement.classList.add('portal-loading');
 
                     window.addEventListener('load', () => {
-                        // Wait for internal logic to be ready
-                        setTimeout(() => {
-                            // AUTO-OPEN CREDIT PACKS MODAL
-                            const tryOpen = () => {
-                                if (typeof window.handleCreditPackClick === 'function') {
-                                    window.handleCreditPackClick();
+                        // AUTO-OPEN CREDIT PACKS MODAL — no artificial delay
+                        const tryOpen = () => {
+                            if (typeof window.handleCreditPackClick === 'function') {
+                                window.handleCreditPackClick();
 
-                                    // Smoothly hide loader after modal opens
-                                    setTimeout(() => {
-                                        document.documentElement.classList.remove('portal-loading');
-                                    }, 400);
-                                } else {
-                                    setTimeout(tryOpen, 100);
-                                }
-                            };
-                            tryOpen();
-                        }, 300);
+                                // Signal parent: iframe is ready — parent fades it in
+                                window.parent?.postMessage('credits-modal-ready', '*');
+
+                                // Remove loading overlay
+                                setTimeout(() => {
+                                    document.documentElement.classList.remove('portal-loading');
+                                }, 200);
+                            } else {
+                                setTimeout(tryOpen, 80);
+                            }
+                        };
+                        tryOpen();
                     });
                 }
 
