@@ -2565,14 +2565,14 @@ async function applyUrlParams() {
             if (urlMode) {
                 console.log(`🔀 [applyUrlParams] mode param found: ${urlMode}`);
                 if (navModule.switchTab) navModule.switchTab(urlMode);
-                
+
                 // 🔥 FIX: If we switched to 'image' tab and no model was specified,
                 // explicitly select 'z_image' (Flux) to ensure it's visually highlighted.
                 if (urlMode === 'image' && !urlModel && modeCardsModule.selectModeCard) {
                     console.log('🎛️ [applyUrlParams] Auto-selecting z_image model for visual consistency');
                     modeCardsModule.selectModeCard('z_image');
                 }
-                
+
                 applied = true;
             }
             if (urlModel) {
@@ -2688,6 +2688,21 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
         services = await initializeGlobalServices(appState); // ПЕРЕДАЕМ СУЩЕСТВУЮЩИЙ appState!
 
         // URL params are applied AFTER full UI init (see applyUrlParams() call below)
+
+        // 🚀 PRE-WARM HEAVY MODALS in background — ensures instant open on first click
+        setTimeout(async () => {
+            try {
+                const [{ prewarmResultModal }, { prewarmPricingModal }] = await Promise.all([
+                    import('./modals/result-portal.js'),
+                    import('./js/modules/ui-utils.js')
+                ]);
+                prewarmResultModal();
+                prewarmPricingModal();
+                console.log('⚡ Result & Pricing modals pre-warmed for instant access');
+            } catch (e) {
+                console.warn('⚠️ Modal pre-warming failed (non-critical):', e);
+            }
+        }, 3000); // Delay 3s so main UI loads first
     } catch (error) {
         console.error('❌ Failed to initialize global services:', error);
         // Fallback - continue without services for basic functionality
