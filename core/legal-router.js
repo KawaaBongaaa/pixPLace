@@ -112,15 +112,17 @@ const LegalRouter = {
      * Handling paths relative to current location.
      */
     _redirect: function (docType, region) {
-        // Determine base path
-        // If we are in /legal/, path is just filename
-        // If we are in root (index.html), path is legal/filename
-
         const isLegalDir = window.location.pathname.includes('/legal/');
         const filename = `${docType}-${region}.html`;
         const path = isLegalDir ? filename : `legal/${filename}`;
 
-        window.open(path, '_blank');
+        const a = document.createElement('a');
+        a.href = path;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     },
 
     /**
@@ -150,18 +152,25 @@ const LegalRouter = {
 
         const textMuted = isDark ? 'text-gray-400' : 'text-gray-500';
 
+        const closeIconColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
+        const closeIconHoverColor = isDark ? '#ffffff' : '#111827';
+
         const modalHtml = `
-        <div id="legal-region-modal" style="position: fixed; inset: 0; z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-            <!-- Backdrop -->
+        <div id="legal-region-modal" onclick="if(event.target===this)legalRouter.closeModal()" style="position: fixed; inset: 0; z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
             <div style="position: absolute; inset: 0; ${backdropStyle} backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);"></div>
             
-            <!-- Modal Content -->
             <div style="position: relative; width: 100%; max-width: 28rem; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid; overflow: hidden; ${bgStyle} ${borderStyle}">
                 
-                <!-- Decorative Top Line -->
                 <div style="height: 4px; width: 100%; background: linear-gradient(to right, #3b82f6, #a855f7, #3b82f6);"></div>
 
-                <div class="p-8 text-center" style="padding: 2rem; text-align: center;">
+                <button onclick="legalRouter.closeModal()" style="position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: ${closeIconColor}; transition: color 0.15s, background 0.15s;" onmouseover="this.style.color='${closeIconHoverColor}';this.style.background='rgba(128,128,128,0.12)'" onmouseout="this.style.color='${closeIconColor}';this.style.background='none'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+
+                <div style="padding: 2rem; text-align: center;">
                     <div style="width: 4rem; height: 4rem; background-color: rgba(59, 130, 246, 0.1); border-radius: 9999px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
                         <svg style="width: 2rem; height: 2rem; color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -198,6 +207,11 @@ const LegalRouter = {
         `;
 
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+    },
+
+    closeModal: function () {
+        const modal = document.getElementById('legal-region-modal');
+        if (modal) modal.remove();
     },
 
     /**
