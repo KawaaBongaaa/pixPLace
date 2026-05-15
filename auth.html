@@ -101,15 +101,14 @@
     </div>
 
     <!-- Modal Container Adapted for Standalone Page -->
-    <div
-        class="w-full max-w-[380px] relative flex flex-col items-center p-8 dark:bg-[#18181b]/60 backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-white/10 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-700"
+    <div class="w-full max-w-[380px] relative flex flex-col items-center p-8 dark:bg-[#18181b]/60 backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-white/10 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-700"
         style="background-color: rgba(24, 24, 27, 0.6);">
 
         <!-- Header -->
         <div class="text-center mb-8">
             <div
                 class="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600 mb-6">
-                pixPLace
+                PixPlace Ai
             </div>
             <h2 class="text-3xl font-black mb-2 tracking-tight text-gray-900 dark:text-white">Welcome</h2>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Sign in to sync your progress</p>
@@ -171,9 +170,9 @@
         <div class="text-center">
             <p class="text-[11px] leading-relaxed font-medium text-gray-500 dark:text-gray-400">
                 By continuing, you agree to our <br class="sm:hidden">
-                <a href="#" class="text-blue-500 hover:underline">Terms of Service</a>
+                <a href="#" onclick="legalRouter.navigateTo('terms'); return false;" class="text-blue-500 hover:underline">Terms of Service</a>
                 and
-                <a href="#" class="text-blue-500 hover:underline">Privacy Policy</a>
+                <a href="#" onclick="legalRouter.navigateTo('privacy'); return false;" class="text-blue-500 hover:underline">Privacy Policy</a>
             </p>
         </div>
     </div>
@@ -289,6 +288,7 @@
             initGoogleAuth();
         }
     </script>
+    <script src="core/legal-router.js"></script>
 </body>
 
 </html>
