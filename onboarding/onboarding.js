@@ -1,14 +1,18 @@
 /**
- * pixPLace Onboarding Flow v3.0
+ * pixPLace Onboarding Flow v3.2
  *
  * STEP 0 — Cinema Intro (full-screen cinematic reveal)
- * STEPS 1–6 — Smart Spotlight Tour:
- *   1. Image + Video tabs  (highlights BOTH simultaneously)
- *   2. AI Model selector   (expands list + animated click on Z-Image card)
- *   3. Prompt input        (+ Nano Banana Pro typewriter demo)
- *   4. Upload + Size + Resolution (merged into one step with upload demo)
- *   5. GPT Chat button
- *   6. Generate button
+ * STEPS 1–10 — Smart Spotlight Tour:
+ *   1.  All 4 tabs row        (Images / Videos / Edit AI / Music)  → tabsCycle
+ *   2.  AI Model selector     (#form-portal-container iframe)       → modelPickerPulse
+ *   3.  Prompt input          (typewriter demo)
+ *   4.  Style Chips           (#imageStylesSection, 10 categories)  → chipsPulse
+ *   5.  Upload + Preview      (MULTI: #urlInputContainer + #userImagePreview) → uploadPulse
+ *   6.  Size & resolution     (#ob-tools-row)
+ *   7.  Edit AI tab           (switches to Edit tab, spotlights dropzone)    → editTabShow
+ *   8.  Sound / Music tab     (switches to Sound tab, shows panels)          → soundTabShow
+ *   9.  GPT Chat button       (#ai-chat-float-btn)                           → gptPulse
+ *  10.  Generate button       (#generateBtn)
  *
  * ✅ SWAPPABLE: Replace onboarding.js + onboarding.css for a new flow
  * ✅ MULTILINGUAL: window.dictionaryManager.translate(key)
@@ -42,35 +46,29 @@ export class PixPlaceOnboarding {
         // ── Tour step definitions ──────────────────────────────────────────
         this.tourSteps = [
 
-            // ① Image + Video tabs — spotlight BOTH at once
+            // ① All 4 generation tabs — highlight the whole tabs row
             {
-                selector: 'MULTI',
-                selectors: [
-                    '#imageTabBtn, [data-tab="image"], .generation-tab[data-tab="image"]',
-                    '#videoTabBtn, [data-tab="video"], .generation-tab[data-tab="video"]',
-                    // wide fallbacks
-                    '.tabs button:first-child, nav button:first-child',
-                    '.tabs button:last-child,  nav button:last-child',
-                ],
-                titleKey: 'ob_tour_tabs_title',
-                descKey:  'ob_tour_tabs_desc',
+                selector:  '#ob-tabs-row',
+                fallback:  '.generation-tab[data-tab="image"]',
+                titleKey:  'ob_tour_tabs_title',
+                descKey:   'ob_tour_tabs_desc',
                 typewriter: null,
-                demo: null,
+                demo: 'tabsCycle',
             },
 
-            // ② AI Model selector — expand list + click Z-Image
+            // ② AI Model selector — the iframe picker in form-portal-container
             {
-                selector: '#ob-model-selector-row, #modeCardsToggle',
-                fallback:  '#modeCardsToggle',
+                selector: '#form-portal-container',
+                fallback:  '#modeSelect',
                 titleKey: 'ob_tour_model_title',
                 descKey:  'ob_tour_model_desc',
                 typewriter: null,
-                demo: 'modelExpand',   // expand + click Z-Image card
+                demo: 'modelPickerPulse',  // pulse the picker iframe
             },
 
-            // ③ Prompt input — with typewriter
+            // ③ Prompt input — with typewriter demo
             {
-                selector:  '#promptInput',
+                selector: '#promptInput',
                 fallback:  'textarea[maxlength="2000"]',
                 titleKey:  'ob_tour_prompt_title',
                 descKey:   'ob_tour_prompt_desc',
@@ -78,27 +76,76 @@ export class PixPlaceOnboarding {
                 demo: null,
             },
 
-            // ④ GPT Chat Button
+            // ④ Style chips — image style categories + chip grid
+            {
+                selector: '#imageStylesSection',
+                fallback:  '#chipCategoryTabs',
+                titleKey: 'ob_tour_chips_title',
+                descKey:  'ob_tour_chips_desc',
+                typewriter: null,
+                demo: 'chipsPulse',
+            },
+
+            // ⑤ Upload + Preview — captures BOTH urlInputContainer AND userImagePreview
+            {
+                selector: 'MULTI',
+                selectors: [
+                    '#urlInputContainer',
+                    '#userImagePreview',
+                ],
+                titleKey: 'ob_tour_upload_title',
+                descKey:  'ob_tour_upload_desc',
+                typewriter: null,
+                demo: 'uploadPulse',
+            },
+
+            // ⑥ Size + Resolution toolbar
+            {
+                selector: '#ob-tools-row',
+                fallback:  '#sizeGroup',
+                titleKey: 'ob_tour_tools_title',
+                descKey:  'ob_tour_tools_desc',
+                typewriter: null,
+                demo: null,
+            },
+
+            // ⑦ Edit AI tab — switch + spotlight dropzone
+            {
+                selector: 'MULTI',
+                selectors: [
+                    '.generation-tab[data-tab="edit"]',
+                    '#editDropzone',
+                ],
+                titleKey: 'ob_tour_edit_title',
+                descKey:  'ob_tour_edit_desc',
+                typewriter: null,
+                demo: 'editTabShow',
+            },
+
+            // ⑧ Sound / Music tab
+            {
+                selector: 'MULTI',
+                selectors: [
+                    '.generation-tab[data-tab="sound"]',
+                    '.sound-sub-tabs',
+                ],
+                titleKey: 'ob_tour_sound_title',
+                descKey:  'ob_tour_sound_desc',
+                typewriter: null,
+                demo: 'soundTabShow',
+            },
+
+            // ⑨ GPT Chat Button
             {
                 selector: '#ai-chat-float-btn',
-                fallback: '.ai-chat-btn-entrance',
+                fallback:  '.ai-chat-btn-entrance',
                 titleKey: 'ob_tour_gpt_title',
                 descKey:  'ob_tour_gpt_desc',
                 typewriter: null,
                 demo: 'gptPulse',
             },
 
-            // ④ Upload + Size + Resolution (merged target)
-            {
-                selector: '#ob-tools-row',
-                fallback: '#sizeGroup',
-                titleKey: 'ob_tour_tools_title',
-                descKey:  'ob_tour_tools_desc',
-                typewriter: null,
-                demo: 'uploadPulse',  // pulse upload button
-            },
-
-            // ⑥ Generate!
+            // ⑩ Generate!
             {
                 selector: '#generateBtn',
                 fallback:  'button[type="submit"]',
@@ -109,7 +156,7 @@ export class PixPlaceOnboarding {
             },
         ];
 
-        this.totalSteps = this.tourSteps.length; // tour steps only
+        this.totalSteps = this.tourSteps.length;
     }
 
     /* ── i18n ────────────────────────────────────────────────── */
@@ -315,8 +362,21 @@ export class PixPlaceOnboarding {
         }
     }
 
-    /* ── MULTI-TARGET (tabs step, tools step) ─────────────────── */
+    /* ── MULTI-TARGET (tabs step, edit step, sound step) ──────── */
     _goToMultiStep(tourIdx, step) {
+        // For steps that switch tabs, do it FIRST so hidden elements become visible
+        const needsTabSwitch = step.demo === 'editTabShow' || step.demo === 'soundTabShow';
+        if (needsTabSwitch) {
+            this._runStepDemo(step, tourIdx);
+            // Small delay to let the tab switch animate before finding targets
+            setTimeout(() => this._goToMultiStepLayout(tourIdx, step), 350);
+            return;
+        }
+
+        this._goToMultiStepLayout(tourIdx, step);
+    }
+
+    _goToMultiStepLayout(tourIdx, step) {
         const targets = this._findMultiTargets(step.selectors);
 
         if (targets.length === 0) {
@@ -344,7 +404,7 @@ export class PixPlaceOnboarding {
         }
 
         setTimeout(() => {
-            // Apply glass shine class
+            // Apply glass shine class for tabs step
             if (step.titleKey === 'ob_tour_tabs_title') {
                 targets.forEach(t => t.classList.add('ob-demo-glass-shine'));
                 this._demoCleanups.push(() => {
@@ -354,7 +414,10 @@ export class PixPlaceOnboarding {
 
             this._positionMultiSpotlight(targets);
             this._renderTooltip(step, tourIdx);
-            this._runStepDemo(step, tourIdx);
+            // Only run non-tab-switching demos here (tab ones already ran above)
+            if (!['editTabShow', 'soundTabShow'].includes(step.demo)) {
+                this._runStepDemo(step, tourIdx);
+            }
         }, 380);
     }
 
@@ -364,7 +427,11 @@ export class PixPlaceOnboarding {
             for (const sel of group.split(',').map(s => s.trim())) {
                 try {
                     const el = document.querySelector(sel);
-                    if (el && this._isVisible(el)) { found.push(el); break; }
+                    // Accept elements that are either visible OR exist (they may be
+                    // in a tab pane that was just switched to by the demo)
+                    if (el && (this._isVisible(el) || el.getBoundingClientRect().width > 0)) {
+                        found.push(el); break;
+                    }
                 } catch { /* bad selector */ }
             }
         }
@@ -424,22 +491,119 @@ export class PixPlaceOnboarding {
         }
     }
 
-    /* ── STEP DEMOS ────────────────────────────────────────────── */
+    /* ── STEP DEMOS ──────────────────────────── */
     _runStepDemo(step, tourIdx) {
         if (!step.demo) return;
 
         switch (step.demo) {
-            case 'modelExpand': this._demoModelExpand(); break;
-            case 'uploadPulse': this._demoUploadPulse(); break;
-            case 'gptPulse': this._demoGPTPulse(); break;
+            case 'tabsCycle':        this._demoTabsCycle();        break;
+            case 'modelPickerPulse': this._demoModelPickerPulse(); break;
+            case 'modelExpand':      this._demoModelExpand();      break;
+            case 'chipsPulse':       this._demoChipsPulse();       break;
+            case 'editTabShow':      this._demoEditTabShow();      break;
+            case 'soundTabShow':     this._demoSoundTabShow();     break;
+            case 'uploadPulse':      this._demoUploadPulse();      break;
+            case 'gptPulse':         this._demoGPTPulse();         break;
         }
+    }
+
+    /**
+     * Cycle through all 4 tabs with a glowing highlight so the user
+     * can see each one in sequence, then return to the image tab.
+     */
+    _demoTabsCycle() {
+        const tabOrder = ['image', 'video', 'edit', 'sound'];
+        let step = 0;
+        const CLASS = 'ob-demo-glass-shine';
+        const INTERVAL = 700;
+
+        const allTabs = tabOrder.map(t =>
+            document.querySelector(`.generation-tab[data-tab="${t}"]`)
+        ).filter(Boolean);
+
+        const tick = () => {
+            allTabs.forEach(t => t.classList.remove(CLASS));
+            if (step < tabOrder.length) {
+                const tab = allTabs[step];
+                if (tab) tab.classList.add(CLASS);
+                step++;
+            } else {
+                // restore to image tab highlight
+                if (allTabs[0]) allTabs[0].classList.add(CLASS);
+                clearInterval(intervalId);
+            }
+        };
+        tick();
+        const intervalId = setInterval(tick, INTERVAL);
+
+        this._demoCleanups.push(() => {
+            clearInterval(intervalId);
+            allTabs.forEach(t => t.classList.remove(CLASS));
+        });
+    }
+
+    /**
+     * Pulse the model picker iframe container so the user knows
+     * it's a clickable dropdown to choose the AI engine.
+     */
+    _demoModelPickerPulse() {
+        const container = document.getElementById('form-portal-container');
+        const fallback  = document.querySelector('.model-picker-btn');
+        const target    = container || fallback;
+        if (!target) return;
+
+        target.classList.add('ob-demo-pulse');
+
+        // Also briefly glow the Generate button area to show the pairing
+        const genBtn = document.getElementById('generateBtn');
+        if (genBtn) {
+            genBtn.style.transition = 'box-shadow 0.3s';
+            genBtn.style.boxShadow  = '0 0 0 3px rgba(99,102,241,0.45)';
+            const t = setTimeout(() => genBtn.style.boxShadow = '', 1200);
+            this._demoCleanups.push(() => { clearTimeout(t); genBtn.style.boxShadow = ''; });
+        }
+
+        this._demoCleanups.push(() => target.classList.remove('ob-demo-pulse'));
+    }
+
+    /**
+     * Highlight the style chips section and cycle through
+     * chip category tabs so the user sees there are many categories.
+     */
+    _demoChipsPulse() {
+        const section = document.getElementById('imageStylesSection');
+        if (!section) return;
+
+        section.classList.add('ob-demo-glass-shine');
+
+        const catBtns = Array.from(section.querySelectorAll('.chip-cat-btn'));
+        let idx = 0;
+        const INTERVAL = 500;
+
+        const tick = () => {
+            catBtns.forEach(b => b.classList.remove('ob-demo-glass-shine'));
+            if (idx < catBtns.length) {
+                catBtns[idx]?.classList.add('ob-demo-glass-shine');
+                idx++;
+            } else {
+                clearInterval(intervalId);
+            }
+        };
+        tick();
+        const intervalId = setInterval(tick, INTERVAL);
+
+        this._demoCleanups.push(() => {
+            clearInterval(intervalId);
+            section.classList.remove('ob-demo-glass-shine');
+            catBtns.forEach(b => b.classList.remove('ob-demo-glass-shine'));
+        });
     }
 
     /** Expand model card list + simulate animated click on Z-Image card */
     _demoModelExpand() {
-        // 1. Expand the image model cards wrapper
+        // Try the global API first (mode-cards.js)
         let expanded = false;
-        if (window.setModeCardsCollapsed) {
+        if (typeof window.setModeCardsCollapsed === 'function') {
             window.setModeCardsCollapsed(false);
             expanded = true;
         } else {
@@ -459,12 +623,20 @@ export class PixPlaceOnboarding {
             if (toggle) { toggle.classList.remove('collapsed'); toggle.classList.add('expanded'); }
         }
 
-        if (!expanded) return;
+        // Fallback: if no modeCardsWrapper exists, pulse the model-picker-btn
+        if (!expanded) {
+            const pickerBtn = document.querySelector('.model-picker-btn');
+            if (pickerBtn) {
+                pickerBtn.classList.add('ob-demo-pulse');
+                this._demoCleanups.push(() => pickerBtn.classList.remove('ob-demo-pulse'));
+            }
+            return;
+        }
 
         const wrapper = document.getElementById('modeCardsWrapper');
         if (wrapper) wrapper.classList.add('ob-demo-active');
 
-        // 2. Update spotlight position slightly faster to stay tight
+        // Update spotlight position after expand animation
         setTimeout(() => {
             const toggle = this._currentTarget;
             if (toggle) {
@@ -473,16 +645,14 @@ export class PixPlaceOnboarding {
             }
         }, 300);
 
-        // 3. Find Z-Image card and animate a "ghost click" on it
-        const DEMO_DELAY = 900; // ms after expand
+        // Find Z-Image card and animate a "ghost click" on it
+        const DEMO_DELAY = 900;
         const zCardTimer = setTimeout(() => {
             const zCard = document.querySelector('[data-mode="z_image"]');
             if (!zCard) return;
 
-            // Add visual "hover" class
             zCard.classList.add('ob-demo-hover');
 
-            // Ripple element
             const ripple = document.createElement('span');
             ripple.className = 'ob-demo-ripple';
             const rect = zCard.getBoundingClientRect();
@@ -496,7 +666,6 @@ export class PixPlaceOnboarding {
             zCard.style.overflow = 'hidden';
             zCard.appendChild(ripple);
 
-            // 4. After ripple — remove hover
             const cleanTimer = setTimeout(() => {
                 zCard.classList.remove('ob-demo-hover');
                 ripple.remove();
@@ -509,21 +678,51 @@ export class PixPlaceOnboarding {
             });
         }, DEMO_DELAY);
 
-        // Register cleanup for when user moves to next step
         this._demoCleanups.push(() => {
             clearTimeout(zCardTimer);
-            // Collapse cards back
-            if (window.setModeCardsCollapsed) {
+            if (typeof window.setModeCardsCollapsed === 'function') {
                 window.setModeCardsCollapsed(true);
             } else {
-                const wrapper = document.getElementById('modeCardsWrapper');
-                if (wrapper) { wrapper.style.display = 'none'; wrapper.classList.remove('ob-demo-active'); }
+                const w = document.getElementById('modeCardsWrapper');
+                if (w) { w.style.display = 'none'; w.classList.remove('ob-demo-active'); }
             }
-            const wrapper = document.getElementById('modeCardsWrapper');
-            if (wrapper) wrapper.classList.remove('ob-demo-active');
-            
+            const w = document.getElementById('modeCardsWrapper');
+            if (w) w.classList.remove('ob-demo-active');
             const zCard = document.querySelector('[data-mode="z_image"]');
-            if (zCard) { zCard.classList.remove('ob-demo-hover'); }
+            if (zCard) zCard.classList.remove('ob-demo-hover');
+        });
+    }
+
+    /**
+     * Switch to the Edit AI tab so the user can see the dropzone,
+     * then restore the active tab on cleanup.
+     */
+    _demoEditTabShow() {
+        const imageTab = document.querySelector('.generation-tab[data-tab="image"]');
+        const editTab  = document.querySelector('.generation-tab[data-tab="edit"]');
+        if (!editTab) return;
+
+        // Simulate a click on the Edit tab
+        editTab.click();
+
+        this._demoCleanups.push(() => {
+            // Restore the Image tab (primary mode)
+            if (imageTab) imageTab.click();
+        });
+    }
+
+    /**
+     * Switch to the Sound / Music tab so the user can see the panel.
+     */
+    _demoSoundTabShow() {
+        const imageTab = document.querySelector('.generation-tab[data-tab="image"]');
+        const soundTab = document.querySelector('.generation-tab[data-tab="sound"]');
+        if (!soundTab) return;
+
+        soundTab.click();
+
+        this._demoCleanups.push(() => {
+            if (imageTab) imageTab.click();
         });
     }
 
@@ -897,27 +1096,50 @@ const FALLBACK_EN = {
     ob_finish:         "Let's create! 🚀",
     ob_step_of:        '{{current}} of {{total}}',
 
-    ob_tour_tabs_title:  'Images or Videos?',
-    ob_tour_tabs_desc:   'Switch between Image generation and the upcoming Video tools — each tab unlocks a different set of AI models.',
+    // Step 1 — Tabs
+    ob_tour_tabs_title: '4 Creative Modes',
+    ob_tour_tabs_desc:  'Choose how you want to create: generate Images, animate Videos, retouch photos with Edit AI, or compose Music — all powered by AI.',
 
+    // Step 2 — AI Model
     ob_tour_model_title: 'Choose your AI model',
-    ob_tour_model_desc:  'Pick the engine that fits your task — quick edits, pro retouching, creative generation, or background removal.',
+    ob_tour_model_desc:  'Pick the engine that fits your task — fast generation, pro retouching, upscaling, or background removal. Click the selector to explore all options.',
 
+    // Step 3 — Prompt
     ob_tour_prompt_title: 'Describe your idea',
-    ob_tour_prompt_desc:  'Just write what you need in natural language. Try: "edit my photo in Wes Anderson style with warm tones".',
-    ob_tour_prompt_demo:  'Edit my photo in Wes Anderson style...',
+    ob_tour_prompt_desc:  'Write what you want in plain language. Try: "cinematic portrait, Wes Anderson style, warm golden tones".',
+    ob_tour_prompt_demo:  'Cinematic portrait, Wes Anderson style, warm tones...',
 
-    ob_tour_gpt_title: 'Need a Professional Prompt?',
-    ob_tour_gpt_desc:  'Stuck for ideas? Click the GPT button! Our AI will help you craft detailed, midjourney-level prompts for the best results.',
+    // Step 4 — Style Chips
+    ob_tour_chips_title: 'Style Chips 🎨',
+    ob_tour_chips_desc:  'One click to add a full style to your prompt! Explore 10 categories: Art Styles, Characters, Photography, Interior, Fashion, Branding, and more.',
 
-    ob_tour_tools_title: 'Set size, resolution & upload',
-    ob_tour_tools_desc:  'Choose the aspect ratio, output resolution, and upload your reference photo — all in one place. The glowing button shows where to upload!',
+    // Step 5 — Upload + Preview
+    ob_tour_upload_title: 'Upload your image 📎',
+    ob_tour_upload_desc:  'Upload a reference photo or paste an image URL — the preview appears right here. The AI will use it as a base for edits or style transfers.',
 
-    ob_tour_gpt_title:  'Need help with prompts? ✨',
-    ob_tour_gpt_desc:   'GPT Chat is your AI assistant for crafting perfect prompts — describe your idea and it rewrites it like a pro.',
+    // Step 6 — Tools row
+    ob_tour_tools_title: 'Size & resolution 📐',
+    ob_tour_tools_desc:  'Set the aspect ratio (Square, Landscape, Portrait) and output resolution. These settings apply to the current generation mode.',
 
-    ob_tour_generate_title: 'Ready? Hit Generate!',
-    ob_tour_generate_desc:  'Your image will be ready in seconds. Results appear in the History panel — swipe to see them.',
+    // Step 7 — Edit AI Tab
+    ob_tour_edit_title: 'AI Image Editor ✏️',
+    ob_tour_edit_desc:  'Upload any photo and describe the change — swap background, change style, adjust lighting, remove objects, and much more.',
+
+    // Step 8 — Sound / Music Tab
+    ob_tour_sound_title: 'AI Music Generator 🎵',
+    ob_tour_sound_desc:  'Describe a mood or upload an image — AI composes a unique soundtrack inspired by your content. Powered by Suno AI.',
+
+    // Step 6 — Tools row
+    ob_tour_tools_title: 'Size, resolution & upload',
+    ob_tour_tools_desc:  'Set the aspect ratio, output resolution, and upload a reference image — all in the toolbar below the prompt.',
+
+    // Step 7 — GPT Chat
+    ob_tour_gpt_title: 'Need prompt inspiration? ✨',
+    ob_tour_gpt_desc:  'Click the GPT button! Our AI assistant rewrites your idea into a detailed, professional prompt for the best results.',
+
+    // Step 8 — Generate
+    ob_tour_generate_title: 'Ready? Hit Generate! 🚀',
+    ob_tour_generate_desc:  'Your creation will be ready in seconds. Results appear in the History panel — swipe left to browse them.',
 
     ob_demo_upload_badge: 'Watch the upload button glow!',
     ob_demo_model_badge:  'Watch the model list expand!',
