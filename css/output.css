@@ -5677,6 +5677,11 @@
       background-color: color-mix(in oklab, #27272a 95%, transparent);
     }
   }
+  .dark\:bg-gray-900 {
+    [data-theme="dark"] & {
+      background-color: #18181b;
+    }
+  }
   .dark\:bg-gray-900\/80 {
     [data-theme="dark"] & {
       background-color: color-mix(in oklab, #18181b 80%, transparent);
