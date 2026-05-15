@@ -422,8 +422,8 @@ function refreshTopUpButton() {
         'transition:transform 0.15s,box-shadow 0.15s',
         'flex-shrink:0', 'line-height:1'
     ].join(';');
-    btn.onmouseover = () => { btn.style.transform = 'scale(1.15)'; btn.style.boxShadow='0 2px 10px rgba(124,58,237,0.7)'; };
-    btn.onmouseout  = () => { btn.style.transform = 'scale(1)';    btn.style.boxShadow='0 1px 6px rgba(124,58,237,0.5)'; };
+    btn.onmouseover = () => { btn.style.transform = 'scale(1.15)'; btn.style.boxShadow = '0 2px 10px rgba(124,58,237,0.7)'; };
+    btn.onmouseout = () => { btn.style.transform = 'scale(1)'; btn.style.boxShadow = '0 1px 6px rgba(124,58,237,0.5)'; };
     btn.onclick = async () => {
         if (window.navigator?.vibrate) window.navigator.vibrate(30);
         const sub = (window.appState?.user?.subscription || '').toLowerCase();
@@ -431,7 +431,7 @@ function refreshTopUpButton() {
         try {
             const { showPricingModal } = await import('./js/modules/ui-utils.js');
             showPricingModal({ initialTab: hasSub ? 'credits' : 'plans' });
-        } catch(e) {
+        } catch (e) {
             window.location.href = 'pricing.html';
         }
     };
@@ -975,12 +975,12 @@ async function onTelegramAuthCallback(userData) {
                     window.appServices.userProfile.fetchProfile(data.userId);
                 }
             }
-            window.showToast?.('success', `Welcome, ${window.appState.userName}! 🎉`);
+            showAuthWelcomeScreen(window.appState.userName, window.appState.userAvatar);
             updateUserMenuInfo();
 
             // Auto-redirect if on standalone auth page
             if (window.location.pathname.includes('auth.html')) {
-                setTimeout(() => window.location.href = 'index.html', 1500);
+                setTimeout(() => window.location.href = 'index.html', 2500);
             }
         } else {
             console.warn('⚠️ Server did not return a valid userId');
@@ -992,29 +992,100 @@ async function onTelegramAuthCallback(userData) {
     }
 }
 
+// ===================== AUTH PORTAL MODAL =====================
+
 function openAuthModal() {
-    // 📱 If inside Telegram Mini App — auth is handled silently by TelegramService (core/services.js).
-    // DO NOT redirect to auth.html. Just bail out — the SDK data will complete auth automatically.
+    // 📱 Telegram Mini App — auth is silent
     if (window.Telegram?.WebApp?.initData) return;
 
-    // Regular browser: go to standalone auth page
-    window.location.href = 'auth.html';
+    document.getElementById('authPortalOverlay')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'authPortalOverlay';
+    overlay.className = 'auth-portal-overlay';
+    overlay.innerHTML = `
+        <div class="auth-portal-backdrop" id="authPortalBdrop"></div>
+        <iframe id="authPortalFrame"
+                src="auth.html"
+                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;"
+                allow="identity-credentials-get"
+                title="Sign in">
+        </iframe>
+    `;
+
+    overlay.querySelector('#authPortalBdrop').addEventListener('click', closeAuthModal);
+    document.body.appendChild(overlay);
+
+    // Listen for postMessage from auth.html on success
+    const _onAuthMsg = (e) => {
+        if (e.data?.type === 'auth_success') {
+            window.removeEventListener('message', _onAuthMsg);
+            closeAuthModal();
+            // Show premium welcome screen, then reload
+            showAuthWelcomeScreen(e.data.name, e.data.avatarUrl);
+            setTimeout(() => window.location.reload(), 2800);
+        }
+    };
+    window.addEventListener('message', _onAuthMsg);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            overlay.classList.add('auth-portal-visible');
+            overlay.querySelector('#authPortalCard').classList.add('auth-portal-card-visible');
+        });
+    });
 }
 
 function closeAuthModal() {
-    const modal = document.getElementById('authModal');
-    const content = document.getElementById('authModalContent');
-    if (!modal || !content) return;
-
-    modal.classList.add('opacity-0');
-    content.classList.add('scale-95', 'opacity-0');
-
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
+    const overlay = document.getElementById('authPortalOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('auth-portal-visible');
+    overlay.querySelector('#authPortalCard')?.classList.remove('auth-portal-card-visible');
+    setTimeout(() => overlay.remove(), 320);
 }
 
-// Обработка успешного входа через Google
+// =================== WELCOME SCREEN ===================
+
+function showAuthWelcomeScreen(name, avatarUrl) {
+    document.getElementById('authWelcomeScreen')?.remove();
+
+    const screen = document.createElement('div');
+    screen.id = 'authWelcomeScreen';
+    screen.className = 'auth-welcome-screen';
+
+    const firstLetter = (name || 'U')[0].toUpperCase();
+    const avatarHtml = avatarUrl
+        ? `<img src="${avatarUrl}" class="auth-welcome-avatar" alt="${name}" onerror="this.style.display='none'">`
+        : `<div class="auth-welcome-avatar-letter">${firstLetter}</div>`;
+
+    screen.innerHTML = `
+        <div class="auth-welcome-inner">
+            ${avatarHtml}
+            <div class="auth-welcome-brand">pixPLace Ai</div>
+            <h1 class="auth-welcome-title">Welcome, ${name || 'Friend'}! 👋</h1>
+            <p class="auth-welcome-sub">Setting up your studio…</p>
+            <div class="auth-welcome-dots">
+                <div class="auth-welcome-dot"></div>
+                <div class="auth-welcome-dot"></div>
+                <div class="auth-welcome-dot"></div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(screen);
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => screen.classList.add('auth-welcome-visible'));
+    });
+
+    // Fade out after 2.4s
+    setTimeout(() => {
+        screen.classList.remove('auth-welcome-visible');
+        setTimeout(() => screen.remove(), 450);
+    }, 2400);
+}
+
 async function handleGoogleAuthCallback(response) {
     console.log("Encoded JWT ID token: " + response.credential);
     closeAuthModal();
@@ -1075,14 +1146,14 @@ async function handleGoogleAuthCallback(response) {
             document.documentElement.classList.add('auth-session-active');
 
             // Вызываем уведомление и обновляем меню
-            window.showToast?.('success', `Welcome, ${window.appState.userName}! 🎉`);
+            showAuthWelcomeScreen(window.appState.userName, window.appState.userAvatar);
             if (typeof updateUserMenuInfo === 'function') {
                 updateUserMenuInfo();
             }
 
             // Auto-redirect if on standalone auth page
             if (window.location.pathname.includes('auth.html')) {
-                setTimeout(() => window.location.href = 'index.html', 1500);
+                setTimeout(() => window.location.href = 'index.html', 2500);
             }
         } else {
             console.warn('Google Auth: n8n returned success, but no userId in response data:', data);
@@ -1173,6 +1244,7 @@ window.onTelegramAuthCallback = onTelegramAuthCallback;
 window.loadTelegramWidgetAndAuth = loadTelegramWidgetAndAuth;
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
+window.showAuthWelcomeScreen = showAuthWelcomeScreen;
 window.handleGoogleAuthCallback = handleGoogleAuthCallback;
 window.openLanguageModal = openLanguageModal;
 window.closeLanguageModal = closeLanguageModal;

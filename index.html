@@ -461,87 +461,8 @@
 
         <!-- Header compact mode: transforms when scrolling past model toggle -->
         <style>
-            /* Smooth transitions for compact mode */
-            .theme-header {
-                transition: padding 0.3s ease, background 0.3s ease;
-            }
 
-            .theme-header .logo svg,
-            .theme-header .logo-text,
-            .theme-header .header-right button {
-                transition: all 0.3s ease;
-            }
 
-            /* Compact state */
-            .theme-header.header-compact {
-                padding: 2px 8px !important;
-                background: transparent !important;
-                box-shadow: none !important;
-                pointer-events: none;
-            }
-
-            .theme-header.header-compact .logo,
-            .theme-header.header-compact .header-right,
-            .theme-header.header-compact .header-right button {
-                pointer-events: auto;
-            }
-
-            .dark .theme-header.header-compact,
-            .theme-header.header-compact[data-theme="dark"] {
-                background: transparent !important;
-            }
-
-            .theme-header.header-compact>div {
-                padding: 2px 6px !important;
-            }
-
-            .theme-header.header-compact .logo svg {
-                width: 24px !important;
-                height: 24px !important;
-                opacity: 0.6;
-            }
-
-            .theme-header.header-compact .logo-text {
-                opacity: 0;
-                font-size: 0;
-                width: 0;
-                overflow: hidden;
-                margin: 0;
-                padding: 0;
-            }
-
-            .theme-header.header-compact .logo {
-                gap: 0 !important;
-            }
-
-            .theme-header.header-compact .header-right>div>button:not(.user-action-btn) {
-                width: 26px !important;
-                height: 26px !important;
-                background: rgba(128, 128, 128, 0.12) !important;
-                backdrop-filter: blur(8px);
-                border-radius: 8px !important;
-            }
-
-            .theme-header.header-compact .header-right>div>button:not(.user-action-btn) svg {
-                width: 14px !important;
-                height: 14px !important;
-            }
-
-            .theme-header.header-compact #headerBalanceWrapper {
-                padding: 4px 8px !important;
-                background: transparent !important;
-                border: 1px solid rgba(128, 128, 128, 0.2) !important;
-                box-shadow: none !important;
-                transform: scale(0.95);
-            }
-
-            .theme-header.header-compact #headerBalanceWrapper span {
-                font-size: 0.8rem;
-            }
-
-            .theme-header.header-compact .header-right {
-                gap: 4px !important;
-            }
 
             /* Active generation tab — subtle glass */
             .generation-tab.active {
@@ -1058,55 +979,18 @@
 
         <script>
             (function () {
+                // Sync main padding with header height
                 const header = document.querySelector('header.theme-header');
                 const mainContent = document.querySelector('main');
-                let isCompact = false;
-                let ticking = false;
-
-                // Sync main padding with header height to prevent layout jump
                 function updateLayoutPadding() {
                     if (header && mainContent) {
-                        // Use actual height if seemingly valid (not compact), else fallback or keep previous
-                        // We assume full header is at least 80px
-                        const height = header.offsetHeight > 80 ? header.offsetHeight : 100;
-
-                        // Only update padding if header is likely in full state
-                        if (!isCompact && height > 80) {
-                            // Add extra 10px spacing (tight fit)
-                            mainContent.style.paddingTop = `${height + 2}px`;
-                        } else if (!mainContent.style.paddingTop) {
-                            // If no padding set yet, force safe default
-                            mainContent.style.paddingTop = '112px';
-                        }
+                        const height = header.offsetHeight > 40 ? header.offsetHeight : 80;
+                        mainContent.style.paddingTop = `${height + 2}px`;
                     }
                 }
-
-                // Initial layout sync
                 window.addEventListener('load', updateLayoutPadding);
                 window.addEventListener('resize', updateLayoutPadding);
-                // Safety check
-                setTimeout(updateLayoutPadding, 500);
-
-                window.addEventListener('scroll', function () {
-                    if (!ticking) {
-                        requestAnimationFrame(function () {
-                            const scrollY = Math.max(0, window.scrollY);
-                            // Threshold 10px separates intentional scroll from elastic bounce noise
-                            if (!isCompact && scrollY > 10) {
-                                header.classList.add('header-compact');
-                                isCompact = true;
-                                // We DO NOT update padding here — content stays put!
-                            } else if (isCompact && scrollY <= 0) {
-                                header.classList.remove('header-compact');
-                                isCompact = false;
-                                // Now we can verify padding is correct for full height
-                                requestAnimationFrame(updateLayoutPadding);
-                            }
-                            ticking = false;
-                        });
-                        ticking = true;
-                    }
-                }, { passive: true });
+                setTimeout(updateLayoutPadding, 300);
             })();
         </script>
         <main
@@ -2471,26 +2355,8 @@
                         </ul>
                     </div>
                     <div>
-                        <h3 class="text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-[0.2em] mb-6"
-                            data-i18n="footer_legal">Legal</h3>
+                        <h3 class="text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-[0.2em] mb-6">Support</h3>
                         <ul class="space-y-4">
-                            <li><a href="#" onclick="legalRouter.navigateTo('privacy'); return false;"
-                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
-                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                    </svg>
-                                    <span data-i18n="footer_privacy">Privacy Policy</span>
-                                </a></li>
-                            <li><a href="#" onclick="legalRouter.navigateTo('terms'); return false;"
-                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
-                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" />
-                                    </svg>
-                                    <span data-i18n="footer_terms">Terms of Service</span>
-                                </a></li>
                             <li><a href="https://t.me/pixplace_support" target="_blank"
                                     class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
@@ -2504,8 +2370,29 @@
                                     </svg>
                                     <span data-i18n="footer_support">Contact Support</span>
                                 </a></li>
+                            <li><button onclick="window.legalRouter?.navigateTo('privacy')"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group w-full text-left">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors flex-shrink-0"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    </svg>
+                                    <span>Privacy Policy</span>
+                                </button></li>
+                            <li><button onclick="window.legalRouter?.navigateTo('terms')"
+                                    class="text-[13px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2.5 group w-full text-left">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors flex-shrink-0"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                        <polyline points="10 9 9 9 8 9"/>
+                                    </svg>
+                                    <span>Terms of Service</span>
+                                </button></li>
                         </ul>
                     </div>
+
                 </div>
             </div>
 

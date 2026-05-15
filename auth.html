@@ -90,7 +90,7 @@
 
     <!-- Back Button -->
     <div class="absolute top-6 left-6 z-50">
-        <button onclick="window.location.href='index.html'"
+        <button onclick="if(window !== window.parent && typeof window.parent.closeAuthModal === 'function') { window.parent.closeAuthModal(); } else { window.location.href='index.html'; }"
             class="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer group bg-white/10 dark:bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-gray-200/50 dark:border-white/10 shadow-sm">
             <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2">
@@ -100,14 +100,28 @@
         </button>
     </div>
 
+    <!-- Script to close modal when clicking outside the card -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('click', (e) => {
+                if (e.target === document.body && window !== window.parent) {
+                    if (typeof window.parent.closeAuthModal === 'function') {
+                        window.parent.closeAuthModal();
+                    }
+                }
+            });
+        });
+    </script>
+
     <!-- Modal Container Adapted for Standalone Page -->
-    <div class="w-full max-w-[380px] relative flex flex-col items-center p-8 bg-white/60 dark:bg-[#18181b]/60 backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-white/10 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-700">
+    <div
+        class="w-full max-w-[380px] relative flex flex-col items-center p-8 bg-white/60 dark:bg-[#18181b]/60 backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-white/10 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-700">
 
         <!-- Header -->
         <div class="text-center mb-8">
             <div
                 class="font-bold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600 mb-6">
-                PixPlace Ai
+                The PixPlace Ai
             </div>
             <h2 class="text-3xl font-black mb-2 tracking-tight text-gray-900 dark:text-white">Welcome</h2>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Sign in to sync your progress</p>
@@ -169,9 +183,11 @@
         <div class="text-center">
             <p class="text-[11px] leading-relaxed font-medium text-gray-500 dark:text-gray-400">
                 By continuing, you agree to our <br class="sm:hidden">
-                <a href="#" onclick="legalRouter.navigateTo('terms'); return false;" class="text-blue-500 hover:underline">Terms of Service</a>
+                <a href="#" onclick="legalRouter.navigateTo('terms'); return false;"
+                    class="text-blue-500 hover:underline">Terms of Service</a>
                 and
-                <a href="#" onclick="legalRouter.navigateTo('privacy'); return false;" class="text-blue-500 hover:underline">Privacy Policy</a>
+                <a href="#" onclick="legalRouter.navigateTo('privacy'); return false;"
+                    class="text-blue-500 hover:underline">Privacy Policy</a>
             </p>
         </div>
     </div>
@@ -197,7 +213,45 @@
         };
 
         window.appState = window.appState || {};
-        window.closeAuthModal = function () { }; // Dummy function
+
+        // On standalone auth page, closeAuthModal just re-initialises the form (no overlay to remove)
+        window.closeAuthModal = function () { };
+
+        // Show welcome screen on the standalone page after successful auth
+        window.showAuthWelcomeScreen = function (name, avatarUrl) {
+            // 🔔 Notify parent window if we're inside the portal iframe
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'auth_success', name, avatarUrl }, '*');
+                return; // Parent will handle the welcome screen
+            }
+
+            const existing = document.getElementById('authWelcomeScreen');
+            if (existing) existing.remove();
+            const screen = document.createElement('div');
+            screen.id = 'authWelcomeScreen';
+            screen.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(9,9,11,0.98);opacity:0;transition:opacity 0.4s ease;flex-direction:column;';
+            const avatarHtml = avatarUrl
+                ? `<img src="${avatarUrl}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(59,130,246,0.5);margin-bottom:24px;" onerror="this.style.display='none'">`
+                : `<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#a855f7);display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:32px;font-weight:900;color:#fff;">${(name || 'U')[0].toUpperCase()}</div>`;
+            screen.innerHTML = `
+                <div style="text-align:center;animation:welcomePulse 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;">
+                    ${avatarHtml}
+                    <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;background:linear-gradient(135deg,#3b82f6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;">pixPLace Ai</div>
+                    <h1 style="font-size:30px;font-weight:900;color:#fff;margin:0 0 8px;">Welcome, ${name || 'Friend'}! 👋</h1>
+                    <p style="font-size:14px;color:rgba(255,255,255,0.45);margin:0 0 32px;">Setting up your studio…</p>
+                    <div style="display:flex;gap:6px;justify-content:center;">
+                        <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;animation:wDot 1.2s ease infinite;"></div>
+                        <div style="width:8px;height:8px;border-radius:50%;background:#6366f1;animation:wDot 1.2s ease 0.2s infinite;"></div>
+                        <div style="width:8px;height:8px;border-radius:50%;background:#a855f7;animation:wDot 1.2s ease 0.4s infinite;"></div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes welcomePulse{from{opacity:0;transform:scale(0.9) translateY(20px)}to{opacity:1;transform:none}}
+                    @keyframes wDot{0%,80%,100%{transform:scale(0.6);opacity:.3}40%{transform:scale(1);opacity:1}}
+                </style>`;
+            document.body.appendChild(screen);
+            requestAnimationFrame(() => { screen.style.opacity = '1'; });
+        };
 
         import { handleTelegramOAuth, handleGoogleAuthCallback, handleEmailLoginSubmit } from './user-account.js';
 
@@ -276,8 +330,14 @@
 
             // Check if already authenticated
             if (localStorage.getItem('telegram_auth_completed') === 'true' && localStorage.getItem('telegram_user')) {
-                console.log('[Auth] User already authenticated. Redirecting to studio.');
-                window.location.href = 'index.html';
+                console.log('[Auth] User already authenticated. Redirecting or closing modal.');
+                if (window !== window.parent) {
+                    if (typeof window.parent.closeAuthModal === 'function') {
+                        window.parent.closeAuthModal();
+                    }
+                } else {
+                    window.location.href = 'index.html';
+                }
             }
         });
 
