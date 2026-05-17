@@ -16,7 +16,7 @@
 class PortalLoader {
     constructor(options = {}) {
         this.options = {
-            basePath: '/forms/',
+            basePath: 'forms/',
             containerSelector: '#form-portal-container',
             defaultForm: 'image',
             ...options
@@ -25,7 +25,7 @@ class PortalLoader {
         this.currentForm = null;
         this.currentIframe = null;
         this.iframeCache = new Map(); // Кэш загруженных iframe
-        this.isDarkTheme = document.documentElement.classList.contains('dark');
+        this.isDarkTheme = document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark';
 
         this.init();
     }
@@ -89,6 +89,7 @@ class PortalLoader {
         const iframe = document.createElement('iframe');
         iframe.id = `form-iframe-${formType}`;
         iframe.className = 'form-iframe w-full h-full border-0 bg-transparent';
+        iframe.style.backgroundColor = this.isDarkTheme ? '#09090b' : '#ffffff';
         iframe.src = `${this.options.basePath}${formType}-form.html?v=${Date.now()}`;
         iframe.loading = 'lazy';
         iframe.setAttribute('data-form-type', formType);
@@ -444,7 +445,7 @@ class PortalLoader {
      */
     observeThemeChanges() {
         // Проверяем начальную тему
-        this.isDarkTheme = document.documentElement.classList.contains('dark');
+        this.isDarkTheme = document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark';
 
         // Слушаем изменения data-theme атрибута
         const observer = new MutationObserver((mutations) => {
