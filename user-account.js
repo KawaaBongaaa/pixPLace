@@ -1000,6 +1000,9 @@ function openAuthModal() {
 
     document.getElementById('authPortalOverlay')?.remove();
 
+    const isDark = document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark';
+    const bgColor = isDark ? '#09090b' : '#ffffff';
+
     const overlay = document.createElement('div');
     overlay.id = 'authPortalOverlay';
     overlay.className = 'auth-portal-overlay';
@@ -1007,7 +1010,7 @@ function openAuthModal() {
         <div class="auth-portal-backdrop" id="authPortalBdrop"></div>
         <iframe id="authPortalFrame"
                 src="auth.html"
-                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;"
+                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;background:${bgColor};"
                 allow="identity-credentials-get"
                 title="Sign in">
         </iframe>
