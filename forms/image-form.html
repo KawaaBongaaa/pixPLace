@@ -4,16 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ai Image Generation workflow - by pixPLace App</title>
+    <title>Design Less workflow - by pixPLace Ai</title>
 
     <!-- Early theme detection to prevent flickering -->
     <script>
         (function () {
-            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches ||
-                document.documentElement.classList.contains('dark') ||
-                document.documentElement.getAttribute('data-theme') === 'dark';
-            if (isDark) {
+            var theme = 'dark'; // Default to dark mode
+            try {
+                var s = localStorage.getItem('appSettings');
+                if (s) {
+                    var parsed = JSON.parse(s);
+                    if (parsed && parsed.theme) {
+                        theme = parsed.theme;
+                    }
+                }
+            } catch (e) { }
+            if (theme === 'auto') {
+                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            theme = theme || 'dark';
+            if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.body.classList.add('dark');
+                });
             }
         })();
     </script>
@@ -301,7 +315,8 @@
         }
 
         .model-item-badge {
-            display: none !important; /* 🔥 Price badges removed per design */
+            display: none !important;
+            /* 🔥 Price badges removed per design */
 
             font-size: 12px;
             font-weight: 700;
@@ -803,11 +818,11 @@
         }
 
         /* Minimal view to show only model picker */
-        .minimal-view > *:not(#ob-model-selector-row) {
+        .minimal-view>*:not(#ob-model-selector-row) {
             display: none !important;
         }
 
-        .minimal-view #ob-model-selector-row > *:not(#modelPickerWrapper) {
+        .minimal-view #ob-model-selector-row>*:not(#modelPickerWrapper) {
             display: none !important;
         }
 
@@ -818,7 +833,6 @@
         .minimal-view #ob-model-selector-row {
             margin-bottom: 0 !important;
         }
-
     </style>
 </head>
 
@@ -1046,12 +1060,14 @@
                                 <div class="model-item" data-mode="sticker_maker">
                                     <span class="model-item-icon">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.5 0 2.93-.33 4.22-.92L20 22l-1.08-3.78C20.24 16.53 22 13.93 22 12c0-5.52-4.48-10-10-10z"
+                                            <path
+                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.5 0 2.93-.33 4.22-.92L20 22l-1.08-3.78C20.24 16.53 22 13.93 22 12c0-5.52-4.48-10-10-10z"
                                                 stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                                             <circle cx="8" cy="11" r="1.2" fill="currentColor" />
                                             <circle cx="12" cy="11" r="1.2" fill="currentColor" />
                                             <circle cx="16" cy="11" r="1.2" fill="currentColor" />
-                                            <path d="M8 15c1.5 1.5 6.5 1.5 8 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                                            <path d="M8 15c1.5 1.5 6.5 1.5 8 0" stroke="currentColor" stroke-width="1.2"
+                                                stroke-linecap="round" />
                                         </svg>
                                     </span>
                                     <div class="model-item-info">
@@ -1063,17 +1079,21 @@
                                     </div>
                                     <span class="model-item-badge">5 Cr</span>
                                 </div>
-                                <div class="model-item" data-mode="vector_coming" style="opacity: 0.5; pointer-events: none;">
+                                <div class="model-item" data-mode="vector_coming"
+                                    style="opacity: 0.5; pointer-events: none;">
                                     <span class="model-item-icon">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                            <polygon points="12,2 22,12 12,22 2,12" stroke="currentColor" stroke-width="1.5" fill="none" />
+                                            <polygon points="12,2 22,12 12,22 2,12" stroke="currentColor"
+                                                stroke-width="1.5" fill="none" />
                                             <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.2" />
                                         </svg>
                                     </span>
                                     <div class="model-item-info">
                                         <span class="model-item-name">Vector</span>
                                         <span class="model-item-tags">
-                                            <span class="tag" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white;">soon coming</span>
+                                            <span class="tag"
+                                                style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white;">soon
+                                                coming</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge">—</span>
@@ -1606,8 +1626,10 @@
 
                         case 'set-theme':
                             if (data.theme === 'dark') {
+                                document.documentElement.classList.add('dark');
                                 document.body.classList.add('dark');
                             } else {
+                                document.documentElement.classList.remove('dark');
                                 document.body.classList.remove('dark');
                             }
                             break;
@@ -1671,7 +1693,7 @@
                                         target.classList.add('selected');
                                         // Update hidden input / global state used by generate handler
                                         const modeInput = document.getElementById('modeInput') ||
-                                                          document.querySelector('input[name="mode"]');
+                                            document.querySelector('input[name="mode"]');
                                         if (modeInput) modeInput.value = data.selectedModel;
                                         if (typeof window._selectedModel !== 'undefined') {
                                             window._selectedModel = data.selectedModel;
