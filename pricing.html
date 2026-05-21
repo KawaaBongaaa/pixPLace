@@ -72,6 +72,17 @@
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        /* ANTI-FOUC: prevent slide-in snap when page loads from GitHub Pages CDN.
+           slide-in-from-bottom causes elements to snap to translateY position after
+           first paint, creating a visible shake. Replace with opacity-only fade. */
+        .pricing-card[class*="animate-in"] {
+            animation-name: pricingFadeIn !important;
+        }
+        @keyframes pricingFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
         .pricing-card:hover {
             transform: translateY(-8px);
         }
