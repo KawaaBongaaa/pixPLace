@@ -54,6 +54,29 @@
             overflow-x: hidden;
         }
 
+        /* ==========================================================
+           CRITICAL ANTI-FOUC: inline dark-mode styles
+           Applied immediately — before output.css loads from CDN.
+           Mirrors the Tailwind dark: classes used in the markup.
+           ========================================================== */
+        html.dark body,
+        html[data-theme="dark"] body {
+            background-color: #09090b;
+            color: #fafafa;
+        }
+        /* Auth card: dark:bg-[#18181b]/60 dark:border-white/10 */
+        html.dark #auth-card,
+        html[data-theme="dark"] #auth-card {
+            background: rgba(24, 24, 27, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        /* Google button: dark:bg-white/5 dark:border-white/10 */
+        html.dark #googleCustomBtn,
+        html[data-theme="dark"] #googleCustomBtn {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
         .ambient-glow {
             position: fixed;
             width: 60vw;
@@ -115,7 +138,7 @@
     </script>
 
     <!-- Modal Container Adapted for Standalone Page -->
-    <div
+    <div id="auth-card"
         class="w-full max-w-[380px] relative flex flex-col items-center p-8 bg-white/60 dark:bg-[#18181b]/60 backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-white/10 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-700">
 
         <!-- Header -->
@@ -253,120 +276,82 @@
         window.handleEmailLoginSubmit = handleEmailLoginSubmit;
 
         // ─── Google Sign-In ───────────────────────────────────────────────
-        // Root cause of old bug: renderButton placed a cross-origin google iframe
-        // inside OUR iframe → that sub-iframe's window.open() got blocked.
-        // Fix: catch the click ourselves and open auth.html as a same-origin
-        // popup (user gesture from our code → browser never blocks it).
+        // The auth iframe has allow="identity-credentials-get" set by openAuthModal().
+        // This allows google.accounts.id.prompt() (One Tap) to work inside the iframe.
+        // No new window/tab needed — One Tap renders on the top-level page.
+
+        var GSI_CLIENT_ID = '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com';
+
+        function initAndPrompt() {
+            google.accounts.id.initialize({
+                client_id: GSI_CLIENT_ID,
+                callback: handleGoogleAuthCallback,
+                cancel_on_tap_outside: false,
+                auto_select: false,
+            });
+            google.accounts.id.prompt(function (notification) {
+                // One Tap skipped (user dismissed, or not logged in to Google browser-wide)
+                // Fall back to a clean modal with the real GSI button
+                if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
+                    renderGoogleBtnFallback();
+                }
+            });
+        }
 
         window.initiateGoogleSignIn = function () {
-            if (window !== window.parent) {
-                // We are inside the auth modal iframe.
-                // Open a standalone popup — no iframe nesting restriction.
-                var url = window.location.href.split('?')[0];
-                var popup = window.open(url, 'pixplace_google_auth',
-                    'width=460,height=580,left=' +
-                    Math.round((screen.width - 460) / 2) + ',top=' +
-                    Math.round((screen.height - 580) / 2) +
-                    ',scrollbars=yes,resizable=yes');
-                if (!popup) {
-                    // Popup blocked — fall back to same-tab GSI prompt
-                    tryGooglePrompt();
-                    return;
-                }
-                popup.focus();
-                // Forward auth_success from popup back to parent app
-                window.addEventListener('message', function onPopupMsg(e) {
-                    if (e.source === popup && e.data && e.data.type === 'auth_success') {
-                        window.removeEventListener('message', onPopupMsg);
-                        window.parent && window.parent.postMessage(e.data, '*');
-                    }
-                });
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                initAndPrompt();
             } else {
-                // Standalone page or popup — use GSI directly
-                tryGooglePrompt();
+                // GSI script not yet loaded — wait for it
+                var gsiScript = document.getElementById('google-gsi-script');
+                if (gsiScript) {
+                    gsiScript.addEventListener('load', initAndPrompt);
+                    gsiScript.addEventListener('error', function () {
+                        window.showToast && window.showToast('error', 'Google sign-in unavailable.');
+                    });
+                }
             }
         };
 
-        function tryGooglePrompt() {
-            if (window.google && window.google.accounts && window.google.accounts.id) {
-                google.accounts.id.prompt(function (notification) {
-                    if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
-                        // One Tap skipped/dismissed — show the rendered button fallback
-                        renderGoogleBtnFallback();
-                    }
-                });
-            } else {
-                // GSI not loaded yet — render button when ready
-                waitForGSI(renderGoogleBtnFallback);
-            }
-        }
-
         function renderGoogleBtnFallback() {
-            // Create a real visible GSI button (not the hidden overlay trick)
-            var wrapper = document.getElementById('googleCustomBtn');
-            if (!wrapper || !window.google) return;
+            // Show a clean dark overlay with a real Google button as fallback
+            if (document.getElementById('google-fallback-overlay')) return;
             var container = document.createElement('div');
-            container.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+            container.id = 'google-fallback-overlay';
+            container.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);';
             var inner = document.createElement('div');
-            inner.style.cssText = 'background:#18181b;border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;';
-            var label = document.createElement('p');
-            label.style.cssText = 'color:#fff;font-size:14px;font-weight:600;margin:0;';
-            label.textContent = 'Sign in with Google';
+            inner.style.cssText = 'background:#18181b;border-radius:20px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;min-width:300px;';
+            inner.innerHTML = '<p style="color:#fff;font-size:15px;font-weight:700;margin:0;">Sign in with Google</p>';
             var btnDiv = document.createElement('div');
-            inner.appendChild(label);
             inner.appendChild(btnDiv);
             var closeBtn = document.createElement('button');
             closeBtn.textContent = 'Cancel';
-            closeBtn.style.cssText = 'margin-top:4px;color:#888;font-size:12px;background:none;border:none;cursor:pointer;';
+            closeBtn.style.cssText = 'color:#6b7280;font-size:13px;background:none;border:none;cursor:pointer;padding:4px 8px;';
             closeBtn.onclick = function () { container.remove(); };
             inner.appendChild(closeBtn);
             container.appendChild(inner);
             document.body.appendChild(container);
+
             google.accounts.id.initialize({
-                client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
-                callback: function (response) {
-                    container.remove();
-                    handleGoogleAuthCallback(response);
-                },
+                client_id: GSI_CLIENT_ID,
+                callback: function (response) { container.remove(); handleGoogleAuthCallback(response); },
                 cancel_on_tap_outside: false,
             });
-            google.accounts.id.renderButton(btnDiv, {
-                theme: 'filled_black', size: 'large', width: 280
-            });
+            google.accounts.id.renderButton(btnDiv, { theme: 'filled_black', size: 'large', width: 280 });
         }
 
-        function waitForGSI(cb) {
-            var gsi = document.getElementById('google-gsi-script');
-            if (window.google && window.google.accounts) { cb(); return; }
-            if (gsi) { gsi.addEventListener('load', cb); }
-        }
-
-        // If we were opened as a popup by the iframe, auto-try Google on load
-        if (window.opener && !window.opener.closed) {
-            window.addEventListener('load', function () {
-                setTimeout(initiateGoogleSignIn, 300);
-            });
-        }
-
-        // Patch showAuthWelcomeScreen to notify window.opener when in popup mode
+        // Patch showAuthWelcomeScreen: when in iframe, forward to parent
         var _origWelcome = window.showAuthWelcomeScreen;
         window.showAuthWelcomeScreen = function (name, avatarUrl) {
-            // Popup mode: notify the opener (the iframe), it will forward to app
-            if (window.opener && !window.opener.closed) {
-                window.opener.postMessage({ type: 'auth_success', name: name, avatarUrl: avatarUrl }, '*');
-                setTimeout(function () { window.close(); }, 400);
-                return;
-            }
-            // iframe mode: notify parent app directly
             if (window.parent && window.parent !== window) {
                 window.parent.postMessage({ type: 'auth_success', name: name, avatarUrl: avatarUrl }, '*');
                 return;
             }
-            // Standalone mode
             if (_origWelcome) _origWelcome(name, avatarUrl);
         };
 
     </script>
+</script>
     <script src="core/legal-router.js"></script>
 </body>
 
