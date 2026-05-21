@@ -840,26 +840,60 @@ async function initializeUI() {
     const charCounter = document.getElementById('charCounter');
 
     if (promptInput && charCounter) {
+        // Track collapsed/expanded state
+        let promptCollapsed = false;
+
         promptInput.addEventListener('input', function () {
             charCounter.textContent = this.value.length;
 
-            // Auto-resize
-            if (this.offsetParent !== null) {
+            // Auto-resize ONLY when:
+            // 1) Not collapsed by user
+            // 2) Not during decode animation
+            if (!promptCollapsed && this.offsetParent !== null &&
+                !this.classList.contains('prompt-inject-glow')) {
                 this.style.height = 'auto';
                 const extra = this.offsetHeight - this.clientHeight;
                 this.style.height = (this.scrollHeight + (extra > 0 ? extra : 0)) + 'px';
             }
         });
 
-        // 🔥 ДОБАВЛЕНО: Гарантированный ресайз при появлении поля на экране
+        // 🔥 Гарантированный ресайз при появлении поля на экране
         const io = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting && promptInput.value) {
+                if (entry.isIntersecting && promptInput.value && !promptCollapsed) {
                     promptInput.dispatchEvent(new Event('input'));
                 }
             });
         });
         io.observe(promptInput);
+
+        // ── Expand / Collapse toggle button ──────────────────────
+        const expandBtn = document.getElementById('promptExpandBtn');
+        const expandIcon = document.getElementById('promptExpandIcon');
+        if (expandBtn) {
+            expandBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                promptCollapsed = !promptCollapsed;
+
+                if (promptCollapsed) {
+                    // Collapse: clamp to min-height
+                    promptInput.style.height = '';
+                    promptInput.style.overflow = 'hidden';
+                    promptInput.classList.add('prompt-collapsed');
+                    if (expandIcon) expandIcon.style.transform = 'rotate(180deg)';
+                    expandBtn.title = 'Expand prompt';
+                } else {
+                    // Expand: auto-resize to content
+                    promptInput.style.overflow = '';
+                    promptInput.classList.remove('prompt-collapsed');
+                    if (expandIcon) expandIcon.style.transform = '';
+                    expandBtn.title = 'Collapse prompt';
+                    // Trigger resize
+                    promptInput.dispatchEvent(new Event('input'));
+                }
+            });
+        }
     }
 
     // Character counter for negative prompt
@@ -2453,22 +2487,28 @@ async function uploadUserImages() {
 /**
  * 🎬 AI Decode Effect for prompt injection.
  * Characters appear as random glyphs then "decode" into the actual text.
- * Super fast (~1.5s), visually stunning, non-blocking.
- * @param {string} text - The prompt text to animate
- * @param {HTMLTextAreaElement} textarea - Target textarea element
- * @returns {Promise<void>}
+ * Super fast (~1.4s), visually stunning, non-blocking.
+ * Does NOT dispatch 'input' events during animation to avoid auto-resize chaos.
  */
 function animatePromptInjection(text, textarea) {
+    window._deepLinkAnimationDone = false;
     return new Promise((resolve) => {
-        if (!textarea || !text) { resolve(); return; }
+        if (!textarea || !text) {
+            window._deepLinkAnimationDone = true;
+            resolve();
+            return;
+        }
 
-        const GLYPHS = '░▒▓█▀▄▌▐┃╋╬●◆◇◈⬡⬢⟐⟡⧫⬥αβγδεζηθλμξπσφψω₀₁₂₃₄₅₆₇₈₉';
-        const DECODE_DURATION = 1400; // total ms for all chars to settle
-        const WAVE_SPEED = 6;        // chars decoded per frame wave
+        const GLYPHS = '░▒▓█▀▄▌▐┃╋╬●◆◇◈⬡⬢αβγδεζηθλμξπσφψω';
+        const DECODE_DURATION = 1400;
+        const WAVE_SPEED = 6;
         let cancelled = false;
         let animFrame = null;
 
-        // ── Glow effect on textarea ──
+        // ── Lock textarea height during animation to prevent scroll jumps ──
+        const originalHeight = textarea.offsetHeight;
+        textarea.style.height = originalHeight + 'px';
+        textarea.style.overflow = 'hidden';
         textarea.classList.add('prompt-inject-glow');
         textarea.value = '';
 
@@ -2477,8 +2517,6 @@ function animatePromptInjection(text, textarea) {
         badge.className = 'prompt-inject-badge';
         badge.innerHTML = '<span class="badge-icon">⚡</span><span>Template ready</span>';
         document.body.appendChild(badge);
-
-        // Position badge above textarea
         const textareaRect = textarea.getBoundingClientRect();
         const badgeLeft = Math.max(16, Math.min(
             textareaRect.left + textareaRect.width / 2 - 80,
@@ -2493,8 +2531,9 @@ function animatePromptInjection(text, textarea) {
             cancelled = true;
             if (animFrame) cancelAnimationFrame(animFrame);
             textarea.value = text;
-            textarea.dispatchEvent(new Event('input', { bubbles: true }));
             cleanup();
+            // Dispatch input ONCE at the end to update char counter + resize
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
             resolve();
         };
         textarea.addEventListener('keydown', cancelHandler, { once: true });
@@ -2502,18 +2541,15 @@ function animatePromptInjection(text, textarea) {
         // ── AI Decode loop ──
         const startTime = performance.now();
         const charCount = text.length;
-        // Build array of "decoded" flags
         const decoded = new Array(charCount).fill(false);
         let decodedCount = 0;
 
         function render(now) {
             if (cancelled) return;
-
             const elapsed = now - startTime;
             const progress = Math.min(elapsed / DECODE_DURATION, 1);
-
-            // Wave: decode chars from left to right with some ahead/behind jitter
             const wavePos = Math.floor(progress * charCount * 1.15);
+
             for (let i = 0; i < charCount; i++) {
                 if (!decoded[i] && i < wavePos - Math.floor(Math.random() * WAVE_SPEED)) {
                     decoded[i] = true;
@@ -2521,57 +2557,54 @@ function animatePromptInjection(text, textarea) {
                 }
             }
 
-            // Build display string
             let display = '';
             for (let i = 0; i < charCount; i++) {
                 if (decoded[i]) {
                     display += text[i];
                 } else if (i < wavePos + WAVE_SPEED) {
-                    // Scrambling zone — show random glyph
                     display += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
                 }
-                // chars beyond wave are not shown yet
             }
-
             textarea.value = display;
 
             if (decodedCount < charCount) {
                 animFrame = requestAnimationFrame(render);
             } else {
-                // Ensure final text is exact
                 textarea.value = text;
-                textarea.dispatchEvent(new Event('input', { bubbles: true }));
                 finishAnimation();
             }
         }
 
         function finishAnimation() {
-            // Flash green glow
             textarea.classList.remove('prompt-inject-glow');
             textarea.classList.add('prompt-inject-glow-fade');
-            textarea.style.animation = 'prompt-success-pulse 0.5s ease-out';
 
             setTimeout(() => {
                 badge.classList.remove('visible');
                 badge.classList.add('fade-out');
-            }, 600);
+            }, 500);
 
-            setTimeout(() => cleanup(), 1800);
+            setTimeout(() => {
+                cleanup();
+                // Dispatch input ONCE to update char counter + trigger proper resize
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }, 1200);
             resolve();
         }
 
         function cleanup() {
             textarea.classList.remove('prompt-inject-glow', 'prompt-inject-glow-fade');
+            textarea.style.overflow = '';
+            textarea.style.height = '';
             textarea.style.animation = '';
-            textarea.style.height = ''; // Reset forced height to prevent scroll lock
             textarea.removeEventListener('keydown', cancelHandler);
+            window._deepLinkAnimationDone = true;
             if (badge.parentNode) {
                 badge.classList.add('fade-out');
                 setTimeout(() => badge.remove(), 600);
             }
         }
 
-        // Kick off after brief pause
         setTimeout(() => {
             animFrame = requestAnimationFrame(render);
         }, 150);
@@ -2581,8 +2614,10 @@ function animatePromptInjection(text, textarea) {
 /**
  * 🖼️ Cinematic image injection: shows a large centered preview
  * that animates/shrinks into the panel's preview position.
+ * z-index is set above the onboarding overlay so it's visible.
  */
 function animateImageInjection() {
+    window._deepLinkAnimationDone = false;
     const previewContainer = document.getElementById('previewContainer');
     if (!previewContainer) return;
 
@@ -2621,6 +2656,7 @@ function animateImageInjection() {
 
             setTimeout(() => {
                 floater.remove();
+                window._deepLinkAnimationDone = true;
                 // Add glow to the actual preview
                 const previewItem = targetImg.closest('.preview-item') || targetImg;
                 previewItem.classList.add('image-inject-glow');
