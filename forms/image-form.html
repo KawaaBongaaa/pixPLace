@@ -901,6 +901,7 @@
                                         <span class="model-item-name">Nano Banana</span>
                                         <span class="model-item-tags">
                                             <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">edit</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge">3 Cr</span>
@@ -919,6 +920,7 @@
                                         <span class="model-item-name">Nano Banana 2</span>
                                         <span class="model-item-tags">
                                             <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">edit</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge">5–11 Cr</span>
@@ -937,6 +939,7 @@
                                         <span class="model-item-name">Nano Banana Pro</span>
                                         <span class="model-item-tags">
                                             <span class="tag tag-blue">txt2img</span>
+                                            <span class="tag tag-purple">edit</span>
                                         </span>
                                     </div>
                                     <span class="model-item-badge">12–16 Cr</span>
@@ -1178,7 +1181,7 @@
                     placeholder="A beautiful sunset over mountains, digital art, vibrant colors..." rows="4"></textarea>
 
                 <!-- Character Counter -->
-                <div class="char-counter" id="charCounter">0/2000</div>
+                <div class="char-counter" id="charCounter">0/4000</div>
 
                 <!-- Negative Prompt Toggle -->
                 <div class="negative-prompt-toggle">
@@ -1691,7 +1694,7 @@
                                 // 🔥 FIX: restore the previously selected model for this tab
                                 if (data.selectedModel) {
                                     const target = document.querySelector(
-                                        `.model-item[data-model="${data.selectedModel}"]`
+                                        `.model-item[data-mode="${data.selectedModel}"]`
                                     );
                                     if (target) {
                                         // Deselect all, select target
@@ -1810,7 +1813,7 @@
                     document.getElementById(counterId).textContent = `${count}/${max}`;
                 }
 
-                promptInput.addEventListener('input', () => updateCharCounter(promptInput, 'charCounter', 2000));
+                promptInput.addEventListener('input', () => updateCharCounter(promptInput, 'charCounter', 4000));
                 const negativePromptInput = document.getElementById('negativePromptInput');
                 if (negativePromptInput) {
                     negativePromptInput.addEventListener('input', () => updateCharCounter(negativePromptInput, 'negativeCharCounter', 1000));
