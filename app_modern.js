@@ -2445,6 +2445,136 @@ async function uploadUserImages() {
 // Example link with prompt + UTM:
 //   https://app.pixplace.space/?prompt=A%20cat&utm_source=telegram&utm_campaign=group_post
 //
+/**
+ * 🎬 Animated typewriter effect for prompt injection.
+ * Shows the prompt being "typed" into the textarea with glow + floating badge.
+ * Non-blocking: stops immediately if user starts typing.
+ * @param {string} text - The prompt text to animate
+ * @param {HTMLTextAreaElement} textarea - Target textarea element
+ * @returns {Promise<void>}
+ */
+function animatePromptInjection(text, textarea) {
+    return new Promise((resolve) => {
+        if (!textarea || !text) { resolve(); return; }
+
+        // Speed: ~30ms per char, but accelerate for long prompts
+        const baseSpeed = text.length > 200 ? 10 : text.length > 100 ? 20 : 30;
+        let index = 0;
+        let cancelled = false;
+
+        // ── Glow effect on textarea ──
+        textarea.classList.add('prompt-inject-glow');
+        textarea.value = '';
+
+        // ── Floating badge ──
+        const badge = document.createElement('div');
+        badge.className = 'prompt-inject-badge';
+        badge.innerHTML = '<span class="badge-icon">✨</span> Prompt loaded';
+        document.body.appendChild(badge);
+
+        // Position badge above textarea
+        const textareaRect = textarea.getBoundingClientRect();
+        badge.style.left = `${textareaRect.left + textareaRect.width / 2 - 90}px`;
+        badge.style.top = `${textareaRect.top - 52}px`;
+        requestAnimationFrame(() => badge.classList.add('visible'));
+
+        // ── Cancel on user input ──
+        const cancelHandler = () => {
+            cancelled = true;
+            textarea.value = text; // Insert full text immediately
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            cleanup();
+            resolve();
+        };
+        textarea.addEventListener('keydown', cancelHandler, { once: true });
+        textarea.addEventListener('focus', () => {
+            // Don't cancel on focus alone, only on actual typing
+        });
+
+        // ── Typewriter loop ──
+        function typeNext() {
+            if (cancelled) return;
+            if (index < text.length) {
+                // Type 1-3 chars at a time for natural feel
+                const chunk = Math.min(text.length > 150 ? 3 : 1, text.length - index);
+                textarea.value += text.substring(index, index + chunk);
+                index += chunk;
+
+                // Auto-resize textarea height
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+
+                // Dispatch input to update char counter
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+                const jitter = Math.random() * baseSpeed * 0.6;
+                setTimeout(typeNext, baseSpeed + jitter);
+            } else {
+                // ── Typing complete ──
+                finishAnimation();
+            }
+        }
+
+        function finishAnimation() {
+            // Flash green glow on completion
+            textarea.classList.remove('prompt-inject-glow');
+            textarea.classList.add('prompt-inject-glow-fade');
+
+            // Success pulse
+            textarea.style.animation = 'prompt-success-pulse 0.6s ease-out';
+
+            // Fade out badge
+            setTimeout(() => {
+                badge.classList.remove('visible');
+                badge.classList.add('fade-out');
+            }, 800);
+
+            // Cleanup after animations
+            setTimeout(() => cleanup(), 2000);
+            resolve();
+        }
+
+        function cleanup() {
+            textarea.classList.remove('prompt-inject-glow', 'prompt-inject-glow-fade');
+            textarea.style.animation = '';
+            textarea.removeEventListener('keydown', cancelHandler);
+            if (badge.parentNode) {
+                badge.classList.add('fade-out');
+                setTimeout(() => badge.remove(), 600);
+            }
+        }
+
+        // Start with a small delay for visual impact
+        setTimeout(typeNext, 300);
+    });
+}
+
+/**
+ * 🖼️ Animated fly-in for image preview injection.
+ * Adds a scale+blur entrance animation to the image preview container.
+ */
+function animateImageInjection() {
+    // Find all preview images that just appeared
+    const previewContainer = document.getElementById('userImagePreview') ||
+                             document.getElementById('previewContainer');
+    if (!previewContainer) return;
+
+    const images = previewContainer.querySelectorAll('img, .preview-item');
+    images.forEach((img, i) => {
+        img.style.opacity = '0';
+        img.classList.add('image-inject-fly-in');
+        // Stagger multiple images
+        img.style.animationDelay = `${i * 150}ms`;
+
+        // Add glow ring
+        setTimeout(() => {
+            img.classList.add('image-inject-glow');
+            // Remove glow after a few seconds
+            setTimeout(() => img.classList.remove('image-inject-glow'), 3000);
+        }, 700 + i * 150);
+    });
+}
+
 async function applyUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     console.log('🔍 [applyUrlParams] called. URL:', window.location.href, '| Params:', Object.fromEntries(urlParams));
@@ -2504,7 +2634,10 @@ async function applyUrlParams() {
                     body: JSON.stringify({ prompt_id: numericId })
                 });
                 if (res.ok) {
-                    const data = await res.json();
+                    let data = await res.json();
+                    console.log('📦 Webhook raw response:', data);
+                    // n8n returns arrays by default: [{used_prompt: "..."}]
+                    if (Array.isArray(data)) data = data[0];
                     if (data && data.used_prompt) {
                         urlPrompt = data.used_prompt.trim();
                         console.log('✅ Fetched used_prompt:', urlPrompt);
@@ -2607,6 +2740,8 @@ async function applyUrlParams() {
 
             if (window.renderPreviews) window.renderPreviews();
             if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
+            // Animate the image preview fly-in
+            setTimeout(() => animateImageInjection(), 200);
 
             if (urlMode === 'edit' || window._currentGenerationTab === 'edit') {
                 window._editImageUrl = imageObj.dataUrl || urlImageUrl;
@@ -2627,6 +2762,8 @@ async function applyUrlParams() {
             });
             if (window.renderPreviews) window.renderPreviews();
             if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
+            // Animate the image preview fly-in
+            setTimeout(() => animateImageInjection(), 200);
         }
 
         applied = true;
@@ -2661,13 +2798,20 @@ async function applyUrlParams() {
         }
     }
 
-    // 2️⃣  Pre-fill prompt textarea
+    // 2️⃣  Pre-fill prompt textarea (with animation for deep links)
     if (urlPrompt) {
         console.log(`📝 [applyUrlParams] prompt param found (source: ${urlSource || 'unknown'})`);
         const promptInput = document.getElementById('promptInput');
         if (promptInput) {
-            promptInput.value = urlPrompt;
-            promptInput.dispatchEvent(new Event('input'));
+            // Use typewriter animation for deep link prompts
+            const isDeepLink = urlParams.has('prompt');
+            if (isDeepLink && urlPrompt.length > 0) {
+                // Fire-and-forget animation (non-blocking)
+                animatePromptInjection(urlPrompt, promptInput);
+            } else {
+                promptInput.value = urlPrompt;
+                promptInput.dispatchEvent(new Event('input'));
+            }
 
             // Also push to appState to prevent overwrite
             const currentMode = urlMode || window._currentGenerationTab || 'image';

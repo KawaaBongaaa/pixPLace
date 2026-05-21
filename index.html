@@ -10,7 +10,7 @@
     <!-- 🔥 CRITICAL: Set theme + inline colors BEFORE any CSS loads to prevent white flash -->
     <script>
         // 🔥 CACHE CONTROL: Change this version when releasing major updates to bust browser cache
-        window.APP_VERSION = "2024.04.30.22";
+        window.APP_VERSION = "2024.04.30.01";
 
         // 🔄 VERSION CHECK: Auto-reload once if app version changed (clears stale JS/CSS from browser cache)
         // Safe: does NOT touch auth tokens, balance, or user data — only reloads the page files.
@@ -2568,6 +2568,24 @@
             // Only launch for new users
             if (localStorage.getItem('pixplace_onboarding_done')) return;
 
+            // 🔍 Detect deep link context to adapt onboarding flow
+            var urlParams = new URLSearchParams(window.location.search);
+            var promptParam = urlParams.get('prompt') || '';
+            window._deepLinkContext = {
+                hasPrompt: !!promptParam,
+                hasImage: urlParams.has('image_url'),
+                isPromptId: promptParam.startsWith('prompt_id_') || promptParam.startsWith('prmpt_id_'),
+                scenario: 'direct' // default
+            };
+            if (window._deepLinkContext.hasPrompt && window._deepLinkContext.hasImage) {
+                window._deepLinkContext.scenario = 'prompt_image';
+            } else if (window._deepLinkContext.hasPrompt) {
+                window._deepLinkContext.scenario = 'prompt';
+            } else if (window._deepLinkContext.hasImage) {
+                window._deepLinkContext.scenario = 'image';
+            }
+            console.log('🎯 [Onboarding] Deep link context:', window._deepLinkContext);
+
             function fireOnboardingDone() {
                 document.dispatchEvent(new CustomEvent('pixplace:onboarding:done'));
             }
@@ -2576,7 +2594,7 @@
                 // Small delay so app UI settles
                 setTimeout(function () {
                     import('./onboarding/onboarding.js').then(function (m) {
-                        var ob = new m.PixPlaceOnboarding();
+                        var ob = new m.PixPlaceOnboarding(window._deepLinkContext);
 
                         // 🔥 Patch _finish to fire consent event after onboarding ends
                         var origFinish = ob._finish.bind(ob);
