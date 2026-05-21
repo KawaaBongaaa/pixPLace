@@ -2535,10 +2535,6 @@ function animatePromptInjection(text, textarea) {
 
             textarea.value = display;
 
-            // Auto-resize
-            textarea.style.height = 'auto';
-            textarea.style.height = textarea.scrollHeight + 'px';
-
             if (decodedCount < charCount) {
                 animFrame = requestAnimationFrame(render);
             } else {
@@ -2567,6 +2563,7 @@ function animatePromptInjection(text, textarea) {
         function cleanup() {
             textarea.classList.remove('prompt-inject-glow', 'prompt-inject-glow-fade');
             textarea.style.animation = '';
+            textarea.style.height = ''; // Reset forced height to prevent scroll lock
             textarea.removeEventListener('keydown', cancelHandler);
             if (badge.parentNode) {
                 badge.classList.add('fade-out');
