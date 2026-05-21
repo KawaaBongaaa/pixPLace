@@ -2498,7 +2498,11 @@ async function applyUrlParams() {
                 }
                 
                 const numericId = urlPrompt.replace(/^(prmpt_id_|prompt_id_)/, '');
-                const res = await fetch(`${webhookUrl}?prompt_id=${encodeURIComponent(numericId)}`);
+                const res = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt_id: numericId })
+                });
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.used_prompt) {
