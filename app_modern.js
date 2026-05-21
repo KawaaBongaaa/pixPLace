@@ -857,15 +857,8 @@ async function initializeUI() {
             }
         });
 
-        // 🔥 Гарантированный ресайз при появлении поля на экране
-        const io = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && promptInput.value && !promptCollapsed) {
-                    promptInput.dispatchEvent(new Event('input'));
-                }
-            });
-        });
-        io.observe(promptInput);
+        // Note: IntersectionObserver removed to fix massive scroll lag
+        // (it was creating a reflow loop during scrolling)
 
         // ── Expand / Collapse toggle button ──────────────────────
         const expandBtn = document.getElementById('promptExpandBtn');
@@ -2814,18 +2807,19 @@ async function applyUrlParams() {
     // Normalize mode: 'images' -> 'image'
     if (urlMode === 'images') urlMode = 'image';
 
+    let urlModel = urlParams.get('model');
+    let urlImageUrl = urlParams.get('image_url');
+    const urlSource = urlParams.get('utm_source') || urlParams.get('source');
+
     // Default mode if not specified: 'edit' if image exists, else 'image' if prompt exists
     if (!urlMode) {
-        if (urlParams.get('image_url')) {
+        if (urlImageUrl) {
             urlMode = 'edit';
-        } else if (urlPrompt || urlParams.get('model')) {
+            urlModel = urlModel || 'qwen_image_edit';
+        } else if (urlPrompt || urlModel) {
             urlMode = 'image';
         }
     }
-
-    const urlModel = urlParams.get('model');
-    let urlImageUrl = urlParams.get('image_url');
-    const urlSource = urlParams.get('utm_source') || urlParams.get('source');
 
     let applied = false;
 
