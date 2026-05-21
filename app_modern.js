@@ -81,7 +81,7 @@ const CONFIG = {
     // ⚠️ Do NOT put real URLs here — they are replaced at deploy time
     WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/basic-model',
     CHAT_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/pixplace_chat',
-    GET_PROMPT_WEHHOOK: 'https://alv-n8n.pixplace.space/webhook/get-prompt',
+    GET_PROMPT_WEHHOOK: '',
     NANO_BANANA_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook/nano_banana',
     NANO_BANANA_2_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook/nano-banana-2',
     NANO_BANANA_PRO_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook/nano-banana-pro',
