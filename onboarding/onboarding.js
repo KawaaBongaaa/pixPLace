@@ -1224,7 +1224,7 @@ const FALLBACK_EN = {
     // ── Deep Link Welcome Steps (marketing copy) ──────────────────
     // Prompt deep link
     ob_deeplink_prompt_title: 'Your prompt is ready! ⚡',
-    ob_deeplink_prompt_desc:  'We've loaded a creative template for you — edit it to match your vision, or hit Generate to see instant results. Skip the blank page and start creating.',
+    ob_deeplink_prompt_desc:  'We\'ve loaded a creative template for you — edit it to match your vision, or hit Generate to see instant results. Skip the blank page and start creating.',
 
     // Image deep link
     ob_deeplink_image_title: 'Your image is loaded! 📸',
