@@ -79,7 +79,7 @@ const CONFIG = {
 
     // Webhook URLs — injected by GitHub Actions (deploy.yml) via repository secrets
     // ⚠️ Do NOT put real URLs here — they are replaced at deploy time
-    WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/flux-klein-9b',
+    WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/basic-model',
     CHAT_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/pixplace_chat',
     GET_PROMPT_WEHHOOK: 'https://alv-n8n.pixplace.space/webhook/get-prompt',
     NANO_BANANA_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook/nano_banana',
