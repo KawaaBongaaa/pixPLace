@@ -557,6 +557,11 @@ function switchTab(tabType) {
     // 🔥 RESTORE incoming mode state from appState.modesState → push to iframe
     _restoreModeStateToDOM(tabType);
 
+    // 🔥 Send context to iframe so it filters the models list appropriately
+    if (window.portalLoader && window.portalLoader.currentIframe) {
+        window.portalLoader.sendToCurrentIframe({ type: 'set-context', mode: tabType });
+    }
+
     // 🔥 Update activeMode in appState
     if (window.appState) {
         window.appState.activeMode = tabType;
