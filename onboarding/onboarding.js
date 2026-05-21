@@ -32,7 +32,7 @@ export class PixPlaceOnboarding {
         catch {/* ignore */ }
     }
 
-    constructor() {
+    constructor(deepLinkContext) {
         this.currentStep = 0;
         this.cinemaEl = null;
         this.tourEl = null;
@@ -43,11 +43,17 @@ export class PixPlaceOnboarding {
         this._typewriterTimer = null;
         this._demoCleanups = []; // fns to call when step changes
 
-        // ── Tour step definitions ──────────────────────────────────────────
-        this.tourSteps = [
+        // ── Deep link context for adaptive flow ──────────────────────────
+        this.deepLinkContext = deepLinkContext || { scenario: 'direct' };
+        this.scenario = this.deepLinkContext.scenario || 'direct';
+        console.log(`🎯 [Onboarding] Scenario: ${this.scenario}`);
+
+        // ── All tour step definitions ──────────────────────────────────────
+        const allTourSteps = [
 
             // ① All 4 generation tabs — highlight the whole tabs row
             {
+                id: 'tabs',
                 selector:  '#ob-tabs-row',
                 fallback:  '.generation-tab[data-tab="image"]',
                 titleKey:  'ob_tour_tabs_title',
@@ -58,6 +64,7 @@ export class PixPlaceOnboarding {
 
             // ② AI Model selector — the iframe picker in form-portal-container
             {
+                id: 'model',
                 selector: '#form-portal-container',
                 fallback:  '#modeSelect',
                 titleKey: 'ob_tour_model_title',
@@ -68,6 +75,7 @@ export class PixPlaceOnboarding {
 
             // ③ Prompt input — with typewriter demo
             {
+                id: 'prompt',
                 selector: '#promptInput',
                 fallback:  'textarea[maxlength="2000"]',
                 titleKey:  'ob_tour_prompt_title',
@@ -78,6 +86,7 @@ export class PixPlaceOnboarding {
 
             // ④ Style chips — image style categories + chip grid
             {
+                id: 'chips',
                 selector: '#imageStylesSection',
                 fallback:  '#chipCategoryTabs',
                 titleKey: 'ob_tour_chips_title',
@@ -88,6 +97,7 @@ export class PixPlaceOnboarding {
 
             // ⑤ Upload + Preview — captures BOTH urlInputContainer AND userImagePreview
             {
+                id: 'upload',
                 selector: 'MULTI',
                 selectors: [
                     '#urlInputContainer',
@@ -101,6 +111,7 @@ export class PixPlaceOnboarding {
 
             // ⑥ Size + Resolution toolbar
             {
+                id: 'tools',
                 selector: '#ob-tools-row',
                 fallback:  '#sizeGroup',
                 titleKey: 'ob_tour_tools_title',
@@ -111,6 +122,7 @@ export class PixPlaceOnboarding {
 
             // ⑦ Edit AI tab — switch + spotlight dropzone
             {
+                id: 'edit',
                 selector: 'MULTI',
                 selectors: [
                     '.generation-tab[data-tab="edit"]',
@@ -124,6 +136,7 @@ export class PixPlaceOnboarding {
 
             // ⑧ Sound / Music tab
             {
+                id: 'sound',
                 selector: 'MULTI',
                 selectors: [
                     '.generation-tab[data-tab="sound"]',
@@ -137,6 +150,7 @@ export class PixPlaceOnboarding {
 
             // ⑨ GPT Chat Button
             {
+                id: 'gpt',
                 selector: '#ai-chat-float-btn',
                 fallback:  '.ai-chat-btn-entrance',
                 titleKey: 'ob_tour_gpt_title',
@@ -147,6 +161,7 @@ export class PixPlaceOnboarding {
 
             // ⑩ Generate!
             {
+                id: 'generate',
                 selector: '#generateBtn',
                 fallback:  'button[type="submit"]',
                 titleKey: 'ob_tour_generate_title',
@@ -155,6 +170,28 @@ export class PixPlaceOnboarding {
                 demo: null,
             },
         ];
+
+        // ── Filter steps by scenario ──────────────────────────────────
+        // Direct visit → full tour (all 10 steps)
+        // Deep link with prompt → skip intro, show: chips, upload, tools, generate
+        // Deep link with image → skip intro, show: model, prompt, tools, generate
+        // Deep link with both → skip intro, show: chips, tools, generate
+        const SCENARIO_STEPS = {
+            'direct':       null, // null = show all steps
+            'prompt':       ['chips', 'upload', 'tools', 'generate'],
+            'image':        ['model', 'prompt', 'tools', 'generate'],
+            'prompt_image': ['chips', 'tools', 'generate'],
+        };
+
+        const allowedStepIds = SCENARIO_STEPS[this.scenario];
+        if (allowedStepIds) {
+            this.tourSteps = allTourSteps.filter(step => allowedStepIds.includes(step.id));
+            this.skipCinema = true; // Skip cinema intro for deep link users
+            console.log(`🎯 [Onboarding] Shortened tour: ${this.tourSteps.map(s => s.id).join(', ')}`);
+        } else {
+            this.tourSteps = allTourSteps;
+            this.skipCinema = false;
+        }
 
         this.totalSteps = this.tourSteps.length;
     }
@@ -172,9 +209,18 @@ export class PixPlaceOnboarding {
     /* ── Entry ───────────────────────────────────────────────── */
     async start() {
         this._lockScroll();
-        this._renderCinema();
-        await this._wait(60);
-        this._showCinema();
+        if (this.skipCinema) {
+            // Deep link scenario: skip cinema intro, go straight to tour
+            console.log('🎯 [Onboarding] Skipping Cinema Intro (deep link scenario)');
+            this.currentStep = 1;
+            this._renderTour();
+            await this._wait(300);
+            this._goToTourStep(0);
+        } else {
+            this._renderCinema();
+            await this._wait(60);
+            this._showCinema();
+        }
     }
 
     /* ─────────────────────────────────────────────────────────────
