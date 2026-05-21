@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ai Image Generation workflow - by pixPLace App</title>
 
+    <!-- Early theme detection -->
     <script>
         (function () {
             var theme = 'dark';
@@ -19,10 +20,7 @@
             theme = theme || 'dark';
             var d = document.documentElement;
             d.setAttribute('data-theme', theme);
-            if (theme === 'dark') d.classList.add('dark');
-            // NOTE: No inline backgroundColor here — portal-loader.js already
-            // sets the iframe ELEMENT background. Setting it on the inner <html>
-            // breaks the portal-modal-active fullscreen expand (shows black).
+            if (theme === 'dark') { d.classList.add('dark'); }
         })();
     </script>
 
@@ -39,7 +37,7 @@
             /* Iframe height is managed by parent */
         }
 
-        /* Theme CSS Variables */
+        /* Theme CSS Variables — light defaults */
         :root {
             --bg-input-light: rgba(255, 255, 255, 0.8);
             --bg-input-dark: rgba(255, 255, 255, 0.05);
@@ -57,6 +55,21 @@
             --bg-dropzone-dark: rgba(255, 255, 255, 0.05);
             --bg-slider-light: rgba(0, 0, 0, 0.1);
             --bg-slider-dark: rgba(255, 255, 255, 0.1);
+        }
+
+        /* CRITICAL ANTI-FOUC: override CSS vars to dark values inline,
+           BEFORE output.css loads from GitHub Pages CDN.
+           Without this, model-picker-btn shows as white on first paint. */
+        html.dark,
+        html[data-theme="dark"] {
+            --bg-input-light: rgba(255, 255, 255, 0.05);
+            --border-input-light: rgba(255, 255, 255, 0.1);
+            --text-primary-light: #f1f5f9;
+            --bg-model-picker-light: rgba(255, 255, 255, 0.05);
+            --border-model-picker-light: rgba(255, 255, 255, 0.1);
+            --bg-model-picker-hover-light: rgba(255, 255, 255, 0.1);
+            --bg-dropzone-light: rgba(255, 255, 255, 0.05);
+            --bg-slider-light: rgba(255, 255, 255, 0.1);
         }
 
         /* Reset for iframe */
