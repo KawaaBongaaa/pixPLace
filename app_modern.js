@@ -81,6 +81,7 @@ const CONFIG = {
     // ⚠️ Do NOT put real URLs here — they are replaced at deploy time
     WEBHOOK_URL: 'PLACEHOLDER_WEBHOOK_URL',
     CHAT_WEBHOOK_URL: 'PLACEHOLDER_CHAT_WEBHOOK_URL',
+    GET_PROMPT_WEHHOOK: 'PLACEHOLDER_GET_PROMPT_WEHHOOK',
     NANO_BANANA_WEBHOOK: 'PLACEHOLDER_NANO_BANANA_WEBHOOK',
     NANO_BANANA_2_WEBHOOK: 'PLACEHOLDER_NANO_BANANA_2_WEBHOOK',
     NANO_BANANA_PRO_WEBHOOK: 'PLACEHOLDER_NANO_BANANA_PRO_WEBHOOK',
@@ -843,9 +844,22 @@ async function initializeUI() {
             charCounter.textContent = this.value.length;
 
             // Auto-resize
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
+            if (this.offsetParent !== null) {
+                this.style.height = 'auto';
+                const extra = this.offsetHeight - this.clientHeight;
+                this.style.height = (this.scrollHeight + (extra > 0 ? extra : 0)) + 'px';
+            }
         });
+
+        // 🔥 ДОБАВЛЕНО: Гарантированный ресайз при появлении поля на экране
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && promptInput.value) {
+                    promptInput.dispatchEvent(new Event('input'));
+                }
+            });
+        });
+        io.observe(promptInput);
     }
 
     // Character counter for negative prompt
@@ -857,9 +871,22 @@ async function initializeUI() {
             negativeCharCounter.textContent = this.value.length;
 
             // Auto-resize (smaller maximum for negative prompt)
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px'; // Max 120px height
+            if (this.offsetParent !== null) {
+                this.style.height = 'auto';
+                const extra = this.offsetHeight - this.clientHeight;
+                this.style.height = Math.min(this.scrollHeight + (extra > 0 ? extra : 0), 120) + 'px'; // Max 120px height
+            }
         });
+
+        // 🔥 ДОБАВЛЕНО: Гарантированный ресайз при появлении поля на экране
+        const negativeIo = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && negativePromptInput.value) {
+                    negativePromptInput.dispatchEvent(new Event('input'));
+                }
+            });
+        });
+        negativeIo.observe(negativePromptInput);
     }
 
     // Form submission — guard against duplicate listeners on re-init
@@ -2455,8 +2482,46 @@ async function applyUrlParams() {
         });
     }
 
-    const urlPrompt = urlParams.get('prompt');
+    let urlPrompt = urlParams.get('prompt');
     let urlMode = urlParams.get('mode');
+
+    // 0.5️⃣ Fetch prompt from webhook if it is an ID
+    if (urlPrompt && urlPrompt.startsWith('prmpt_id_')) {
+        const webhookUrl = CONFIG.GET_PROMPT_WEHHOOK || CONFIG.GET_PROMPT_WEBHOOK;
+        if (webhookUrl && !webhookUrl.includes('PLACEHOLDER')) {
+            console.log('🔄 Fetching prompt from webhook for ID:', urlPrompt);
+            try {
+                const promptInput = document.getElementById('promptInput');
+                if (promptInput) {
+                    promptInput.value = 'Loading prompt...';
+                    promptInput.disabled = true;
+                }
+                
+                const res = await fetch(`${webhookUrl}?prompt_id=${encodeURIComponent(urlPrompt)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.used_prompt) {
+                        urlPrompt = data.used_prompt.trim();
+                        console.log('✅ Fetched used_prompt:', urlPrompt);
+                    } else {
+                        console.warn('⚠️ Webhook returned no used_prompt:', data);
+                        urlPrompt = '';
+                    }
+                }
+                
+                if (promptInput) {
+                    promptInput.disabled = false;
+                }
+            } catch (e) {
+                console.error('❌ Error fetching prompt from webhook:', e);
+                const promptInput = document.getElementById('promptInput');
+                if (promptInput) {
+                    promptInput.disabled = false;
+                    urlPrompt = '';
+                }
+            }
+        }
+    }
 
     // Normalize mode: 'images' -> 'image'
     if (urlMode === 'images') urlMode = 'image';
