@@ -79,7 +79,7 @@ const CONFIG = {
 
     // Webhook URLs — injected by GitHub Actions (deploy.yml) via repository secrets
     // ⚠️ Do NOT put real URLs here — they are replaced at deploy time
-    WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/basic-model',
+    WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/flux-klein-9b',
     CHAT_WEBHOOK_URL: 'https://alv-n8n.pixplace.space/webhook/pixplace_chat',
     GET_PROMPT_WEHHOOK: 'https://alv-n8n.pixplace.space/webhook/get-prompt',
     NANO_BANANA_WEBHOOK: 'https://alv-n8n.pixplace.space/webhook/nano_banana',
@@ -2109,6 +2109,12 @@ function renderPreviews() {
         if (preview) preview.classList.add('hidden');
         if (wrapper) wrapper.classList.remove('has-image');
     }
+
+    // 🔍 Attach lightbox for click-to-view on all preview images
+    const previewContainer = document.getElementById('previewContainer');
+    if (previewContainer && typeof attachPreviewLightbox === 'function') {
+        attachPreviewLightbox(previewContainer);
+    }
 }
 window.renderPreviews = renderPreviews;
 
@@ -2446,9 +2452,9 @@ async function uploadUserImages() {
 //   https://app.pixplace.space/?prompt=A%20cat&utm_source=telegram&utm_campaign=group_post
 //
 /**
- * 🎬 Animated typewriter effect for prompt injection.
- * Shows the prompt being "typed" into the textarea with glow + floating badge.
- * Non-blocking: stops immediately if user starts typing.
+ * 🎬 AI Decode Effect for prompt injection.
+ * Characters appear as random glyphs then "decode" into the actual text.
+ * Super fast (~1.5s), visually stunning, non-blocking.
  * @param {string} text - The prompt text to animate
  * @param {HTMLTextAreaElement} textarea - Target textarea element
  * @returns {Promise<void>}
@@ -2457,10 +2463,11 @@ function animatePromptInjection(text, textarea) {
     return new Promise((resolve) => {
         if (!textarea || !text) { resolve(); return; }
 
-        // Speed: ~30ms per char, but accelerate for long prompts
-        const baseSpeed = text.length > 200 ? 10 : text.length > 100 ? 20 : 30;
-        let index = 0;
+        const GLYPHS = '░▒▓█▀▄▌▐┃╋╬●◆◇◈⬡⬢⟐⟡⧫⬥αβγδεζηθλμξπσφψω₀₁₂₃₄₅₆₇₈₉';
+        const DECODE_DURATION = 1400; // total ms for all chars to settle
+        const WAVE_SPEED = 6;        // chars decoded per frame wave
         let cancelled = false;
+        let animFrame = null;
 
         // ── Glow effect on textarea ──
         textarea.classList.add('prompt-inject-glow');
@@ -2469,68 +2476,92 @@ function animatePromptInjection(text, textarea) {
         // ── Floating badge ──
         const badge = document.createElement('div');
         badge.className = 'prompt-inject-badge';
-        badge.innerHTML = '<span class="badge-icon">✨</span> Prompt loaded';
+        badge.innerHTML = '<span class="badge-icon">⚡</span><span>Template ready</span>';
         document.body.appendChild(badge);
 
         // Position badge above textarea
         const textareaRect = textarea.getBoundingClientRect();
-        badge.style.left = `${textareaRect.left + textareaRect.width / 2 - 90}px`;
-        badge.style.top = `${textareaRect.top - 52}px`;
+        const badgeLeft = Math.max(16, Math.min(
+            textareaRect.left + textareaRect.width / 2 - 80,
+            window.innerWidth - 180
+        ));
+        badge.style.left = `${badgeLeft}px`;
+        badge.style.top = `${Math.max(8, textareaRect.top - 52)}px`;
         requestAnimationFrame(() => badge.classList.add('visible'));
 
         // ── Cancel on user input ──
         const cancelHandler = () => {
             cancelled = true;
-            textarea.value = text; // Insert full text immediately
+            if (animFrame) cancelAnimationFrame(animFrame);
+            textarea.value = text;
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
             cleanup();
             resolve();
         };
         textarea.addEventListener('keydown', cancelHandler, { once: true });
-        textarea.addEventListener('focus', () => {
-            // Don't cancel on focus alone, only on actual typing
-        });
 
-        // ── Typewriter loop ──
-        function typeNext() {
+        // ── AI Decode loop ──
+        const startTime = performance.now();
+        const charCount = text.length;
+        // Build array of "decoded" flags
+        const decoded = new Array(charCount).fill(false);
+        let decodedCount = 0;
+
+        function render(now) {
             if (cancelled) return;
-            if (index < text.length) {
-                // Type 1-3 chars at a time for natural feel
-                const chunk = Math.min(text.length > 150 ? 3 : 1, text.length - index);
-                textarea.value += text.substring(index, index + chunk);
-                index += chunk;
 
-                // Auto-resize textarea height
-                textarea.style.height = 'auto';
-                textarea.style.height = textarea.scrollHeight + 'px';
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / DECODE_DURATION, 1);
 
-                // Dispatch input to update char counter
-                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            // Wave: decode chars from left to right with some ahead/behind jitter
+            const wavePos = Math.floor(progress * charCount * 1.15);
+            for (let i = 0; i < charCount; i++) {
+                if (!decoded[i] && i < wavePos - Math.floor(Math.random() * WAVE_SPEED)) {
+                    decoded[i] = true;
+                    decodedCount++;
+                }
+            }
 
-                const jitter = Math.random() * baseSpeed * 0.6;
-                setTimeout(typeNext, baseSpeed + jitter);
+            // Build display string
+            let display = '';
+            for (let i = 0; i < charCount; i++) {
+                if (decoded[i]) {
+                    display += text[i];
+                } else if (i < wavePos + WAVE_SPEED) {
+                    // Scrambling zone — show random glyph
+                    display += GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+                }
+                // chars beyond wave are not shown yet
+            }
+
+            textarea.value = display;
+
+            // Auto-resize
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+
+            if (decodedCount < charCount) {
+                animFrame = requestAnimationFrame(render);
             } else {
-                // ── Typing complete ──
+                // Ensure final text is exact
+                textarea.value = text;
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
                 finishAnimation();
             }
         }
 
         function finishAnimation() {
-            // Flash green glow on completion
+            // Flash green glow
             textarea.classList.remove('prompt-inject-glow');
             textarea.classList.add('prompt-inject-glow-fade');
+            textarea.style.animation = 'prompt-success-pulse 0.5s ease-out';
 
-            // Success pulse
-            textarea.style.animation = 'prompt-success-pulse 0.6s ease-out';
-
-            // Fade out badge
             setTimeout(() => {
                 badge.classList.remove('visible');
                 badge.classList.add('fade-out');
-            }, 800);
+            }, 600);
 
-            // Cleanup after animations
-            setTimeout(() => cleanup(), 2000);
+            setTimeout(() => cleanup(), 1800);
             resolve();
         }
 
@@ -2544,34 +2575,115 @@ function animatePromptInjection(text, textarea) {
             }
         }
 
-        // Start with a small delay for visual impact
-        setTimeout(typeNext, 300);
+        // Kick off after brief pause
+        setTimeout(() => {
+            animFrame = requestAnimationFrame(render);
+        }, 150);
     });
 }
 
 /**
- * 🖼️ Animated fly-in for image preview injection.
- * Adds a scale+blur entrance animation to the image preview container.
+ * 🖼️ Cinematic image injection: shows a large centered preview
+ * that animates/shrinks into the panel's preview position.
  */
 function animateImageInjection() {
-    // Find all preview images that just appeared
-    const previewContainer = document.getElementById('userImagePreview') ||
-                             document.getElementById('previewContainer');
+    const previewContainer = document.getElementById('previewContainer');
     if (!previewContainer) return;
 
-    const images = previewContainer.querySelectorAll('img, .preview-item');
-    images.forEach((img, i) => {
-        img.style.opacity = '0';
-        img.classList.add('image-inject-fly-in');
-        // Stagger multiple images
-        img.style.animationDelay = `${i * 150}ms`;
+    const targetImg = previewContainer.querySelector('.preview-item img') ||
+                      previewContainer.querySelector('img');
+    if (!targetImg) return;
 
-        // Add glow ring
+    const src = targetImg.src;
+    if (!src) return;
+
+    // ── Create floating large preview ──
+    const floater = document.createElement('div');
+    floater.className = 'image-inject-floater';
+    floater.innerHTML = `<img src="${src}" alt="Preview" />`;
+    document.body.appendChild(floater);
+
+    // ── Get target position for shrink animation ──
+    const targetRect = targetImg.getBoundingClientRect();
+
+    // Start: centered, large
+    requestAnimationFrame(() => {
+        floater.classList.add('visible');
+
+        // After showing for 600ms, shrink to preview position
         setTimeout(() => {
-            img.classList.add('image-inject-glow');
-            // Remove glow after a few seconds
-            setTimeout(() => img.classList.remove('image-inject-glow'), 3000);
-        }, 700 + i * 150);
+            floater.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+            floater.style.width = `${targetRect.width}px`;
+            floater.style.height = `${targetRect.height}px`;
+            floater.style.left = `${targetRect.left}px`;
+            floater.style.top = `${targetRect.top}px`;
+            floater.style.borderRadius = '8px';
+            floater.style.opacity = '0';
+
+            // Reveal the actual preview
+            targetImg.style.opacity = '1';
+
+            setTimeout(() => {
+                floater.remove();
+                // Add glow to the actual preview
+                const previewItem = targetImg.closest('.preview-item') || targetImg;
+                previewItem.classList.add('image-inject-glow');
+                setTimeout(() => previewItem.classList.remove('image-inject-glow'), 3000);
+            }, 650);
+        }, 700);
+    });
+
+    // Hide actual preview until floater lands
+    targetImg.style.opacity = '0';
+
+    // ── Add click-to-open lightbox to ALL preview images ──
+    attachPreviewLightbox(previewContainer);
+}
+
+/**
+ * 🔍 Lightbox: click any preview image to view full-size.
+ */
+function attachPreviewLightbox(container) {
+    if (!container) return;
+    // Avoid double-binding
+    if (container._lightboxBound) return;
+    container._lightboxBound = true;
+
+    container.addEventListener('click', (e) => {
+        const img = e.target.closest('img');
+        if (!img || e.target.closest('.remove-preview-btn') || e.target.closest('.inner-upload-btn')) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Create lightbox
+        const lightbox = document.createElement('div');
+        lightbox.className = 'preview-lightbox';
+        lightbox.innerHTML = `
+            <div class="preview-lightbox-backdrop"></div>
+            <div class="preview-lightbox-content">
+                <img src="${img.src}" alt="Full preview" />
+                <button class="preview-lightbox-close" aria-label="Close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+        document.body.appendChild(lightbox);
+
+        requestAnimationFrame(() => lightbox.classList.add('visible'));
+
+        // Close handlers
+        const close = () => {
+            lightbox.classList.remove('visible');
+            setTimeout(() => lightbox.remove(), 300);
+        };
+        lightbox.querySelector('.preview-lightbox-backdrop').addEventListener('click', close);
+        lightbox.querySelector('.preview-lightbox-close').addEventListener('click', close);
+        document.addEventListener('keydown', function esc(e) {
+            if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
+        });
     });
 }
 
