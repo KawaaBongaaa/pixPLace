@@ -2111,7 +2111,6 @@ function renderPreviews() {
     }
 
     // 🔍 Attach lightbox for click-to-view on all preview images
-    const previewContainer = document.getElementById('previewContainer');
     if (previewContainer && typeof attachPreviewLightbox === 'function') {
         attachPreviewLightbox(previewContainer);
     }
