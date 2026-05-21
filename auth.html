@@ -17,6 +17,7 @@
             var d = document.documentElement;
             d.setAttribute('data-theme', theme);
             if (theme === 'dark') {
+                d.classList.add('dark');
                 d.style.backgroundColor = '#09090b';
                 d.style.color = '#fafafa';
             } else {
@@ -129,26 +130,19 @@
 
         <!-- Social Login Buttons -->
         <div class="w-full space-y-4 mb-8">
-            <!-- Google Button Wrapper -->
-            <div class="relative group rounded-2xl w-full" style="height: 48px;">
-                <button
-                    class="w-full h-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_20px_rgba(255,255,255,0.05)] transform hover:-translate-y-0.5 cursor-pointer">
+            <!-- Google Button -->
+            <div class="relative group rounded-2xl w-full">
+                <button id="googleCustomBtn"
+                    onclick="initiateGoogleSignIn()"
+                    class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_20px_rgba(255,255,255,0.05)] transform hover:-translate-y-0.5 cursor-pointer">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#4285F4"
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853"
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05"
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                        <path fill="#EA4335"
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                     </svg>
                     <span class="text-sm font-bold text-gray-700 dark:text-gray-200">Continue with Google</span>
                 </button>
-                <!-- Google GSI Frame Container -->
-                <div id="googleSignInWrapper"
-                    style="position: absolute; inset: 0; opacity: 0.01; z-index: 9999; pointer-events: auto; cursor: pointer;">
-                </div>
             </div>
 
             <!-- Telegram Button -->
@@ -255,97 +249,123 @@
 
         import { handleTelegramOAuth, handleGoogleAuthCallback, handleEmailLoginSubmit } from './user-account.js';
 
-        // Expose to window for inline onclick handlers
         window.handleTelegramOAuth = handleTelegramOAuth;
         window.handleEmailLoginSubmit = handleEmailLoginSubmit;
 
-        // Render Google Sign-in button
-        function renderGoogleBtn() {
-            console.log('[GSI] renderGoogleBtn() called. window.google:', !!window.google);
-            const googleWrapper = document.getElementById('googleSignInWrapper');
+        // ─── Google Sign-In ───────────────────────────────────────────────
+        // Root cause of old bug: renderButton placed a cross-origin google iframe
+        // inside OUR iframe → that sub-iframe's window.open() got blocked.
+        // Fix: catch the click ourselves and open auth.html as a same-origin
+        // popup (user gesture from our code → browser never blocks it).
 
-            if (!googleWrapper) {
-                console.error('[GSI] ❌ #googleSignInWrapper not found in DOM');
-                return;
-            }
-            if (!window.google || !window.google.accounts || !window.google.accounts.id) {
-                console.warn('[GSI] ⚠️ google.accounts.id not available yet');
-                return;
-            }
-
-            try {
-                console.log('[GSI] Initializing google.accounts.id...');
-                google.accounts.id.initialize({
-                    client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
-                    callback: handleGoogleAuthCallback,
-                    auto_select: false,
-                    cancel_on_tap_outside: false,
-                });
-
-                const wrapperWidth = googleWrapper.offsetWidth || 340;
-                console.log('[GSI] Rendering button, wrapper width:', wrapperWidth);
-                google.accounts.id.renderButton(googleWrapper, {
-                    theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
-                    size: 'large',
-                    type: 'standard',
-                    shape: 'rectangular',
-                    width: wrapperWidth,
-                });
-                console.log('[GSI] ✅ Google button rendered successfully');
-            } catch (e) {
-                console.error('[GSI] ❌ Failed to render Google Auth button:', e);
-                // Show fallback toast
-                if (window.showToast) window.showToast('error', 'Google sign-in unavailable. Try Telegram or Email.');
-            }
-        }
-
-        // Robust init: wait for both DOM and GSI script
-        function initGoogleAuth() {
-            console.log('[GSI] initGoogleAuth() called. google available:', !!window.google);
-            if (window.google?.accounts?.id) {
-                renderGoogleBtn();
-            } else {
-                // GSI script not loaded yet — attach to its onload
-                const gsiScript = document.getElementById('google-gsi-script');
-                if (gsiScript) {
-                    console.log('[GSI] Attaching to gsi-script onload event...');
-                    gsiScript.addEventListener('load', () => {
-                        console.log('[GSI] GSI script load event fired');
-                        renderGoogleBtn();
-                    });
-                    gsiScript.addEventListener('error', () => {
-                        console.error('[GSI] ❌ GSI script failed to load (network error or ad-blocker)');
-                        if (window.showToast) window.showToast('error', 'Could not load Google Sign-In.');
-                    });
-                } else {
-                    console.error('[GSI] ❌ #google-gsi-script element not found');
+        window.initiateGoogleSignIn = function () {
+            if (window !== window.parent) {
+                // We are inside the auth modal iframe.
+                // Open a standalone popup — no iframe nesting restriction.
+                var url = window.location.href.split('?')[0];
+                var popup = window.open(url, 'pixplace_google_auth',
+                    'width=460,height=580,left=' +
+                    Math.round((screen.width - 460) / 2) + ',top=' +
+                    Math.round((screen.height - 580) / 2) +
+                    ',scrollbars=yes,resizable=yes');
+                if (!popup) {
+                    // Popup blocked — fall back to same-tab GSI prompt
+                    tryGooglePrompt();
+                    return;
                 }
-            }
-        }
-
-        // Use addEventListener instead of window.onload to avoid overwriting other handlers
-        window.addEventListener('load', () => {
-            console.log('[GSI] window load event fired');
-            initGoogleAuth();
-
-            // Check if already authenticated
-            if (localStorage.getItem('telegram_auth_completed') === 'true' && localStorage.getItem('telegram_user')) {
-                console.log('[Auth] User already authenticated. Redirecting or closing modal.');
-                if (window !== window.parent) {
-                    if (typeof window.parent.closeAuthModal === 'function') {
-                        window.parent.closeAuthModal();
+                popup.focus();
+                // Forward auth_success from popup back to parent app
+                window.addEventListener('message', function onPopupMsg(e) {
+                    if (e.source === popup && e.data && e.data.type === 'auth_success') {
+                        window.removeEventListener('message', onPopupMsg);
+                        window.parent && window.parent.postMessage(e.data, '*');
                     }
-                } else {
-                    window.location.href = 'index.html';
-                }
+                });
+            } else {
+                // Standalone page or popup — use GSI directly
+                tryGooglePrompt();
             }
-        });
+        };
 
-        // Also try immediately if DOM is already interactive (cached page, fast connection)
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            console.log('[GSI] Document already ready, calling initGoogleAuth immediately');
-            initGoogleAuth();
+        function tryGooglePrompt() {
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                google.accounts.id.prompt(function (notification) {
+                    if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
+                        // One Tap skipped/dismissed — show the rendered button fallback
+                        renderGoogleBtnFallback();
+                    }
+                });
+            } else {
+                // GSI not loaded yet — render button when ready
+                waitForGSI(renderGoogleBtnFallback);
+            }
         }
+
+        function renderGoogleBtnFallback() {
+            // Create a real visible GSI button (not the hidden overlay trick)
+            var wrapper = document.getElementById('googleCustomBtn');
+            if (!wrapper || !window.google) return;
+            var container = document.createElement('div');
+            container.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+            var inner = document.createElement('div');
+            inner.style.cssText = 'background:#18181b;border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:16px;';
+            var label = document.createElement('p');
+            label.style.cssText = 'color:#fff;font-size:14px;font-weight:600;margin:0;';
+            label.textContent = 'Sign in with Google';
+            var btnDiv = document.createElement('div');
+            inner.appendChild(label);
+            inner.appendChild(btnDiv);
+            var closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Cancel';
+            closeBtn.style.cssText = 'margin-top:4px;color:#888;font-size:12px;background:none;border:none;cursor:pointer;';
+            closeBtn.onclick = function () { container.remove(); };
+            inner.appendChild(closeBtn);
+            container.appendChild(inner);
+            document.body.appendChild(container);
+            google.accounts.id.initialize({
+                client_id: '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com',
+                callback: function (response) {
+                    container.remove();
+                    handleGoogleAuthCallback(response);
+                },
+                cancel_on_tap_outside: false,
+            });
+            google.accounts.id.renderButton(btnDiv, {
+                theme: 'filled_black', size: 'large', width: 280
+            });
+        }
+
+        function waitForGSI(cb) {
+            var gsi = document.getElementById('google-gsi-script');
+            if (window.google && window.google.accounts) { cb(); return; }
+            if (gsi) { gsi.addEventListener('load', cb); }
+        }
+
+        // If we were opened as a popup by the iframe, auto-try Google on load
+        if (window.opener && !window.opener.closed) {
+            window.addEventListener('load', function () {
+                setTimeout(initiateGoogleSignIn, 300);
+            });
+        }
+
+        // Patch showAuthWelcomeScreen to notify window.opener when in popup mode
+        var _origWelcome = window.showAuthWelcomeScreen;
+        window.showAuthWelcomeScreen = function (name, avatarUrl) {
+            // Popup mode: notify the opener (the iframe), it will forward to app
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({ type: 'auth_success', name: name, avatarUrl: avatarUrl }, '*');
+                setTimeout(function () { window.close(); }, 400);
+                return;
+            }
+            // iframe mode: notify parent app directly
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'auth_success', name: name, avatarUrl: avatarUrl }, '*');
+                return;
+            }
+            // Standalone mode
+            if (_origWelcome) _origWelcome(name, avatarUrl);
+        };
+
     </script>
     <script src="core/legal-router.js"></script>
 </body>
