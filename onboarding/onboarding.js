@@ -171,13 +171,41 @@ export class PixPlaceOnboarding {
             },
         ];
 
+        // ── Contextual welcome steps for deep link scenarios ──────────
+        // These are prepended BEFORE the filtered tour steps
+        const WELCOME_STEPS = {
+            'prompt': {
+                id: 'welcome_prompt',
+                selector: '#promptInput',
+                fallback: 'textarea[maxlength="2000"]',
+                titleKey: 'ob_deeplink_prompt_title',
+                descKey:  'ob_deeplink_prompt_desc',
+                typewriter: null,
+                demo: null,
+            },
+            'image': {
+                id: 'welcome_image',
+                selector: '#previewContainer',
+                fallback: '#userImagePreview',
+                titleKey: 'ob_deeplink_image_title',
+                descKey:  'ob_deeplink_image_desc',
+                typewriter: null,
+                demo: null,
+            },
+            'prompt_image': {
+                id: 'welcome_both',
+                selector: 'MULTI',
+                selectors: ['#promptInput', '#previewContainer'],
+                titleKey: 'ob_deeplink_both_title',
+                descKey:  'ob_deeplink_both_desc',
+                typewriter: null,
+                demo: null,
+            },
+        };
+
         // ── Filter steps by scenario ──────────────────────────────────
-        // Direct visit → full tour (all 10 steps)
-        // Deep link with prompt → skip intro, show: chips, upload, tools, generate
-        // Deep link with image → skip intro, show: model, prompt, tools, generate
-        // Deep link with both → skip intro, show: chips, tools, generate
         const SCENARIO_STEPS = {
-            'direct':       null, // null = show all steps
+            'direct':       null,
             'prompt':       ['chips', 'upload', 'tools', 'generate'],
             'image':        ['model', 'prompt', 'tools', 'generate'],
             'prompt_image': ['chips', 'tools', 'generate'],
@@ -185,9 +213,12 @@ export class PixPlaceOnboarding {
 
         const allowedStepIds = SCENARIO_STEPS[this.scenario];
         if (allowedStepIds) {
-            this.tourSteps = allTourSteps.filter(step => allowedStepIds.includes(step.id));
-            this.skipCinema = true; // Skip cinema intro for deep link users
-            console.log(`🎯 [Onboarding] Shortened tour: ${this.tourSteps.map(s => s.id).join(', ')}`);
+            const filteredSteps = allTourSteps.filter(step => allowedStepIds.includes(step.id));
+            // Prepend contextual welcome step
+            const welcomeStep = WELCOME_STEPS[this.scenario];
+            this.tourSteps = welcomeStep ? [welcomeStep, ...filteredSteps] : filteredSteps;
+            this.skipCinema = true;
+            console.log(`🎯 [Onboarding] Adaptive tour: ${this.tourSteps.map(s => s.id).join(', ')}`);
         } else {
             this.tourSteps = allTourSteps;
             this.skipCinema = false;
@@ -1189,6 +1220,19 @@ const FALLBACK_EN = {
 
     ob_demo_upload_badge: 'Watch the upload button glow!',
     ob_demo_model_badge:  'Watch the model list expand!',
+
+    // ── Deep Link Welcome Steps (marketing copy) ──────────────────
+    // Prompt deep link
+    ob_deeplink_prompt_title: 'Your prompt is ready! ⚡',
+    ob_deeplink_prompt_desc:  'We've loaded a creative template for you — edit it to match your vision, or hit Generate to see instant results. Skip the blank page and start creating.',
+
+    // Image deep link
+    ob_deeplink_image_title: 'Your image is loaded! 📸',
+    ob_deeplink_image_desc:  'Your reference is ready in the preview. Describe what you want to change — swap the background, transform the style, or enhance details. AI does the heavy lifting.',
+
+    // Both prompt + image deep link
+    ob_deeplink_both_title: 'Everything is set up! 🎯',
+    ob_deeplink_both_desc:  'Prompt and reference image are loaded — you\'re one click away from generating. Fine-tune the text, pick a style chip, and hit Generate to create.',
 };
 
 /* ─── Auto-init helper ──────────────────────────────────────── */
