@@ -43,7 +43,7 @@ jobs:
           QWEN_IMAGE_WEBHOOK_URL: ${{ secrets.QWEN_IMAGE_WEBHOOK }}
           SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL: ${{ secrets.SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL }}
           SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL: ${{ secrets.SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL }}
-          GET_PROMPT_WEHHOOK: ${{ secrets.GET_PROMPT_WEHHOOK }}
+          GET_PROMPT_WEHHOOK: ${{ secrets.GET_PROMPT_WEBHOOK }}
         run: |
           echo "🔧 Injecting webhook URLs safely with Node.js..."
           
