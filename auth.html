@@ -153,11 +153,10 @@
 
         <!-- Social Login Buttons -->
         <div class="w-full space-y-4 mb-8">
-            <!-- Google Button -->
-            <div class="relative group rounded-2xl w-full">
+            <!-- Google Button Wrapper -->
+            <div class="relative group rounded-2xl w-full" style="height: 48px;">
                 <button id="googleCustomBtn"
-                    onclick="initiateGoogleSignIn()"
-                    class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_20px_rgba(255,255,255,0.05)] transform hover:-translate-y-0.5 cursor-pointer">
+                    class="w-full h-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_20px_rgba(255,255,255,0.05)] transform hover:-translate-y-0.5 cursor-pointer">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -166,6 +165,10 @@
                     </svg>
                     <span class="text-sm font-bold text-gray-700 dark:text-gray-200">Continue with Google</span>
                 </button>
+                <!-- Invisible Google GSI overlay — handles click and opens Google account picker -->
+                <div id="googleSignInWrapper"
+                    style="position:absolute;inset:0;opacity:0.01;z-index:9999;pointer-events:auto;cursor:pointer;">
+                </div>
             </div>
 
             <!-- Telegram Button -->
@@ -275,72 +278,68 @@
         window.handleTelegramOAuth = handleTelegramOAuth;
         window.handleEmailLoginSubmit = handleEmailLoginSubmit;
 
-        // ─── Google Sign-In ───────────────────────────────────────────────
-        // The auth iframe has allow="identity-credentials-get" set by openAuthModal().
-        // This allows google.accounts.id.prompt() (One Tap) to work inside the iframe.
-        // No new window/tab needed — One Tap renders on the top-level page.
-
+        // ─── Google Sign-In (renderButton approach) ───────────────────────
         var GSI_CLIENT_ID = '809888494346-8tlj4fn02s2tkc3jmmh81bhvgpao2cg0.apps.googleusercontent.com';
 
-        function initAndPrompt() {
-            google.accounts.id.initialize({
-                client_id: GSI_CLIENT_ID,
-                callback: handleGoogleAuthCallback,
-                cancel_on_tap_outside: false,
-                auto_select: false,
-            });
-            google.accounts.id.prompt(function (notification) {
-                // One Tap skipped (user dismissed, or not logged in to Google browser-wide)
-                // Fall back to a clean modal with the real GSI button
-                if (notification.isSkippedMoment() || notification.isDismissedMoment()) {
-                    renderGoogleBtnFallback();
-                }
-            });
+        function renderGoogleBtn() {
+            var wrapper = document.getElementById('googleSignInWrapper');
+            if (!wrapper) return;
+            if (!window.google || !window.google.accounts || !window.google.accounts.id) return;
+            try {
+                google.accounts.id.initialize({
+                    client_id: GSI_CLIENT_ID,
+                    callback: handleGoogleAuthCallback,
+                    auto_select: false,
+                    cancel_on_tap_outside: false,
+                });
+                var w = wrapper.offsetWidth || 340;
+                google.accounts.id.renderButton(wrapper, {
+                    theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'filled_black' : 'outline',
+                    size: 'large',
+                    type: 'standard',
+                    shape: 'rectangular',
+                    width: w,
+                });
+            } catch (e) {
+                console.error('[GSI] renderButton failed:', e);
+            }
         }
 
-        window.initiateGoogleSignIn = function () {
+        function initGoogleAuth() {
             if (window.google && window.google.accounts && window.google.accounts.id) {
-                initAndPrompt();
+                renderGoogleBtn();
             } else {
-                // GSI script not yet loaded — wait for it
-                var gsiScript = document.getElementById('google-gsi-script');
-                if (gsiScript) {
-                    gsiScript.addEventListener('load', initAndPrompt);
-                    gsiScript.addEventListener('error', function () {
-                        window.showToast && window.showToast('error', 'Google sign-in unavailable.');
-                    });
+                var s = document.getElementById('google-gsi-script');
+                if (s) { s.addEventListener('load', renderGoogleBtn); }
+            }
+        }
+
+        // Safety net: if GSI iframe is gone (e.g. after popup closed), re-render on click
+        document.addEventListener('DOMContentLoaded', function () {
+            var wrapper = document.getElementById('googleSignInWrapper');
+            if (wrapper) {
+                wrapper.addEventListener('click', function () {
+                    if (!wrapper.querySelector('iframe')) { renderGoogleBtn(); }
+                });
+            }
+        });
+
+        window.addEventListener('load', function () {
+            initGoogleAuth();
+            if (localStorage.getItem('telegram_auth_completed') === 'true' && localStorage.getItem('telegram_user')) {
+                if (window !== window.parent) {
+                    if (typeof window.parent.closeAuthModal === 'function') { window.parent.closeAuthModal(); }
+                } else {
+                    window.location.href = 'index.html';
                 }
             }
-        };
+        });
 
-        function renderGoogleBtnFallback() {
-            // Show a clean dark overlay with a real Google button as fallback
-            if (document.getElementById('google-fallback-overlay')) return;
-            var container = document.createElement('div');
-            container.id = 'google-fallback-overlay';
-            container.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);';
-            var inner = document.createElement('div');
-            inner.style.cssText = 'background:#18181b;border-radius:20px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:16px;min-width:300px;';
-            inner.innerHTML = '<p style="color:#fff;font-size:15px;font-weight:700;margin:0;">Sign in with Google</p>';
-            var btnDiv = document.createElement('div');
-            inner.appendChild(btnDiv);
-            var closeBtn = document.createElement('button');
-            closeBtn.textContent = 'Cancel';
-            closeBtn.style.cssText = 'color:#6b7280;font-size:13px;background:none;border:none;cursor:pointer;padding:4px 8px;';
-            closeBtn.onclick = function () { container.remove(); };
-            inner.appendChild(closeBtn);
-            container.appendChild(inner);
-            document.body.appendChild(container);
-
-            google.accounts.id.initialize({
-                client_id: GSI_CLIENT_ID,
-                callback: function (response) { container.remove(); handleGoogleAuthCallback(response); },
-                cancel_on_tap_outside: false,
-            });
-            google.accounts.id.renderButton(btnDiv, { theme: 'filled_black', size: 'large', width: 280 });
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initGoogleAuth();
         }
 
-        // Patch showAuthWelcomeScreen: when in iframe, forward to parent
+        // When in iframe: forward auth_success to parent app
         var _origWelcome = window.showAuthWelcomeScreen;
         window.showAuthWelcomeScreen = function (name, avatarUrl) {
             if (window.parent && window.parent !== window) {
@@ -351,7 +350,6 @@
         };
 
     </script>
-</script>
     <script src="core/legal-router.js"></script>
 </body>
 
