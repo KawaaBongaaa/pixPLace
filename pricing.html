@@ -62,6 +62,12 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
+        /* ✅ FIX: Remove bg-white from Pro card markup to prevent dark-mode flash.
+           Light mode background is applied here instead, AFTER theme is already known. */
+        [data-theme="light"] .pricing-pro {
+            background-color: #ffffff;
+        }
+
         .pricing-card {
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -787,7 +793,7 @@
             </div>
 
             <!-- PRO Subscription (HIGHLIGHTED) — mobile: 1st -->
-            <div class="pricing-card rounded-3xl p-5 sm:p-6 flex flex-col relative pro-glow bg-white dark:bg-gray-900 shadow-2xl animate-in slide-in-from-bottom-12 fade-in duration-700 md:-mt-2 md:mb-2 z-10 pricing-pro"
+            <div class="pricing-card rounded-3xl p-5 sm:p-6 flex flex-col relative pro-glow dark:bg-gray-900 shadow-2xl animate-in slide-in-from-bottom-12 fade-in duration-700 md:-mt-2 md:mb-2 z-10 pricing-pro"
                 style="animation-delay: 200ms;">
                 <!-- Badge -->
                 <div id="badge-pro" class="absolute -top-4 left-1/2 -translate-x-1/2">

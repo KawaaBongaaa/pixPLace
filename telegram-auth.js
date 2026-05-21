@@ -26,7 +26,35 @@ async function handleTelegramLogin() {
                     username: user.username
                 });
 
+                // ✅ FIX: Account-switch mismatch detection.
+                // If the current Telegram user differs from the stored session, purge stale
+                // localStorage data BEFORE the API call so the old user's avatar / balance
+                // never appear during the new login sequence.
+                try {
+                    const storedUser = JSON.parse(localStorage.getItem('telegram_user') || '{}');
+                    const storedId = storedUser.id != null ? String(storedUser.id) : null;
+                    const currentId = String(user.id);
 
+                    if (storedId && storedId !== currentId) {
+                        console.log('🔄 Account switch detected (' + storedId + ' → ' + currentId + '). Clearing stale session...');
+                        localStorage.removeItem('telegram_user');
+                        localStorage.removeItem('telegram_user_data');
+                        localStorage.removeItem('telegram_auth_completed');
+                        localStorage.removeItem('telegram_auth_timestamp');
+                        localStorage.removeItem('currentBalance');
+                        document.documentElement.classList.remove('auth-session-active');
+                        // Reset stale credits / avatar in appState so UI shows nothing
+                        // while the fresh API response is in-flight
+                        if (window.appState && typeof window.appState.updateState === 'function') {
+                            window.appState.updateState({
+                                user: {
+                                    ...window.appState.state.user,
+                                    id: null, name: null, photo_url: null, credits: null
+                                }
+                            });
+                        }
+                    }
+                } catch (e) { /* silent */ }
 
                 // Call backend webhook to get real internal ID
                 // Извлекаем hash из initData, так как он нужен бекенду для проверки подписи
@@ -46,23 +74,28 @@ async function handleTelegramLogin() {
                 const data = await response.json();
 
                 if (data.userId) {
-                    // Сохраняем данные пользователя в appState
+                    // ✅ FIX: Single batched update — fires _notifyListeners exactly ONCE
+                    // instead of separate userId / userName / userAvatar / setUser() calls
+                    // that each triggered a separate UI render (4-step flicker).
                     if (typeof window.appState !== 'undefined') {
-                        window.appState.userId = String(data.userId);
-                        window.appState.userName = data.userName || user.first_name;
-                        window.appState.userAvatar = data.userPhotoUrl || user.photo_url || null;
-                        
-                        // 🔥 ADDED: Sync credits and profile to appState
                         if (typeof window.appState.setUser === 'function') {
                             window.appState.setUser({
+                                id: String(data.userId),
+                                name: data.userName || user.first_name,
+                                photo_url: data.userPhotoUrl || user.photo_url || null,
                                 credits: data.credits !== undefined ? Number(data.credits) : undefined,
                                 isPremium: data.isPremium !== undefined ? !!data.isPremium : undefined,
                                 subscription: data.subscription || null
                             });
+                        } else {
+                            // Fallback: legacy path
+                            window.appState.userId = String(data.userId);
+                            window.appState.userName = data.userName || user.first_name;
+                            window.appState.userAvatar = data.userPhotoUrl || user.photo_url || null;
                         }
                     }
 
-                    // 🔥 СОХРАНЯЕМ СЕССИЮ В LOCALSTORAGE (F5 FIX)
+                    // Save session to localStorage
                     const userDataToSave = {
                         ...user,
                         internalUserId: data.userId,
@@ -76,18 +109,17 @@ async function handleTelegramLogin() {
 
                     document.documentElement.classList.add('auth-session-active');
 
+                    // ✅ Single UI refresh — after ALL state is committed
                     if (typeof window.updateUserMenuInfo === 'function') {
                         window.updateUserMenuInfo();
                     }
 
-                    // Переходим на главный экран
+                    // Navigate to generation screen
                     if (typeof window.showGeneration === 'function') {
                         window.showGeneration();
                     }
 
-
-
-                    return; // Успешная WebApp авторизация
+                    return; // Successful WebApp auth
                 } else {
                     console.warn('⚠️ WebApp: Backend did not return a valid userId');
                     if (typeof window.showToast === 'function') {

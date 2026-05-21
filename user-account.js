@@ -1035,7 +1035,7 @@ function openAuthModal() {
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             overlay.classList.add('auth-portal-visible');
-            overlay.querySelector('#authPortalCard').classList.add('auth-portal-card-visible');
+            overlay.querySelector('#authPortalCard')?.classList.add('auth-portal-card-visible');
         });
     });
 }
