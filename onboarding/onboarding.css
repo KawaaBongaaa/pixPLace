@@ -815,6 +815,26 @@
 }
 
 /* ============================================================
+   PROMPT TEXTAREA EXPAND/COLLAPSE
+   ============================================================ */
+.prompt-collapsed {
+    max-height: 80px !important;
+    min-height: 60px !important;
+    overflow: hidden !important;
+    transition: max-height 0.3s ease, min-height 0.3s ease !important;
+}
+#promptExpandBtn {
+    z-index: 5;
+    pointer-events: auto;
+}
+#promptExpandBtn svg {
+    transition: transform 0.25s ease;
+}
+#promptExpandBtn:hover {
+    opacity: 1 !important;
+}
+
+/* ============================================================
    PROMPT INJECTION ANIMATIONS — AI Decode Effect
    ============================================================ */
 
@@ -917,7 +937,7 @@
 /* ─── Image Floater (cinematic center → preview shrink) ──────── */
 .image-inject-floater {
     position: fixed;
-    z-index: 999995;
+    z-index: 9999999;
     top: 50%;
     left: 50%;
     width: min(280px, 70vw);

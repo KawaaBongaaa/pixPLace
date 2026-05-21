@@ -239,19 +239,42 @@ export class PixPlaceOnboarding {
 
     /* ── Entry ───────────────────────────────────────────────── */
     async start() {
-        this._lockScroll();
         if (this.skipCinema) {
-            // Deep link scenario: skip cinema intro, go straight to tour
-            // Wait longer for UI to settle (webhook fetch + image load + animation)
-            console.log('🎯 [Onboarding] Skipping Cinema Intro (deep link scenario)');
+            // Deep link scenario: wait for injection animation to finish
+            // BEFORE locking scroll and showing the spotlight overlay
+            console.log('🎯 [Onboarding] Waiting for injection animation...');
+            await this._waitForAnimationDone(5000);
+            console.log('🎯 [Onboarding] Animation done, starting tour');
+            this._lockScroll();
             this._renderTour();
-            await this._wait(1200);
+            await this._wait(400);
             this._goToTourStep(0);
         } else {
+            this._lockScroll();
             this._renderCinema();
             await this._wait(60);
             this._showCinema();
         }
+    }
+
+    /** Wait for window._deepLinkAnimationDone flag, with timeout */
+    _waitForAnimationDone(timeoutMs) {
+        return new Promise((resolve) => {
+            const start = Date.now();
+            const check = () => {
+                if (window._deepLinkAnimationDone || Date.now() - start > timeoutMs) {
+                    resolve();
+                } else {
+                    requestAnimationFrame(check);
+                }
+            };
+            // If the flag was never set (no animation), resolve after initial delay
+            if (window._deepLinkAnimationDone === undefined) {
+                setTimeout(resolve, 1500);
+            } else {
+                check();
+            }
+        });
     }
 
     /* ─────────────────────────────────────────────────────────────
