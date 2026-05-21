@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Design Less workflow - by pixPLace Ai</title>
+    <title>Ai Image Generation workflow - by pixPLace App</title>
 
-    <!-- Early theme detection to prevent flickering -->
     <script>
         (function () {
             var theme = 'dark'; // Default to dark mode
@@ -23,14 +22,21 @@
                 theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
             theme = theme || 'dark';
+            var d = document.documentElement;
+            // ✅ FIX: Set data-theme + inline background BEFORE any CSS loads
+            // so the iframe never shows a white canvas even for a single frame.
+            d.setAttribute('data-theme', theme);
             if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.addEventListener('DOMContentLoaded', function () {
-                    document.body.classList.add('dark');
-                });
+                d.classList.add('dark');
+                d.style.backgroundColor = '#09090b';
+                d.style.color = '#fafafa';
+            } else {
+                d.style.backgroundColor = '#ffffff';
+                d.style.color = '#1e293b';
             }
         })();
     </script>
+
 
     <style>
         html,
