@@ -8,34 +8,24 @@
 
     <script>
         (function () {
-            var theme = 'dark'; // Default to dark mode
+            var theme = 'dark';
             try {
                 var s = localStorage.getItem('appSettings');
-                if (s) {
-                    var parsed = JSON.parse(s);
-                    if (parsed && parsed.theme) {
-                        theme = parsed.theme;
-                    }
-                }
+                if (s) { var p = JSON.parse(s); if (p && p.theme) theme = p.theme; }
             } catch (e) { }
             if (theme === 'auto') {
                 theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
             theme = theme || 'dark';
             var d = document.documentElement;
-            // ✅ FIX: Set data-theme + inline background BEFORE any CSS loads
-            // so the iframe never shows a white canvas even for a single frame.
             d.setAttribute('data-theme', theme);
-            if (theme === 'dark') {
-                d.classList.add('dark');
-                d.style.backgroundColor = '#09090b';
-                d.style.color = '#fafafa';
-            } else {
-                d.style.backgroundColor = '#ffffff';
-                d.style.color = '#1e293b';
-            }
+            if (theme === 'dark') d.classList.add('dark');
+            // NOTE: No inline backgroundColor here — portal-loader.js already
+            // sets the iframe ELEMENT background. Setting it on the inner <html>
+            // breaks the portal-modal-active fullscreen expand (shows black).
         })();
     </script>
+
 
 
     <style>
