@@ -2512,6 +2512,9 @@ async function applyUrlParams() {
                         console.warn('⚠️ Webhook returned no used_prompt:', data);
                         urlPrompt = '';
                     }
+                } else {
+                    console.error('❌ Webhook returned error status:', res.status, res.statusText);
+                    urlPrompt = '';
                 }
                 
                 if (promptInput) {
@@ -2522,9 +2525,12 @@ async function applyUrlParams() {
                 const promptInput = document.getElementById('promptInput');
                 if (promptInput) {
                     promptInput.disabled = false;
-                    urlPrompt = '';
                 }
+                urlPrompt = '';
             }
+        } else {
+            console.error('❌ Webhook URL is missing or still a placeholder!', webhookUrl);
+            urlPrompt = '';
         }
     }
 
