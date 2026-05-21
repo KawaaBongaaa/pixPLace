@@ -242,10 +242,10 @@ export class PixPlaceOnboarding {
         this._lockScroll();
         if (this.skipCinema) {
             // Deep link scenario: skip cinema intro, go straight to tour
+            // Wait longer for UI to settle (webhook fetch + image load + animation)
             console.log('🎯 [Onboarding] Skipping Cinema Intro (deep link scenario)');
-            this.currentStep = 1;
             this._renderTour();
-            await this._wait(300);
+            await this._wait(1200);
             this._goToTourStep(0);
         } else {
             this._renderCinema();
