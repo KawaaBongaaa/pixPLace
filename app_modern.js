@@ -2486,7 +2486,7 @@ async function applyUrlParams() {
     let urlMode = urlParams.get('mode');
 
     // 0.5️⃣ Fetch prompt from webhook if it is an ID
-    if (urlPrompt && urlPrompt.startsWith('prmpt_id_')) {
+    if (urlPrompt && (urlPrompt.startsWith('prmpt_id_') || urlPrompt.startsWith('prompt_id_'))) {
         const webhookUrl = CONFIG.GET_PROMPT_WEHHOOK || CONFIG.GET_PROMPT_WEBHOOK;
         if (webhookUrl && !webhookUrl.includes('PLACEHOLDER')) {
             console.log('🔄 Fetching prompt from webhook for ID:', urlPrompt);
@@ -2497,7 +2497,8 @@ async function applyUrlParams() {
                     promptInput.disabled = true;
                 }
                 
-                const res = await fetch(`${webhookUrl}?prompt_id=${encodeURIComponent(urlPrompt)}`);
+                const numericId = urlPrompt.replace(/^(prmpt_id_|prompt_id_)/, '');
+                const res = await fetch(`${webhookUrl}?prompt_id=${encodeURIComponent(numericId)}`);
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.used_prompt) {
