@@ -2522,28 +2522,54 @@
             content.classList.add('scale-100', 'opacity-100');
 
             if (!modelCostFetched) {
-                fetch('pricing.html')
-                    .then(r => r.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const costBlock = doc.getElementById('model-cost');
-                        if (costBlock) {
-                            // Clean up some paddings from original layout
-                            costBlock.classList.remove('mt-14', 'sm:mt-16', 'pt-8', 'border-t', 'border-white/5');
-                            document.getElementById('modelCostTarget').innerHTML = costBlock.innerHTML;
-                        } else {
-                            document.getElementById('modelCostTarget').innerHTML = '<div class="text-center text-gray-400 py-10">Pricing data could not be loaded.</div>';
+                import('./model-registry.js').then(({ getModelsBySection }) => {
+                    const container = document.getElementById('modelCostTarget');
+                    if (!container) return;
+                    
+                    const sections = getModelsBySection();
+                    let html = '<div class="space-y-1">';
+                    
+                    const SECTION_META = {
+                        image: { label: 'Image Generation', color: 'blue', costColor: 'emerald' },
+                        edit:  { label: 'Image Editing',     color: 'purple', costColor: 'emerald' },
+                        video: { label: 'AI Video',          color: 'rose', costColor: 'amber' },
+                        music: { label: 'AI Music',          color: 'amber', costColor: 'emerald' },
+                    };
+
+                    for (const [sectionKey, models] of sections) {
+                        const meta = SECTION_META[sectionKey] || { label: sectionKey, color: 'gray', costColor: 'emerald' };
+
+                        html += `<div class="text-[10px] font-black uppercase tracking-widest text-${meta.color}-400/70 pt-5 pb-1 px-1">${meta.label}</div>`;
+
+                        for (const m of models) {
+                            const isPremium = m.premium;
+                            html += `
+                                <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/[0.03] transition-colors group">
+                                    ${isPremium ? `
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">${m.name}</span>
+                                            <span class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-400">Premium</span>
+                                        </div>
+                                    ` : `
+                                        <span class="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">${m.name}</span>
+                                    `}
+                                    <span class="text-sm font-bold text-${meta.costColor}-400">${m.costLabel} <span class="text-gray-600 font-normal text-[11px]">/ ${m.costUnit}</span></span>
+                                </div>`;
                         }
-                        document.getElementById('modelCostLoader').classList.add('hidden');
-                        document.getElementById('modelCostTarget').classList.remove('hidden');
-                        modelCostFetched = true;
-                    }).catch(err => {
-                        console.error('Failed to load pricing table:', err);
-                        document.getElementById('modelCostLoader').classList.add('hidden');
-                        document.getElementById('modelCostTarget').innerHTML = '<div class="text-center text-red-400 py-10">Error loading pricing data.</div>';
-                        document.getElementById('modelCostTarget').classList.remove('hidden');
-                    });
+                    }
+                    
+                    html += `</div><p class="text-[11px] text-gray-600 text-center mt-8 italic">* Costs may vary based on resolution and quality settings.</p>`;
+                    
+                    container.innerHTML = html;
+                    document.getElementById('modelCostLoader').classList.add('hidden');
+                    container.classList.remove('hidden');
+                    modelCostFetched = true;
+                }).catch(err => {
+                    console.error('Failed to load model registry:', err);
+                    document.getElementById('modelCostLoader').classList.add('hidden');
+                    document.getElementById('modelCostTarget').innerHTML = '<div class="text-center text-red-400 py-10">Error loading model costs.</div>';
+                    document.getElementById('modelCostTarget').classList.remove('hidden');
+                });
             }
         }
 
@@ -3509,12 +3535,23 @@
 
             <!-- ========== UTILITY LINKS ========== -->
             <div class="space-y-1 border-b border-gray-200 dark:border-gray-700/50 pb-2 mb-2">
+                <!-- Quick Start -->
+                <button
+                    class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-colors cursor-pointer"
+                    onclick="localStorage.removeItem('pixplace_onboarding_done'); window.location.reload();">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Quick Start</span>
+                </button>
                 <!-- Pricing -->
                 <button
                     class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors cursor-pointer"
                     onclick="if(window.openSubscriptionPlans) openSubscriptionPlans(); toggleUserMenu();">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 7h-7L10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     <span data-i18n="footer_pricing">Pricing</span>
                 </button>
