@@ -133,13 +133,24 @@ export function showCreditPurchaseModal({ cost = 0, balance = 0, reason = 'insuf
     let title = 'Not Enough Credits';
     let messageHtml = `This generation costs <span class="text-yellow-400 font-bold">${cost} credits</span>`;
     let subMessageHtml = `Your balance: <span class="font-semibold text-white">${balance} credits</span>`;
-    let buttonText = '⭐ Top Up Credits';
+    let buttonText = '<svg class="w-4 h-4 mr-1 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Top Up Credits';
+
+    let iconHtml = `
+        <svg class="w-14 h-14 text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+        </svg>
+    `;
 
     if (reason === 'limit_reached') {
         title = 'Credits Finished';
         messageHtml = `<span class="text-yellow-400 font-bold">Generation limit reached!</span>`;
         subMessageHtml = `<span class="text-gray-300">Tokens for generation have ended.</span>`;
-        buttonText = '🚀 Get More Credits';
+        buttonText = '<svg class="w-4 h-4 mr-1 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Get More Credits';
+        iconHtml = `
+            <svg class="w-14 h-14 text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+        `;
     }
 
     const modal = createElement('div', {
@@ -151,7 +162,7 @@ export function showCreditPurchaseModal({ cost = 0, balance = 0, reason = 'insuf
     const content = createElement('div', {
         className: 'bg-white/10 backdrop-blur-xl border border-white/10 p-7 sm:p-10 rounded-3xl shadow-2xl max-w-sm w-full transform translate-y-4 transition-all duration-300 flex flex-col items-center text-center',
         innerHTML: `
-            <div class="mb-4 text-5xl">${reason === 'limit_reached' ? '🪫' : '💎'}</div>
+            <div class="mb-4 flex justify-center w-full">${iconHtml}</div>
             <h3 class="text-xl font-bold text-white mb-2 tracking-wide">${title}</h3>
             <p class="text-gray-300 text-sm mb-1">${messageHtml}</p>
             <p class="text-gray-400 text-sm mb-7">${subMessageHtml}</p>
@@ -174,10 +185,13 @@ export function showCreditPurchaseModal({ cost = 0, balance = 0, reason = 'insuf
         innerHTML: buttonText,
         onclick: () => {
             if (window.navigator?.vibrate) window.navigator.vibrate(30);
+            
             if (typeof onTopUp === 'function') {
                 onTopUp();
             } else {
-                window.location.href = 'pricing.html';
+                const sub = (window.appState?.user?.subscription || '').toLowerCase();
+                const hasSub = ['pro', 'studio'].includes(sub);
+                showPricingModal({ initialTab: hasSub ? 'credits' : 'plans' });
             }
             closeModal();
         }
@@ -217,7 +231,11 @@ export function showSubscriptionUpgradeModal({ featureName = 'this feature' } = 
     const content = createElement('div', {
         className: 'bg-white/10 backdrop-blur-xl border border-white/10 p-7 sm:p-10 rounded-3xl shadow-2xl max-w-sm w-full transform translate-y-4 transition-all duration-300 flex flex-col items-center text-center',
         innerHTML: `
-            <div class="mb-4 text-5xl">🚀</div>
+            <div class="mb-4 flex justify-center w-full">
+                <svg class="w-14 h-14 text-orange-400 drop-shadow-[0_0_15px_rgba(251,146,60,0.5)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.49 4.49 0 00-1.757 4.306 4.438 4.438 0 002.58-1.758c.2-.204.414-.403.633-.598m-3.213-2.65c-.195.22-.394.433-.598.632A4.438 4.438 0 004.306 17.5a4.49 4.49 0 004.306-1.757z" />
+                </svg>
+            </div>
             <h3 class="text-xl font-bold text-white mb-2 tracking-wide">Pro Feature</h3>
             <p class="text-gray-300 text-sm mb-7"><span class="text-violet-400 font-semibold">${featureName}</span> is available on the Pro plan. Upgrade to unlock all Pro models, priority queue, and no watermarks.</p>
         `
@@ -233,7 +251,7 @@ export function showSubscriptionUpgradeModal({ featureName = 'this feature' } = 
 
     const upgradeBtn = createElement('button', {
         className: 'w-full px-4 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-white shadow-lg shadow-amber-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer',
-        innerHTML: '✨ View Plans',
+        innerHTML: '<svg class="w-4 h-4 mr-1 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg> View Plans',
         onclick: () => {
             if (window.navigator?.vibrate) window.navigator.vibrate(30);
             closeModal();
@@ -344,32 +362,58 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
     const userPlan = (window.appState?.user?.subscription || '').toLowerCase() || '';
     const planParam = userPlan ? `&plan=${userPlan}` : '';
 
-    if (initialTab === 'credits') {
-        // Hide iframe until credit overlay is fully open (prevents flash of pricing content)
-        _pricingIframe.style.opacity = '0';
-        _pricingIframe.style.transition = 'opacity 0.3s ease';
+    const currentSrc = _pricingIframe.src || '';
+    // Determine if we actually need to reload the iframe
+    let needsReload = !currentSrc.includes('pricing.html');
+    if (userPlan && !currentSrc.includes(`plan=${userPlan}`)) {
+        needsReload = true;
+    }
 
-        // Listen for credit modal ready signal from iframe
-        const onCreditsReady = (e) => {
-            if (e.data === 'credits-modal-ready' || e.data?.type === 'credits-modal-ready') {
+    if (needsReload) {
+        // Hide iframe to prevent white flash while loading
+        _pricingIframe.style.opacity = '0';
+        _pricingIframe.style.transition = 'opacity 0.4s ease';
+
+        if (initialTab === 'credits') {
+            const onCreditsReady = (e) => {
+                if (e.data === 'credits-modal-ready' || e.data?.type === 'credits-modal-ready') {
+                    window.removeEventListener('message', onCreditsReady);
+                    _pricingIframe.style.opacity = '1';
+                }
+            };
+            window.addEventListener('message', onCreditsReady);
+
+            setTimeout(() => {
                 window.removeEventListener('message', onCreditsReady);
                 _pricingIframe.style.opacity = '1';
-            }
-        };
-        window.addEventListener('message', onCreditsReady);
+            }, 1500);
 
-        // Fallback: show iframe after 2s even if signal never comes
-        setTimeout(() => {
-            window.removeEventListener('message', onCreditsReady);
-            _pricingIframe.style.opacity = '1';
-        }, 2000);
-
-        // Timestamp forces reload every time (browser ignores same-URL reassignment)
-        _pricingIframe.src = `pricing.html?mode=modal${planParam}&_t=${Date.now()}#credits`;
+            _pricingIframe.src = `pricing.html?mode=modal${planParam}#credits`;
+        } else {
+            // Listen for general load
+            _pricingIframe.onload = () => {
+                _pricingIframe.style.opacity = '1';
+            };
+            // Fallback
+            setTimeout(() => { _pricingIframe.style.opacity = '1'; }, 1000);
+            
+            _pricingIframe.src = `pricing.html?mode=modal${planParam}`;
+        }
     } else {
+        // Iframe is already loaded with the correct plan, just show it and send a message if needed
         _pricingIframe.style.opacity = '1';
-        _pricingIframe.src = `pricing.html?mode=modal${planParam}&_t=${Date.now()}`;
+        if (initialTab === 'credits') {
+            _pricingIframe.contentWindow.postMessage({ type: 'switch-tab', tab: 'credits' }, '*');
+        }
     }
+
+    // --- Prevent Window Jerk (Scrollbar Lock) ---
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbarWidth > 0 && !document.body.classList.contains('portal-modal-open')) {
+        document.body.style.paddingRight = scrollbarWidth + 'px';
+    }
+    document.body.classList.add('portal-modal-open');
+    document.body.classList.add('overflow-hidden'); // Actually hide the scrollbar
 
     // Show modal
     _pricingModal.style.display = 'flex';
@@ -401,8 +445,13 @@ export function closePricingModal() {
     _pricingModal.style.pointerEvents = 'none';
     _pricingContainer.classList.remove('translate-y-0');
     _pricingContainer.classList.add('translate-y-full', 'sm:translate-y-24');
+    
     setTimeout(() => {
         if (_pricingModal) _pricingModal.style.display = 'none';
+        // Restore scrollbar smoothly
+        document.body.classList.remove('portal-modal-open');
+        document.body.classList.remove('overflow-hidden');
+        document.body.style.paddingRight = '';
     }, 500);
 }
 
