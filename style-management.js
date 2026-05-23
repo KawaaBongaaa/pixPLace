@@ -65,10 +65,6 @@ export async function handleStyleCheckboxChange() {
         }
     }
 
-    // Обновляем стоимость если есть функция
-    if (window.updateCostBadge) {
-        window.updateCostBadge();
-    }
 }
 
 /**

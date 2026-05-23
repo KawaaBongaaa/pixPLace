@@ -483,7 +483,10 @@ function initTabs() {
         activeTab = restoredTab;
         console.log(`🔄 initTabs: syncing activeTab to restored tab: "${restoredTab}"`);
     }
-    showTab(activeTab);
+    
+    // 🔥 FIX: Use switchTab instead of showTab on initial load to ensure 
+    // the selected model from appState is properly restored to the UI!
+    switchTab(activeTab);
 
     // Инициализация описания при загрузке
     const currentMode = getSelectedMode();
