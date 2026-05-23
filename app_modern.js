@@ -2566,8 +2566,14 @@ function animatePromptInjection(text, textarea) {
 
             setTimeout(() => {
                 cleanup();
-                // Dispatch input ONCE to update char counter + trigger proper resize
+                // Dispatch input ONCE to update char counter
                 textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                // Collapse the prompt automatically after injection to prevent UI jumping
+                const expandBtn = document.getElementById('promptExpandBtn');
+                if (expandBtn && !textarea.classList.contains('prompt-collapsed')) {
+                    expandBtn.click();
+                }
             }, 1200);
             resolve();
         }
@@ -2936,6 +2942,12 @@ async function applyUrlParams() {
             } else {
                 promptInput.value = urlPrompt;
                 promptInput.dispatchEvent(new Event('input'));
+                
+                // Force collapse on initial load
+                const expandBtn = document.getElementById('promptExpandBtn');
+                if (expandBtn && !promptInput.classList.contains('prompt-collapsed')) {
+                    expandBtn.click();
+                }
             }
 
             // Also push to appState to prevent overwrite
@@ -2956,6 +2968,13 @@ async function applyUrlParams() {
             if (promptInput) {
                 promptInput.value = pendingPrompt;
                 promptInput.dispatchEvent(new Event('input'));
+                
+                // Force collapse on initial load
+                const expandBtn = document.getElementById('promptExpandBtn');
+                if (expandBtn && !promptInput.classList.contains('prompt-collapsed')) {
+                    expandBtn.click();
+                }
+                
                 applied = true;
             }
             localStorage.removeItem('pending_prompt');
