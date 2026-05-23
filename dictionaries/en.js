@@ -217,6 +217,7 @@ export const en = {
     footer_edit: "Edit",
     footer_product: "Product",
     footer_pricing: "Pricing",
+    model_cost: "Model Cost (Credits)",
     footer_update_plan: "Update Plan",
     footer_get_credits: "Get Credits",
     footer_credits: "Credits",
