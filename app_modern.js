@@ -20,7 +20,6 @@ import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem, 
 import { initUserAccount } from './user-account.js';
 // Import mode management functions with lazy loading support
 let modeCardsExports = null;
-let costBadgeModule = null;
 
 async function getSelectedModeFromComponent() {
     // console.log('🔍 getSelectedModeFromComponent() called at:', new Date().toISOString());
@@ -935,24 +934,12 @@ async function initializeUI() {
         initOnDemand();
         console.log('✅ Mode Cards component loaded and initialized');
 
-        // 🎯 LAZY LOAD: Initialize Cost Badge Module
-        console.log('💰 Lazy loading Cost Badge module...');
-        const costBadgeModule = await import('./cost-badge.js');
-        await costBadgeModule.initCostBadge({
-            modeCardsModule: { getSelectedMode: modeCardsExports.getSelectedMode },
-            userImageState: userImageState
-        });
-        console.log('✅ Cost Badge module loaded and initialized');
-
-        // Removed legacy style management (now using style chips in index.html)
-
-
         // 🎯 LAZY LOAD: Initialize Style Manager (NEW MODULAR APPROACH)
         console.log('🎨 Style Manager will initialize lazily on style checkbox interaction');
         // initStyleCarousel(); // REMOVED - handled by style-manager.js now
 
     } catch (error) {
-        console.error('❌ Failed to load Mode Cards or Cost Badge components:', error);
+        console.error('❌ Failed to load Mode Cards components:', error);
     }
 
     // 🚀 Initialize user account and update mode selection
@@ -3213,24 +3200,12 @@ import('./navigation-manager.js').then(module => {
 
 
 // ─── Access Guard ─────────────────────────────────────────────────────────────
-// Checks credits before generation. Reads data synced by UserProfileService.
-const GENERATION_COST_MAP = {
-    'nano_banana': { withImages: 3, noImages: 3 },
-    'nano_banana_2': { withImages: 10, noImages: 5 },
-    'nano_banana_pro': { withImages: 15, noImages: 15 },
-    'pixplace_pro': { withImages: 4, noImages: 4 },
-    'print_maker': { withImages: 3, noImages: 3 },
-    'upscale_image': { withImages: 10, noImages: 10 },
-    'fast_generation': { withImages: 2, noImages: 2 },
-    'z_image': { withImages: 20, noImages: 20 },
-    'background_removal': { withImages: 0, noImages: 0 },
-    'dreamshaper_xl': { withImages: 0, noImages: 0 }
-};
+// Checks credits before generation.
+// All costs are defined in model-registry.js (single source of truth).
+import { getModelCost, isModelPremium, getModelById } from './model-registry.js';
 
-// 🔒 Premium-only modes & tabs
-const PREMIUM_ONLY_MODES = new Set(['nano_banana_pro']);
+// 🔒 Premium-only tabs
 const PREMIUM_ONLY_TABS = new Set(['sound', 'video']);
-// nano_banana_2 at 2K/4K is also premium - checked dynamically inside checkGenerationAccess
 
 function checkGenerationAccess(mode, hasImages) {
     const user = window.appState?.user;
@@ -3245,37 +3220,28 @@ function checkGenerationAccess(mode, hasImages) {
         const featureName = currentTab === 'sound' ? 'Music & Audio' : 'Video Generation';
         return { ok: false, reason: 'requires_subscription', featureName };
     }
-    if (PREMIUM_ONLY_MODES.has(mode) && !hasPremiumSub) {
-        return { ok: false, reason: 'requires_subscription', featureName: 'Nano Banana Pro' };
-    }
-    if (mode === 'nano_banana_2' && !hasPremiumSub) {
-        const resolutionSelect = document.getElementById('resolutionSelect');
-        const resolution = (resolutionSelect?.value || '1K').toUpperCase();
-        if (resolution === '2K' || resolution === '4K') {
-            return { ok: false, reason: 'requires_subscription', featureName: 'Nano Banana 2 (2K/4K)' };
+
+    // Check model-level premium via registry
+    const modelEntry = getModelById(mode);
+    if (modelEntry?.premium && !hasPremiumSub) {
+        // Special case: nano_banana_2 is only premium at 2K/4K
+        if (mode === 'nano_banana_2') {
+            const resolutionSelect = document.getElementById('resolutionSelect');
+            const resolution = (resolutionSelect?.value || '1K').toUpperCase();
+            if (resolution === '2K' || resolution === '4K') {
+                return { ok: false, reason: 'requires_subscription', featureName: 'Nano Banana 2 (2K/4K)' };
+            }
+            // 1K is free for nano_banana_2, continue to cost check
+        } else {
+            return { ok: false, reason: 'requires_subscription', featureName: modelEntry.name };
         }
     }
     // ───────────────────────────────────────────────────────────────────────
 
-    let cost = 5;
-    const costs = GENERATION_COST_MAP[mode];
-
-    // 🔥 ДОБАВЛЕНО: Динамический расчет стоимости по выбранному разрешению
-    if (mode === 'nano_banana_2' || mode === 'nano_banana_pro') {
-        const resolutionSelect = document.getElementById('resolutionSelect');
-        const resolution = resolutionSelect ? resolutionSelect.value : '1k';
-
-        if (mode === 'nano_banana_2') {
-            if (resolution === '1k') cost = 5;
-            else if (resolution === '2k') cost = 7;
-            else if (resolution === '4k') cost = 11;
-        } else if (mode === 'nano_banana_pro') {
-            if (resolution === '1k' || resolution === '2k') cost = 12;
-            else if (resolution === '4k') cost = 16;
-        }
-    } else {
-        cost = costs ? (hasImages ? costs.withImages : costs.noImages) : 5;
-    }
+    // Resolve dynamic cost (resolution-aware)
+    const resolutionSelect = document.getElementById('resolutionSelect');
+    const resolution = resolutionSelect ? resolutionSelect.value : '1k';
+    const cost = getModelCost(mode, resolution);
 
     const balance = parseFloat(user.credits) || 0;
     if (cost > 0 && balance < cost) return { ok: false, reason: 'insufficient_funds', cost, balance };
@@ -3718,88 +3684,48 @@ async function generateImage(event) {
         stopTimer();
     }
 }
-// 🔥 НОВЫЙ МЕХАНИЗМ: Webhook Communication с поддержкой бинарных данных
+// 🔥 NEW MECHANISM: Webhook Communication with binary data support
 async function sendToWebhook(data) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
 
-    // Выбор webhook URL на основе модели
+    // Select webhook URL based on the model
     let webhookUrl;
     let webhookType;
 
+    // Set specific fields for modes first
     if (window._currentGenerationTab === 'sound') {
-        // ── Sound AI режимы ──────────────────────────────────────
+        // ── Sound AI modes ──────────────────────────────────────
         const soundSubTab = document.querySelector('.sound-sub-tab.active')?.dataset?.soundTab || 'text';
         data.action = 'Sound Generation';
         if (soundSubTab === 'image') {
-            // Audio from Image: Suno AI analyze image
-            webhookUrl = CONFIG.SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL;
-            webhookType = 'SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL';
             data.soundMode = 'audio_from_image';
-            data.mode = 'sound_from_image';
+            data.mode = 'audio_from_image';
             data.soundImageBlob = window._soundImageBlob || null;
             data.soundImageUrl = window._soundImageUrl || null;
         } else {
-            // Audio from Text: Suno AI generate from prompt
-            webhookUrl = CONFIG.SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL;
-            webhookType = 'SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL';
             data.soundMode = 'audio_from_text';
-            data.mode = 'sound_from_text';
+            data.mode = 'audio_from_text';
         }
         data.soundModel = document.getElementById('soundModelLabel')?.textContent?.trim() || 'Suno AI';
     } else if (window._currentGenerationTab === 'edit') {
-        // ── Edit Image режимы ─────────────────────────────────────
-        const editModelMode = window._editModel || 'nano_banana_pro';
+        // ── Edit Image modes ─────────────────────────────────────
         data.editMode = true;
         data.type = 'edit';
-        data.mode = editModelMode;
+        data.mode = window._editModel || 'nano_banana_pro';
         data.action = 'Image Edit';
         data.editImageBlob = window._editImageBlob || null;
         data.editImageUrl = window._editImageUrl || null;
         data.editResolution = document.getElementById('resolutionSelect')?.value || '1K';
-        if (editModelMode === 'nano_banana') {
-            webhookUrl = CONFIG.NANO_BANANA_WEBHOOK;
-            webhookType = 'NANO_BANANA_WEBHOOK';
-        } else if (editModelMode === 'nano_banana_2') {
-            webhookUrl = CONFIG.NANO_BANANA_2_WEBHOOK;
-            webhookType = 'NANO_BANANA_2_WEBHOOK';
-        } else if (editModelMode === 'nano_banana_pro') {
-            webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
-            webhookType = 'NANO_BANANA_PRO_WEBHOOK';
-        } else if (editModelMode === 'qwen_image_edit') {
-            webhookUrl = CONFIG.QWEN_IMAGE_WEBHOOK_URL;
-            webhookType = 'QWEN_IMAGE_WEBHOOK_URL';
-        } else {
-            webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
-            webhookType = 'NANO_BANANA_PRO_WEBHOOK';
-        }
-    } else if (['background_removal', 'upscale_image'].includes(data.mode)) {
-        // Модели улучшения изображений используют отдельный N8N вебхук
-        webhookUrl = CONFIG.N8N_ENHANCE_OR_REMBG_WEBHOOK_URL;
-        webhookType = 'N8N_ENHANCE_OR_REMBG_WEBHOOK_URL';
-    } else if (data.mode === 'z_image') {
-        // Модель Z-Image использует свой выделенный вебхук
-        webhookUrl = CONFIG.Z_IMAGE_WEBHOOK_URL;
-        webhookType = 'Z_IMAGE_WEBHOOK_URL';
-    } else if (data.mode === 'nano_banana') {
-        webhookUrl = CONFIG.NANO_BANANA_WEBHOOK;
-        webhookType = 'NANO_BANANA_WEBHOOK';
-    } else if (data.mode === 'nano_banana_2') {
-        webhookUrl = CONFIG.NANO_BANANA_2_WEBHOOK;
-        webhookType = 'NANO_BANANA_2_WEBHOOK';
-    } else if (data.mode === 'nano_banana_pro') {
-        webhookUrl = CONFIG.NANO_BANANA_PRO_WEBHOOK;
-        webhookType = 'NANO_BANANA_PRO_WEBHOOK';
-    } else if (data.mode === 'video_gen' || data.mode === 'image_to_video' || data.mode === 'video_edit') {
-        // Специальные видео режимы используют общий вебхук
-        webhookUrl = CONFIG.WEBHOOK_URL;
-        webhookType = 'WEBHOOK_URL';
-    } else if (['qwen_image', 'qwen_image_edit'].includes(data.mode)) {
-        // Модель Qwen использует свой выделенный вебхук
-        webhookUrl = CONFIG.QWEN_IMAGE_WEBHOOK_URL;
-        webhookType = 'QWEN_IMAGE_WEBHOOK_URL';
+    }
+
+    // 🔥 Dynamic webhook selection from registry
+    const modelDef = getModelById(data.mode);
+    if (modelDef && modelDef.webhookKey && CONFIG[modelDef.webhookKey]) {
+        webhookUrl = CONFIG[modelDef.webhookKey];
+        webhookType = modelDef.webhookKey;
     } else {
-        // Все остальные модели используют основной вебхук
+        console.warn(`⚠️ Model "${data.mode}" not found in registry or webhookKey missing/invalid. Falling back to default WEBHOOK_URL.`);
         webhookUrl = CONFIG.WEBHOOK_URL;
         webhookType = 'WEBHOOK_URL';
     }
@@ -3807,7 +3733,8 @@ async function sendToWebhook(data) {
     console.log('🎯 Webhook selection:', {
         mode: data.mode,
         webhookType,
-        webhookUrl
+        webhookUrl,
+        modelName: modelDef ? modelDef.name : 'Unknown'
     });
 
     // 🔥 НОВОЕ: Определяем тип данных - JSON или FormData с бинарными файлами

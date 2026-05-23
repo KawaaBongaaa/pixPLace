@@ -320,19 +320,19 @@
                             <div class="space-y-3 text-[11px] font-medium">
                                 <div class="flex justify-between border-b border-white/5 pb-2">
                                     <span class="text-slate-500 uppercase">Z-Image Turbo</span>
-                                    <span class="text-white">1.0 CR</span>
+                                    <span class="text-white" id="faq-cost-z_image">...</span>
                                 </div>
                                 <div class="flex justify-between border-b border-white/5 pb-2">
                                     <span class="text-slate-500 uppercase">Nano Banana Pro</span>
-                                    <span class="text-white">5.0 CR</span>
+                                    <span class="text-white" id="faq-cost-nano_banana_pro">...</span>
                                 </div>
                                 <div class="flex justify-between border-b border-white/5 pb-2">
                                     <span class="text-slate-500 uppercase">Flux Pro Advanced</span>
-                                    <span class="text-white">8.0 CR</span>
+                                    <span class="text-white" id="faq-cost-flux_pro_adv">...</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500 uppercase">Video (Luma / Kling)</span>
-                                    <span class="text-white">20.0 CR</span>
+                                    <span class="text-slate-500 uppercase">Video (Kling AI)</span>
+                                    <span class="text-white" id="faq-cost-kling_video_master">...</span>
                                 </div>
                             </div>
                         </div>
@@ -551,6 +551,24 @@
                         top: target.offsetTop - 120,
                         behavior: 'smooth'
                     });
+                }
+            });
+        });
+    </script>
+    
+    <!-- Script to load dynamic costs from registry -->
+    <script type="module">
+        import { getModelCostLabel } from './model-registry.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const modelsToFetch = ['z_image', 'nano_banana_pro', 'flux_pro_adv', 'kling_video_master'];
+            modelsToFetch.forEach(id => {
+                const el = document.getElementById(`faq-cost-${id}`);
+                if (el) {
+                    const costLabel = getModelCostLabel(id);
+                    if (costLabel && costLabel !== '—') {
+                        el.textContent = costLabel;
+                    }
                 }
             });
         });
