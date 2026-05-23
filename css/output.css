@@ -1449,6 +1449,9 @@
   .min-h-\[80px\] {
     min-height: 80px;
   }
+  .min-h-\[100px\] {
+    min-height: 100px;
+  }
   .min-h-\[140px\] {
     min-height: 140px;
   }
@@ -3023,6 +3026,9 @@
   }
   .pb-6 {
     padding-bottom: 1.5rem;
+  }
+  .pb-10 {
+    padding-bottom: 2.5rem;
   }
   .pb-12 {
     padding-bottom: 3rem;
@@ -5219,6 +5225,11 @@
       padding-block: 5rem;
     }
   }
+  .sm\:pt-4 {
+    @media (width >= 640px) {
+      padding-top: 1rem;
+    }
+  }
   .sm\:pt-\[88px\] {
     @media (width >= 640px) {
       padding-top: 88px;
@@ -5227,6 +5238,11 @@
   .sm\:pb-0 {
     @media (width >= 640px) {
       padding-bottom: 0;
+    }
+  }
+  .sm\:pb-10 {
+    @media (width >= 640px) {
+      padding-bottom: 2.5rem;
     }
   }
   .sm\:text-3xl {
