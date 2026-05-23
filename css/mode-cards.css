@@ -148,18 +148,6 @@
     font-weight: 600;
 }
 
-/* Cost badge */
-.cost-badge {
-    font-size: 0.7rem;
-    padding: 4px 8px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 245, 255, 0.9));
-    border: 1px solid rgba(200, 220, 255, 0.4);
-    backdrop-filter: blur(8px);
-    font-weight: 700;
-    color: #4b5563;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-}
 
 /* Info icon */
 .mode-group-cards>div>span:last-child,
@@ -257,14 +245,6 @@
     background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.8)) !important;
     border-color: rgba(99, 102, 241, 0.7) !important;
     box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.4), 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-}
-
-.dark .cost-badge,
-[data-theme="dark"] .cost-badge {
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.9));
-    border-color: rgba(71, 85, 105, 0.5);
-    color: #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .dark .mode-group-cards>div .flex.flex-wrap span,
