@@ -818,8 +818,8 @@
    PROMPT TEXTAREA EXPAND/COLLAPSE
    ============================================================ */
 .prompt-collapsed {
-    max-height: 80px !important;
-    min-height: 60px !important;
+    max-height: 120px !important;
+    min-height: 100px !important;
     overflow: hidden !important;
     transition: max-height 0.3s ease, min-height 0.3s ease !important;
 }
