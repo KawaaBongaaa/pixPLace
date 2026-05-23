@@ -208,6 +208,7 @@ export const ru = {
     footer_interior_design: "Interior Design",
     footer_print_generator: "Print Generator for PoD Services (Printify, Etsy, Redbubbles etc)",
     footer_pricing: "Тарифы",
+    model_cost: "Стоимость моделей (Кредиты)",
     footer_update_plan: "Update Plan",
     footer_get_credits: "Get Credits",
     footer_credits: "Кредиты",
