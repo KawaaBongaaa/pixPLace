@@ -182,48 +182,73 @@ class PortalLoader {
 
             case 'form-submit':
                 console.log('Form submit:', data);
-                // Передаем данные в generation-manager.js
+                // Pass data to generation-manager.js
                 this.handleFormSubmit(data);
                 break;
 
             case 'model-selected':
                 console.log('Model selected:', data);
-                // Обновляем UI (например, отображение стоимости)
-                this.notifyUIManager('model-selected', data);
-                // 🔥 FIX: Directly sync the selected mode to the mode-cards state
-                // (window.uiManager may not exist, so we call selectModeCard directly)
-                if (data.mode) {
-                    if (typeof window.selectModeCard === 'function') {
-                        window.selectModeCard(data.mode);
-                    } else if (window.modeCardsExports?.selectModeCard) {
-                        window.modeCardsExports.selectModeCard(data.mode);
+                
+                // 🔥 FIX: Delay ALL UI and state updates by 320ms to allow the dropdown modal 
+                // to fully close and return the iframe to normal document flow. 
+                // This prevents the "toggle shifting up/down" visual bug when switching model families.
+                setTimeout(() => {
+                    // Directly sync the selected mode to the mode-cards state FIRST
+                    if (data.mode) {
+                        if (typeof window.selectModeCard === 'function') {
+                            window.selectModeCard(data.mode);
+                        } else if (window.modeCardsExports?.selectModeCard) {
+                            window.modeCardsExports.selectModeCard(data.mode);
+                        }
                     }
-                }
-                // 🔥 PERSIST model selection to modesState for current active tab
-                if (window.appState && window.appState.setModeState) {
-                    const activeMode = window.appState.activeMode || window._currentGenerationTab || 'image';
-                    window.appState.setModeState(activeMode, {
-                        model: data.mode,
-                        modelName: data.name
-                    });
-                }
+                    
+                    // PERSIST model selection to modesState for current active tab FIRST
+                    if (window.appState && window.appState.setModeState) {
+                        const activeMode = window.appState.activeMode || window._currentGenerationTab || 'image';
+                        window.appState.setModeState(activeMode, {
+                            model: data.mode,
+                            modelName: data.name
+                        });
+                    }
+
+                    // Update UI (e.g., cost display)
+                    this.notifyUIManager('model-selected', data);
+
+                    // Now that the state is updated, trigger UI updates via select.change
+                    if (data.mode) {
+                        const select = document.getElementById('modeSelect');
+                        if (select) {
+                            select.value = data.mode;
+                            select.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    }
+                }, 320);
                 break;
 
             case 'modal-toggle':
                 console.log('📡 Portal Modal Toggle:', data);
-                // Поиск iframe, который отправил сообщение
+                // Find the iframe that sent the message
                 const senderIframe = Array.from(document.querySelectorAll('iframe')).find(
                     iframe => iframe.contentWindow === event.source
                 ) || this.currentIframe;
 
                 if (senderIframe) {
                     if (data.open) {
+                        // 1. Get exact position BEFORE any layout changes
+                        const rect = this.container.getBoundingClientRect();
+
+                        // 2. Prevent layout shift from scrollbar disappearing
+                        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+                        if (scrollbarWidth > 0) {
+                            document.body.style.paddingRight = scrollbarWidth + 'px';
+                        }
+
+                        // 3. Apply classes that take the iframe out of document flow
                         senderIframe.classList.add('portal-modal-active');
                         this.container.classList.add('portal-container-modal-active');
                         document.body.classList.add('portal-any-modal-open');
 
-                        // Send absolute positioning to keep the button in place
-                        const rect = this.container.getBoundingClientRect();
+                        // 4. Send absolute positioning to keep the button in place
                         senderIframe.contentWindow.postMessage({
                             type: 'modal-opened-rect',
                             rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
@@ -236,16 +261,17 @@ class PortalLoader {
                     } else {
                         senderIframe.classList.remove('portal-modal-open-anim');
 
-                        // Tell iframe to restore button positioning
-                        senderIframe.contentWindow.postMessage({ type: 'modal-closed-rect' }, '*');
-
                         setTimeout(() => {
                             senderIframe.classList.remove('portal-modal-active');
+                            // Tell iframe to restore button positioning AFTER animation finishes
+                            senderIframe.contentWindow.postMessage({ type: 'modal-closed-rect' }, '*');
+
                             // Проверяем, нет ли других открытых модалов перед удалением классов с контейнера/body
                             const otherActive = document.querySelector('.portal-modal-active');
                             if (!otherActive) {
                                 this.container.classList.remove('portal-container-modal-active');
                                 document.body.classList.remove('portal-any-modal-open');
+                                document.body.style.paddingRight = '';
                             }
                         }, 300);
                     }
