@@ -190,7 +190,7 @@ export function showCreditPurchaseModal({ cost = 0, balance = 0, reason = 'insuf
                 onTopUp();
             } else {
                 const sub = (window.appState?.user?.subscription || '').toLowerCase();
-                const hasSub = ['pro', 'studio'].includes(sub);
+                const hasSub = sub && !sub.includes('canceled') && ['pro', 'studio', 'touch'].some(tier => sub.includes(tier));
                 showPricingModal({ initialTab: hasSub ? 'credits' : 'plans' });
             }
             closeModal();
@@ -359,7 +359,13 @@ export function showPricingModal({ initialTab = 'plans' } = {}) {
     if (!_pricingModal) prewarmPricingModal();
 
     // Resolve user's current subscription plan to highlight in pricing page
-    const userPlan = (window.appState?.user?.subscription || '').toLowerCase() || '';
+    const userPlanRaw = (window.appState?.user?.subscription || '').toLowerCase();
+    let userPlan = '';
+    if (userPlanRaw && !userPlanRaw.includes('canceled')) {
+        if (userPlanRaw.includes('pro')) userPlan = 'pro';
+        else if (userPlanRaw.includes('studio')) userPlan = 'studio';
+        else if (userPlanRaw.includes('touch')) userPlan = 'touch';
+    }
     const planParam = userPlan ? `&plan=${userPlan}` : '';
 
     const currentSrc = _pricingIframe.src || '';
