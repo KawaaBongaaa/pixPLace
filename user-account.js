@@ -1048,7 +1048,8 @@ function openAuthModal() {
         <div class="auth-portal-backdrop" id="authPortalBdrop"></div>
         <iframe id="authPortalFrame"
                 src="auth.html"
-                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;background:${bgColor};"
+                onload="this.style.opacity='1';"
+                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;background:${bgColor};opacity:0;transition:opacity 0.25s ease-in-out;"
                 allow="identity-credentials-get"
                 title="Sign in">
         </iframe>
@@ -1133,11 +1134,21 @@ function openAuthModal() {
                 }
             }, 300);
 
-            // 3. Перезагружаем страницу — теперь она стартует с идеальным localStorage! (всегда!)
+            // 3. Перезагружаем страницу — теперь она стартует с идеальным localStorage и сохраняет диплинки! (всегда!)
             setTimeout(() => {
-                console.log('🔄 Triggering auto-reload now...');
-                window.location.reload();
-            }, 2900);
+                try {
+                    const url = new URL(window.location.href);
+                    // Удаляем временные параметры авторизации, чтобы не было дублей/зависаний
+                    url.searchParams.delete('telegram_auth');
+                    url.searchParams.delete('session');
+                    url.searchParams.delete('user');
+                    console.log('🔄 Redirecting to authenticated creative URL:', url.toString());
+                    window.location.replace(url.toString());
+                } catch (urlErr) {
+                    console.warn('⚠️ URL replace failed, reloading current location as fallback:', urlErr);
+                    window.location.href = window.location.href;
+                }
+            }, 2400);
         }
     };
     window.addEventListener('message', _onAuthMsg);
