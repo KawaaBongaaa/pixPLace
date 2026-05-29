@@ -413,15 +413,26 @@ class UserProfileService {
             const data = JSON.parse(text);
             console.log('✅ UserProfileService: profile received:', data);
 
+            // Normalize response keys supporting both camelCase and snake_case / lowercase
+            const norm = {
+                credits: data.credits_balance !== undefined ? data.credits_balance : (data.credits !== undefined ? data.credits : data.balance),
+                isPremium: data.premium !== undefined ? !!data.premium : (data.isPremium !== undefined ? !!data.isPremium : false),
+                subscription: (data.subscription_plan !== undefined && data.subscription_plan !== 'canceled_subscription') ? data.subscription_plan : (data.subscription || null),
+                funnel_stage: data.funnel_stage !== undefined ? data.funnel_stage : null,
+                last_login: data.last_login !== undefined ? data.last_login : null,
+                name: data.username || data.userName || data.name || null,
+                photo_url: data.userphotourl || data.userPhotoUrl || data.photo_url || null
+            };
+
             // Merge fresh data into appState user object
             const updates = {};
-            if (data.credits !== undefined && data.credits !== null) updates.credits = Number(data.credits);
-            if (data.isPremium !== undefined) updates.isPremium = !!data.isPremium;
-            if (data.subscription !== undefined) updates.subscription = data.subscription ?? null;
-            if (data.funnel_stage !== undefined) updates.funnel_stage = data.funnel_stage ?? null;
-            if (data.last_login !== undefined) updates.last_login = data.last_login ?? null;
-            if (data.name || data.userName) updates.name = data.name || data.userName;
-            if (data.photo_url || data.userPhotoUrl) updates.photo_url = data.photo_url || data.userPhotoUrl;
+            if (norm.credits !== undefined && norm.credits !== null) updates.credits = Number(norm.credits);
+            updates.isPremium = !!norm.isPremium;
+            updates.subscription = norm.subscription;
+            if (norm.funnel_stage !== null) updates.funnel_stage = norm.funnel_stage;
+            if (norm.last_login !== null) updates.last_login = norm.last_login;
+            if (norm.name) updates.name = norm.name;
+            if (norm.photo_url) updates.photo_url = norm.photo_url;
 
             if (Object.keys(updates).length > 0) {
                 this.appState.setUser(updates);
@@ -488,7 +499,7 @@ export function createAppServices(existingAppState) {
     // so that DOM and auth session are guaranteed to be ready first.
     setTimeout(() => {
         services.userProfile.syncOnInit();
-    }, 1500);
+    }, 100);
 
     console.log('✅ App services initialized');
     return services;
