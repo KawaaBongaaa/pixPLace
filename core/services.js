@@ -116,33 +116,49 @@ class TelegramService {
 
                             const data = await response.json();
 
-                            if (data.userId) {
-                                console.log('✅ Backend auth successful, DB internal ID:', data.userId);
+                            // Normalize the payload from backend supporting both old and new keys (casing)
+                            const norm = {
+                                userId: data.userid || data.userId,
+                                userName: data.username || data.userName || user.first_name + (user.last_name ? ' ' + user.last_name : '') || 'User',
+                                userPhotoUrl: data.userphotourl || data.userPhotoUrl || user.photo_url || null,
+                                credits: data.credits_balance !== undefined ? data.credits_balance : (data.credits !== undefined ? data.credits : data.balance),
+                                isPremium: data.premium !== undefined ? !!data.premium : (data.isPremium !== undefined ? !!data.isPremium : (user.is_premium || false)),
+                                subscription: (data.subscription_plan !== undefined && data.subscription_plan !== 'canceled_subscription') ? data.subscription_plan : (data.subscription || null)
+                            };
+
+                            if (norm.userId) {
+                                console.log('✅ Backend auth successful, DB internal ID:', norm.userId);
 
                                 // Устанавливаем в AppState ПОЛНОСТЬЮ данные из DB
                                 this.appState.setUser({
-                                    id: String(data.userId), // Используем ВНУТРЕННИЙ ID
-                                    name: data.userName || user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                                    id: String(norm.userId), // Используем ВНУТРЕННИЙ ID
+                                    name: norm.userName,
                                     username: user.username || null,
-                                    photo_url: data.userPhotoUrl || user.photo_url || null,
+                                    photo_url: norm.userPhotoUrl,
                                     language: user.language_code || 'en',
-                                    isPremium: data.isPremium !== undefined ? !!data.isPremium : (user.is_premium || false),
-                                    credits: data.credits !== undefined ? Number(data.credits) : undefined,
-                                    subscription: data.subscription || null
+                                    isPremium: norm.isPremium,
+                                    credits: norm.credits !== undefined ? Number(norm.credits) : undefined,
+                                    subscription: norm.subscription
                                 });
 
                                 // Сохраняем сессию так же, как в обычной авторизации (fixes F5 localstorage bug)
                                 const userDataToSave = {
                                     ...user,
-                                    internalUserId: data.userId,
-                                    first_name: data.userName || user.first_name,
-                                    photo_url: data.userPhotoUrl || user.photo_url || null
+                                    internalUserId: norm.userId,
+                                    first_name: norm.userName,
+                                    photo_url: norm.userPhotoUrl,
+                                    isPremium: norm.isPremium,
+                                    subscription: norm.subscription
                                 };
 
                                 localStorage.setItem('telegram_auth_completed', 'true');
                                 localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
                                 localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
                                 localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+                                if (norm.credits !== undefined && norm.credits !== null) {
+                                    localStorage.setItem('currentBalance', norm.credits.toString());
+                                }
 
                                 document.documentElement.classList.add('auth-session-active');
 
@@ -152,29 +168,15 @@ class TelegramService {
                                 }
                             } else {
                                 console.warn('⚠️ Backend did not return a valid userId form WebApp init');
-                                // Fallback к старому поведению (Только Telegram ID)
-                                this.appState.setUser({
-                                    id: user.id.toString(),
-                                    name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-                                    username: user.username || null,
-                                    photo_url: user.photo_url || null,
-                                    language: user.language_code || 'en',
-                                    isPremium: user.is_premium || false
-                                });
-                                localStorage.setItem('tg_user_data', JSON.stringify(user));
+                                if (typeof window.showToast === 'function') {
+                                    window.showToast('error', 'Login failed: Invalid server response');
+                                }
                             }
                         } catch (err) {
                             console.error('❌ Failed to authenticate WebApp user via backend:', err);
-                            // Fallback к старому поведению (Только Telegram ID)
-                            this.appState.setUser({
-                                id: user.id.toString(),
-                                name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-                                username: user.username || null,
-                                photo_url: user.photo_url || null,
-                                language: user.language_code || 'en',
-                                isPremium: user.is_premium || false
-                            });
-                            localStorage.setItem('tg_user_data', JSON.stringify(user));
+                            if (typeof window.showToast === 'function') {
+                                window.showToast('error', 'Login failed: Server unreachable');
+                            }
                         }
 
                         // Clean URL just in case
