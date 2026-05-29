@@ -4,8 +4,8 @@ console.log('🚀 APP MODERN MODULE IMPORTED');
 // 🚀 OPTIMIZATION: Removed static imports for heavy modules
 
 // ✅ НОВЫЕ: Импорт сервисов вместо прямых зависимостей
-import { initializeGlobalServices } from './core/services.js';
-import { AppStateManager } from './store/app-state.js';
+import { initializeGlobalServices } from './core/services.js?v=2538';
+import { AppStateManager } from './store/app-state.js?v=2538';
 import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
 import { dictionaryManager } from './dictionary-manager.js';
 
@@ -17,7 +17,7 @@ import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUID
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem, updateHistoryDisplay, updateHistoryCount } from './history-manager.js';
 // 🚀 LAZY LOAD: These modules are now imported dynamically when needed
 // import { generationManager } from './parallel-generation.js';
-import { initUserAccount } from './user-account.js';
+import { initUserAccount } from './user-account.js?v=2538';
 // Import mode management functions with lazy loading support
 let modeCardsExports = null;
 
