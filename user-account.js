@@ -1062,54 +1062,82 @@ function openAuthModal() {
         if (e.data?.type === 'auth_success') {
             window.removeEventListener('message', _onAuthMsg);
 
-            // 💾 Сохраняем всё в localStorage на уровне родительского окна!
-            if (e.data.credits !== undefined && e.data.credits !== null) {
-                localStorage.setItem('currentBalance', e.data.credits.toString());
-            }
+            try {
+                console.log('🎉 Parent received auth_success postMessage:', e.data);
 
-            const userDataToSave = {
-                id: e.data.userId,
-                internalUserId: e.data.userId,
-                first_name: e.data.name,
-                photo_url: e.data.avatarUrl,
-                isPremium: e.data.isPremium || false,
-                subscription: e.data.subscription || null
-            };
+                // 💾 Сохраняем всё в localStorage на уровне родительского окна!
+                if (e.data.credits !== undefined && e.data.credits !== null) {
+                    localStorage.setItem('currentBalance', e.data.credits.toString());
+                }
 
-            localStorage.setItem('telegram_auth_completed', 'true');
-            localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
-            localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
-            localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
-
-            // 🔥 МГНОВЕННОЕ ОБНОВЛЕНИЕ СОСТОЯНИЯ РОДИТЕЛЬСКОГО ОКНА (ДО ПЕРЕЗАГРУЗКИ)
-            if (window.appState) {
-                window.appState.setUser({
+                const userDataToSave = {
                     id: e.data.userId,
-                    name: e.data.name,
+                    internalUserId: e.data.userId,
+                    first_name: e.data.name,
                     photo_url: e.data.avatarUrl,
                     isPremium: e.data.isPremium || false,
-                    subscription: e.data.subscription || null,
-                    credits: e.data.credits !== undefined && e.data.credits !== null ? Number(e.data.credits) : undefined
-                });
-                
-                // Включаем активную сессию на документе
-                document.documentElement.classList.add('auth-session-active');
-                
-                if (typeof window.updateUserMenuInfo === 'function') {
-                    window.updateUserMenuInfo();
+                    subscription: e.data.subscription || null
+                };
+
+                localStorage.setItem('telegram_auth_completed', 'true');
+                localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
+                localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
+                localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+                // 🔥 МГНОВЕННОЕ ОБНОВЛЕНИЕ СОСТОЯНИЯ РОДИТЕЛЬСКОГО ОКНА (ДО ПЕРЕЗАГРУЗКИ)
+                if (window.appState) {
+                    if (typeof window.appState.setUser === 'function') {
+                        window.appState.setUser({
+                            id: e.data.userId,
+                            name: e.data.name,
+                            photo_url: e.data.avatarUrl,
+                            isPremium: e.data.isPremium || false,
+                            subscription: e.data.subscription || null,
+                            credits: e.data.credits !== undefined && e.data.credits !== null ? Number(e.data.credits) : undefined
+                        });
+                    } else {
+                        window.appState.userId = e.data.userId;
+                        window.appState.userName = e.data.name;
+                        window.appState.userAvatar = e.data.avatarUrl;
+                        window.appState.userCredits = e.data.credits !== undefined && e.data.credits !== null ? Number(e.data.credits) : undefined;
+                    }
+                    
+                    // Включаем активную сессию на документе
+                    document.documentElement.classList.add('auth-session-active');
+                    
+                    if (typeof window.updateUserMenuInfo === 'function') {
+                        try {
+                            window.updateUserMenuInfo();
+                        } catch (menuErr) {
+                            console.warn('⚠️ Could not update user menu UI pre-reload:', menuErr);
+                        }
+                    }
                 }
+            } catch (err) {
+                console.error('❌ Error handling auth_success in parent window:', err);
             }
 
-            // 1. Закрываем модалку входа
-            closeAuthModal();
+            // 1. Закрываем модалку входа (всегда!)
+            try {
+                closeAuthModal();
+            } catch (closeErr) {
+                console.warn('⚠️ Failed to close auth modal:', closeErr);
+            }
 
-            // 2. Ждем 300мс пока исчезнет модалка входа, затем плавно показываем Welcome
+            // 2. Ждем 300мс пока исчезнет модалка входа, затем плавно показываем Welcome (всегда!)
             setTimeout(() => {
-                showAuthWelcomeScreen(e.data.name, e.data.avatarUrl);
+                try {
+                    showAuthWelcomeScreen(e.data.name, e.data.avatarUrl);
+                } catch (welcomeErr) {
+                    console.warn('⚠️ Failed to show welcome screen:', welcomeErr);
+                }
             }, 300);
 
-            // 3. Перезагружаем страницу — теперь она стартует с идеальным localStorage!
-            setTimeout(() => window.location.reload(), 2900);
+            // 3. Перезагружаем страницу — теперь она стартует с идеальным localStorage! (всегда!)
+            setTimeout(() => {
+                console.log('🔄 Triggering auto-reload now...');
+                window.location.reload();
+            }, 2900);
         }
     };
     window.addEventListener('message', _onAuthMsg);
