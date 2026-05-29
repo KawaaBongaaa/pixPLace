@@ -427,7 +427,7 @@ function refreshTopUpButton() {
     btn.onclick = async () => {
         if (window.navigator?.vibrate) window.navigator.vibrate(30);
         const sub = (window.appState?.user?.subscription || '').toLowerCase();
-        const hasSub = ['pro', 'studio'].includes(sub);
+        const hasSub = sub && !sub.includes('canceled') && ['pro', 'studio', 'touch'].some(tier => sub.includes(tier));
         try {
             const { showPricingModal } = await import('./js/modules/ui-utils.js');
             showPricingModal({ initialTab: hasSub ? 'credits' : 'plans' });
@@ -936,12 +936,27 @@ async function onTelegramAuthCallback(userData) {
         const data = await response.json();
         console.log('📥 n8n telegram auth response:', data);
 
+        // Normalize the payload from backend supporting both old and new keys (casing)
+        const norm = {
+            userId: data.userid || data.userId,
+            userName: data.username || data.userName || userData.first_name || userData.username || 'User',
+            userPhotoUrl: data.userphotourl || data.userPhotoUrl || userData.photo_url || null,
+            credits: data.credits_balance !== undefined ? data.credits_balance : (data.credits !== undefined ? data.credits : data.balance),
+            isPremium: data.premium !== undefined ? !!data.premium : (data.isPremium !== undefined ? !!data.isPremium : false),
+            subscription: (data.subscription_plan !== undefined && data.subscription_plan !== 'canceled_subscription') ? data.subscription_plan : (data.subscription || null)
+        };
+
         // Если n8n вернул наш реальный внутренний userId
-        if (data.userId) {
+        if (norm.userId) {
             // Сохраняем локально, но ТОЛЬКО после успеха на бэке
             const userDataToSave = {
                 ...userData,
-                internalUserId: data.userId
+                id: norm.userId,
+                internalUserId: norm.userId,
+                first_name: norm.userName,
+                photo_url: norm.userPhotoUrl,
+                isPremium: norm.isPremium,
+                subscription: norm.subscription
             };
 
             localStorage.setItem('telegram_auth_completed', 'true');
@@ -949,37 +964,52 @@ async function onTelegramAuthCallback(userData) {
             localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
+            // Сохраняем баланс в localStorage
+            if (norm.credits !== undefined && norm.credits !== null) {
+                localStorage.setItem('currentBalance', norm.credits.toString());
+            }
+
             document.documentElement.classList.add('auth-session-active');
 
             if (window.appState) {
                 // 🔥 ОЧИЩАЕМ СТАРЫЙ БАЛАНС ПЕРЕД ПЕРЕКЛЮЧЕНИЕМ (если ID сменился)
-                if (window.appState.userId && window.appState.userId !== data.userId) {
+                if (window.appState.userId && window.appState.userId !== norm.userId) {
                     console.log('🔄 User ID changed, clearing old balance...');
                     window.appState.userCredits = null;
                     localStorage.removeItem('currentBalance');
                 }
 
-                // ВНИМАНИЕ: Записываем возвращенный из базы ID, а не телеграмовский
-                window.appState.userId = data.userId;
-                window.appState.userName = data.userName || userData.first_name || userData.username;
-                window.appState.userAvatar = data.userPhotoUrl || userData.photo_url || null;
+                // ВНИМАНИЕ: Записываем возвращенный из базы ID и все новые свойства
+                window.appState.setUser({
+                    id: norm.userId,
+                    name: norm.userName,
+                    photo_url: norm.userPhotoUrl,
+                    isPremium: norm.isPremium,
+                    subscription: norm.subscription,
+                    credits: norm.credits !== undefined && norm.credits !== null ? Number(norm.credits) : undefined
+                });
 
-                // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА (если он там есть)
-                if (data.credits !== undefined && typeof window.updateUserBalance === 'function') {
-                    window.updateUserBalance(data.credits);
-                } else if (data.balance !== undefined && typeof window.updateUserBalance === 'function') {
-                    window.updateUserBalance(data.balance);
+                // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА
+                if (norm.credits !== undefined && typeof window.updateUserBalance === 'function') {
+                    window.updateUserBalance(norm.credits);
                 } else if (window.appServices && window.appServices.userProfile) {
                     // 🔥 ЗАПРАШИВАЕМ БАЛАНС ИЗ ПРОФИЛЯ МГНОВЕННО!
-                    console.log('📡 Fetching profile balance for telegram user ID:', data.userId);
-                    window.appServices.userProfile.fetchProfile(data.userId);
+                    console.log('📡 Fetching profile balance for telegram user ID:', norm.userId);
+                    window.appServices.userProfile.fetchProfile(norm.userId);
                 }
             }
-            showAuthWelcomeScreen(window.appState.userName, window.appState.userAvatar);
+            showAuthWelcomeScreen(
+                norm.userName, 
+                norm.userPhotoUrl,
+                norm.credits,
+                norm.isPremium,
+                norm.subscription,
+                norm.userId
+            );
             updateUserMenuInfo();
 
-            // Auto-redirect if on standalone auth page
-            if (window.location.pathname.includes('auth.html')) {
+            // Auto-redirect if on standalone auth page (only if not in iframe)
+            if (window.location.pathname.includes('auth.html') && window === window.top) {
                 setTimeout(() => window.location.href = 'index.html', 2500);
             }
         } else {
@@ -1023,10 +1053,55 @@ function openAuthModal() {
     const _onAuthMsg = (e) => {
         if (e.data?.type === 'auth_success') {
             window.removeEventListener('message', _onAuthMsg);
+
+            // 💾 Сохраняем всё в localStorage на уровне родительского окна!
+            if (e.data.credits !== undefined && e.data.credits !== null) {
+                localStorage.setItem('currentBalance', e.data.credits.toString());
+            }
+
+            const userDataToSave = {
+                id: e.data.userId,
+                internalUserId: e.data.userId,
+                first_name: e.data.name,
+                photo_url: e.data.avatarUrl,
+                isPremium: e.data.isPremium || false,
+                subscription: e.data.subscription || null
+            };
+
+            localStorage.setItem('telegram_auth_completed', 'true');
+            localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
+            localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
+            localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+
+            // 🔥 МГНОВЕННОЕ ОБНОВЛЕНИЕ СОСТОЯНИЯ РОДИТЕЛЬСКОГО ОКНА (ДО ПЕРЕЗАГРУЗКИ)
+            if (window.appState) {
+                window.appState.setUser({
+                    id: e.data.userId,
+                    name: e.data.name,
+                    photo_url: e.data.avatarUrl,
+                    isPremium: e.data.isPremium || false,
+                    subscription: e.data.subscription || null,
+                    credits: e.data.credits !== undefined && e.data.credits !== null ? Number(e.data.credits) : undefined
+                });
+                
+                // Включаем активную сессию на документе
+                document.documentElement.classList.add('auth-session-active');
+                
+                if (typeof window.updateUserMenuInfo === 'function') {
+                    window.updateUserMenuInfo();
+                }
+            }
+
+            // 1. Закрываем модалку входа
             closeAuthModal();
-            // Show premium welcome screen, then reload
-            showAuthWelcomeScreen(e.data.name, e.data.avatarUrl);
-            setTimeout(() => window.location.reload(), 2800);
+
+            // 2. Ждем 300мс пока исчезнет модалка входа, затем плавно показываем Welcome
+            setTimeout(() => {
+                showAuthWelcomeScreen(e.data.name, e.data.avatarUrl);
+            }, 300);
+
+            // 3. Перезагружаем страницу — теперь она стартует с идеальным localStorage!
+            setTimeout(() => window.location.reload(), 2900);
         }
     };
     window.addEventListener('message', _onAuthMsg);
@@ -1107,25 +1182,33 @@ async function handleGoogleAuthCallback(response) {
         const data = await res.json();
         console.log('📥 n8n google auth response:', data);
 
+        // Normalize the payload from backend supporting both old and new keys (casing)
+        const norm = {
+            userId: data.userid || data.userId,
+            userName: data.username || data.userName || data.name || 'User',
+            userPhotoUrl: data.userphotourl || data.userPhotoUrl || data.picture || null,
+            credits: data.credits_balance !== undefined ? data.credits_balance : (data.credits !== undefined ? data.credits : data.balance),
+            isPremium: data.premium !== undefined ? !!data.premium : (data.isPremium !== undefined ? !!data.isPremium : false),
+            subscription: (data.subscription_plan !== undefined && data.subscription_plan !== 'canceled_subscription') ? data.subscription_plan : (data.subscription || null)
+        };
+
         // Обновляем глобальное состояние (зависит от ответа бэкенда)
-        if (window.appState && data.userId) {
+        if (norm.userId) {
             // 🔥 ОЧИЩАЕМ СТАРЫЙ БАЛАНС ПЕРЕД ПЕРЕКЛЮЧЕНИЕМ (если ID сменился)
-            if (window.appState.userId && window.appState.userId !== data.userId) {
+            if (window.appState && window.appState.userId && window.appState.userId !== norm.userId) {
                 console.log('🔄 User ID changed, clearing old balance...');
                 window.appState.userCredits = null;
                 localStorage.removeItem('currentBalance');
             }
 
-            window.appState.userId = data.userId;
-            window.appState.userName = data.userName || data.name || 'User';
-            window.appState.userAvatar = data.userPhotoUrl || data.picture || null;
-
             // 🔥 СОХРАНЯЕМ В LOCALSTORAGE ДЛЯ ВОССТАНОВЛЕНИЯ ПРИ ПЕРЕЗАГРУЗКЕ
             const userDataToSave = {
-                id: data.userId, // Используем именно внутренний ID
-                internalUserId: data.userId,
-                first_name: data.userName || data.name || 'User',
-                photo_url: data.userPhotoUrl || data.picture || null,
+                id: norm.userId, // Используем именно внутренний ID
+                internalUserId: norm.userId,
+                first_name: norm.userName,
+                photo_url: norm.userPhotoUrl,
+                isPremium: norm.isPremium,
+                subscription: norm.subscription,
                 auth_provider: 'google'
             };
 
@@ -1134,28 +1217,50 @@ async function handleGoogleAuthCallback(response) {
             localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
             localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
-            // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА (если он там есть)
-            if (data.credits !== undefined && typeof window.updateUserBalance === 'function') {
-                window.updateUserBalance(data.credits);
-            } else if (data.balance !== undefined && typeof window.updateUserBalance === 'function') {
-                window.updateUserBalance(data.balance);
-            } else if (window.appServices && window.appServices.userProfile) {
-                // 🔥 ЕСЛИ БАЛАНСА НЕТ В ОТВЕТЕ РЕГИСТРАЦИИ - ЗАПРАШИВАЕМ ЕГО ИЗ ПРОФИЛЯ МГНОВЕННО!
-                console.log('📡 Fetching profile balance for new user ID:', data.userId);
-                window.appServices.userProfile.fetchProfile(data.userId);
+            // Сохраняем баланс в localStorage
+            if (norm.credits !== undefined && norm.credits !== null) {
+                localStorage.setItem('currentBalance', norm.credits.toString());
+            }
+
+            if (window.appState) {
+                // ВНИМАНИЕ: Записываем возвращенный из базы ID и все новые свойства
+                window.appState.setUser({
+                    id: norm.userId,
+                    name: norm.userName,
+                    photo_url: norm.userPhotoUrl,
+                    isPremium: norm.isPremium,
+                    subscription: norm.subscription,
+                    credits: norm.credits !== undefined && norm.credits !== null ? Number(norm.credits) : undefined
+                });
+
+                // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА
+                if (norm.credits !== undefined && typeof window.updateUserBalance === 'function') {
+                    window.updateUserBalance(norm.credits);
+                } else if (window.appServices && window.appServices.userProfile) {
+                    // 🔥 ЕСЛИ БАЛАНСА НЕТ В ОТВЕТЕ РЕГИСТРАЦИИ - ЗАПРАШИВАЕМ ЕГО ИЗ ПРОФИЛЯ МГНОВЕННО!
+                    console.log('📡 Fetching profile balance for new user ID:', norm.userId);
+                    window.appServices.userProfile.fetchProfile(norm.userId);
+                }
             }
 
             // 🔥 Фикс бага с аватаркой: обязательно вешаем auth-session-active на <html>
             document.documentElement.classList.add('auth-session-active');
 
             // Вызываем уведомление и обновляем меню
-            showAuthWelcomeScreen(window.appState.userName, window.appState.userAvatar);
+            showAuthWelcomeScreen(
+                norm.userName, 
+                norm.userPhotoUrl,
+                norm.credits,
+                norm.isPremium,
+                norm.subscription,
+                norm.userId
+            );
             if (typeof updateUserMenuInfo === 'function') {
                 updateUserMenuInfo();
             }
 
-            // Auto-redirect if on standalone auth page
-            if (window.location.pathname.includes('auth.html')) {
+            // Auto-redirect if on standalone auth page (only if not in iframe)
+            if (window.location.pathname.includes('auth.html') && window === window.top) {
                 setTimeout(() => window.location.href = 'index.html', 2500);
             }
         } else {

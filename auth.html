@@ -30,7 +30,7 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>pixPLace Ai | Sign In</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-    <link rel="stylesheet" href="css/output.css?v=1780063236">
+    <link rel="stylesheet" href="css/output.css?v=1780079681">
     <!-- Telegram Web App SDK -->
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
@@ -238,10 +238,18 @@
         window.closeAuthModal = function () { };
 
         // Show welcome screen on the standalone page after successful auth
-        window.showAuthWelcomeScreen = function (name, avatarUrl) {
+        window.showAuthWelcomeScreen = function (name, avatarUrl, credits, isPremium, subscription, userId) {
             // 🔔 Notify parent window if we're inside the portal iframe
             if (window.parent && window.parent !== window) {
-                window.parent.postMessage({ type: 'auth_success', name, avatarUrl }, '*');
+                window.parent.postMessage({
+                    type: 'auth_success',
+                    name: name,
+                    avatarUrl: avatarUrl,
+                    credits: credits,
+                    isPremium: isPremium,
+                    subscription: subscription,
+                    userId: userId
+                }, '*');
                 return; // Parent will handle the welcome screen
             }
 
@@ -341,12 +349,20 @@
 
         // When in iframe: forward auth_success to parent app
         var _origWelcome = window.showAuthWelcomeScreen;
-        window.showAuthWelcomeScreen = function (name, avatarUrl) {
+        window.showAuthWelcomeScreen = function (name, avatarUrl, credits, isPremium, subscription, userId) {
             if (window.parent && window.parent !== window) {
-                window.parent.postMessage({ type: 'auth_success', name: name, avatarUrl: avatarUrl }, '*');
+                window.parent.postMessage({
+                    type: 'auth_success',
+                    name: name,
+                    avatarUrl: avatarUrl,
+                    credits: credits,
+                    isPremium: isPremium,
+                    subscription: subscription,
+                    userId: userId
+                }, '*');
                 return;
             }
-            if (_origWelcome) _origWelcome(name, avatarUrl);
+            if (_origWelcome) _origWelcome(name, avatarUrl, credits, isPremium, subscription, userId);
         };
 
     </script>
