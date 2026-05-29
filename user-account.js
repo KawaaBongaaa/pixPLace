@@ -979,15 +979,23 @@ async function onTelegramAuthCallback(userData) {
                     localStorage.removeItem('currentBalance');
                 }
 
-                // ВНИМАНИЕ: Записываем возвращенный из базы ID и все новые свойства
-                window.appState.setUser({
-                    id: norm.userId,
-                    name: norm.userName,
-                    photo_url: norm.userPhotoUrl,
-                    isPremium: norm.isPremium,
-                    subscription: norm.subscription,
-                    credits: norm.credits !== undefined && norm.credits !== null ? Number(norm.credits) : undefined
-                });
+                // ВНИМАНИЕ: Проверяем, является ли window.appState полноценным AppStateManager
+                if (typeof window.appState.setUser === 'function') {
+                    window.appState.setUser({
+                        id: norm.userId,
+                        name: norm.userName,
+                        photo_url: norm.userPhotoUrl,
+                        isPremium: norm.isPremium,
+                        subscription: norm.subscription,
+                        credits: norm.credits !== undefined && norm.credits !== null ? Number(norm.credits) : undefined
+                    });
+                } else {
+                    // В фрейме или на отдельной странице auth.html просто записываем свойства в dummy-объект
+                    window.appState.userId = norm.userId;
+                    window.appState.userName = norm.userName;
+                    window.appState.userAvatar = norm.userPhotoUrl;
+                    window.appState.userCredits = norm.credits !== undefined && norm.credits !== null ? Number(norm.credits) : undefined;
+                }
 
                 // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА
                 if (norm.credits !== undefined && typeof window.updateUserBalance === 'function') {
@@ -1223,15 +1231,23 @@ async function handleGoogleAuthCallback(response) {
             }
 
             if (window.appState) {
-                // ВНИМАНИЕ: Записываем возвращенный из базы ID и все новые свойства
-                window.appState.setUser({
-                    id: norm.userId,
-                    name: norm.userName,
-                    photo_url: norm.userPhotoUrl,
-                    isPremium: norm.isPremium,
-                    subscription: norm.subscription,
-                    credits: norm.credits !== undefined && norm.credits !== null ? Number(norm.credits) : undefined
-                });
+                // ВНИМАНИЕ: Проверяем, является ли window.appState полноценным AppStateManager
+                if (typeof window.appState.setUser === 'function') {
+                    window.appState.setUser({
+                        id: norm.userId,
+                        name: norm.userName,
+                        photo_url: norm.userPhotoUrl,
+                        isPremium: norm.isPremium,
+                        subscription: norm.subscription,
+                        credits: norm.credits !== undefined && norm.credits !== null ? Number(norm.credits) : undefined
+                    });
+                } else {
+                    // В фрейме или на отдельной странице auth.html просто записываем свойства в dummy-объект
+                    window.appState.userId = norm.userId;
+                    window.appState.userName = norm.userName;
+                    window.appState.userAvatar = norm.userPhotoUrl;
+                    window.appState.userCredits = norm.credits !== undefined && norm.credits !== null ? Number(norm.credits) : undefined;
+                }
 
                 // 🔥 ОБНОВЛЯЕМ БАЛАНС ИЗ ОТВЕТА СЕРВЕРА
                 if (norm.credits !== undefined && typeof window.updateUserBalance === 'function') {
