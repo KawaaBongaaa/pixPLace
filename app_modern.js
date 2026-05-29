@@ -3180,9 +3180,13 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
             const user = JSON.parse(userDataStr);
             if (user && (user.internalUserId || user.id)) {
                 console.log('🔄 Restoring session for:', user.first_name || user.username || 'User');
-                window.appState.userId = user.internalUserId ? String(user.internalUserId) : String(user.id);
-                window.appState.userName = user.first_name || user.username || 'User';
-                window.appState.userAvatar = user.photo_url || user.photoUrl || null;
+                window.appState.setUser({
+                    id: user.internalUserId ? String(user.internalUserId) : String(user.id),
+                    name: user.first_name || user.username || 'User',
+                    photo_url: user.photo_url || user.photoUrl || null,
+                    isPremium: !!user.isPremium,
+                    subscription: user.subscription || null
+                });
             }
         }
     } catch (e) {
@@ -3231,8 +3235,9 @@ function checkGenerationAccess(mode, hasImages) {
     if (!user || !user.id) return { ok: false, reason: 'unauthorized' };
 
     // ── Premium subscription check ──────────────────────────────────────────
+    const subStr = (user.subscription || '').toLowerCase();
     const hasPremiumSub = user.isPremium === true ||
-        ['pro', 'studio'].includes((user.subscription || '').toLowerCase());
+        (subStr && !subStr.includes('canceled') && ['pro', 'studio', 'touch'].some(tier => subStr.includes(tier)));
 
     const currentTab = window._currentGenerationTab || 'image';
     if (PREMIUM_ONLY_TABS.has(currentTab) && !hasPremiumSub) {
@@ -3277,7 +3282,7 @@ async function handleAccessDenied(checkResult) {
             // Route top-up destination based on subscription:
             // Pro/Studio users → credit packs tab; others → plans tab
             const sub = (window.appState?.user?.subscription || '').toLowerCase();
-            const hasSub = ['pro', 'studio'].includes(sub);
+            const hasSub = sub && !sub.includes('canceled') && ['pro', 'studio', 'touch'].some(tier => sub.includes(tier));
             showCreditPurchaseModal({
                 cost: checkResult.cost,
                 balance: checkResult.balance,
