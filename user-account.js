@@ -1015,14 +1015,18 @@ async function onTelegramAuthCallback(userData) {
                     window.appServices.userProfile.fetchProfile(norm.userId);
                 }
             }
-            showAuthWelcomeScreen(
-                norm.userName, 
-                norm.userPhotoUrl,
-                norm.credits,
-                norm.isPremium,
-                norm.subscription,
-                norm.userId
-            );
+            if (typeof window.showAuthWelcomeScreen === 'function') {
+                window.showAuthWelcomeScreen(
+                    norm.userName, 
+                    norm.userPhotoUrl,
+                    norm.credits,
+                    norm.isPremium,
+                    norm.subscription,
+                    norm.userId
+                );
+            } else {
+                showAuthWelcomeScreen(norm.userName, norm.userPhotoUrl);
+            }
             updateUserMenuInfo();
 
             // Auto-redirect if on standalone auth page
@@ -1072,12 +1076,15 @@ function openAuthModal() {
     const overlay = document.createElement('div');
     overlay.id = 'authPortalOverlay';
     overlay.className = 'auth-portal-overlay';
+    // Назначим правильный фоновый цвет оверлею сразу, чтобы убрать белую вспышку iframe
+    overlay.style.backgroundColor = bgColor;
     overlay.innerHTML = `
         <div class="auth-portal-backdrop" id="authPortalBdrop"></div>
         <iframe id="authPortalFrame"
                 src="auth.html?portal=true&v=${Date.now()}"
                 onload="this.style.visibility='visible'; this.style.opacity='1';"
-                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;background:${bgColor};visibility:hidden;opacity:0;transition:opacity 0.25s ease-in-out;"
+                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;background:transparent !important;visibility:hidden;opacity:0;transition:opacity 0.25s ease-in-out;"
+                allowtransparency="true"
                 allow="identity-credentials-get"
                 title="Sign in">
         </iframe>
@@ -1162,21 +1169,8 @@ function openAuthModal() {
                 }
             }, 300);
 
-            // 3. Перезагружаем страницу — теперь она стартует с идеальным localStorage и сохраняет диплинки! (всегда!)
-            setTimeout(() => {
-                try {
-                    const url = new URL(window.location.href);
-                    // Удаляем временные параметры авторизации, чтобы не было дублей/зависаний
-                    url.searchParams.delete('telegram_auth');
-                    url.searchParams.delete('session');
-                    url.searchParams.delete('user');
-                    console.log('🔄 Redirecting to authenticated creative URL:', url.toString());
-                    window.location.replace(url.toString());
-                } catch (urlErr) {
-                    console.warn('⚠️ URL replace failed, reloading current location as fallback:', urlErr);
-                    window.location.href = window.location.href;
-                }
-            }, 2400);
+            // 3. Больше не перезагружаем страницу! Все данные уже обновлены в appState, а UI перерисован мгновенно и бесшовно!
+            console.log('🎉 Live auth sync completed, no reload needed!');
         }
     };
     window.addEventListener('message', _onAuthMsg);
@@ -1330,14 +1324,18 @@ async function handleGoogleAuthCallback(response) {
             document.documentElement.classList.add('auth-session-active');
 
             // Вызываем уведомление и обновляем меню
-            showAuthWelcomeScreen(
-                norm.userName, 
-                norm.userPhotoUrl,
-                norm.credits,
-                norm.isPremium,
-                norm.subscription,
-                norm.userId
-            );
+            if (typeof window.showAuthWelcomeScreen === 'function') {
+                window.showAuthWelcomeScreen(
+                    norm.userName, 
+                    norm.userPhotoUrl,
+                    norm.credits,
+                    norm.isPremium,
+                    norm.subscription,
+                    norm.userId
+                );
+            } else {
+                showAuthWelcomeScreen(norm.userName, norm.userPhotoUrl);
+            }
             if (typeof updateUserMenuInfo === 'function') {
                 updateUserMenuInfo();
             }
