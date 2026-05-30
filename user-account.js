@@ -1019,7 +1019,7 @@ async function onTelegramAuthCallback(userData) {
             // Auto-redirect if on standalone auth page
             var isInsidePortal = false;
             try {
-                isInsidePortal = window.parent && window.parent !== window && typeof window.parent.closeAuthModal === 'function';
+                isInsidePortal = window.location.search.includes('portal=true');
             } catch (e) {
                 isInsidePortal = false;
             }
@@ -1066,9 +1066,9 @@ function openAuthModal() {
     overlay.innerHTML = `
         <div class="auth-portal-backdrop" id="authPortalBdrop"></div>
         <iframe id="authPortalFrame"
-                src="auth.html"
-                onload="this.style.opacity='1';"
-                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;background:${bgColor};opacity:0;transition:opacity 0.25s ease-in-out;"
+                src="auth.html?portal=true"
+                onload="this.style.visibility='visible'; this.style.opacity='1';"
+                style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;background:${bgColor};visibility:hidden;opacity:0;transition:opacity 0.25s ease-in-out;"
                 allow="identity-credentials-get"
                 title="Sign in">
         </iframe>
@@ -1336,7 +1336,7 @@ async function handleGoogleAuthCallback(response) {
             // Auto-redirect if on standalone auth page
             var isInsidePortal = false;
             try {
-                isInsidePortal = window.parent && window.parent !== window && typeof window.parent.closeAuthModal === 'function';
+                isInsidePortal = window.location.search.includes('portal=true');
             } catch (e) {
                 isInsidePortal = false;
             }
