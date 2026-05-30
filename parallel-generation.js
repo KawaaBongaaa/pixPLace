@@ -184,73 +184,15 @@ class GenerationManager {
                 taskUUID: generation.taskUUID,
                 negative_prompt: generation.negativePrompt ?? null,
                 strength: generation.strength ?? null,
-                // 🔥 ОБРАБОТКА ИЗОБРАЖЕНИЙ: UUID и base64 данные
-                ...(generation.imageUUIDs?.length === 1
-                    ? { imageUUID: generation.imageUUIDs[0] }  // единичное изображение - одиночный ключ
-                    : generation.imageUUIDs?.length > 1
-                        ? { imageUUIDs: generation.imageUUIDs }  // уже массив UUID - сохраняем как есть для бэка
-                        : {}),  // или пустой объект если нет изображений
-                // 🔥 НОВЫЙ МЕХАНИЗМ: Изображения передаются как бинарные файлы через FormData
-                // generation.imageData больше не используется - данные передаются через FormData в sendToWebhook
             };
 
-            // 🔥 НЕОБХОДИМОЕ ДОПОЛНЕНИЕ: Результаты обрабатываются inline в processGeneration
-
-            // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Удаляем экспорт processResult - логика теперь inline
-
-            // Добавляем ссылки на пользовательские изображения если есть
-            console.log('🎯 Checking userImageUrls:', {
-                exists: !!generation.userImageUrls,
-                length: generation.userImageUrls ? generation.userImageUrls.length : 0,
-                urls: generation.userImageUrls
-            });
-
-            if (generation.userImageUrls && generation.userImageUrls.length > 0) {
-                console.log('✅ Found user images, sending to webhook:', generation.userImageUrls.length, 'images');
-
-                // Если одно изображение - отправляем как "user_image_url" (единственное), если несколько - "user_image_urls" (множественное)
-                if (generation.userImageUrls.length === 1) {
-                    requestData.user_image_url = generation.userImageUrls[0]; // единственное число
-                    console.log('📤 Sending single image URL (user_image_url):', requestData.user_image_url.substring(0, 100) + '...');
-                } else {
-                    requestData.user_image_urls = generation.userImageUrls; // множественное число
-                    console.log('📤 Sending array of URLs (user_image_urls):', requestData.user_image_urls.length, 'items');
-                }
-            } else {
-                console.log('❌ No user images found for this generation');
-            }
-
             console.log('📤 Sending webhook request for generation:', generation.id);
-
-            // 🔥 НОВЫЙ МЕХАНИЗМ: Проверяем, есть ли бинарные изображения для отправки через FormData
-            let webhookData = requestData;
-
-            if (generation.formData) {
-                console.log('🔍 Binary FormData found in generation, using multipart request');
-                console.log('📦 FormData contains keys:', Array.from(generation.formData.keys()));
-
-                // 🔥 ИСПРАВЛЕНИЕ: Добавляем текстовые поля в существующий FormData из generation
-                Object.entries(requestData).forEach(([key, value]) => {
-                    if (value !== undefined) {
-                        generation.formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
-                    }
-                });
-
-                webhookData = {
-                    ...requestData,
-                    formData: generation.formData
-                };
-
-                console.log('📦 Final FormData prepared with binary files and text fields:', Array.from(generation.formData.keys()));
-            } else {
-                console.log('📄 No binary images, using JSON request');
-            }
 
             // Используем обновленную функцию sendToWebhook
             let response;
             console.log('🔗 Calling sendToWebhook for generation:', generation.id);
             if (window.sendToWebhook) {
-                response = await window.sendToWebhook(webhookData);
+                response = await window.sendToWebhook(requestData);
             } else {
                 // Fallback для тестирования - имитируем задержку
                 await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000));

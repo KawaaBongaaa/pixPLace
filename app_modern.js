@@ -3679,47 +3679,20 @@ async function generateImage(event) {
         // 1) Сначала загружаем изображения (если есть)
         // 2) Только ПРИ УСПЕХЕ изображения добавляем генерацию в менеджер
 
-        const imageUploadSuccess = await (async () => {
-            // 1) Если выбрано пользовательское изображение — загрузим все на Runware как PRIORITY
+        const imageUploadSuccess = (() => {
             if (userImageState.images.length > 0) {
-                try {
-                    console.log('🚀 Starting Runware image upload process with priority + fallback');
-
-                    // Используем обновленную функцию uploadUserImages (теперь с UUID + base64)
-                    const imageResult = await uploadUserImages(); // Возвращает { imageUUIDs: [...], imageData: {...} }
-
-                    if (imageResult && (
-                        (imageResult.imageUUIDs && imageResult.imageUUIDs.length > 0) ||
-                        (imageResult.formData && Array.from(imageResult.formData.keys()).some(k => k.startsWith('image_')))
-                    )) {
-                        // 🔥 НОВЫЙ МЕХАНИЗМ: Сохраняем UUIDs в generation
-                        generation.imageUUIDs = imageResult.imageUUIDs || [];
-
-                        // 🔥 НОВЫЙ МЕХАНИЗМ: Сохраняем FormData для бинарной передачи
-                        generation.formData = imageResult.formData;
-
-                        console.log('✅ Image upload successful, UUIDs and FormData ready for webhook:', {
-                            uuidsCount: imageResult.imageUUIDs?.length || 0,
-                            formDataFields: Array.from(imageResult.formData.keys())
-                        });
-
-                        return true; // 🔒 УСПЕШНАЯ ЗАГРУЗКА
-                    } else {
-                        console.warn('⚠️ No images processed successfully (no blob and no URL found in any image)');
-                        return false;
-                    }
-                } catch (err) {
-                    console.warn('❌ User images upload completely failed:', err);
-                    const errorEl = document.getElementById('userImageError');
-                    if (errorEl && !errorEl.textContent) {
-                        errorEl.textContent = 'Не удалось загрузить изображения. Продолжим без них.';
-                    }
-                    return false; // 🔒 НЕУДАЧНАЯ ЗАГРУЗКА
+                // Ensure at least one image has either blob, file, dataUrl or uploadedUrl
+                const hasValidImages = userImageState.images.some(img => img.blob || img.file || img.dataUrl || img.uploadedUrl);
+                if (hasValidImages) {
+                    console.log('📷 Found valid user images in state, ready for JSON conversion');
+                    return true;
+                } else {
+                    console.warn('⚠️ No valid images found in state');
+                    return false;
                 }
-            } else {
-                console.log('📷 No user images selected, proceeding with text-to-image');
-                return true; // 🔒 НЕТ ИЗОБРАЖЕНИЙ - ОК
             }
+            console.log('📷 No user images selected, proceeding with text-to-image');
+            return true;
         })();
 
         // 2) Добавляем генерацию ТОЛЬКО если изображения загружены успешно (или если изображений нет вообще)
@@ -3740,12 +3713,12 @@ async function generateImage(event) {
             // Теперь генерация добавляется в историю ТОЛЬКО после успешного завершения
             console.log('📦 Generation object ready, will be stored only on completion');
         } else {
-            console.error('❌ Image upload failed - generation cancelled');
-            // 🔥 CRITICAL: Remove the loading card if upload fails
+            console.error('❌ Image validation failed - generation cancelled');
+            // 🔥 CRITICAL: Remove the loading card if validation fails
             if (window.generationManager && window.generationManager.removeFailedLoadingCard) {
                 window.generationManager.removeFailedLoadingCard(generationIdForCleanup);
             }
-            showToast('error', 'Image upload failed. Generation cancelled.');
+            showToast('error', 'Image validation failed. Generation cancelled.');
             stopTimer();
             showGeneration();
         }
@@ -3764,11 +3737,36 @@ async function sendToWebhook(data) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
 
-    // Select webhook URL based on the model
-    let webhookUrl;
-    let webhookType;
+    // Ensure taskUUID is set
+    data.taskUUID = data.taskUUID || data.generation_id || generateUUIDv4();
 
-    // Set specific fields for modes first
+    // Determine taskType
+    if (window._currentGenerationTab === 'sound') {
+        data.taskType = 'soundGeneration';
+    } else if (window._currentGenerationTab === 'edit') {
+        data.taskType = 'imageEdit';
+    } else {
+        data.taskType = 'imageGeneration';
+    }
+
+    // Standardize images field as an array of strings (Base64 data URLs or absolute URLs)
+    const imagesArray = [];
+
+    // Helper to convert blob/file to Base64 data URL
+    const convertToDataUrl = async (source) => {
+        if (!source) return null;
+        if (source instanceof Blob || source instanceof File) {
+            try {
+                return await blobToDataURL(source);
+            } catch (e) {
+                console.error('Failed to convert Blob/File to Data URL:', e);
+                return null;
+            }
+        }
+        return null;
+    };
+
+    // Set specific fields and gather images based on the active mode tab
     if (window._currentGenerationTab === 'sound') {
         // ── Sound AI modes ──────────────────────────────────────
         const soundSubTab = document.querySelector('.sound-sub-tab.active')?.dataset?.soundTab || 'text';
@@ -3776,8 +3774,16 @@ async function sendToWebhook(data) {
         if (soundSubTab === 'image') {
             data.soundMode = 'audio_from_image';
             data.mode = 'audio_from_image';
-            data.soundImageBlob = window._soundImageBlob || null;
-            data.soundImageUrl = window._soundImageUrl || null;
+            
+            const soundImageUrl = window._soundImageUrl || null;
+            const soundImageBlob = window._soundImageBlob || null;
+
+            if (soundImageUrl && soundImageUrl.startsWith('http')) {
+                imagesArray.push(soundImageUrl);
+            } else if (soundImageBlob) {
+                const dataUrl = await convertToDataUrl(soundImageBlob);
+                if (dataUrl) imagesArray.push(dataUrl);
+            }
         } else {
             data.soundMode = 'audio_from_text';
             data.mode = 'audio_from_text';
@@ -3787,12 +3793,61 @@ async function sendToWebhook(data) {
         // ── Edit Image modes ─────────────────────────────────────
         data.editMode = true;
         data.type = 'edit';
-        data.mode = window._editModel || mode || 'nano_banana';
+        data.mode = window._editModel || data.mode || 'nano_banana';
         data.action = 'Image Edit';
-        data.editImageBlob = window._editImageBlob || null;
-        data.editImageUrl = window._editImageUrl || null;
+
+        const editImageUrl = window._editImageUrl || null;
+        const editImageBlob = window._editImageBlob || null;
+
+        if (editImageUrl && editImageUrl.startsWith('http')) {
+            imagesArray.push(editImageUrl);
+        } else if (editImageBlob) {
+            const dataUrl = await convertToDataUrl(editImageBlob);
+            if (dataUrl) imagesArray.push(dataUrl);
+        }
         data.editResolution = document.getElementById('resolutionSelect')?.value || '1K';
+    } else {
+        // ── Standard / Nano Banana modes ──────────────────────────
+        const stateImages = window.userImageState?.images || [];
+        for (const img of stateImages) {
+            if (img.uploadedUrl && img.uploadedUrl.startsWith('http')) {
+                imagesArray.push(img.uploadedUrl);
+            } else if (img.dataUrl && img.dataUrl.startsWith('data:')) {
+                imagesArray.push(img.dataUrl);
+            } else if (img.blob || img.file) {
+                const dataUrl = await convertToDataUrl(img.blob || img.file);
+                if (dataUrl) imagesArray.push(dataUrl);
+            }
+        }
+
+        // Fallback check if stateImages is empty but generation passed userImageUrls or userImageUrl
+        if (imagesArray.length === 0) {
+            const userImageUrls = data.user_image_urls || (data.user_image_url ? [data.user_image_url] : []);
+            for (const url of userImageUrls) {
+                if (url && (url.startsWith('http') || url.startsWith('data:'))) {
+                    imagesArray.push(url);
+                }
+            }
+        }
     }
+
+    // Assign the standardized images array of strings
+    data.images = imagesArray;
+
+    // Clean up all obsolete/redundant image parameters to keep JSON clean
+    delete data.imageUUID;
+    delete data.imageUUIDs;
+    delete data.user_image_url;
+    delete data.user_image_urls;
+    delete data.formData;
+    delete data.soundImageBlob;
+    delete data.soundImageUrl;
+    delete data.editImageBlob;
+    delete data.editImageUrl;
+
+    // Select webhook URL based on the model
+    let webhookUrl;
+    let webhookType;
 
     // 🔥 Dynamic webhook selection from registry
     const modelDef = getModelById(data.mode);
@@ -3812,59 +3867,21 @@ async function sendToWebhook(data) {
         modelName: modelDef ? modelDef.name : 'Unknown'
     });
 
-    // 🔥 НОВОЕ: Определяем тип данных - JSON или FormData с бинарными файлами
-    const isFormData = data.formData instanceof FormData;
+    console.log('📄 JSON MODE: Preparing JSON request');
 
-    // 🔥 СИНХРОНИЗАЦИЯ: Если есть FormData, обновляем в ней поля mode и action
-    if (isFormData) {
-        if (data.mode) data.formData.set('mode', data.mode);
-        if (data.action) data.formData.set('action', data.action);
-        if (data.soundMode) data.formData.set('soundMode', data.soundMode);
-        if (data.editMode) data.formData.set('editMode', String(data.editMode));
-    }
+    const requestData = {
+        ...data,
+        prompt: sanitizeJsonString(data.prompt) // Restore sanitize for JSON safety
+    };
 
-    console.log('🔍 Data type detection:', {
-        isFormData,
-        hasFormData: !!data.formData,
-        hasImageUUIDs: !!data.imageUUIDs
-    });
+    const requestBody = JSON.stringify(requestData);
+    const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    };
 
-    let requestBody, headers, contentType;
-
-    if (isFormData) {
-        // 🔥 БИНАРНЫЙ РЕЖИМ: Используем FormData с файлами
-        console.log('📦 BINARY MODE: Preparing FormData request');
-
-        requestBody = data.formData;
-
-        // Текстовые поля уже добавлены в parallel-generation.js
-
-        // Не устанавливаем Content-Type - браузер сам установит multipart/form-data с boundary
-        headers = {
-            'Accept': 'application/json'
-        };
-
-        contentType = 'multipart/form-data (auto)';
-        console.log('📤 BINARY request prepared with FormData fields:', Array.from(requestBody.keys()));
-
-    } else {
-        // 🔥 СТАРЫЙ РЕЖИМ: JSON для обратной совместимости
-        console.log('📄 JSON MODE: Preparing JSON request');
-
-        const requestData = {
-            ...data,
-            prompt: sanitizeJsonString(data.prompt) // Restore sanitize for JSON safety
-        };
-
-        requestBody = JSON.stringify(requestData);
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        };
-
-        contentType = 'application/json';
-        console.log('📤 RAW JSON webhook request body (first 500 chars):', requestBody.substring(0, 500));
-    }
+    const contentType = 'application/json';
+    console.log('📤 RAW JSON webhook request body (first 500 chars):', requestBody.substring(0, 500));
 
     try {
         console.log('📤 Sending webhook request:', {
