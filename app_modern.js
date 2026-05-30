@@ -1597,7 +1597,7 @@ async function updateResolutionSelectVisibility() {
     // 🔥 FIX: In Edit mode, use window._editModel instead of the Image-tab mode
     const activeTabNow = window._currentGenerationTab || 'image';
     if (activeTabNow === 'edit') {
-        const editModel = window._editModel || document.getElementById('modeSelect')?.value || 'nano_banana';
+        const editModel = (window.appState?.getModeState?.('edit')?.model) || window._editModel || document.getElementById('modeSelect')?.value || 'nano_banana';
         const showRes = ['nano_banana_2', 'nano_banana_pro'].includes(editModel);
         if (showRes) {
             resolutionGroup.style.removeProperty('display');
@@ -1711,6 +1711,9 @@ function initUserImageUpload() {
         // Слушать изменения режима через DOM select (для совместимости)
         modeSelect.addEventListener('change', () => {
             const newMode = modeSelect.value;
+            if (window._currentGenerationTab === 'edit' || window.appState?.activeMode === 'edit') {
+                window._editModel = newMode;
+            }
             trimImagesForMode(newMode);
             updateImageUploadVisibility();
             updatePromptVisibility();
@@ -1724,6 +1727,9 @@ function initUserImageUpload() {
             const { mode } = event.detail;
             console.log('📡 Mode changed event received:', mode);
 
+            if (window._currentGenerationTab === 'edit' || window.appState?.activeMode === 'edit') {
+                window._editModel = mode;
+            }
             if (modeSelect) modeSelect.value = mode;
 
             trimImagesForMode(mode);
@@ -2849,7 +2855,6 @@ async function applyUrlParams() {
     if (!urlMode) {
         if (urlImageUrl) {
             urlMode = 'edit';
-            urlModel = urlModel || 'qwen_image_edit';
         } else if (urlPrompt || urlModel) {
             urlMode = 'image';
         }
@@ -2950,13 +2955,6 @@ async function applyUrlParams() {
             if (urlMode) {
                 console.log(`🔀 [applyUrlParams] mode param found: ${urlMode}`);
                 if (navModule.switchTab) navModule.switchTab(urlMode);
-
-                // 🔥 FIX: If we switched to 'image' tab and no model was specified,
-                // explicitly select 'z_image' (Flux) to ensure it's visually highlighted.
-                if (urlMode === 'image' && !urlModel && modeCardsModule.selectModeCard) {
-                    console.log('🎛️ [applyUrlParams] Auto-selecting z_image model for visual consistency');
-                    modeCardsModule.selectModeCard('z_image');
-                }
 
                 applied = true;
             }
@@ -3789,7 +3787,7 @@ async function sendToWebhook(data) {
         // ── Edit Image modes ─────────────────────────────────────
         data.editMode = true;
         data.type = 'edit';
-        data.mode = window._editModel || 'nano_banana_pro';
+        data.mode = window._editModel || mode || 'nano_banana';
         data.action = 'Image Edit';
         data.editImageBlob = window._editImageBlob || null;
         data.editImageUrl = window._editImageUrl || null;
