@@ -3786,11 +3786,24 @@ async function sendToWebhook(data) {
             const soundImageUrl = window._soundImageUrl || null;
             const soundImageBlob = window._soundImageBlob || null;
 
+            // Use snapshot fallback if available
+            const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
+            const localImgObj = stateImages[0];
+
             if (soundImageUrl && soundImageUrl.startsWith('http')) {
                 imagesArray.push(soundImageUrl);
             } else if (soundImageBlob) {
                 const dataUrl = await convertToDataUrl(soundImageBlob);
                 if (dataUrl) imagesArray.push(dataUrl);
+            } else if (localImgObj) {
+                if (localImgObj.uploadedUrl && localImgObj.uploadedUrl.startsWith('http')) {
+                    imagesArray.push(localImgObj.uploadedUrl);
+                } else if (localImgObj.dataUrl && localImgObj.dataUrl.startsWith('data:')) {
+                    imagesArray.push(localImgObj.dataUrl);
+                } else if (localImgObj.blob || localImgObj.file) {
+                    const dataUrl = await convertToDataUrl(localImgObj.blob || localImgObj.file);
+                    if (dataUrl) imagesArray.push(dataUrl);
+                }
             }
         } else {
             data.soundMode = 'audio_from_text';
@@ -3807,11 +3820,24 @@ async function sendToWebhook(data) {
         const editImageUrl = window._editImageUrl || null;
         const editImageBlob = window._editImageBlob || null;
 
+        // Use snapshot fallback if available
+        const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
+        const localImgObj = stateImages[0];
+
         if (editImageUrl && editImageUrl.startsWith('http')) {
             imagesArray.push(editImageUrl);
         } else if (editImageBlob) {
             const dataUrl = await convertToDataUrl(editImageBlob);
             if (dataUrl) imagesArray.push(dataUrl);
+        } else if (localImgObj) {
+            if (localImgObj.uploadedUrl && localImgObj.uploadedUrl.startsWith('http')) {
+                imagesArray.push(localImgObj.uploadedUrl);
+            } else if (localImgObj.dataUrl && localImgObj.dataUrl.startsWith('data:')) {
+                imagesArray.push(localImgObj.dataUrl);
+            } else if (localImgObj.blob || localImgObj.file) {
+                const dataUrl = await convertToDataUrl(localImgObj.blob || localImgObj.file);
+                if (dataUrl) imagesArray.push(dataUrl);
+            }
         }
         data.editResolution = document.getElementById('resolutionSelect')?.value || '1K';
     } else {
