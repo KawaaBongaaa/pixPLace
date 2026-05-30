@@ -409,6 +409,17 @@ async function useImageForGeneration(imageUrl, itemId) {
         window.userImageState.images.push(imageObj);
         console.log('✅ Added image to userImageState:', window.userImageState.images.length, 'images');
 
+        // 4a. 🔥 FIX: If we're on the Edit tab, set _editImageUrl/_editImageBlob and show Step 2
+        if (window._currentGenerationTab === 'edit') {
+            window._editImageUrl = processedImageUrl;
+            window._editImageBlob = imageBlob;
+            console.log('🔧 Edit tab detected — set _editImageUrl and _editImageBlob');
+            if (typeof window._showEditStep2 === 'function') {
+                window._showEditStep2(processedImageUrl);
+                console.log('✅ Edit Step 2 opened via _showEditStep2');
+            }
+        }
+
         // 5. Обновляем превью через единый идемпотентный рендер
         if (window.renderPreviews) {
             window.renderPreviews();
