@@ -895,7 +895,7 @@ export async function openSubscriptionPlans() {
             }
         }
 
-        const { showPricingModal } = await import('./js/modules/ui-utils.js?v=1780113894-1');
+        const { showPricingModal } = await import('./js/modules/ui-utils.js?v=1780113970-1');
         showPricingModal({ initialTab: 'plans' });
     } catch (e) {
         console.error('❌ Error in openSubscriptionPlans:', e);
@@ -914,7 +914,7 @@ export async function openCreditPacks() {
             }
         }
 
-        const { showPricingModal } = await import('./js/modules/ui-utils.js?v=1780113894-1');
+        const { showPricingModal } = await import('./js/modules/ui-utils.js?v=1780113970-1');
         showPricingModal({ initialTab: 'credits' });
     } catch (e) {
         console.error('❌ Error in openCreditPacks:', e);
