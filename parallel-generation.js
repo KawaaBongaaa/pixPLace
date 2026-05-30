@@ -184,6 +184,7 @@ class GenerationManager {
                 taskUUID: generation.taskUUID,
                 negative_prompt: generation.negativePrompt ?? null,
                 strength: generation.strength ?? null,
+                imagesSnapshot: generation.imagesSnapshot || [], // 🔥 PROPAGATE SNAPSHOT: Pass snapped images to sendToWebhook
             };
 
             console.log('📤 Sending webhook request for generation:', generation.id);
@@ -362,16 +363,6 @@ class GenerationManager {
             console.error(`❌ Generation error for ${generation.id}:`, error);
             if (window.ScreenManager?.handleGenerationError) {
                 window.ScreenManager.handleGenerationError(generation.id, error);
-            }
-            // 🚨 ПОКАЗЫВАЕМ ТОСТ ПРО ПЕРЕГРУЗКУ ТОЛЬКО ДЛЯ СЕТЕВЫХ ОШИБОК ИЛИ ОШИБОК СЕРВЕРА
-            // Если это TypeError в нашем коде, не пугаем пользователя перегрузкой
-            const isLogicError = error instanceof TypeError || error.message.includes('replaceLoadingWithPreview');
-
-            if (window.showToast && !isLogicError) {
-                const overloadMessage = window.appState?.translate('error_server_overloaded') || '😓 Generation failed. Servers are currently overloaded, please try again later or choose another generation mode... 🙏';
-                window.showToast('error', overloadMessage);
-            } else if (window.showToast && isLogicError) {
-                window.showToast('error', window.appState?.translate('error_ui_rendering') || '⚠️ UI rendering error. Please check your history.');
             }
 
             this.completeGeneration(generation.id, null, error);
