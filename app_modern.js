@@ -4,20 +4,20 @@ console.log('🚀 APP MODERN MODULE IMPORTED');
 // 🚀 OPTIMIZATION: Removed static imports for heavy modules
 
 // ✅ НОВЫЕ: Импорт сервисов вместо прямых зависимостей
-import { initializeGlobalServices } from './core/services.js?v=1780119534';
-import { AppStateManager } from './store/app-state.js?v=1780119534';
+import { initializeGlobalServices } from './core/services.js?v=1780119824';
+import { AppStateManager } from './store/app-state.js?v=1780119824';
 import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
 import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
-import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780119534-1';
+import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780119824-1';
 import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback, extractBase64FromDataUrl, readFileAsArrayBuffer, arrayBufferToBlob, blobToDataURL, maybeCompressImageBlob, downloadAndConvertImage } from './utils.js';
 // 🚀 LAZY LOAD: AI Coach loaded on demand
 // import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem, updateHistoryDisplay, updateHistoryCount } from './history-manager.js';
 // 🚀 LAZY LOAD: These modules are now imported dynamically when needed
 // import { generationManager } from './parallel-generation.js';
-import { initUserAccount } from './user-account.js?v=1780119534';
+import { initUserAccount } from './user-account.js?v=1780119824';
 // Import mode management functions with lazy loading support
 let modeCardsExports = null;
 
@@ -3786,11 +3786,24 @@ async function sendToWebhook(data) {
             const soundImageUrl = window._soundImageUrl || null;
             const soundImageBlob = window._soundImageBlob || null;
 
+            // Use snapshot fallback if available
+            const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
+            const localImgObj = stateImages[0];
+
             if (soundImageUrl && soundImageUrl.startsWith('http')) {
                 imagesArray.push(soundImageUrl);
             } else if (soundImageBlob) {
                 const dataUrl = await convertToDataUrl(soundImageBlob);
                 if (dataUrl) imagesArray.push(dataUrl);
+            } else if (localImgObj) {
+                if (localImgObj.uploadedUrl && localImgObj.uploadedUrl.startsWith('http')) {
+                    imagesArray.push(localImgObj.uploadedUrl);
+                } else if (localImgObj.dataUrl && localImgObj.dataUrl.startsWith('data:')) {
+                    imagesArray.push(localImgObj.dataUrl);
+                } else if (localImgObj.blob || localImgObj.file) {
+                    const dataUrl = await convertToDataUrl(localImgObj.blob || localImgObj.file);
+                    if (dataUrl) imagesArray.push(dataUrl);
+                }
             }
         } else {
             data.soundMode = 'audio_from_text';
@@ -3807,11 +3820,24 @@ async function sendToWebhook(data) {
         const editImageUrl = window._editImageUrl || null;
         const editImageBlob = window._editImageBlob || null;
 
+        // Use snapshot fallback if available
+        const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
+        const localImgObj = stateImages[0];
+
         if (editImageUrl && editImageUrl.startsWith('http')) {
             imagesArray.push(editImageUrl);
         } else if (editImageBlob) {
             const dataUrl = await convertToDataUrl(editImageBlob);
             if (dataUrl) imagesArray.push(dataUrl);
+        } else if (localImgObj) {
+            if (localImgObj.uploadedUrl && localImgObj.uploadedUrl.startsWith('http')) {
+                imagesArray.push(localImgObj.uploadedUrl);
+            } else if (localImgObj.dataUrl && localImgObj.dataUrl.startsWith('data:')) {
+                imagesArray.push(localImgObj.dataUrl);
+            } else if (localImgObj.blob || localImgObj.file) {
+                const dataUrl = await convertToDataUrl(localImgObj.blob || localImgObj.file);
+                if (dataUrl) imagesArray.push(dataUrl);
+            }
         }
         data.editResolution = document.getElementById('resolutionSelect')?.value || '1K';
     } else {
