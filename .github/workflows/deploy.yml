@@ -121,10 +121,10 @@ jobs:
       # ── Auto-update version hashes for cache busting ──────────────────
       - name: Auto-update cache-busting versions
         run: |
-          echo "🔄 Updating cache-busting versions in HTML files..."
+          echo "🔄 Updating cache-busting versions in HTML and JS files..."
           TIMESTAMP=$(date +%s)
-          # Replaces any ?v=1234 or ?v=xxxx with ?v=TIMESTAMP
-          find . -name "*.html" -type f -not -path "*/node_modules/*" -not -path "*/.git/*" -exec sed -i -E "s/(\.js|\.css)\?v=[0-9A-Za-z\.]+/\1?v=$TIMESTAMP/g" {} +
+          # Replaces any ?v=1234 or ?v=xxxx with ?v=TIMESTAMP in both HTML and JS files
+          find . \( -name "*.html" -o -name "*.js" \) -type f -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.gemini/*" -not -path "*/.agents/*" -exec sed -i -E "s/(\.js|\.css)\?v=[0-9A-Za-z\.]+/\1?v=$TIMESTAMP/g" {} +
           echo "✅ Replaced version tags with ?v=$TIMESTAMP"
       # ── Deploy to gh-pages branch ──────────────────────────────────────────
       - name: Deploy to GitHub Pages
