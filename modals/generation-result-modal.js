@@ -263,8 +263,6 @@ function reusePrompt(prompt, mode) {
             // Обновляем карусель режимов если она существует
             updateModeSelection(mode);
         }
-
-        showToast('info', window.appState?.translate?.('prompt_applied') || 'Prompt applied! Scroll down and click Generate');
     }, 300);
 }
 
@@ -280,8 +278,6 @@ async function reusePromptAndImage(prompt, mode, imageUrl, itemId) {
             promptInput.value = prompt.replace('...', '').trim();
             promptInput.focus();
         }
-
-        showToast('info', window.appState?.translate?.('prompt_and_image_applied') || 'Промпт и изображение готовы к генерации!');
     }, 800);
 }
 
@@ -417,6 +413,12 @@ async function useImageForGeneration(imageUrl, itemId) {
         if (window.renderPreviews) {
             window.renderPreviews();
             console.log('✅ Previews rendered via renderPreviews');
+
+            // 🔥 FIX: Force update image upload visibility
+            if (window.updateImageUploadVisibility) {
+                window.updateImageUploadVisibility();
+                console.log("✅ Image upload visibility updated after renderPreviews");
+            }
         } else if (window.createPreviewItem) {
             // Fallback for older versions
             window.createPreviewItem(imageId, processedImageUrl, 'History Image');
@@ -523,7 +525,6 @@ async function useImageForGeneration(imageUrl, itemId) {
         }, 100);
 
         // УСПЕХ!
-        showToast('success', window.appState?.translate?.('image_added_success') || 'Image added for generation!');
         console.log('✅ Image successfully added using direct state manipulation');
 
         // Прокручиваем к превью с небольшой задержкой
