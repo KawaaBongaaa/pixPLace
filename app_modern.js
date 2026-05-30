@@ -3886,7 +3886,7 @@ async function sendToWebhook(data) {
     try {
         console.log('📤 Sending webhook request:', {
             mode: data.mode,
-            hasImages: isFormData,
+            hasImages: data.images && data.images.length > 0,
             prompt: data.prompt?.substring(0, 100) + (data.prompt?.length > 100 ? '...' : '') // Логируем первые 100 символов промпта
         });
 
