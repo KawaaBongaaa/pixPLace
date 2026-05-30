@@ -413,10 +413,10 @@ export class AppStateManager {
             this.updateState({
                 user: {
                     ...this.state.user,
-                    credits: 20
+                    credits: 0
                 }
             });
-            this.state.user.credits = 20; // 🔥 ДОБАВЛЕНИЕ: Прямое присвоение
+            this.state.user.credits = 0; // 🔥 ДОБАВЛЕНИЕ: Прямое присвоение
             this.saveCurrentBalance(); // Сохраняем начальный баланс
         }
     }
@@ -446,10 +446,10 @@ export class AppStateManager {
                     this.updateState({
                         user: {
                             ...this.state.user,
-                            credits: 20
+                            credits: 0
                         }
                     });
-                    this.state.user.credits = 20;
+                    this.state.user.credits = 0;
                 }
             }
 
@@ -474,10 +474,10 @@ export class AppStateManager {
                 this.updateState({
                     user: {
                         ...this.state.user,
-                        credits: 20
+                        credits: 0
                     }
                 });
-                this.state.user.credits = 20;
+                this.state.user.credits = 0;
             }
 
         } catch (error) {
@@ -503,7 +503,7 @@ export class AppStateManager {
                         balanceHistory: [],
                         user: {
                             ...this.state.user,
-                            credits: 20
+                            credits: 0
                         }
                     });
                 }
@@ -513,7 +513,7 @@ export class AppStateManager {
                 this.updateState({
                     user: {
                         ...this.state.user,
-                        credits: 20
+                        credits: 0
                     }
                 });
             }
