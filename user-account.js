@@ -1141,6 +1141,12 @@ function openAuthModal() {
                     // Включаем активную сессию на документе
                     document.documentElement.classList.add('auth-session-active');
                     
+                    // 🔥 Fetch fresh profile balance from DB instantly on the parent window!
+                    if (window.appServices && window.appServices.userProfile && e.data.userId) {
+                        console.log('📡 Parent fetching fresh profile balance for user ID:', e.data.userId);
+                        window.appServices.userProfile.fetchProfile(e.data.userId);
+                    }
+                    
                     if (typeof window.updateUserMenuInfo === 'function') {
                         try {
                             window.updateUserMenuInfo();

@@ -3228,12 +3228,17 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
             const user = JSON.parse(userDataStr);
             if (user && (user.internalUserId || user.id)) {
                 console.log('🔄 Restoring session for:', user.first_name || user.username || 'User');
+                
+                const savedBalance = localStorage.getItem('currentBalance');
+                const parsedBalance = savedBalance ? parseFloat(savedBalance) : null;
+                
                 window.appState.setUser({
                     id: user.internalUserId ? String(user.internalUserId) : String(user.id),
                     name: user.first_name || user.username || 'User',
                     photo_url: user.photo_url || user.photoUrl || null,
                     isPremium: !!user.isPremium,
-                    subscription: user.subscription || null
+                    subscription: user.subscription || null,
+                    credits: (parsedBalance !== null && !isNaN(parsedBalance)) ? parsedBalance : undefined
                 });
             }
         }
