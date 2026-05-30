@@ -78,12 +78,13 @@ async function handleTelegramLogin() {
                     // instead of separate userId / userName / userAvatar / setUser() calls
                     // that each triggered a separate UI render (4-step flicker).
                     if (typeof window.appState !== 'undefined') {
+                        const normCredits = data.credits_balance !== undefined ? data.credits_balance : (data.credits !== undefined ? data.credits : data.balance);
                         if (typeof window.appState.setUser === 'function') {
                             window.appState.setUser({
                                 id: String(data.userId),
                                 name: data.userName || user.first_name,
                                 photo_url: data.userPhotoUrl || user.photo_url || null,
-                                credits: data.credits !== undefined ? Number(data.credits) : undefined,
+                                credits: normCredits !== undefined && normCredits !== null ? Number(normCredits) : undefined,
                                 isPremium: data.isPremium !== undefined ? !!data.isPremium : undefined,
                                 subscription: data.subscription || null
                             });
@@ -92,6 +93,14 @@ async function handleTelegramLogin() {
                             window.appState.userId = String(data.userId);
                             window.appState.userName = data.userName || user.first_name;
                             window.appState.userAvatar = data.userPhotoUrl || user.photo_url || null;
+                            if (normCredits !== undefined && normCredits !== null) {
+                                window.appState.userCredits = Number(normCredits);
+                            }
+                        }
+
+                        // Save normalized balance in localStorage
+                        if (normCredits !== undefined && normCredits !== null) {
+                            localStorage.setItem('currentBalance', normCredits.toString());
                         }
                     }
 
@@ -108,6 +117,12 @@ async function handleTelegramLogin() {
                     localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
 
                     document.documentElement.classList.add('auth-session-active');
+
+                    // 🔥 Fetch fresh profile balance from DB instantly!
+                    if (window.appServices && window.appServices.userProfile && data.userId) {
+                        console.log('📡 Fetching fresh profile balance for telegram WebApp user:', data.userId);
+                        window.appServices.userProfile.fetchProfile(data.userId);
+                    }
 
                     // ✅ Single UI refresh — after ALL state is committed
                     if (typeof window.updateUserMenuInfo === 'function') {
@@ -248,12 +263,24 @@ async function completeTelegramAuth(authData) {
                 window.appState.userAvatar = data.userPhotoUrl || authData.user.photo_url || null;
 
                 // 🔥 ADDED: Sync credits and profile to appState
+                const normCredits = data.credits_balance !== undefined ? data.credits_balance : (data.credits !== undefined ? data.credits : data.balance);
                 if (typeof window.appState.setUser === 'function') {
                     window.appState.setUser({
-                        credits: data.credits !== undefined ? Number(data.credits) : undefined,
+                        credits: normCredits !== undefined && normCredits !== null ? Number(normCredits) : undefined,
                         isPremium: data.isPremium !== undefined ? !!data.isPremium : undefined,
                         subscription: data.subscription || null
                     });
+                }
+
+                // Save normalized balance in localStorage
+                if (normCredits !== undefined && normCredits !== null) {
+                    localStorage.setItem('currentBalance', normCredits.toString());
+                }
+
+                // 🔥 Fetch fresh profile balance from DB instantly!
+                if (window.appServices && window.appServices.userProfile) {
+                    console.log('📡 Fetching fresh profile balance for Telegram oauth return user:', data.userId);
+                    window.appServices.userProfile.fetchProfile(data.userId);
                 }
 
                 // Update UI immediately 
