@@ -4,20 +4,20 @@ console.log('🚀 APP MODERN MODULE IMPORTED');
 // 🚀 OPTIMIZATION: Removed static imports for heavy modules
 
 // ✅ НОВЫЕ: Импорт сервисов вместо прямых зависимостей
-import { initializeGlobalServices } from './core/services.js?v=1780119824';
-import { AppStateManager } from './store/app-state.js?v=1780119824';
+import { initializeGlobalServices } from './core/services.js?v=1780120661';
+import { AppStateManager } from './store/app-state.js?v=1780120661';
 import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
 import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
-import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780119824-1';
+import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780120661-1';
 import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback, extractBase64FromDataUrl, readFileAsArrayBuffer, arrayBufferToBlob, blobToDataURL, maybeCompressImageBlob, downloadAndConvertImage } from './utils.js';
 // 🚀 LAZY LOAD: AI Coach loaded on demand
 // import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem, updateHistoryDisplay, updateHistoryCount } from './history-manager.js';
 // 🚀 LAZY LOAD: These modules are now imported dynamically when needed
 // import { generationManager } from './parallel-generation.js';
-import { initUserAccount } from './user-account.js?v=1780119824';
+import { initUserAccount } from './user-account.js?v=1780120661';
 // Import mode management functions with lazy loading support
 let modeCardsExports = null;
 
@@ -3760,7 +3760,7 @@ async function sendToWebhook(data) {
     // Standardize images field as an array of strings (Base64 data URLs or absolute URLs)
     const imagesArray = [];
 
-    // Helper to convert blob/file to Base64 data URL
+    // Helper to convert blob/file/URL to Base64 data URL
     const convertToDataUrl = async (source) => {
         if (!source) return null;
         if (source instanceof Blob || source instanceof File) {
@@ -3768,6 +3768,36 @@ async function sendToWebhook(data) {
                 return await blobToDataURL(source);
             } catch (e) {
                 console.error('Failed to convert Blob/File to Data URL:', e);
+                return null;
+            }
+        }
+        // Handle HTTP/HTTPS URL strings — download and convert to base64
+        if (typeof source === 'string' && source.startsWith('http')) {
+            try {
+                console.log('🔄 Converting URL to base64:', source.substring(0, 80) + '...');
+                const blob = await downloadAndConvertImage(source);
+                if (blob) {
+                    const dataUrl = await blobToDataURL(blob);
+                    console.log('✅ URL converted to base64, length:', dataUrl?.length);
+                    return dataUrl;
+                }
+            } catch (e) {
+                console.warn('⚠️ Could not download URL for base64 conversion, sending as-is:', e.message);
+                return source; // fallback: return the URL string as-is
+            }
+        }
+        // Handle data: URLs — already base64, return as-is
+        if (typeof source === 'string' && source.startsWith('data:')) {
+            return source;
+        }
+        // Handle blob: URLs — fetch the blob and convert to base64
+        if (typeof source === 'string' && source.startsWith('blob:')) {
+            try {
+                const res = await fetch(source);
+                const blob = await res.blob();
+                return await blobToDataURL(blob);
+            } catch (e) {
+                console.warn('⚠️ Could not fetch blob: URL for conversion:', e.message);
                 return null;
             }
         }
@@ -3790,20 +3820,18 @@ async function sendToWebhook(data) {
             const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
             const localImgObj = stateImages[0];
 
-            if (soundImageUrl && soundImageUrl.startsWith('http')) {
-                imagesArray.push(soundImageUrl);
+            if (soundImageUrl) {
+                const dataUrl = await convertToDataUrl(soundImageBlob || soundImageUrl);
+                if (dataUrl) imagesArray.push(dataUrl);
             } else if (soundImageBlob) {
                 const dataUrl = await convertToDataUrl(soundImageBlob);
                 if (dataUrl) imagesArray.push(dataUrl);
             } else if (localImgObj) {
-                if (localImgObj.uploadedUrl && localImgObj.uploadedUrl.startsWith('http')) {
-                    imagesArray.push(localImgObj.uploadedUrl);
-                } else if (localImgObj.dataUrl && localImgObj.dataUrl.startsWith('data:')) {
-                    imagesArray.push(localImgObj.dataUrl);
-                } else if (localImgObj.blob || localImgObj.file) {
-                    const dataUrl = await convertToDataUrl(localImgObj.blob || localImgObj.file);
-                    if (dataUrl) imagesArray.push(dataUrl);
-                }
+                // Try all sources in priority order, converting everything to base64
+                const dataUrl = await convertToDataUrl(
+                    localImgObj.blob || localImgObj.file || localImgObj.uploadedUrl || localImgObj.dataUrl
+                );
+                if (dataUrl) imagesArray.push(dataUrl);
             }
         } else {
             data.soundMode = 'audio_from_text';
@@ -3824,20 +3852,16 @@ async function sendToWebhook(data) {
         const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
         const localImgObj = stateImages[0];
 
-        if (editImageUrl && editImageUrl.startsWith('http')) {
-            imagesArray.push(editImageUrl);
-        } else if (editImageBlob) {
-            const dataUrl = await convertToDataUrl(editImageBlob);
+        if (editImageBlob || editImageUrl) {
+            // Convert everything to base64 — blob takes priority, URL as fallback
+            const dataUrl = await convertToDataUrl(editImageBlob || editImageUrl);
             if (dataUrl) imagesArray.push(dataUrl);
         } else if (localImgObj) {
-            if (localImgObj.uploadedUrl && localImgObj.uploadedUrl.startsWith('http')) {
-                imagesArray.push(localImgObj.uploadedUrl);
-            } else if (localImgObj.dataUrl && localImgObj.dataUrl.startsWith('data:')) {
-                imagesArray.push(localImgObj.dataUrl);
-            } else if (localImgObj.blob || localImgObj.file) {
-                const dataUrl = await convertToDataUrl(localImgObj.blob || localImgObj.file);
-                if (dataUrl) imagesArray.push(dataUrl);
-            }
+            // Try all sources in priority order, converting everything to base64
+            const dataUrl = await convertToDataUrl(
+                localImgObj.blob || localImgObj.file || localImgObj.uploadedUrl || localImgObj.dataUrl
+            );
+            if (dataUrl) imagesArray.push(dataUrl);
         }
         data.editResolution = document.getElementById('resolutionSelect')?.value || '1K';
     } else {
@@ -3845,22 +3869,20 @@ async function sendToWebhook(data) {
         // 🔥 Use snapshot of images captured at the moment of clicking "Generate" to avoid race conditions or deletion sync bugs
         const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
         for (const img of stateImages) {
-            if (img.uploadedUrl && img.uploadedUrl.startsWith('http')) {
-                imagesArray.push(img.uploadedUrl);
-            } else if (img.dataUrl && img.dataUrl.startsWith('data:')) {
-                imagesArray.push(img.dataUrl);
-            } else if (img.blob || img.file) {
-                const dataUrl = await convertToDataUrl(img.blob || img.file);
-                if (dataUrl) imagesArray.push(dataUrl);
-            }
+            // Convert ALL images to base64 — blob/file first, then URL, then dataUrl
+            const dataUrl = await convertToDataUrl(
+                img.blob || img.file || img.uploadedUrl || img.dataUrl
+            );
+            if (dataUrl) imagesArray.push(dataUrl);
         }
 
         // Fallback check if stateImages is empty but generation passed userImageUrls or userImageUrl
         if (imagesArray.length === 0) {
             const userImageUrls = data.user_image_urls || (data.user_image_url ? [data.user_image_url] : []);
             for (const url of userImageUrls) {
-                if (url && (url.startsWith('http') || url.startsWith('data:'))) {
-                    imagesArray.push(url);
+                if (url) {
+                    const dataUrl = await convertToDataUrl(url);
+                    if (dataUrl) imagesArray.push(dataUrl);
                 }
             }
         }
