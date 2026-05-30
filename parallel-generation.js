@@ -214,7 +214,7 @@ class GenerationManager {
 
                 if (window.showToast) {
                     const overloadMessage = window.appState?.translate('error_server_overloaded') ||
-                        '😓 Серверы перегружены. Попробуйте позже.';
+                        '😓 Servers are overloaded. Please try again later.';
                     window.showToast('error', overloadMessage);
                 }
                 this.completeGeneration(generation.id, null, new Error('Server overloaded'));
@@ -340,7 +340,7 @@ class GenerationManager {
                     if (window.showResultToast) {
                         window.showResultToast({ image_url: response.image_url });
                     } else if (window.showToast) {
-                        window.showToast('success', window.appState?.translate('generation_success_standard') || 'Изображение готово!');
+                        window.showToast('success', window.appState?.translate('generation_success_standard') || 'Image is ready!');
                     }
 
                     this.completeGeneration(generation.id, response.image_url);
@@ -350,7 +350,7 @@ class GenerationManager {
                     console.error('⚠️ UI/Logic error during success handling (non-critical):', logicError);
                     // Even if UI fails, we still consider generation successful as we have the image
                     this.completeGeneration(generation.id, response.image_url);
-                    window.showToast('success', 'Изображение готово (ошибка обновления UI)');
+                    window.showToast('success', window.appState?.translate('image_ready_ui_error') || 'Image is ready (UI update error)');
                     return;
                 }
             }
@@ -368,10 +368,10 @@ class GenerationManager {
             const isLogicError = error instanceof TypeError || error.message.includes('replaceLoadingWithPreview');
 
             if (window.showToast && !isLogicError) {
-                const overloadMessage = '😓 Генерация не удалась. Серверы сейчас перегружены, пожалуйста, попробуйте позже или выберите другой режим генерации… 🙏';
+                const overloadMessage = window.appState?.translate('error_server_overloaded') || '😓 Generation failed. Servers are currently overloaded, please try again later or choose another generation mode... 🙏';
                 window.showToast('error', overloadMessage);
             } else if (window.showToast && isLogicError) {
-                window.showToast('error', '⚠️ Ошибка при отображении результата. Проверьте историю.');
+                window.showToast('error', window.appState?.translate('error_ui_rendering') || '⚠️ UI rendering error. Please check your history.');
             }
 
             this.completeGeneration(generation.id, null, error);
