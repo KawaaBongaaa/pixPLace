@@ -46,7 +46,7 @@ export class AppStateManager {
             activeMode: 'image',
             modesState: {
                 image: { model: 'z_image', modelName: 'Z-Image Turbo', prompt: '', size: '1024x1024' },
-                edit: { model: 'qwen_image_edit', modelName: 'Qwen Image Edit', prompt: '', size: 'square' },
+                edit: { model: 'nano_banana', modelName: 'Nano Banana', prompt: '', size: 'auto' },
                 video: { model: 'image_to_video', modelName: 'Luma AI', prompt: '' },
                 sound: { model: 'suno', modelName: 'Suno AI', prompt: '', subMode: 'audio_from_text' }
             },
