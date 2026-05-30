@@ -2742,8 +2742,49 @@ async function applyUrlParams() {
         });
     }
 
+    // Restore pending creative from sessionStorage if no params in URL (preserves settings across auth reloads)
     let urlPrompt = urlParams.get('prompt');
     let urlMode = urlParams.get('mode');
+    let urlModel = urlParams.get('model');
+    let urlImageUrl = urlParams.get('image_url');
+
+    const hasParamsInUrl = !!(urlPrompt || urlImageUrl || urlMode || urlModel);
+
+    if (!hasParamsInUrl) {
+        try {
+            const saved = sessionStorage.getItem('pixplace_pending_creative');
+            if (saved) {
+                const creative = JSON.parse(saved);
+                urlPrompt = creative.prompt || '';
+                urlMode = creative.mode || '';
+                urlModel = creative.model || '';
+                urlImageUrl = creative.image_url || '';
+                console.log('📦 [applyUrlParams] Restored pending creative from sessionStorage:', creative);
+                
+                // Sync back to urlParams for downstream operations
+                if (urlPrompt) urlParams.set('prompt', urlPrompt);
+                if (urlMode) urlParams.set('mode', urlMode);
+                if (urlModel) urlParams.set('model', urlModel);
+                if (urlImageUrl) urlParams.set('image_url', urlImageUrl);
+            }
+        } catch (e) {
+            console.error('❌ Failed to restore pending creative from sessionStorage:', e);
+        }
+    } else {
+        // If params are present in URL, backup immediately
+        try {
+            const creative = {
+                prompt: urlPrompt || '',
+                mode: urlMode || '',
+                model: urlModel || '',
+                image_url: urlImageUrl || ''
+            };
+            sessionStorage.setItem('pixplace_pending_creative', JSON.stringify(creative));
+            console.log('💾 [applyUrlParams] Saved creative to sessionStorage:', creative);
+        } catch (e) {
+            console.error('❌ Failed to save creative to sessionStorage:', e);
+        }
+    }
 
     // 0.5️⃣ Fetch prompt from webhook if it is an ID
     if (urlPrompt && (urlPrompt.startsWith('prmpt_id_') || urlPrompt.startsWith('prompt_id_'))) {
@@ -2983,6 +3024,13 @@ async function applyUrlParams() {
 
     // 4️⃣  Clean URL: strip app params, keep utm_ for analytics
     if (applied) {
+        // Clear pending creative from sessionStorage only if user session is active (logged in)
+        const isAuth = document.documentElement.classList.contains('auth-session-active') || localStorage.getItem('telegram_auth_completed') === 'true';
+        if (isAuth) {
+            sessionStorage.removeItem('pixplace_pending_creative');
+            console.log('🧹 [applyUrlParams] Cleared sessionStorage creative backup (session is active)');
+        }
+
         const cleanParams = new URLSearchParams();
         for (const [k, v] of urlParams) {
             if (k.startsWith('utm_')) cleanParams.set(k, v);

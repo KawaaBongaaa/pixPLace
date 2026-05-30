@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color: #09090b; color: #fafafa;">
 
 <head>
     <meta charset="UTF-8">
@@ -30,7 +30,7 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>pixPLace Ai | Sign In</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-    <link rel="stylesheet" href="css/output.css?v=1780101632">
+    <link rel="stylesheet" href="css/output.css?v=1780102749">
     <!-- Telegram Web App SDK -->
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
@@ -48,6 +48,11 @@
         rel="stylesheet">
 
     <style>
+        html, body {
+            background-color: #09090b !important;
+            color: #fafafa !important;
+        }
+
         /* Ambient background glows for Premium Look */
         body {
             font-family: 'Inter', sans-serif;
@@ -281,7 +286,7 @@
             requestAnimationFrame(() => { screen.style.opacity = '1'; });
         };
 
-        import { handleTelegramOAuth, handleGoogleAuthCallback, handleEmailLoginSubmit } from './user-account.js?v=1780101632';
+        import { handleTelegramOAuth, handleGoogleAuthCallback, handleEmailLoginSubmit } from './user-account.js?v=1780102749';
 
         window.handleTelegramOAuth = handleTelegramOAuth;
         window.handleEmailLoginSubmit = handleEmailLoginSubmit;
@@ -352,7 +357,7 @@
         window.showAuthWelcomeScreen = function (name, avatarUrl, credits, isPremium, subscription, userId) {
             var isInsidePortal = false;
             try {
-                isInsidePortal = window.parent && window.parent !== window && typeof window.parent.closeAuthModal === 'function';
+                isInsidePortal = window.location.search.includes('portal=true');
             } catch (e) {
                 isInsidePortal = false;
             }
