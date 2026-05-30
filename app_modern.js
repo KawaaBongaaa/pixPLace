@@ -2841,8 +2841,8 @@ async function applyUrlParams() {
     // Normalize mode: 'images' -> 'image'
     if (urlMode === 'images') urlMode = 'image';
 
-    let urlModel = urlParams.get('model');
-    let urlImageUrl = urlParams.get('image_url');
+    urlModel = urlParams.get('model') || urlModel;
+    urlImageUrl = urlParams.get('image_url') || urlImageUrl;
     const urlSource = urlParams.get('utm_source') || urlParams.get('source');
 
     // Default mode if not specified: 'edit' if image exists, else 'image' if prompt exists
