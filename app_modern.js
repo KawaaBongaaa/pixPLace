@@ -3531,6 +3531,14 @@ async function generateImage(event) {
             id: generationIdForCleanup,
             taskUUID: taskUUID,
             imageUUIDs: userImageState.images.map(img => img.uploadedUUID).filter(uuid => uuid),
+            // 🔥 SNAPSHOT: Capture a copy of the images at the exact moment of click to avoid race conditions/mutations during queue delays
+            imagesSnapshot: (userImageState.images || []).map(img => ({
+                id: img.id,
+                file: img.file,
+                blob: img.blob,
+                dataUrl: img.dataUrl,
+                uploadedUrl: img.uploadedUrl
+            })),
             prompt: prompt,
             negativePrompt: '',
             style: appState.selectedStyle,
@@ -3808,7 +3816,8 @@ async function sendToWebhook(data) {
         data.editResolution = document.getElementById('resolutionSelect')?.value || '1K';
     } else {
         // ── Standard / Nano Banana modes ──────────────────────────
-        const stateImages = window.userImageState?.images || [];
+        // 🔥 Use snapshot of images captured at the moment of clicking "Generate" to avoid race conditions or deletion sync bugs
+        const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
         for (const img of stateImages) {
             if (img.uploadedUrl && img.uploadedUrl.startsWith('http')) {
                 imagesArray.push(img.uploadedUrl);
@@ -3844,6 +3853,7 @@ async function sendToWebhook(data) {
     delete data.soundImageUrl;
     delete data.editImageBlob;
     delete data.editImageUrl;
+    delete data.imagesSnapshot; // 🔥 CRITICAL: delete raw file/blob snapshots to avoid JSON stringification issues
 
     // Select webhook URL based on the model
     let webhookUrl;
