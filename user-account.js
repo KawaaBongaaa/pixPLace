@@ -1016,9 +1016,28 @@ async function onTelegramAuthCallback(userData) {
             );
             updateUserMenuInfo();
 
-            // Auto-redirect if on standalone auth page (only if not in iframe)
-            if (window.location.pathname.includes('auth.html') && window === window.top) {
-                setTimeout(() => window.location.href = 'index.html', 2500);
+            // Auto-redirect if on standalone auth page
+            var isInsidePortal = false;
+            try {
+                isInsidePortal = window.parent && window.parent !== window && typeof window.parent.closeAuthModal === 'function';
+            } catch (e) {
+                isInsidePortal = false;
+            }
+
+            if (!isInsidePortal && window.location.pathname.includes('auth.html')) {
+                setTimeout(() => {
+                    try {
+                        const url = new URL(window.location.href);
+                        url.pathname = url.pathname.replace('auth.html', 'index.html');
+                        url.searchParams.delete('telegram_auth');
+                        url.searchParams.delete('session');
+                        url.searchParams.delete('user');
+                        console.log('🔄 Standalone auth successful, redirecting to index.html with params:', url.toString());
+                        window.location.replace(url.toString());
+                    } catch (urlErr) {
+                        window.location.href = 'index.html';
+                    }
+                }, 2500);
             }
         } else {
             console.warn('⚠️ Server did not return a valid userId');
@@ -1314,9 +1333,28 @@ async function handleGoogleAuthCallback(response) {
                 updateUserMenuInfo();
             }
 
-            // Auto-redirect if on standalone auth page (only if not in iframe)
-            if (window.location.pathname.includes('auth.html') && window === window.top) {
-                setTimeout(() => window.location.href = 'index.html', 2500);
+            // Auto-redirect if on standalone auth page
+            var isInsidePortal = false;
+            try {
+                isInsidePortal = window.parent && window.parent !== window && typeof window.parent.closeAuthModal === 'function';
+            } catch (e) {
+                isInsidePortal = false;
+            }
+
+            if (!isInsidePortal && window.location.pathname.includes('auth.html')) {
+                setTimeout(() => {
+                    try {
+                        const url = new URL(window.location.href);
+                        url.pathname = url.pathname.replace('auth.html', 'index.html');
+                        url.searchParams.delete('telegram_auth');
+                        url.searchParams.delete('session');
+                        url.searchParams.delete('user');
+                        console.log('🔄 Standalone auth successful, redirecting to index.html with params:', url.toString());
+                        window.location.replace(url.toString());
+                    } catch (urlErr) {
+                        window.location.href = 'index.html';
+                    }
+                }, 2500);
             }
         } else {
             console.warn('Google Auth: n8n returned success, but no userId in response data:', data);
