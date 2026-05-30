@@ -918,6 +918,15 @@ function loadTelegramWidgetAndAuth() {
     document.head.appendChild(script);
 }
 
+// Вспомогательная функция для безопасной записи в localStorage (предотвращает SecurityError в приватных вкладках/iframe)
+function safeSetLocalStorage(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (e) {
+        console.warn(`⚠️ Failed to write to localStorage for key "${key}" (possibly private mode):`, e.message);
+    }
+}
+
 // ✅ Callback после успешной авторизации через Telegram
 async function onTelegramAuthCallback(userData) {
     console.log('✅ Telegram auth successful:', userData.first_name || userData.username);
@@ -959,14 +968,14 @@ async function onTelegramAuthCallback(userData) {
                 subscription: norm.subscription
             };
 
-            localStorage.setItem('telegram_auth_completed', 'true');
-            localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
-            localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
-            localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+            safeSetLocalStorage('telegram_auth_completed', 'true');
+            safeSetLocalStorage('telegram_user', JSON.stringify(userDataToSave));
+            safeSetLocalStorage('telegram_user_data', JSON.stringify(userDataToSave));
+            safeSetLocalStorage('telegram_auth_timestamp', Date.now().toString());
 
             // Сохраняем баланс в localStorage
             if (norm.credits !== undefined && norm.credits !== null) {
-                localStorage.setItem('currentBalance', norm.credits.toString());
+                safeSetLocalStorage('currentBalance', norm.credits.toString());
             }
 
             document.documentElement.classList.add('auth-session-active');
@@ -976,7 +985,7 @@ async function onTelegramAuthCallback(userData) {
                 if (window.appState.userId && window.appState.userId !== norm.userId) {
                     console.log('🔄 User ID changed, clearing old balance...');
                     window.appState.userCredits = null;
-                    localStorage.removeItem('currentBalance');
+                    try { localStorage.removeItem('currentBalance'); } catch (e) {}
                 }
 
                 // ВНИМАНИЕ: Проверяем, является ли window.appState полноценным AppStateManager
@@ -1066,7 +1075,7 @@ function openAuthModal() {
     overlay.innerHTML = `
         <div class="auth-portal-backdrop" id="authPortalBdrop"></div>
         <iframe id="authPortalFrame"
-                src="auth.html?portal=true"
+                src="auth.html?portal=true&v=${Date.now()}"
                 onload="this.style.visibility='visible'; this.style.opacity='1';"
                 style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;display:block;pointer-events:auto;background:${bgColor};visibility:hidden;opacity:0;transition:opacity 0.25s ease-in-out;"
                 allow="identity-credentials-get"
@@ -1264,7 +1273,7 @@ async function handleGoogleAuthCallback(response) {
             if (window.appState && window.appState.userId && window.appState.userId !== norm.userId) {
                 console.log('🔄 User ID changed, clearing old balance...');
                 window.appState.userCredits = null;
-                localStorage.removeItem('currentBalance');
+                try { localStorage.removeItem('currentBalance'); } catch (e) {}
             }
 
             // 🔥 СОХРАНЯЕМ В LOCALSTORAGE ДЛЯ ВОССТАНОВЛЕНИЯ ПРИ ПЕРЕЗАГРУЗКЕ
@@ -1278,14 +1287,14 @@ async function handleGoogleAuthCallback(response) {
                 auth_provider: 'google'
             };
 
-            localStorage.setItem('telegram_auth_completed', 'true');
-            localStorage.setItem('telegram_user', JSON.stringify(userDataToSave));
-            localStorage.setItem('telegram_user_data', JSON.stringify(userDataToSave));
-            localStorage.setItem('telegram_auth_timestamp', Date.now().toString());
+            safeSetLocalStorage('telegram_auth_completed', 'true');
+            safeSetLocalStorage('telegram_user', JSON.stringify(userDataToSave));
+            safeSetLocalStorage('telegram_user_data', JSON.stringify(userDataToSave));
+            safeSetLocalStorage('telegram_auth_timestamp', Date.now().toString());
 
             // Сохраняем баланс в localStorage
             if (norm.credits !== undefined && norm.credits !== null) {
-                localStorage.setItem('currentBalance', norm.credits.toString());
+                safeSetLocalStorage('currentBalance', norm.credits.toString());
             }
 
             if (window.appState) {
