@@ -1619,6 +1619,9 @@
   .max-w-\[380px\] {
     max-width: 380px;
   }
+  .max-w-\[420px\] {
+    max-width: 420px;
+  }
   .max-w-\[1600px\] {
     max-width: 1600px;
   }
@@ -2017,6 +2020,9 @@
   }
   .rounded-\[24px\] {
     border-radius: 24px;
+  }
+  .rounded-\[28px\] {
+    border-radius: 28px;
   }
   .rounded-full {
     border-radius: calc(infinity * 1px);
