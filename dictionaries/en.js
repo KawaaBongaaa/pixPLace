@@ -280,5 +280,6 @@ export const en = {
     deeplink_open_existing: "Open in existing tab (add to existing images)",
     deeplink_open_new: "Open in a new tab",
     deeplink_imported_toast: "Settings and images imported successfully!",
-    deeplink_sent_notice: "Settings and images successfully sent to the active tab! Please switch to it or close this tab manually."
+    deeplink_sent_notice: "Settings and images successfully sent to the active tab! Please switch to it or close this tab manually.",
+    deeplink_sent_notice_title: "Successfully sent!"
 };
