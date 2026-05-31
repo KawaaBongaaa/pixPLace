@@ -4,20 +4,20 @@ console.log('🚀 APP MODERN MODULE IMPORTED');
 // 🚀 OPTIMIZATION: Removed static imports for heavy modules
 
 // ✅ НОВЫЕ: Импорт сервисов вместо прямых зависимостей
-import { initializeGlobalServices } from './core/services.js?v=1780193668';
-import { AppStateManager } from './store/app-state.js?v=1780193668';
+import { initializeGlobalServices } from './core/services.js?v=1780194409';
+import { AppStateManager } from './store/app-state.js?v=1780194409';
 import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
 import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
-import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780193668-1';
+import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780194409-1';
 import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback, extractBase64FromDataUrl, readFileAsArrayBuffer, arrayBufferToBlob, blobToDataURL, maybeCompressImageBlob, downloadAndConvertImage } from './utils.js';
 // 🚀 LAZY LOAD: AI Coach loaded on demand
 // import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem, updateHistoryDisplay, updateHistoryCount } from './history-manager.js';
 // 🚀 LAZY LOAD: These modules are now imported dynamically when needed
 // import { generationManager } from './parallel-generation.js';
-import { initUserAccount } from './user-account.js?v=1780193668';
+import { initUserAccount } from './user-account.js?v=1780194409';
 // Import mode management functions with lazy loading support
 let modeCardsExports = null;
 
@@ -2725,7 +2725,7 @@ const _pixplaceTabId = Date.now() + '_' + Math.random().toString(36).slice(2, 8)
 if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
     const receiverChannel = new BroadcastChannel('pixplace_deeplink_channel');
     receiverChannel.onmessage = async (event) => {
-        const { type, payload, senderTabId } = event.data || {};
+        const { type, payload, senderTabId, targetTabId } = event.data || {};
         // Ignore messages from ourselves
         if (senderTabId === _pixplaceTabId) return;
 
@@ -2733,100 +2733,186 @@ if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
             console.log('📡 [BroadcastChannel] Received PING from another tab. Sending PONG...');
             receiverChannel.postMessage({ type: 'PONG_DEEPLINK_RECEIVER', senderTabId: _pixplaceTabId });
         } else if (type === 'APPLY_DEEPLINK_PAYLOAD') {
+            // Unicast: Ignore if targetTabId is specified and is not this tab's ID
+            if (targetTabId && targetTabId !== _pixplaceTabId) {
+                console.log('📡 [BroadcastChannel] Ignored deep link payload targeted to tab:', targetTabId);
+                return;
+            }
+
             console.log('📡 [BroadcastChannel] Received deep link payload:', payload);
             await applyDeepLinkPayload(payload, true);
             if (window.showToast) {
-                window.showToast('success', 'Настройки и изображения успешно импортированы!');
+                const toastMsg = window.translate ? window.translate('deeplink_imported_toast') : 'Settings and images imported successfully!';
+                window.showToast('success', toastMsg);
+            }
+            try {
+                window.focus();
+            } catch (e) {
+                console.warn('📡 [BroadcastChannel] Failed to focus window:', e);
             }
         }
     };
 }
 
 /**
- * Beautiful full-screen overlay when the deep link is delegated to an already open active tab.
+ * Beautiful full-screen overlay when the deep link is opened but another active tab is detected.
+ * Returns a Promise that resolves to 'new' if the user chooses to continue in this tab.
+ * If the user chooses to delegate to the existing tab, it broadcasts the payload, closes itself or prompts.
  */
-function showDeeplinkDelegatedOverlay() {
-    if (document.getElementById('deeplink-delegated-overlay')) return;
+function showDeeplinkChoiceOverlay(payload, pingChannel, targetTabId) {
+    return new Promise((resolve) => {
+        if (document.getElementById('deeplink-delegated-overlay')) {
+            document.getElementById('deeplink-delegated-overlay').remove();
+        }
 
-    const overlay = document.createElement('div');
-    overlay.id = 'deeplink-delegated-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.backgroundColor = 'rgba(10, 10, 12, 0.85)';
-    overlay.style.backdropFilter = 'blur(12px)';
-    overlay.style.webkitBackdropFilter = 'blur(12px)';
-    overlay.style.zIndex = '99999';
-    overlay.style.display = 'flex';
-    overlay.style.justifyContent = 'center';
-    overlay.style.alignItems = 'center';
-    overlay.style.padding = '20px';
-    overlay.style.color = '#fff';
-    overlay.style.fontFamily = "'Outfit', sans-serif";
-    overlay.style.animation = 'fadeIn 0.3s ease forwards';
+        const getTranslation = (key, defaultText) => {
+            const trans = window.translate ? window.translate(key) : key;
+            return trans === key ? defaultText : trans;
+        };
 
-    const card = document.createElement('div');
-    card.style.background = 'linear-gradient(135deg, rgba(25, 25, 30, 0.9) 0%, rgba(18, 18, 22, 0.9) 100%)';
-    card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
-    card.style.borderRadius = '24px';
-    card.style.padding = '40px 30px';
-    card.style.maxWidth = '420px';
-    card.style.width = '100%';
-    card.style.textAlign = 'center';
-    card.style.boxShadow = '0 20px 40px rgba(0,0,0,0.5), 0 0 50px rgba(255, 223, 0, 0.05)';
-    card.style.transform = 'translateY(20px)';
-    card.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+        const titleText = getTranslation('deeplink_title', 'Already open!');
+        const descText = getTranslation('deeplink_desc', 'pixPLace is already open in another tab. How would you like to open this link?');
+        const btnExistingText = getTranslation('deeplink_open_existing', 'Open in existing tab (add to existing images)');
+        const btnNewText = getTranslation('deeplink_open_new', 'Open in a new tab');
+        const sentNoticeText = getTranslation('deeplink_sent_notice', 'Settings and images successfully sent to the active tab! Please switch to it or close this tab manually.');
 
-    card.innerHTML = `
-        <div style="font-size: 56px; margin-bottom: 20px; animation: pulse 2s infinite; display: inline-block;">⚡</div>
-        <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 12px; background: linear-gradient(90deg, #ffdf00, #ffb700); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Уже открыто!</h3>
-        <p style="font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 30px;">
-            Мы перенесли картинку и настройки в твою уже открытую активную вкладку с приложением. Перейди туда, чтобы продолжить!
-        </p>
-        <button id="close-delegated-tab-btn" style="
-            background: linear-gradient(135deg, #ffdf00 0%, #ffb700 100%);
-            color: #0b0b0d;
-            border: none;
-            border-radius: 14px;
-            padding: 14px 28px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(255, 223, 0, 0.2);
-            font-family: inherit;
-        ">Закрыть эту вкладку</button>
-        <div style="margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: underline; cursor: pointer;" id="stay-here-btn">Продолжить в этой вкладке</div>
-    `;
+        const overlay = document.createElement('div');
+        overlay.id = 'deeplink-delegated-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.backgroundColor = 'rgba(10, 10, 12, 0.85)';
+        overlay.style.backdropFilter = 'blur(12px)';
+        overlay.style.webkitBackdropFilter = 'blur(12px)';
+        overlay.style.zIndex = '99999';
+        overlay.style.display = 'flex';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.padding = '20px';
+        overlay.style.color = '#fff';
+        overlay.style.fontFamily = "'Outfit', sans-serif";
+        overlay.style.animation = 'fadeIn 0.3s ease forwards';
 
-    overlay.appendChild(card);
-    document.body.appendChild(overlay);
+        const card = document.createElement('div');
+        card.style.background = 'linear-gradient(135deg, rgba(25, 25, 30, 0.9) 0%, rgba(18, 18, 22, 0.9) 100%)';
+        card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+        card.style.borderRadius = '24px';
+        card.style.padding = '40px 30px';
+        card.style.maxWidth = '440px';
+        card.style.width = '100%';
+        card.style.textAlign = 'center';
+        card.style.boxShadow = '0 20px 40px rgba(0,0,0,0.5), 0 0 50px rgba(255, 223, 0, 0.05)';
+        card.style.transform = 'translateY(20px)';
+        card.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
 
-    const style = document.createElement('style');
-    style.id = 'deeplink-delegated-style';
-    style.innerHTML = `
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
-    `;
-    document.head.appendChild(style);
+        card.innerHTML = `
+            <div style="font-size: 56px; margin-bottom: 20px; animation: pulse 2s infinite; display: inline-block;">⚡</div>
+            <h3 id="deeplink-title" style="font-size: 22px; font-weight: 700; margin-bottom: 12px; background: linear-gradient(90deg, #ffdf00, #ffb700); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${titleText}</h3>
+            <p id="deeplink-desc" style="font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 30px;">
+                ${descText}
+            </p>
+            <div id="deeplink-actions-container" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <button id="open-existing-tab-btn" style="
+                    background: linear-gradient(135deg, #ffdf00 0%, #ffb700 100%);
+                    color: #0b0b0d;
+                    border: none;
+                    border-radius: 14px;
+                    padding: 14px 28px;
+                    font-size: 15px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    width: 100%;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 4px 15px rgba(255, 223, 0, 0.2);
+                    font-family: inherit;
+                ">${btnExistingText}</button>
+                
+                <button id="open-new-tab-btn" style="
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #fff;
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    border-radius: 14px;
+                    padding: 14px 28px;
+                    font-size: 15px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    width: 100%;
+                    transition: all 0.2s ease;
+                    font-family: inherit;
+                ">${btnNewText}</button>
+            </div>
+        `;
 
-    document.getElementById('close-delegated-tab-btn').addEventListener('click', () => {
-        window.close();
-        // Fallback overlay removal if window.close is blocked:
-        overlay.style.animation = 'fadeIn 0.2s ease reverse';
-        setTimeout(() => { overlay.remove(); style.remove(); }, 200);
-    });
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
 
-    document.getElementById('stay-here-btn').addEventListener('click', async () => {
-        overlay.style.animation = 'fadeIn 0.2s ease reverse';
-        setTimeout(() => { overlay.remove(); style.remove(); }, 200);
-        // Fallback to process in this tab as well
-        const urlParams = new URLSearchParams(window.location.search);
-        await applyDeepLinkPayload(Object.fromEntries(urlParams), true);
+        const style = document.createElement('style');
+        style.id = 'deeplink-delegated-style';
+        style.innerHTML = `
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+            #open-existing-tab-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 223, 0, 0.3); }
+            #open-new-tab-btn:hover { background: rgba(255, 255, 255, 0.12); }
+        `;
+        document.head.appendChild(style);
+
+        // Option 1: Open in existing tab (broadcast payload and attempt to close)
+        document.getElementById('open-existing-tab-btn').addEventListener('click', () => {
+            console.log('📡 [BroadcastChannel] User chose to delegate to existing tab:', targetTabId);
+            pingChannel.postMessage({
+                type: 'APPLY_DEEPLINK_PAYLOAD',
+                payload: payload,
+                targetTabId: targetTabId,
+                senderTabId: _pixplaceTabId
+            });
+
+            // Update overlay UI to a nice sent notification state
+            const descEl = document.getElementById('deeplink-desc');
+            const actionsContainer = document.getElementById('deeplink-actions-container');
+            
+            descEl.textContent = sentNoticeText;
+            actionsContainer.innerHTML = `
+                <button id="close-this-tab-btn" style="
+                    background: linear-gradient(135deg, #ffdf00 0%, #ffb700 100%);
+                    color: #0b0b0d;
+                    border: none;
+                    border-radius: 14px;
+                    padding: 14px 28px;
+                    font-size: 15px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    width: 100%;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 4px 15px rgba(255, 223, 0, 0.2);
+                    font-family: inherit;
+                ">${getTranslation('close_button', 'Close')}</button>
+            `;
+
+            document.getElementById('close-this-tab-btn').addEventListener('click', () => {
+                window.close();
+                overlay.style.animation = 'fadeIn 0.2s ease reverse';
+                setTimeout(() => { overlay.remove(); style.remove(); resolve('existing'); }, 200);
+            });
+
+            // Try closing tab automatically so browser switches to the other active tab
+            setTimeout(() => {
+                window.close();
+            }, 300);
+        });
+
+        // Option 2: Open in a new tab (simply clear overlay and continue locally)
+        document.getElementById('open-new-tab-btn').addEventListener('click', () => {
+            console.log('📡 [BroadcastChannel] User chose to open in a new tab.');
+            overlay.style.animation = 'fadeIn 0.2s ease reverse';
+            setTimeout(() => {
+                overlay.remove();
+                style.remove();
+                resolve('new');
+            }, 200);
+        });
     });
 }
 
@@ -3066,10 +3152,14 @@ async function applyUrlParams() {
     if (hasParams && typeof BroadcastChannel !== 'undefined') {
         const pingChannel = new BroadcastChannel('pixplace_deeplink_channel');
         let pongReceived = false;
+        let targetTabId = null;
         
         const pongListener = (e) => {
             if (e.data && e.data.type === 'PONG_DEEPLINK_RECEIVER' && e.data.senderTabId !== _pixplaceTabId) {
                 pongReceived = true;
+                if (!targetTabId) {
+                    targetTabId = e.data.senderTabId;
+                }
             }
         };
         pingChannel.addEventListener('message', pongListener);
@@ -3082,14 +3172,11 @@ async function applyUrlParams() {
         pingChannel.removeEventListener('message', pongListener);
         
         if (pongReceived) {
-            console.log('🚀 [applyUrlParams] Active tab detected! Delegating deep link parameters...');
-            pingChannel.postMessage({
-                type: 'APPLY_DEEPLINK_PAYLOAD',
-                payload: Object.fromEntries(urlParams),
-                senderTabId: _pixplaceTabId
-            });
-            showDeeplinkDelegatedOverlay();
-            return;
+            console.log('🚀 [applyUrlParams] Active tab detected! Showing choice overlay for target:', targetTabId);
+            const userChoice = await showDeeplinkChoiceOverlay(Object.fromEntries(urlParams), pingChannel, targetTabId);
+            if (userChoice === 'existing') {
+                return;
+            }
         }
     }
 
