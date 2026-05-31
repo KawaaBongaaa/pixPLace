@@ -338,9 +338,30 @@ async function useImageForGeneration(imageUrl, itemId) {
         // 🔥 НАПРЯМУЮ ДОБАВЛЯЕМ ИЗОБРАЖЕНИЕ В СОСТОЯНИЕ БЕЗ СИМУЛЯЦИИ ЗАГРУЗКИ
         // Это решает проблемы CORS и непредсказуемого поведения симуляции
 
-        // 1. Очищаем все существующие изображения
-        clearAllImages();
-        console.log('✅ Cleared existing images');
+        // 1. Очищаем все существующие изображения или добавляем аддитивно в зависимости от лимита модели
+        let currentMode = 'nano_banana';
+        if (window.getSelectedMode) {
+            try { currentMode = window.getSelectedMode(); } catch (e) {}
+        }
+        const limit = typeof window.getImageLimitForMode === 'function' ? window.getImageLimitForMode(currentMode) : 1;
+        const currentImagesCount = (window.userImageState && window.userImageState.images) ? window.userImageState.images.length : 0;
+
+        if (limit > 1) {
+            if (currentImagesCount < limit) {
+                console.log(`✅ Appending image to existing ones (${currentImagesCount}/${limit})`);
+            } else {
+                const limitMsg = window.appState?.translate?.('image_limit_error') || `Maximum limit of ${limit} images reached for this model.`;
+                if (window.showToast) {
+                    window.showToast('error', limitMsg);
+                } else {
+                    alert(limitMsg);
+                }
+                return;
+            }
+        } else {
+            clearAllImages();
+            console.log('✅ Cleared existing images (model only allows 1 image)');
+        }
 
         // 2. Конвертируем изображение в blob для надёжной отправки
         let processedImageUrl = imageUrl;
