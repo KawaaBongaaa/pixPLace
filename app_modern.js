@@ -3812,26 +3812,25 @@ async function sendToWebhook(data) {
         if (soundSubTab === 'image') {
             data.soundMode = 'audio_from_image';
             data.mode = 'audio_from_image';
-            
-            const soundImageUrl = window._soundImageUrl || null;
-            const soundImageBlob = window._soundImageBlob || null;
 
-            // Use snapshot fallback if available
+            // Use snapshot of ALL images captured at click time
             const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
-            const localImgObj = stateImages[0];
 
-            if (soundImageUrl) {
-                const dataUrl = await convertToDataUrl(soundImageBlob || soundImageUrl);
-                if (dataUrl) imagesArray.push(dataUrl);
-            } else if (soundImageBlob) {
-                const dataUrl = await convertToDataUrl(soundImageBlob);
-                if (dataUrl) imagesArray.push(dataUrl);
-            } else if (localImgObj) {
-                // Try all sources in priority order, converting everything to base64
-                const dataUrl = await convertToDataUrl(
-                    localImgObj.blob || localImgObj.file || localImgObj.uploadedUrl || localImgObj.dataUrl
-                );
-                if (dataUrl) imagesArray.push(dataUrl);
+            if (stateImages.length > 0) {
+                for (const img of stateImages) {
+                    const dataUrl = await convertToDataUrl(
+                        img.blob || img.file || img.uploadedUrl || img.dataUrl
+                    );
+                    if (dataUrl) imagesArray.push(dataUrl);
+                }
+            } else {
+                // Fallback: use _soundImageBlob / _soundImageUrl if stateImages is empty
+                const soundImageBlob = window._soundImageBlob || null;
+                const soundImageUrl = window._soundImageUrl || null;
+                if (soundImageBlob || soundImageUrl) {
+                    const dataUrl = await convertToDataUrl(soundImageBlob || soundImageUrl);
+                    if (dataUrl) imagesArray.push(dataUrl);
+                }
             }
         } else {
             data.soundMode = 'audio_from_text';
@@ -3845,23 +3844,25 @@ async function sendToWebhook(data) {
         data.mode = window._editModel || data.mode || 'nano_banana';
         data.action = 'Image Edit';
 
-        const editImageUrl = window._editImageUrl || null;
-        const editImageBlob = window._editImageBlob || null;
-
-        // Use snapshot fallback if available
+        // Use snapshot of ALL images captured at click time
         const stateImages = data.imagesSnapshot || window.userImageState?.images || [];
-        const localImgObj = stateImages[0];
 
-        if (editImageBlob || editImageUrl) {
-            // Convert everything to base64 — blob takes priority, URL as fallback
-            const dataUrl = await convertToDataUrl(editImageBlob || editImageUrl);
-            if (dataUrl) imagesArray.push(dataUrl);
-        } else if (localImgObj) {
-            // Try all sources in priority order, converting everything to base64
-            const dataUrl = await convertToDataUrl(
-                localImgObj.blob || localImgObj.file || localImgObj.uploadedUrl || localImgObj.dataUrl
-            );
-            if (dataUrl) imagesArray.push(dataUrl);
+        if (stateImages.length > 0) {
+            // Iterate over ALL images — convert each to base64
+            for (const img of stateImages) {
+                const dataUrl = await convertToDataUrl(
+                    img.blob || img.file || img.uploadedUrl || img.dataUrl
+                );
+                if (dataUrl) imagesArray.push(dataUrl);
+            }
+        } else {
+            // Fallback: use _editImageBlob / _editImageUrl if stateImages is empty
+            const editImageBlob = window._editImageBlob || null;
+            const editImageUrl = window._editImageUrl || null;
+            if (editImageBlob || editImageUrl) {
+                const dataUrl = await convertToDataUrl(editImageBlob || editImageUrl);
+                if (dataUrl) imagesArray.push(dataUrl);
+            }
         }
         data.editResolution = document.getElementById('resolutionSelect')?.value || '1K';
     } else {
@@ -3890,6 +3891,9 @@ async function sendToWebhook(data) {
 
     // Assign the standardized images array of strings
     data.images = imagesArray;
+    console.log(`📷 Webhook images: ${imagesArray.length} total`, imagesArray.map((img, i) =>
+        `[${i}] ${img.startsWith('data:') ? 'base64 (' + img.length + ' chars)' : img.substring(0, 80)}`
+    ));
 
     // Clean up all obsolete/redundant image parameters to keep JSON clean
     delete data.imageUUID;
