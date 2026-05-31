@@ -820,7 +820,7 @@
 .prompt-collapsed {
     max-height: 120px !important;
     min-height: 100px !important;
-    overflow: hidden !important;
+    overflow-y: auto !important;
     transition: max-height 0.3s ease, min-height 0.3s ease !important;
 }
 #promptExpandBtn {
