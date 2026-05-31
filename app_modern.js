@@ -862,7 +862,9 @@ async function initializeUI() {
                 !this.classList.contains('prompt-inject-glow')) {
                 this.style.height = 'auto';
                 const extra = this.offsetHeight - this.clientHeight;
-                this.style.height = (this.scrollHeight + (extra > 0 ? extra : 0)) + 'px';
+                const newHeight = this.scrollHeight + (extra > 0 ? extra : 0);
+                this.style.height = Math.min(newHeight, 240) + 'px';
+                this.style.overflowY = 'auto';
             }
 
             // 🔥 Save active session to localStorage
@@ -884,13 +886,13 @@ async function initializeUI() {
                 if (promptCollapsed) {
                     // Collapse: clamp to min-height
                     promptInput.style.height = '';
-                    promptInput.style.overflow = 'hidden';
+                    promptInput.style.overflowY = 'auto';
                     promptInput.classList.add('prompt-collapsed');
                     if (expandIcon) expandIcon.style.transform = 'rotate(180deg)';
                     expandBtn.title = 'Expand prompt';
                 } else {
                     // Expand: auto-resize to content
-                    promptInput.style.overflow = '';
+                    promptInput.style.overflowY = 'auto';
                     promptInput.classList.remove('prompt-collapsed');
                     if (expandIcon) expandIcon.style.transform = '';
                     expandBtn.title = 'Collapse prompt';
