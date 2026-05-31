@@ -54,7 +54,7 @@ function _handleFrameMessage(e) {
         case 'use-image':
             _hideFrame();
             if (typeof window.useImageForGeneration === 'function')
-                window.useImageForGeneration(e.data.imageUrl, e.data.itemId);
+                window.useImageForGeneration(e.data.imageUrl, e.data.itemId, e.data.mode);
             break;
 
         case 'reuse-prompt':

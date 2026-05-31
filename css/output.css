@@ -1414,6 +1414,9 @@
   .h-\[44px\] {
     height: 44px;
   }
+  .h-\[50vh\] {
+    height: 50vh;
+  }
   .h-\[64px\] {
     height: 64px;
   }
@@ -1434,6 +1437,9 @@
   }
   .max-h-\[92vh\] {
     max-height: 92vh;
+  }
+  .max-h-\[160px\] {
+    max-height: 160px;
   }
   .min-h-0 {
     min-height: 0;
@@ -2280,6 +2286,9 @@
   }
   .bg-\[\#2AABEE\] {
     background-color: #2AABEE;
+  }
+  .bg-\[\#06060c\] {
+    background-color: #06060c;
   }
   .bg-\[\#09090b\] {
     background-color: #09090b;
@@ -5390,6 +5399,26 @@
       display: none;
     }
   }
+  .md\:h-full {
+    @media (width >= 768px) {
+      height: 100%;
+    }
+  }
+  .md\:max-h-\[220px\] {
+    @media (width >= 768px) {
+      max-height: 220px;
+    }
+  }
+  .md\:w-\[45\%\] {
+    @media (width >= 768px) {
+      width: 45%;
+    }
+  }
+  .md\:w-\[55\%\] {
+    @media (width >= 768px) {
+      width: 55%;
+    }
+  }
   .md\:max-w-6xl {
     @media (width >= 768px) {
       max-width: var(--container-6xl);
@@ -5413,6 +5442,23 @@
   .md\:flex-row {
     @media (width >= 768px) {
       flex-direction: row;
+    }
+  }
+  .md\:border-r {
+    @media (width >= 768px) {
+      border-right-style: var(--tw-border-style);
+      border-right-width: 1px;
+    }
+  }
+  .md\:border-b-0 {
+    @media (width >= 768px) {
+      border-bottom-style: var(--tw-border-style);
+      border-bottom-width: 0px;
+    }
+  }
+  .md\:p-6 {
+    @media (width >= 768px) {
+      padding: 1.5rem;
     }
   }
   .md\:text-2xl {
