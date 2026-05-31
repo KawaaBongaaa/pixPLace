@@ -274,5 +274,11 @@ export const en = {
     continue: "Continue",
     or: "Or",
     auth_terms_agreement: "By continuing, you agree to our",
-    auth_and: "and"
+    auth_and: "and",
+    deeplink_title: "Already open!",
+    deeplink_desc: "pixPLace is already open in another tab. How would you like to open this link?",
+    deeplink_open_existing: "Open in existing tab (add to existing images)",
+    deeplink_open_new: "Open in a new tab",
+    deeplink_imported_toast: "Settings and images imported successfully!",
+    deeplink_sent_notice: "Settings and images successfully sent to the active tab! Please switch to it or close this tab manually."
 };
