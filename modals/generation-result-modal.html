@@ -270,16 +270,6 @@
 </div><!-- /panel -->
 
 <script>
-const MODEL_NAMES = {
-  nano_banana:'Nano Banana', nano_banana_2:'Nano Banana 2', nano_banana_pro:'Nano Banana Pro',
-  z_image:'Z-Image Turbo', fast_generation:'Flux Fast', pixplace_pro:'Flux Pro',
-  qwen_image:'Qwen Image', qwen_image_edit:'Qwen Image Edit',
-  background_removal:'Remove BG', upscale_image:'Enhance',
-  print_maker:'Print on Demand', sticker_maker:'Stickers',
-  dreamshaper_xl:'Dreamshaper XL', image_to_video:'Luma AI',
-  kling_video:'Kling AI', hailuo_video:'Hailuo AI', runway_gen3:'Runway Gen-3'
-};
-
 const PLATFORMS = [
   { id:'telegram', label:'Telegram', color:'#29B6F6',
     svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>' },
@@ -290,21 +280,30 @@ const PLATFORMS = [
   { id:'facebook', label:'Facebook', color:'#1877F2',
     svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' },
   { id:'vk', label:'VK', color:'#0077FF',
-    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.525-2.049-1.714-1.033-1.01-1.49-.9-1.49.09v1.56c0 .47-.148.75-1.37.75-2.016 0-4.252-1.22-5.824-3.494C4.637 11.773 4.1 9.44 4.1 8.963c0-.275.11-.53.593-.53H6.44c.44 0 .61.2.78.67.86 2.47 2.3 4.637 2.893 4.637.22 0 .32-.1.32-.65V9.713c-.07-1.17-.686-1.27-.686-1.69 0-.2.165-.41.43-.41h2.74c.37 0 .5.2.5.63v3.39c0 .37.165.5.27.5.22 0 .4-.13.8-.53 1.24-1.39 2.12-3.52 2.12-3.52.12-.24.33-.47.77-.47h1.744c.524 0 .636.27.524.63-.22 1.02-2.34 4.006-2.34 4.006-.185.3-.25.43 0 .77.185.27.79.82 1.19 1.32.74.9 1.306 1.65 1.46 2.17.14.52-.14.78-.63.78z"/></svg>' }
+    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.525-2.049-1.714-1.033-1.01-1.49-.9-1.49.09v1.56c0 .47-.148.75-1.37.75-2.016 0-4.252-1.22-5.824-3.494C4.637 11.773 4.1 9.44 4.1 8.963c0-.275.11-.53.593-.53H6.44c.44 0 .61.2.78.67.86 2.47 2.3 4.637 2.893 4.637.22 0 .32-.1.32-.65V9.713c-.07-1.17-.686-1.27-.686-1.69 0-.2.165-.41.43-.41h2.74c.37 0 .5.2.5.63v3.39c0 .37.165.5.27.5.22 0 .4-.13.8-.53 1.24-1.39 2.12-3.52 2.12-3.52.12-.24.33-.47.77-.47h1.744c.524 0 .636.27.524.63-.22 1.02-2.34 4.006-2.34 4.006-.185.3-.25.43 0 .77.185.27.79.82 1.19 1.32.74.9 1.306 1.65 1.46 2.17.14.52-.14.78-.63.78z"/></svg>' },
+  { id:'reddit', label:'Reddit', color:'#FF4500',
+    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 11.5c0-1.65-1.35-3-3-3-.96 0-1.86.48-2.42 1.24-1.64-1-3.85-1.64-6.29-1.72l1.37-4.31 4.5.94c.06 1.05.94 1.89 2.01 1.89 1.1 0 2-1 2-2s-.9-2-2-2c-.93 0-1.7.64-1.92 1.52l-5.02-1.05c-.2-.04-.4.06-.48.25L9.36 7c-2.51.04-4.8 1.15-6.49 1.76C2.31 8.01 1.41 7.5 0 7.5c-1.65 0-3 1.35-3 3 0 1.08.58 2.02 1.46 2.53-.08.48-.12.97-.12 1.47 0 4.14 4.7 7.5 10.5 7.5s10.5-3.36 10.5-7.5c0-.5-.04-.99-.12-1.47.88-.51 1.46-1.45 1.46-2.53zM5.5 14c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm12 3.5c-1.8 1.8-5.2 1.8-7 0-.3-.3-.3-.8 0-1.1.3-.3.8-.3 1.1 0 1.2 1.2 3.6 1.2 4.8 0 .3-.3.8-.3 1.1 0 .3.3.3.8 0 1.1zm-.5-1.5c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>' },
+  { id:'nftpromo', label:'NFT Promo', color:'#2081E2',
+    svg:'<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.4z"/></svg>' }
 ];
 
 let currentItem = null;
-let activePlatform = null;
+let activePlatformId = null;
 
 // ── helpers ────────────────────────────────────────────────────────────────
 function isTelegram() {
   return !!(window.Telegram?.WebApp?.initData);
 }
-function buildDeepLink(item) {
-  if (isTelegram()) {
-    return 'https://t.me/pixplacebot/webapp?startapp=' + encodeURIComponent('view=' + (item.id||''));
+function getUserId() {
+  try {
+    return window.parent.appState?.userId || 'user';
+  } catch (e) {
+    return 'user';
   }
-  return 'https://app.pixplace.space?view=' + encodeURIComponent(item.id||'');
+}
+function buildDeepLink(item) {
+  const userid = getUserId();
+  return `https://t.me/pixplacebot?start=sharing_${userid}`;
 }
 function post(type, payload) {
   window.parent.postMessage({ type, ...payload }, '*');
@@ -313,7 +312,8 @@ function post(type, payload) {
 // ── open / close ───────────────────────────────────────────────────────────
 function openModal(item) {
   currentItem = item;
-  activePlatform = null;
+  activePlatformId = null;
+  closeShareModal();
 
   const src = item.dataUrl || item.result || item.imageUrl || '';
   document.getElementById('result-img').src = src;
@@ -327,7 +327,6 @@ function openModal(item) {
   document.getElementById('result-cost').textContent = amt !== null ? Math.abs(amt) + ' ' + cur : '—';
 
   renderShareStrip(item);
-  document.getElementById('share-panel').style.display = 'none';
 
   // wire buttons
   document.getElementById('btn-download').onclick = () => doDownload(src, item.id);
@@ -340,6 +339,7 @@ function openModal(item) {
 
 function closeModal() {
   closeLightbox();
+  closeShareModal();
   document.body.classList.remove('open');
   setTimeout(() => post('close', {}), 300);
 }
@@ -368,93 +368,251 @@ function renderShareStrip(item) {
     btn.title = p.label;
     btn.setAttribute('data-pid', p.id);
     btn.innerHTML = p.svg;
-    btn.onclick = () => handlePlatform(p, item);
+    btn.onclick = () => openShareModal(p.id, item);
     strip.appendChild(btn);
     requestAnimationFrame(() => setTimeout(() => btn.classList.add('visible'), 50));
   });
 }
 
-function handlePlatform(p, item) {
-  const panel = document.getElementById('share-panel');
-  const fields = document.getElementById('share-fields');
-  const goBtn  = document.getElementById('share-go-btn');
-  const label  = document.getElementById('share-platform-label');
+function openShareModal(platformId, item) {
+  activePlatformId = platformId;
+  const p = PLATFORMS.find(x => x.id === platformId);
+  if (!p) return;
 
-  // toggle same
-  if (activePlatform === p.id) {
-    panel.style.display = 'none';
-    activePlatform = null;
-    document.querySelectorAll('.share-icon').forEach(b => b.classList.remove('active'));
-    return;
-  }
-  activePlatform = p.id;
+  const modal = document.getElementById('share-modal');
+  const icon = document.getElementById('share-platform-icon');
+  const title = document.getElementById('share-platform-title');
+
+  icon.style.background = p.color;
+  icon.innerHTML = p.svg;
+  title.textContent = p.label;
+
   document.querySelectorAll('.share-icon').forEach(b => b.classList.remove('active'));
-  document.querySelector('[data-pid="' + p.id + '"]').classList.add('active');
+  const activeBtn = document.querySelector(`[data-pid="${platformId}"]`);
+  if (activeBtn) activeBtn.classList.add('active');
 
-  label.textContent = p.label;
+  // Reset preset selectors
+  document.getElementById('preset-tags-select').value = 'none';
+  document.getElementById('preset-link-select').value = 'telegram-bot';
+  document.getElementById('custom-tags-input').style.display = 'none';
+  document.getElementById('custom-tags-input').value = '';
+  document.getElementById('custom-link-input').style.display = 'none';
+  document.getElementById('custom-link-input').value = '';
+
+  // Setup platform fields
+  applySharePresets();
+
+  modal.classList.add('open');
+}
+
+function closeShareModal() {
+  const modal = document.getElementById('share-modal');
+  if (modal) modal.classList.remove('open');
+  activePlatformId = null;
+  document.querySelectorAll('.share-icon').forEach(b => b.classList.remove('active'));
+}
+
+function applySharePresets() {
+  if (!currentItem || !activePlatformId) return;
+
+  const tagsSelect = document.getElementById('preset-tags-select').value;
+  const linkSelect = document.getElementById('preset-link-select').value;
+
+  const customTagsInp = document.getElementById('custom-tags-input');
+  const customLinkInp = document.getElementById('custom-link-input');
+
+  // Toggle custom inputs visibility
+  customTagsInp.style.display = tagsSelect === 'custom' ? 'block' : 'none';
+  customLinkInp.style.display = linkSelect === 'custom' ? 'block' : 'none';
+
+  // Calculate Tags / Hashtags
+  let addedTags = '';
+  if (tagsSelect === 'ai-art') {
+    addedTags = '\n\n#pixplace #aiart #generated #aiartwork #midjourney #stablediffusion';
+  } else if (tagsSelect === 'nft') {
+    addedTags = '\n\n#digitalart #nft #web3 #opensea #rare #blockchain #cryptoart';
+  } else if (tagsSelect === 'cyberpunk') {
+    addedTags = '\n\n#cyberpunk #neon #aesthetic #futuristic #neonart #scifi';
+  } else if (tagsSelect === 'custom') {
+    addedTags = '\n\n' + customTagsInp.value.trim();
+  }
+
+  const basePrompt = currentItem.prompt || currentItem.description || 'Generated Art';
+  const fullCaptionText = basePrompt + addedTags;
+
+  // Calculate Link URL
+  let sharedLink = '';
+  const userid = getUserId();
+  const itemid = currentItem.id || '1780194566134';
+  const imageUrl = currentItem.dataUrl || currentItem.result || currentItem.imageUrl || '';
+
+  if (linkSelect === 'telegram-bot') {
+    sharedLink = `https://t.me/pixplacebot?start=sharing_${userid}`;
+  } else if (linkSelect === 'web-app') {
+    sharedLink = `https://app.pixplace.space?view=${itemid}`;
+  } else if (linkSelect === 'raw-image') {
+    sharedLink = imageUrl;
+  } else if (linkSelect === 'custom') {
+    sharedLink = customLinkInp.value.trim();
+  }
+
+  renderPlatformFields(activePlatformId, fullCaptionText, sharedLink, imageUrl);
+}
+
+function renderPlatformFields(platformId, caption, link, imageUrl) {
+  const fields = document.getElementById('share-fields');
+  const goBtn = document.getElementById('share-go-btn');
   fields.innerHTML = '';
-  goBtn.textContent = 'Share →';
 
-  const src = item.dataUrl || item.result || item.imageUrl || '';
-  const deepLink = buildDeepLink(item);
-  const prompt = (item.prompt || item.description || '').slice(0, 400);
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-  switch (p.id) {
-    case 'pinterest': {
-      fields.appendChild(mkField('Title', prompt.slice(0, 100), 'pin-title'));
-      fields.appendChild(mkField('Description', prompt, 'pin-desc', true));
-      fields.appendChild(mkField('Deep Link URL', deepLink, 'pin-link'));
-      goBtn.onclick = () => {
-        const t = id('pin-title').value;
-        const d2 = id('pin-desc').value.slice(0, 400);
-        const u = id('pin-link').value;
-        window.open('https://pinterest.com/pin/create/button/?url=' + enc(u) + '&media=' + enc(src) + '&description=' + enc(t + ' – ' + d2), '_blank');
-      };
-      break;
-    }
+  switch (platformId) {
     case 'telegram': {
-      if (isMobile) {
-        goBtn.textContent = 'Share via System…';
-        goBtn.onclick = () => nativeShare(src, prompt, deepLink);
-      } else {
-        fields.appendChild(mkField('Caption', prompt.slice(0, 200), 'tg-cap', true));
-        fields.appendChild(mkField('App Link', deepLink, 'tg-link'));
-        const hint = document.createElement('p');
-        hint.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.4);margin:4px 0 0;';
-        hint.textContent = 'Desktop: download image, then paste caption in Telegram.';
-        fields.appendChild(hint);
-        goBtn.textContent = 'Copy Link + Download';
+      fields.appendChild(mkField('Caption', caption, 'tg-caption', true));
+      fields.appendChild(mkField('Shared URL', link, 'tg-link'));
+      
+      // Auto update share button
+      const updateTgAction = () => {
+        const text = id('tg-caption').value;
+        const url = id('tg-link').value;
+        
+        if (isMobile) {
+          goBtn.textContent = 'Share via System…';
+          goBtn.onclick = () => nativeShare(imageUrl, text, url);
+        } else {
+          goBtn.textContent = 'Share to Telegram';
+          goBtn.onclick = () => {
+            window.open(`https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`, '_blank');
+          };
+        }
+      };
+      
+      id('tg-caption').oninput = updateTgAction;
+      id('tg-link').oninput = updateTgAction;
+      updateTgAction();
+      break;
+    }
+    
+    case 'pinterest': {
+      fields.appendChild(mkField('Pin Title', caption.slice(0, 100), 'pin-title'));
+      fields.appendChild(mkField('Pin Description', caption, 'pin-desc', true));
+      fields.appendChild(mkField('Pin Link URL', link, 'pin-link'));
+      
+      const updatePinAction = () => {
+        const title = id('pin-title').value;
+        const desc = id('pin-desc').value;
+        const url = id('pin-link').value;
+        
+        goBtn.textContent = 'Create Pin';
         goBtn.onclick = () => {
-          const cap = id('tg-cap').value;
-          const lnk = id('tg-link').value;
-          navigator.clipboard?.writeText(lnk + '\n\n' + cap);
-          doDownload(src, item.id);
-          post('toast', { type:'success', msg:'Link copied! Paste in Telegram.' });
+          window.open(`https://pinterest.com/pin/create/button/?url=${enc(url)}&media=${enc(imageUrl)}&description=${enc(title + ' — ' + desc)}`, '_blank');
         };
-      }
+      };
+      
+      id('pin-title').oninput = updatePinAction;
+      id('pin-desc').oninput = updatePinAction;
+      id('pin-link').oninput = updatePinAction;
+      updatePinAction();
       break;
     }
+    
     case 'twitter': {
-      fields.appendChild(mkField('Tweet', prompt.slice(0, 200) + ' ' + deepLink, 'tw-text', true));
-      goBtn.onclick = () => window.open('https://twitter.com/intent/tweet?text=' + enc(id('tw-text').value), '_blank');
+      fields.appendChild(mkField('Tweet Content', caption.slice(0, 200) + ' ' + link, 'tw-text', true));
+      
+      const updateTwAction = () => {
+        const text = id('tw-text').value;
+        goBtn.textContent = 'Post Tweet';
+        goBtn.onclick = () => {
+          window.open(`https://twitter.com/intent/tweet?text=${enc(text)}`, '_blank');
+        };
+      };
+      
+      id('tw-text').oninput = updateTwAction;
+      updateTwAction();
       break;
     }
+    
     case 'facebook': {
-      fields.appendChild(mkField('Share URL', deepLink, 'fb-url'));
-      goBtn.onclick = () => window.open('https://www.facebook.com/sharer/sharer.php?u=' + enc(id('fb-url').value), '_blank');
+      fields.appendChild(mkField('Share Link', link, 'fb-url'));
+      
+      const updateFbAction = () => {
+        const url = id('fb-url').value;
+        goBtn.textContent = 'Share on Facebook';
+        goBtn.onclick = () => {
+          window.open(`https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, '_blank');
+        };
+      };
+      
+      id('fb-url').oninput = updateFbAction;
+      updateFbAction();
       break;
     }
+    
     case 'vk': {
-      fields.appendChild(mkField('Caption', prompt.slice(0, 255), 'vk-desc', true));
-      fields.appendChild(mkField('URL', deepLink, 'vk-url'));
-      goBtn.onclick = () => window.open('https://vk.com/share.php?url=' + enc(id('vk-url').value) + '&title=' + enc(id('vk-desc').value), '_blank');
+      fields.appendChild(mkField('Title / Caption', caption.slice(0, 255), 'vk-desc', true));
+      fields.appendChild(mkField('Share URL', link, 'vk-url'));
+      
+      const updateVkAction = () => {
+        const desc = id('vk-desc').value;
+        const url = id('vk-url').value;
+        goBtn.textContent = 'Share on VK';
+        goBtn.onclick = () => {
+          window.open(`https://vk.com/share.php?url=${enc(url)}&title=${enc(desc)}`, '_blank');
+        };
+      };
+      
+      id('vk-desc').oninput = updateVkAction;
+      id('vk-url').oninput = updateVkAction;
+      updateVkAction();
+      break;
+    }
+
+    case 'reddit': {
+      fields.appendChild(mkField('Post Title', caption.slice(0, 200), 'reddit-title'));
+      fields.appendChild(mkField('Share URL', link, 'reddit-url'));
+      
+      const updateRedditAction = () => {
+        const title = id('reddit-title').value;
+        const url = id('reddit-url').value;
+        goBtn.textContent = 'Post on Reddit';
+        goBtn.onclick = () => {
+          window.open(`https://reddit.com/submit?url=${enc(url)}&title=${enc(title)}`, '_blank');
+        };
+      };
+      
+      id('reddit-title').oninput = updateRedditAction;
+      id('reddit-url').oninput = updateRedditAction;
+      updateRedditAction();
+      break;
+    }
+
+    case 'nftpromo': {
+      const nftText = `🔥 Minting my latest NFT creation from @pixplace!\n\n🎨 Title: ${caption.slice(0, 100)}\n💎 Platform: OpenSea\n🌐 Check it out here:`;
+      fields.appendChild(mkField('NFT Promo Caption', nftText, 'nft-text', true));
+      fields.appendChild(mkField('Share Link', link, 'nft-url'));
+
+      const updateNftAction = () => {
+        const text = id('nft-text').value;
+        const url = id('nft-url').value;
+        goBtn.textContent = 'Copy & Promo Tweet';
+        goBtn.onclick = () => {
+          navigator.clipboard?.writeText(url).then(() => {
+            post('toast', { type:'success', msg:'Link copied to clipboard!' });
+            setTimeout(() => {
+              window.open(`https://twitter.com/intent/tweet?text=${enc(text + ' ' + url)}`, '_blank');
+            }, 800);
+          }).catch(() => {
+            window.open(`https://twitter.com/intent/tweet?text=${enc(text + ' ' + url)}`, '_blank');
+          });
+        };
+      };
+
+      id('nft-text').oninput = updateNftAction;
+      id('nft-url').oninput = updateNftAction;
+      updateNftAction();
       break;
     }
   }
-
-  panel.style.display = 'block';
-  setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 80);
 }
 
 // ── utils ──────────────────────────────────────────────────────────────────
