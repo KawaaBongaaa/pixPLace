@@ -1010,14 +1010,22 @@ console.log('✅ userImageState exported to window scope');
 
 // ===== Функции проверки лимитов изображений =====
 function getImageLimitForMode(mode) {
+    if (window.MODEL_REGISTRY) {
+        const model = window.MODEL_REGISTRY.find(m => m.id === mode);
+        if (model && model.maxImages !== undefined) {
+            return model.maxImages;
+        }
+    }
     switch (mode) {
         case 'nano_banana':
+            return 4;
         case 'nano_banana_2':
+            return 8;
         case 'nano_banana_pro':
-            return 4; // Nano Banana models allow up to 4 images
+            return 14;
         case 'fast_generation':
-        case 'qwen_image':
             return 0; // No image uploads allowed
+        case 'qwen_image':
         case 'z_image':
         case 'qwen_image_edit':
         case 'background_removal':
@@ -2711,147 +2719,132 @@ function attachPreviewLightbox(container) {
     });
 }
 
-async function applyUrlParams() {
-    const urlParams = new URLSearchParams(window.location.search);
-    console.log('🔍 [applyUrlParams] called. URL:', window.location.href, '| Params:', Object.fromEntries(urlParams));
+// ===== BroadcastChannel для синхронизации диплинков между вкладками =====
+const _pixplaceTabId = Date.now() + '_' + Math.random().toString(36).slice(2, 8);
 
-    // Parse Telegram start_param into urlParams
-    const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
-    if (startParam) {
-        // Support base64 encoded params or direct params (key=value&key2=value2)
-        let decodedParam = startParam;
-        try {
-            if (!startParam.includes('=') && !startParam.includes('&')) {
-                // Possible base64url
-                let b64 = startParam.replace(/-/g, '+').replace(/_/g, '/');
-                while (b64.length % 4) b64 += '=';
-                const decoded = atob(b64);
-                if (decoded.includes('=')) {
-                    decodedParam = decoded;
-                }
+if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
+    const receiverChannel = new BroadcastChannel('pixplace_deeplink_channel');
+    receiverChannel.onmessage = async (event) => {
+        const { type, payload, senderTabId } = event.data || {};
+        // Ignore messages from ourselves
+        if (senderTabId === _pixplaceTabId) return;
+
+        if (type === 'PING_DEEPLINK_RECEIVER') {
+            console.log('📡 [BroadcastChannel] Received PING from another tab. Sending PONG...');
+            receiverChannel.postMessage({ type: 'PONG_DEEPLINK_RECEIVER', senderTabId: _pixplaceTabId });
+        } else if (type === 'APPLY_DEEPLINK_PAYLOAD') {
+            console.log('📡 [BroadcastChannel] Received deep link payload:', payload);
+            await applyDeepLinkPayload(payload, true);
+            if (window.showToast) {
+                window.showToast('success', 'Настройки и изображения успешно импортированы!');
             }
-        } catch (e) {
-            console.log('start_param is not base64');
         }
+    };
+}
 
-        // Only split by & to avoid breaking URLs that contain underscores
-        const pairs = decodedParam.split('&');
-        pairs.forEach(pair => {
-            const splitIndex = pair.indexOf('=');
-            if (splitIndex > -1) {
-                const key = pair.substring(0, splitIndex);
-                const value = pair.substring(splitIndex + 1);
-                if (key && value) {
-                    urlParams.set(key, decodeURIComponent(value));
-                }
-            }
-        });
-    }
+/**
+ * Beautiful full-screen overlay when the deep link is delegated to an already open active tab.
+ */
+function showDeeplinkDelegatedOverlay() {
+    if (document.getElementById('deeplink-delegated-overlay')) return;
 
-    // Restore pending creative from sessionStorage if no params in URL (preserves settings across auth reloads)
-    let urlPrompt = urlParams.get('prompt');
-    let urlMode = urlParams.get('mode');
-    let urlModel = urlParams.get('model');
-    let urlImageUrl = urlParams.get('image_url');
+    const overlay = document.createElement('div');
+    overlay.id = 'deeplink-delegated-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'rgba(10, 10, 12, 0.85)';
+    overlay.style.backdropFilter = 'blur(12px)';
+    overlay.style.webkitBackdropFilter = 'blur(12px)';
+    overlay.style.zIndex = '99999';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.padding = '20px';
+    overlay.style.color = '#fff';
+    overlay.style.fontFamily = "'Outfit', sans-serif";
+    overlay.style.animation = 'fadeIn 0.3s ease forwards';
 
-    const hasParamsInUrl = !!(urlPrompt || urlImageUrl || urlMode || urlModel);
+    const card = document.createElement('div');
+    card.style.background = 'linear-gradient(135deg, rgba(25, 25, 30, 0.9) 0%, rgba(18, 18, 22, 0.9) 100%)';
+    card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+    card.style.borderRadius = '24px';
+    card.style.padding = '40px 30px';
+    card.style.maxWidth = '420px';
+    card.style.width = '100%';
+    card.style.textAlign = 'center';
+    card.style.boxShadow = '0 20px 40px rgba(0,0,0,0.5), 0 0 50px rgba(255, 223, 0, 0.05)';
+    card.style.transform = 'translateY(20px)';
+    card.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
 
-    if (!hasParamsInUrl) {
-        try {
-            const saved = sessionStorage.getItem('pixplace_pending_creative');
-            if (saved) {
-                const creative = JSON.parse(saved);
-                urlPrompt = creative.prompt || '';
-                urlMode = creative.mode || '';
-                urlModel = creative.model || '';
-                urlImageUrl = creative.image_url || '';
-                console.log('📦 [applyUrlParams] Restored pending creative from sessionStorage:', creative);
-                
-                // Sync back to urlParams for downstream operations
-                if (urlPrompt) urlParams.set('prompt', urlPrompt);
-                if (urlMode) urlParams.set('mode', urlMode);
-                if (urlModel) urlParams.set('model', urlModel);
-                if (urlImageUrl) urlParams.set('image_url', urlImageUrl);
-            }
-        } catch (e) {
-            console.error('❌ Failed to restore pending creative from sessionStorage:', e);
-        }
-    } else {
-        // If params are present in URL, backup immediately
-        try {
-            const creative = {
-                prompt: urlPrompt || '',
-                mode: urlMode || '',
-                model: urlModel || '',
-                image_url: urlImageUrl || ''
-            };
-            sessionStorage.setItem('pixplace_pending_creative', JSON.stringify(creative));
-            console.log('💾 [applyUrlParams] Saved creative to sessionStorage:', creative);
-        } catch (e) {
-            console.error('❌ Failed to save creative to sessionStorage:', e);
-        }
-    }
+    card.innerHTML = `
+        <div style="font-size: 56px; margin-bottom: 20px; animation: pulse 2s infinite; display: inline-block;">⚡</div>
+        <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 12px; background: linear-gradient(90deg, #ffdf00, #ffb700); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Уже открыто!</h3>
+        <p style="font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 30px;">
+            Мы перенесли картинку и настройки в твою уже открытую активную вкладку с приложением. Перейди туда, чтобы продолжить!
+        </p>
+        <button id="close-delegated-tab-btn" style="
+            background: linear-gradient(135deg, #ffdf00 0%, #ffb700 100%);
+            color: #0b0b0d;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 223, 0, 0.2);
+            font-family: inherit;
+        ">Закрыть эту вкладку</button>
+        <div style="margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: underline; cursor: pointer;" id="stay-here-btn">Продолжить в этой вкладке</div>
+    `;
 
-    // 0.5️⃣ Fetch prompt from webhook if it is an ID
-    if (urlPrompt && (urlPrompt.startsWith('prmpt_id_') || urlPrompt.startsWith('prompt_id_'))) {
-        const webhookUrl = CONFIG.GET_PROMPT_WEHHOOK || CONFIG.GET_PROMPT_WEBHOOK;
-        if (webhookUrl && !webhookUrl.includes('PLACEHOLDER')) {
-            console.log('🔄 Fetching prompt from webhook for ID:', urlPrompt);
-            try {
-                const promptInput = document.getElementById('promptInput');
-                if (promptInput) {
-                    promptInput.value = 'Loading prompt...';
-                    promptInput.disabled = true;
-                }
-                
-                const numericId = urlPrompt.replace(/^(prmpt_id_|prompt_id_)/, '');
-                const res = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt_id: numericId })
-                });
-                if (res.ok) {
-                    let data = await res.json();
-                    console.log('📦 Webhook raw response:', data);
-                    // n8n returns arrays by default: [{used_prompt: "..."}]
-                    if (Array.isArray(data)) data = data[0];
-                    if (data && data.used_prompt) {
-                        urlPrompt = data.used_prompt.trim();
-                        console.log('✅ Fetched used_prompt:', urlPrompt);
-                    } else {
-                        console.warn('⚠️ Webhook returned no used_prompt:', data);
-                        urlPrompt = '';
-                    }
-                } else {
-                    console.error('❌ Webhook returned error status:', res.status, res.statusText);
-                    urlPrompt = '';
-                }
-                
-                if (promptInput) {
-                    promptInput.disabled = false;
-                }
-            } catch (e) {
-                console.error('❌ Error fetching prompt from webhook:', e);
-                const promptInput = document.getElementById('promptInput');
-                if (promptInput) {
-                    promptInput.disabled = false;
-                }
-                urlPrompt = '';
-            }
-        } else {
-            console.error('❌ Webhook URL is missing or still a placeholder!', webhookUrl);
-            urlPrompt = '';
-        }
-    }
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
 
-    // Normalize mode: 'images' -> 'image'
+    const style = document.createElement('style');
+    style.id = 'deeplink-delegated-style';
+    style.innerHTML = `
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+    `;
+    document.head.appendChild(style);
+
+    document.getElementById('close-delegated-tab-btn').addEventListener('click', () => {
+        window.close();
+        // Fallback overlay removal if window.close is blocked:
+        overlay.style.animation = 'fadeIn 0.2s ease reverse';
+        setTimeout(() => { overlay.remove(); style.remove(); }, 200);
+    });
+
+    document.getElementById('stay-here-btn').addEventListener('click', async () => {
+        overlay.style.animation = 'fadeIn 0.2s ease reverse';
+        setTimeout(() => { overlay.remove(); style.remove(); }, 200);
+        // Fallback to process in this tab as well
+        const urlParams = new URLSearchParams(window.location.search);
+        await applyDeepLinkPayload(Object.fromEntries(urlParams), true);
+    });
+}
+
+/**
+ * Core deep link applicator. Can append new images to userImageState up to the active model limit.
+ * @param {object} params - url parameters key-value map
+ * @param {boolean} isAppend - whether to append images or replace them
+ */
+async function applyDeepLinkPayload(params, isAppend = true) {
+    let urlPrompt = params.prompt || '';
+    let urlMode = params.mode || '';
+    let urlModel = params.model || '';
+    let urlImageUrl = params.image_url || '';
+    const urlSource = params.utm_source || params.source || '';
+
     if (urlMode === 'images') urlMode = 'image';
 
-    urlModel = urlParams.get('model') || urlModel;
-    urlImageUrl = urlParams.get('image_url') || urlImageUrl;
-    const urlSource = urlParams.get('utm_source') || urlParams.get('source');
-
-    // Default mode if not specified: 'edit' if image exists, else 'image' if prompt exists
+    // Default mode logic if not specified
     if (!urlMode) {
         if (urlImageUrl) {
             urlMode = 'edit';
@@ -2860,23 +2853,14 @@ async function applyUrlParams() {
         }
     }
 
-    let applied = false;
-
-    // 0️⃣  Pre-load image by URL FIRST (before tab switch) so the image is ready
-    // when the tab switch handler checks _editImageUrl for edit mode.
-    // This is critical for edit mode deep links: if we switch tab first,
-    // switchGenerationTab('edit') sees no _editImageUrl → hides #promptFormGroup,
-    // which contains the shared #previewContainer where the preview should render.
+    // 0️⃣ Pre-load image by URL FIRST (before tab switch) so the image is ready
     if (urlImageUrl) {
-        console.log(`🖼️ [applyUrlParams] image_url → ${urlImageUrl}`);
-
+        console.log(`🖼️ [applyDeepLinkPayload] image_url → ${urlImageUrl}, append: ${isAppend}`);
         const imageId = 'url_param_' + Date.now();
 
-        // 🔥 FIX: Pre-set _editImageUrl BEFORE tab switch so edit tab sees the image
-        // when switchGenerationTab('edit') checks for hasImage.
         if (urlMode === 'edit') {
             window._editImageUrl = urlImageUrl;
-            window._editImageBlob = null; // blob will be set by the loading process
+            window._editImageBlob = null;
         }
 
         try {
@@ -2908,16 +2892,20 @@ async function applyUrlParams() {
                 uploadedUrl: (!imageBlob && isExternalUrl) ? urlImageUrl : null
             };
 
-            // 🔥 DEEP LINK FIX: Clear only image array, NOT _editImageUrl/_editImageBlob.
-            // clearAllImages() would wipe _editImageUrl that we just set for edit mode.
-            userImageState.images = [];
+            // Image limits check & append logic
+            const activeMode = urlModel || document.getElementById('modeSelect')?.value || 'nano_banana';
+            const limit = getImageLimitForMode(activeMode);
 
-            userImageState.images.push(imageObj);
-            console.log('✅ Deep link image added to userImageState:', imageObj);
+            if (isAppend && limit > 1 && userImageState.images.length < limit) {
+                userImageState.images.push(imageObj);
+                console.log('✅ Deep link image appended to userImageState:', imageObj);
+            } else {
+                userImageState.images = [imageObj];
+                console.log('✅ Deep link image replaced userImageState (limit reached or single-image mode):', imageObj);
+            }
 
             if (window.renderPreviews) window.renderPreviews();
             if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
-            // Animate the image preview fly-in
             setTimeout(() => animateImageInjection(), 200);
 
             if (urlMode === 'edit' || window._currentGenerationTab === 'edit') {
@@ -2930,75 +2918,230 @@ async function applyUrlParams() {
         } catch (e) {
             console.error('❌ Failed to process deep link image:', e);
             // Fallback
-            userImageState.images.push({
+            const activeMode = urlModel || document.getElementById('modeSelect')?.value || 'nano_banana';
+            const limit = getImageLimitForMode(activeMode);
+            const fallbackImg = {
                 id: imageId,
                 file: null,
                 blob: null,
                 dataUrl: urlImageUrl,
                 uploadedUrl: urlImageUrl
-            });
+            };
+
+            if (isAppend && limit > 1 && userImageState.images.length < limit) {
+                userImageState.images.push(fallbackImg);
+            } else {
+                userImageState.images = [fallbackImg];
+            }
+
             if (window.renderPreviews) window.renderPreviews();
             if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
-            // Animate the image preview fly-in
             setTimeout(() => animateImageInjection(), 200);
         }
-
-        applied = true;
     }
 
-    // 1️⃣  Apply Mode and Model AFTER image is loaded so edit tab sees _editImageUrl
+    // 1️⃣ Apply Mode and Model AFTER image is loaded
     if (urlMode || urlModel) {
         try {
             const navModule = await import('./navigation-manager.js');
             const modeCardsModule = await import('./mode-cards.js');
 
             if (urlMode) {
-                console.log(`🔀 [applyUrlParams] mode param found: ${urlMode}`);
+                console.log(`🔀 [applyDeepLinkPayload] mode param found: ${urlMode}`);
                 if (navModule.switchTab) navModule.switchTab(urlMode);
-
-                applied = true;
             }
             if (urlModel) {
-                console.log(`🎛️ [applyUrlParams] model param found: ${urlModel}`);
+                console.log(`🎛️ [applyDeepLinkPayload] model param found: ${urlModel}`);
                 if (modeCardsModule.selectModeCard) modeCardsModule.selectModeCard(urlModel);
-                applied = true;
             }
         } catch (e) {
-            console.error('❌ Failed to apply mode/model from URL', e);
+            console.error('❌ Failed to apply mode/model from payload', e);
         }
     }
 
-    // 2️⃣  Pre-fill prompt textarea (with animation for deep links)
+    // 2️⃣ Pre-fill prompt textarea
     if (urlPrompt) {
-        console.log(`📝 [applyUrlParams] prompt param found (source: ${urlSource || 'unknown'})`);
+        console.log(`📝 [applyDeepLinkPayload] prompt param found (source: ${urlSource || 'unknown'})`);
         const promptInput = document.getElementById('promptInput');
         if (promptInput) {
-            // Use typewriter animation for deep link prompts
-            const isDeepLink = urlParams.has('prompt');
+            const isDeepLink = !!params.prompt;
             if (isDeepLink && urlPrompt.length > 0) {
-                // Fire-and-forget animation (non-blocking)
                 animatePromptInjection(urlPrompt, promptInput);
             } else {
                 promptInput.value = urlPrompt;
                 promptInput.dispatchEvent(new Event('input'));
                 
-                // Force collapse on initial load
                 const expandBtn = document.getElementById('promptExpandBtn');
                 if (expandBtn && !promptInput.classList.contains('prompt-collapsed')) {
                     expandBtn.click();
                 }
             }
 
-            // Also push to appState to prevent overwrite
             const currentMode = urlMode || window._currentGenerationTab || 'image';
             if (window.appState) {
                 window.appState.setModeState(currentMode, { prompt: urlPrompt });
             }
-            applied = true;
+        }
+    }
+}
+
+async function applyUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log('🔍 [applyUrlParams] called. URL:', window.location.href, '| Params:', Object.fromEntries(urlParams));
+
+    // Parse Telegram start_param into urlParams
+    const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+    if (startParam) {
+        let decodedParam = startParam;
+        try {
+            if (!startParam.includes('=') && !startParam.includes('&')) {
+                let b64 = startParam.replace(/-/g, '+').replace(/_/g, '/');
+                while (b64.length % 4) b64 += '=';
+                const decoded = atob(b64);
+                if (decoded.includes('=')) {
+                    decodedParam = decoded;
+                }
+            }
+        } catch (e) {
+            console.log('start_param is not base64');
+        }
+
+        const pairs = decodedParam.split('&');
+        pairs.forEach(pair => {
+            const splitIndex = pair.indexOf('=');
+            if (splitIndex > -1) {
+                const key = pair.substring(0, splitIndex);
+                const value = pair.substring(splitIndex + 1);
+                if (key && value) {
+                    urlParams.set(key, decodeURIComponent(value));
+                }
+            }
+        });
+    }
+
+    // Restore pending creative from sessionStorage if no params in URL
+    let urlPrompt = urlParams.get('prompt');
+    let urlMode = urlParams.get('mode');
+    let urlModel = urlParams.get('model');
+    let urlImageUrl = urlParams.get('image_url');
+
+    const hasParamsInUrl = !!(urlPrompt || urlImageUrl || urlMode || urlModel);
+
+    if (!hasParamsInUrl) {
+        try {
+            const saved = sessionStorage.getItem('pixplace_pending_creative');
+            if (saved) {
+                const creative = JSON.parse(saved);
+                urlPrompt = creative.prompt || '';
+                urlMode = creative.mode || '';
+                urlModel = creative.model || '';
+                urlImageUrl = creative.image_url || '';
+                console.log('📦 [applyUrlParams] Restored pending creative from sessionStorage:', creative);
+                
+                if (urlPrompt) urlParams.set('prompt', urlPrompt);
+                if (urlMode) urlParams.set('mode', urlMode);
+                if (urlModel) urlParams.set('model', urlModel);
+                if (urlImageUrl) urlParams.set('image_url', urlImageUrl);
+            }
+        } catch (e) {
+            console.error('❌ Failed to restore pending creative from sessionStorage:', e);
+        }
+    } else {
+        try {
+            const creative = {
+                prompt: urlPrompt || '',
+                mode: urlMode || '',
+                model: urlModel || '',
+                image_url: urlImageUrl || ''
+            };
+            sessionStorage.setItem('pixplace_pending_creative', JSON.stringify(creative));
+            console.log('💾 [applyUrlParams] Saved creative to sessionStorage:', creative);
+        } catch (e) {
+            console.error('❌ Failed to save creative to sessionStorage:', e);
         }
     }
 
-    // 3️⃣  Fallback: pending_prompt from localStorage (set by landing page)
+    // 🔥 DEEPLINK CROSS-TAB DELEGATION: If another tab is already open, delegate to it
+    const hasParams = urlPrompt || urlImageUrl || urlMode || urlModel;
+    if (hasParams && typeof BroadcastChannel !== 'undefined') {
+        const pingChannel = new BroadcastChannel('pixplace_deeplink_channel');
+        let pongReceived = false;
+        
+        const pongListener = (e) => {
+            if (e.data && e.data.type === 'PONG_DEEPLINK_RECEIVER' && e.data.senderTabId !== _pixplaceTabId) {
+                pongReceived = true;
+            }
+        };
+        pingChannel.addEventListener('message', pongListener);
+        
+        // Send PING with our tabId so receivers can ignore self-echo
+        pingChannel.postMessage({ type: 'PING_DEEPLINK_RECEIVER', senderTabId: _pixplaceTabId });
+        
+        // Wait 200ms for a PONG from another tab
+        await new Promise(resolve => setTimeout(resolve, 200));
+        pingChannel.removeEventListener('message', pongListener);
+        
+        if (pongReceived) {
+            console.log('🚀 [applyUrlParams] Active tab detected! Delegating deep link parameters...');
+            pingChannel.postMessage({
+                type: 'APPLY_DEEPLINK_PAYLOAD',
+                payload: Object.fromEntries(urlParams),
+                senderTabId: _pixplaceTabId
+            });
+            showDeeplinkDelegatedOverlay();
+            return;
+        }
+    }
+
+    // Fetch prompt from webhook if it is an ID
+    if (urlPrompt && (urlPrompt.startsWith('prmpt_id_') || urlPrompt.startsWith('prompt_id_'))) {
+        const webhookUrl = CONFIG.GET_PROMPT_WEHHOOK || CONFIG.GET_PROMPT_WEBHOOK;
+        if (webhookUrl && !webhookUrl.includes('PLACEHOLDER')) {
+            console.log('🔄 Fetching prompt from webhook for ID:', urlPrompt);
+            try {
+                const promptInput = document.getElementById('promptInput');
+                if (promptInput) {
+                    promptInput.value = 'Loading prompt...';
+                    promptInput.disabled = true;
+                }
+                
+                const numericId = urlPrompt.replace(/^(prmpt_id_|prompt_id_)/, '');
+                const res = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt_id: numericId })
+                });
+                if (res.ok) {
+                    let data = await res.json();
+                    if (Array.isArray(data)) data = data[0];
+                    if (data && data.used_prompt) {
+                        urlPrompt = data.used_prompt.trim();
+                        urlParams.set('prompt', urlPrompt);
+                    } else {
+                        urlPrompt = '';
+                    }
+                } else {
+                    urlPrompt = '';
+                }
+                if (promptInput) promptInput.disabled = false;
+            } catch (e) {
+                console.error('❌ Error fetching prompt from webhook:', e);
+                const promptInput = document.getElementById('promptInput');
+                if (promptInput) promptInput.disabled = false;
+                urlPrompt = '';
+            }
+        }
+    }
+
+    let applied = false;
+
+    // Apply the parsed deep link params using our unified function (isAppend = true so it appends if active session)
+    if (urlImageUrl || urlMode || urlModel || urlPrompt) {
+        await applyDeepLinkPayload(Object.fromEntries(urlParams), true);
+        applied = true;
+    }
+
+    // Fallback: pending_prompt from localStorage
     if (!urlPrompt) {
         const pendingPrompt = localStorage.getItem('pending_prompt');
         if (pendingPrompt) {
@@ -3008,21 +3151,18 @@ async function applyUrlParams() {
                 promptInput.value = pendingPrompt;
                 promptInput.dispatchEvent(new Event('input'));
                 
-                // Force collapse on initial load
                 const expandBtn = document.getElementById('promptExpandBtn');
                 if (expandBtn && !promptInput.classList.contains('prompt-collapsed')) {
                     expandBtn.click();
                 }
-                
                 applied = true;
             }
             localStorage.removeItem('pending_prompt');
         }
     }
 
-    // 4️⃣  Clean URL: strip app params, keep utm_ for analytics
+    // Clean URL
     if (applied) {
-        // Clear pending creative from sessionStorage only if user session is active (logged in)
         const isAuth = document.documentElement.classList.contains('auth-session-active') || localStorage.getItem('telegram_auth_completed') === 'true';
         if (isAuth) {
             sessionStorage.removeItem('pixplace_pending_creative');
