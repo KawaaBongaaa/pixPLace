@@ -3097,11 +3097,26 @@
         function handleEditDrop(e) {
             e.preventDefault();
             const file = e.dataTransfer.files[0];
-            if (!file || !file.type.startsWith('image/')) return;
-            if (window.onUserImageChange) {
-                window.onUserImageChange({ target: { files: [file] } });
+            if (file) {
+                if (!file.type.startsWith('image/')) return;
+                if (window.onUserImageChange) {
+                    window.onUserImageChange({ target: { files: [file] } });
+                }
+                _showEditStep2(URL.createObjectURL(file));
+            } else {
+                const droppedUrl = e.dataTransfer.getData('URL') || e.dataTransfer.getData('text/plain');
+                if (droppedUrl) {
+                    try {
+                        const urlObj = new URL(droppedUrl);
+                        if (window.handleUrlAdd) {
+                            window.handleUrlAdd(urlObj.href);
+                        }
+                        _showEditStep2(urlObj.href);
+                    } catch (err) {
+                        console.warn('⚠️ [handleEditDrop] Dropped item is not a valid URL:', droppedUrl);
+                    }
+                }
             }
-            _showEditStep2(URL.createObjectURL(file));
         }
 
         function addEditImageFromUrl() {
@@ -3209,10 +3224,24 @@
         function handleSoundImageDrop(e) {
             e.preventDefault();
             const file = e.dataTransfer.files[0];
-            if (!file || !file.type.startsWith('image/')) return;
-            _soundImageBlob = file;
-            _soundImageUrl = null;
-            _showSoundStep2(URL.createObjectURL(file));
+            if (file) {
+                if (!file.type.startsWith('image/')) return;
+                _soundImageBlob = file;
+                _soundImageUrl = null;
+                _showSoundStep2(URL.createObjectURL(file));
+            } else {
+                const droppedUrl = e.dataTransfer.getData('URL') || e.dataTransfer.getData('text/plain');
+                if (droppedUrl) {
+                    try {
+                        const urlObj = new URL(droppedUrl);
+                        _soundImageUrl = urlObj.href;
+                        _soundImageBlob = null;
+                        _showSoundStep2(urlObj.href);
+                    } catch (err) {
+                        console.warn('⚠️ [handleSoundImageDrop] Dropped item is not a valid URL:', droppedUrl);
+                    }
+                }
+            }
         }
 
         function addSoundImageFromUrl() {
