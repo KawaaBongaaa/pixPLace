@@ -2854,6 +2854,7 @@ function showDeeplinkChoiceOverlay(payload, pingChannel, targetTabId) {
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
             @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
             @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+            @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
             #open-existing-tab-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 223, 0, 0.3); }
             #open-new-tab-btn:hover { background: rgba(255, 255, 255, 0.12); }
         `;
@@ -2900,6 +2901,17 @@ function showDeeplinkChoiceOverlay(payload, pingChannel, targetTabId) {
             // Try closing tab automatically so browser switches to the other active tab
             setTimeout(() => {
                 window.close();
+                // If the tab is still open after 300ms, it means window.close() was blocked by browser security.
+                // We show an awesome animated bounce finger pointing up to the tab bar to help the user!
+                setTimeout(() => {
+                    if (document.getElementById('deeplink-delegated-overlay')) {
+                        descEl.innerHTML = `
+                            <div style="font-size: 56px; margin-bottom: 20px; animation: bounce 1.5s infinite; display: inline-block;">👆</div>
+                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #ffdf00;">${getTranslation('deeplink_sent_notice_title', 'Successfully sent!')}</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.6;">${sentNoticeText}</div>
+                        `;
+                    }
+                }, 100);
             }, 300);
         });
 
