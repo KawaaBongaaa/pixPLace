@@ -269,6 +269,63 @@
   </div><!-- /scroll -->
 </div><!-- /panel -->
 
+<!-- Share Setup Modal (Floating on top) -->
+<div id="share-modal" onclick="if(event.target===this) closeShareModal()">
+  <div id="share-modal-content" class="w-[90%] max-w-[420px] p-6 rounded-[28px] flex flex-col gap-4 relative">
+    
+    <!-- Close Btn -->
+    <button onclick="closeShareModal()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">✕</button>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:12px;">
+      <div id="share-platform-icon" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;"></div>
+      <div>
+        <h3 id="share-platform-title" style="margin:0;font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.08em;">Share</h3>
+        <p style="margin:0;font-size:8px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;">Configure Publication Preset</p>
+      </div>
+    </div>
+
+    <!-- Scrollable presets & fields -->
+    <div class="scrollbar-thin" style="overflow-y:auto;max-height:48vh;display:flex;flex-direction:column;gap:14px;padding-right:4px;">
+      
+      <!-- Preset tags selector -->
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <p class="field-label" style="margin:0 0 2px;">Caption Preset (Hashtags)</p>
+        <select id="preset-tags-select" class="field-input" style="cursor:pointer;" onchange="applySharePresets()">
+          <option value="none">Original description only</option>
+          <option value="ai-art">AI Artist (adds #pixplace #aiart #generated #aiartwork)</option>
+          <option value="nft">NFT Creator (adds #digitalart #nft #web3 #opensea #rare)</option>
+          <option value="cyberpunk">Cyberpunk / Aesthetic (adds #cyberpunk #neon #aesthetic #futuristic)</option>
+          <option value="custom">Custom Tags...</option>
+        </select>
+        <input type="text" id="custom-tags-input" class="field-input" style="display:none;margin-top:6px;" placeholder="e.g. #myart #creative #style" oninput="applySharePresets()" />
+      </div>
+
+      <!-- Preset link selector -->
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <p class="field-label" style="margin:0 0 2px;">Share Link Preset</p>
+        <select id="preset-link-select" class="field-input" style="cursor:pointer;" onchange="applySharePresets()">
+          <option value="telegram-bot">Telegram Bot (t.me/pixplacebot?start=sharing_userid)</option>
+          <option value="web-app">Web App View (app.pixplace.space?view=itemid)</option>
+          <option value="raw-image">Direct Image Link (runware cdn / base64)</option>
+          <option value="custom">Custom Link...</option>
+        </select>
+        <input type="text" id="custom-link-input" class="field-input" style="display:none;margin-top:6px;" placeholder="e.g. https://myportfolio.com" oninput="applySharePresets()" />
+      </div>
+
+      <!-- Divider -->
+      <div style="height:1px;background:rgba(255,255,255,0.08);margin:4px 0;"></div>
+
+      <!-- Platform dynamic fields -->
+      <div id="share-fields" style="display:flex;flex-direction:column;gap:12px;"></div>
+
+    </div>
+
+    <!-- Big Action Button -->
+    <button id="share-go-btn" class="btn-primary" style="margin-top:4px;padding:12px;font-size:14px;letter-spacing:0.02em;">Share →</button>
+  </div>
+</div>
+
 <script>
 const MODEL_NAMES = {
   nano_banana:'Nano Banana', nano_banana_2:'Nano Banana 2', nano_banana_pro:'Nano Banana Pro',
