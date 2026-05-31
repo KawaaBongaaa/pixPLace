@@ -268,8 +268,8 @@ function reusePrompt(prompt, mode) {
 
 // Функция повторения генерации с промптом И картинкой
 async function reusePromptAndImage(prompt, mode, imageUrl, itemId) {
-    // Вызываем функцию использования картинки
-    await useImageForGeneration(imageUrl, itemId);
+    // Вызываем функцию использования картинки с передачей целевого режима
+    await useImageForGeneration(imageUrl, itemId, mode);
 
     // Затем подставляем текстовый промпт с небольшой задержкой (после переходов и загрузки)
     setTimeout(() => {
@@ -323,8 +323,8 @@ function showGeneration() {
 }
 
 // Функция использования изображения для генерации
-async function useImageForGeneration(imageUrl, itemId) {
-    console.log('🎯 Starting image usage for generation, itemId:', itemId, 'URL:', imageUrl?.substring(0, 50) + '...');
+async function useImageForGeneration(imageUrl, itemId, targetMode) {
+    console.log('🎯 Starting image usage for generation, itemId:', itemId, 'URL:', imageUrl?.substring(0, 50) + '...', 'targetMode:', targetMode);
 
     // Закрываем модальное окно с результатом
     closeGenerationResultModal();
@@ -339,16 +339,24 @@ async function useImageForGeneration(imageUrl, itemId) {
         // Это решает проблемы CORS и непредсказуемого поведения симуляции
 
         // 1. Очищаем все существующие изображения или добавляем аддитивно в зависимости от лимита модели
-        let currentMode = 'nano_banana';
-        if (window.getSelectedMode) {
+        let currentMode = targetMode || 'nano_banana';
+        if (!targetMode && window.getSelectedMode) {
             try { currentMode = window.getSelectedMode(); } catch (e) {}
         }
-        const limit = typeof window.getImageLimitForMode === 'function' ? window.getImageLimitForMode(currentMode) : 1;
+
+        // Если текущий режим не поддерживает картинки (лимит 0), мы автоматически
+        // переключимся на nano_banana, поэтому считаем лимит для nano_banana
+        let checkMode = currentMode;
+        if (checkMode === 'fast_generation' || typeof window.getImageLimitForMode !== 'function' || window.getImageLimitForMode(checkMode) === 0) {
+            checkMode = 'nano_banana';
+        }
+
+        const limit = typeof window.getImageLimitForMode === 'function' ? window.getImageLimitForMode(checkMode) : 4;
         const currentImagesCount = (window.userImageState && window.userImageState.images) ? window.userImageState.images.length : 0;
 
         if (limit > 1) {
             if (currentImagesCount < limit) {
-                console.log(`✅ Appending image to existing ones (${currentImagesCount}/${limit})`);
+                console.log(`✅ Appending image to existing ones (${currentImagesCount}/${limit}) for mode: ${checkMode}`);
             } else {
                 const limitMsg = window.appState?.translate?.('image_limit_error') || `Maximum limit of ${limit} images reached for this model.`;
                 if (window.showToast) {
@@ -360,7 +368,7 @@ async function useImageForGeneration(imageUrl, itemId) {
             }
         } else {
             clearAllImages();
-            console.log('✅ Cleared existing images (model only allows 1 image)');
+            console.log(`✅ Cleared existing images (model ${checkMode} only allows 1 image)`);
         }
 
         // 2. Конвертируем изображение в blob для надёжной отправки
