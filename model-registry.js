@@ -34,6 +34,7 @@ export const MODEL_REGISTRY = [
         defaultSize: 'auto',
         webhookKey: 'NANO_BANANA_WEBHOOK',
         iconClass: 'model-icon-gemini',
+        maxImages: 4,
         description: 'Ultimate photo editor! Drop up to 4 reference pics and just tell the AI what to change.',
     },
     {
@@ -51,6 +52,7 @@ export const MODEL_REGISTRY = [
         dynamicCost: { '1k': 5, '2k': 7, '4k': 11 },
         webhookKey: 'NANO_BANANA_2_WEBHOOK',
         iconClass: 'model-icon-gemini',
+        maxImages: 8,
         description: 'Next-generation Gemini editor with high resolution capabilities.',
     },
     {
@@ -68,6 +70,7 @@ export const MODEL_REGISTRY = [
         dynamicCost: { '1k': 12, '2k': 12, '4k': 16 },
         webhookKey: 'NANO_BANANA_PRO_WEBHOOK',
         iconClass: 'model-icon-gemini',
+        maxImages: 14,
         description: 'Professional-grade photo editing! Advanced AI with enhanced precision for complex edits.',
     },
     {
@@ -84,6 +87,7 @@ export const MODEL_REGISTRY = [
         defaultSize: '1024x1024',
         webhookKey: 'Z_IMAGE_WEBHOOK_URL',
         iconClass: 'model-icon-zimage',
+        maxImages: 1,
         description: 'Fast and creative image generation using the Z-Image model.',
     },
     {
@@ -100,6 +104,7 @@ export const MODEL_REGISTRY = [
         defaultSize: 'square',
         webhookKey: 'QWEN_IMAGE_WEBHOOK_URL',
         iconClass: 'model-icon-qwen',
+        maxImages: 1,
         description: 'High-fidelity images powered by Qwen AI.',
     },
     {
@@ -116,6 +121,7 @@ export const MODEL_REGISTRY = [
         defaultSize: '1024x1024',
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-flux',
+        maxImages: 1,
         description: 'Switch to Professional Mode — ideal for logo design, text compositions, and complex layouts.',
     },
     {
@@ -132,6 +138,7 @@ export const MODEL_REGISTRY = [
         defaultSize: '1024x1024',
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-flux',
+        maxImages: 0,
         description: 'Fastest model for quick image generation — works instantly.',
     },
     {
@@ -148,6 +155,7 @@ export const MODEL_REGISTRY = [
         defaultSize: '1024x1024',
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-sdxl',
+        maxImages: 1,
         description: 'Specially crafted for Print-on-Demand creators — make print-ready designs.',
     },
     {
@@ -164,6 +172,7 @@ export const MODEL_REGISTRY = [
         defaultSize: '1024x1024',
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-sdxl',
+        maxImages: 1,
         description: 'Create beautiful die-cut stickers instantly.',
     },
     {
@@ -180,6 +189,7 @@ export const MODEL_REGISTRY = [
         defaultSize: '1024x1024',
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-sdxl',
+        maxImages: 1,
         description: 'Fast generation model designed as an all-in-one for photos and stylized art.',
     },
 
@@ -198,6 +208,7 @@ export const MODEL_REGISTRY = [
         defaultSize: 'square',
         webhookKey: 'QWEN_IMAGE_WEBHOOK_URL',
         iconClass: 'model-icon-qwen',
+        maxImages: 1,
         description: 'Smart editing capabilities powered by Qwen AI.',
     },
     {
@@ -213,6 +224,7 @@ export const MODEL_REGISTRY = [
         premium: false,
         webhookKey: 'N8N_ENHANCE_OR_REMBG_WEBHOOK_URL',
         iconClass: 'model-icon-other',
+        maxImages: 1,
         description: 'Boost image quality and resolution — make your visuals look crisp and detailed.',
     },
     {
@@ -228,6 +240,7 @@ export const MODEL_REGISTRY = [
         premium: false,
         webhookKey: 'N8N_ENHANCE_OR_REMBG_WEBHOOK_URL',
         iconClass: 'model-icon-other',
+        maxImages: 1,
         description: 'Remove the background and keep the main object.',
     },
 
@@ -245,6 +258,7 @@ export const MODEL_REGISTRY = [
         premium: true,
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-video',
+        maxImages: 1,
         description: 'Bring static images to life! Transform photos into smooth, animated video sequences.',
     },
     {
@@ -260,6 +274,7 @@ export const MODEL_REGISTRY = [
         premium: true,
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-video',
+        maxImages: 1,
         description: 'Transform your ideas into dynamic videos from scratch.',
     },
     {
@@ -275,6 +290,7 @@ export const MODEL_REGISTRY = [
         premium: true,
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-video',
+        maxImages: 1,
         description: 'Standard fast AI video generation.',
     },
     {
@@ -290,6 +306,7 @@ export const MODEL_REGISTRY = [
         premium: true,
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-video',
+        maxImages: 1,
         description: 'High quality professional AI video generation.',
     },
     {
@@ -305,6 +322,7 @@ export const MODEL_REGISTRY = [
         premium: true,
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-video',
+        maxImages: 1,
         description: 'Ultimate cinematographic video generation.',
     },
     {
@@ -320,6 +338,7 @@ export const MODEL_REGISTRY = [
         premium: true,
         webhookKey: 'WEBHOOK_URL',
         iconClass: 'model-icon-video',
+        maxImages: 1,
         description: 'The latest generation video model from Runway.',
     },
 
@@ -337,6 +356,7 @@ export const MODEL_REGISTRY = [
         premium: true,
         webhookKey: 'SUNO_AUDIO_FROM_TEXT_WEBHOOK_URL',
         iconClass: 'model-icon-other',
+        maxImages: 0,
         description: 'Generate a full song with vocals from a simple text prompt.',
     },
     {
@@ -352,6 +372,7 @@ export const MODEL_REGISTRY = [
         premium: true,
         webhookKey: 'SUNO_AUDIO_FROM_IMAGE_WEBHOOK_URL',
         iconClass: 'model-icon-other',
+        maxImages: 1,
         description: 'Upload an image and AI will compose a song inspired by it.',
     },
 ];
