@@ -1224,6 +1224,12 @@ function getImageLimitForMode(mode) {
     }
 }
 
+// Expose functions globally for modal check support
+window.getImageLimitForMode = getImageLimitForMode;
+window.getSelectedMode = () => {
+    return document.getElementById('modeSelect')?.value || 'nano_banana';
+};
+
 function canUploadMoreImages(mode, currentCount) {
     const limit = getImageLimitForMode(mode);
     return currentCount < limit;
