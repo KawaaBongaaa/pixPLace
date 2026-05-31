@@ -4,20 +4,20 @@ console.log('🚀 APP MODERN MODULE IMPORTED');
 // 🚀 OPTIMIZATION: Removed static imports for heavy modules
 
 // ✅ НОВЫЕ: Импорт сервисов вместо прямых зависимостей
-import { initializeGlobalServices } from './core/services.js?v=1780197030';
-import { AppStateManager } from './store/app-state.js?v=1780197030';
+import { initializeGlobalServices } from './core/services.js?v=1780197876';
+import { AppStateManager } from './store/app-state.js?v=1780197876';
 import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
 import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
-import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780197030-1';
+import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780197876-1';
 import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback, extractBase64FromDataUrl, readFileAsArrayBuffer, arrayBufferToBlob, blobToDataURL, maybeCompressImageBlob, downloadAndConvertImage } from './utils.js';
 // 🚀 LAZY LOAD: AI Coach loaded on demand
 // import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem, updateHistoryDisplay, updateHistoryCount } from './history-manager.js';
 // 🚀 LAZY LOAD: These modules are now imported dynamically when needed
 // import { generationManager } from './parallel-generation.js';
-import { initUserAccount } from './user-account.js?v=1780197030';
+import { initUserAccount } from './user-account.js?v=1780197876';
 // Import mode management functions with lazy loading support
 let modeCardsExports = null;
 
@@ -603,9 +603,19 @@ class HistoryManager {
                  loading="lazy"
                  decoding="async"
                  ${item.result ? '' : 'style="opacity: 0.7;"'}
+                 draggable="true"
                  />
             <p class="history-caption">${new Date(item.timestamp).toLocaleDateString()} | ${appState.translate('style_' + item.style)} | ${appState.translate('mode_' + item.mode)}</p>
         `;
+
+        const img = element.querySelector('img');
+        if (img && item.result) {
+            img.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('URL', item.result);
+                e.dataTransfer.setData('text/plain', item.result);
+                console.log('📡 [History] Image drag started with URL:', item.result);
+            });
+        }
 
         return element;
     }
@@ -854,6 +864,9 @@ async function initializeUI() {
                 const extra = this.offsetHeight - this.clientHeight;
                 this.style.height = (this.scrollHeight + (extra > 0 ? extra : 0)) + 'px';
             }
+
+            // 🔥 Save active session to localStorage
+            if (typeof saveActiveSessionToLocalStorage === 'function') saveActiveSessionToLocalStorage();
         });
 
         // Note: IntersectionObserver removed to fix massive scroll lag
@@ -902,6 +915,9 @@ async function initializeUI() {
                 const extra = this.offsetHeight - this.clientHeight;
                 this.style.height = Math.min(this.scrollHeight + (extra > 0 ? extra : 0), 120) + 'px'; // Max 120px height
             }
+
+            // 🔥 Save active session to localStorage
+            if (typeof saveActiveSessionToLocalStorage === 'function') saveActiveSessionToLocalStorage();
         });
 
         // 🔥 ДОБАВЛЕНО: Гарантированный ресайз при появлении поля на экране
@@ -1007,6 +1023,175 @@ const userImageState = {
 // 🔥 ЭКСПОРТ СОСТОЯНИЯ ДЛЯ ДОСТУПА ИЗ ДРУГИХ МОДУЛЕЙ
 window.userImageState = userImageState;
 console.log('✅ userImageState exported to window scope');
+
+// ===== Save Active Session State to LocalStorage =====
+function saveActiveSessionToLocalStorage() {
+    try {
+        const promptInput = document.getElementById('promptInput');
+        const negativePromptInput = document.getElementById('negativePromptInput');
+        const modeSelect = document.getElementById('modeSelect');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const resolutionSelect = document.getElementById('resolutionSelect');
+
+        const activePrompt = promptInput ? promptInput.value : '';
+        const activeNegativePrompt = negativePromptInput ? negativePromptInput.value : '';
+        const activeMode = modeSelect ? modeSelect.value : 'nano_banana';
+        const activeSize = sizeSelect ? sizeSelect.value : '';
+        const activeResolution = resolutionSelect ? resolutionSelect.value : '';
+
+        // Save images list (metadata and dataUrls/uploadedUrls, blobs cannot be JSON-serialized)
+        const imagesToSave = userImageState.images.map(img => ({
+            id: img.id,
+            dataUrl: img.dataUrl,
+            uploadedUrl: img.uploadedUrl
+        }));
+
+        const sessionState = {
+            prompt: activePrompt,
+            negativePrompt: activeNegativePrompt,
+            mode: activeMode,
+            size: activeSize,
+            resolution: activeResolution,
+            images: imagesToSave,
+            timestamp: Date.now()
+        };
+
+        localStorage.setItem('pixplace_active_session', JSON.stringify(sessionState));
+        console.log('💾 [saveActiveSessionToLocalStorage] Active session state saved:', {
+            promptLength: activePrompt.length,
+            mode: activeMode,
+            imagesCount: imagesToSave.length
+        });
+    } catch (e) {
+        console.warn('⚠️ [saveActiveSessionToLocalStorage] Failed to save active session:', e);
+    }
+}
+window.saveActiveSessionToLocalStorage = saveActiveSessionToLocalStorage;
+
+async function restoreActiveSessionFromLocalStorage() {
+    try {
+        const stored = localStorage.getItem('pixplace_active_session');
+        if (!stored) {
+            console.log('🔄 [restoreActiveSessionFromLocalStorage] No saved session found.');
+            return;
+        }
+
+        const sessionState = JSON.parse(stored);
+        console.log('🔄 [restoreActiveSessionFromLocalStorage] Loaded session state:', sessionState);
+
+        // Restore prompt
+        if (sessionState.prompt) {
+            const promptInput = document.getElementById('promptInput');
+            if (promptInput) {
+                promptInput.value = sessionState.prompt;
+                promptInput.dispatchEvent(new Event('input'));
+            }
+        }
+
+        // Restore negative prompt
+        if (sessionState.negativePrompt) {
+            const negativePromptInput = document.getElementById('negativePromptInput');
+            if (negativePromptInput) {
+                negativePromptInput.value = sessionState.negativePrompt;
+                negativePromptInput.dispatchEvent(new Event('input'));
+
+                // Ensure negative prompt checkbox is checked if value is non-empty
+                const checkbox = document.getElementById('negativePromptCheckbox');
+                if (checkbox && !checkbox.checked) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            }
+        }
+
+        // Restore model/mode
+        if (sessionState.mode) {
+            const modeSelect = document.getElementById('modeSelect');
+            if (modeSelect) {
+                modeSelect.value = sessionState.mode;
+                modeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            try {
+                const modeCardsModule = await import('./mode-cards.js');
+                if (modeCardsModule.selectModeCard) {
+                    modeCardsModule.selectModeCard(sessionState.mode);
+                }
+            } catch (e) {
+                console.warn('⚠️ Failed to restore mode card selection:', e);
+            }
+        }
+
+        // Restore size
+        if (sessionState.size) {
+            const sizeSelect = document.getElementById('sizeSelect');
+            if (sizeSelect) {
+                sizeSelect.value = sessionState.size;
+                sizeSelect.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // Restore resolution
+        if (sessionState.resolution) {
+            const resolutionSelect = document.getElementById('resolutionSelect');
+            if (resolutionSelect) {
+                resolutionSelect.value = sessionState.resolution;
+                resolutionSelect.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // Restore images
+        if (Array.isArray(sessionState.images) && sessionState.images.length > 0) {
+            console.log(`🖼️ [restoreActiveSessionFromLocalStorage] Restoring ${sessionState.images.length} images...`);
+
+            // Map the saved images back to userImageState
+            userImageState.images = sessionState.images.map(img => {
+                let blob = null;
+                // Reconstruct blob from base64 dataUrl if possible
+                if (img.dataUrl && img.dataUrl.startsWith('data:')) {
+                    try {
+                        const parts = img.dataUrl.split(',');
+                        if (parts.length === 2) {
+                            const byteString = atob(parts[1]);
+                            const mimeString = parts[0].split(':')[1].split(';')[0];
+                            const ab = new ArrayBuffer(byteString.length);
+                            const ia = new Uint8Array(ab);
+                            for (let i = 0; i < byteString.length; i++) {
+                                ia[i] = byteString.charCodeAt(i);
+                            }
+                            blob = new Blob([ab], { type: mimeString });
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ Failed to reconstruct blob from dataUrl:', e);
+                    }
+                }
+
+                return {
+                    id: img.id,
+                    file: null,
+                    blob: blob,
+                    dataUrl: img.dataUrl,
+                    uploadedUrl: img.uploadedUrl
+                };
+            });
+
+            // Trigger previews rendering and UI sync
+            if (window.renderPreviews) window.renderPreviews();
+            if (window.updateImageUploadVisibility) window.updateImageUploadVisibility();
+
+            document.dispatchEvent(new CustomEvent('images:updated', {
+                detail: { imageCount: userImageState.images.length }
+            }));
+        }
+    } catch (e) {
+        console.error('❌ Failed to restore active session:', e);
+    }
+}
+window.restoreActiveSessionFromLocalStorage = restoreActiveSessionFromLocalStorage;
+
+// Automatically save session when images are updated
+document.addEventListener('images:updated', () => {
+    if (typeof saveActiveSessionToLocalStorage === 'function') saveActiveSessionToLocalStorage();
+});
 
 // ===== Функции проверки лимитов изображений =====
 function getImageLimitForMode(mode) {
@@ -1684,6 +1869,14 @@ function initUserImageUpload() {
     // Setup Drag & Drop
     setupDragAndDrop();
 
+    // 🔥 Save session when size or resolution changes
+    document.getElementById('sizeSelect')?.addEventListener('change', () => {
+        if (typeof saveActiveSessionToLocalStorage === 'function') saveActiveSessionToLocalStorage();
+    });
+    document.getElementById('resolutionSelect')?.addEventListener('change', () => {
+        if (typeof saveActiveSessionToLocalStorage === 'function') saveActiveSessionToLocalStorage();
+    });
+
     // Setup Add URL Button
     const urlInput = document.getElementById('imageUrlInput');
     const addUrlSubmitBtn = document.getElementById('addUrlSubmitBtn');
@@ -1725,9 +1918,11 @@ function initUserImageUpload() {
             trimImagesForMode(newMode);
             updateImageUploadVisibility();
             updatePromptVisibility();
-            updateNegativePromptVisibility()
+            updateNegativePromptVisibility();
             updateSizeSelectVisibility();
             updateResolutionSelectVisibility();
+            // 🔥 Save active session to localStorage
+            if (typeof saveActiveSessionToLocalStorage === 'function') saveActiveSessionToLocalStorage();
         });
 
         // 🔥 ДОБАВЛЕНО: Слушатель кастомного события изменения режима от mode-cards компонента
@@ -1746,6 +1941,8 @@ function initUserImageUpload() {
             updateNegativePromptVisibility(); // 🔥 ДОБАВЛЕНО: обновление видимости negative prompt
             updateSizeSelectVisibility();
             updateResolutionSelectVisibility();
+            // 🔥 Save active session to localStorage
+            if (typeof saveActiveSessionToLocalStorage === 'function') saveActiveSessionToLocalStorage();
         });
     }
 }
@@ -1796,6 +1993,21 @@ function setupDragAndDrop() {
 
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
             handleFiles(Array.from(e.dataTransfer.files));
+        } else {
+            const droppedUrl = e.dataTransfer.getData('URL') || e.dataTransfer.getData('text/plain');
+            if (droppedUrl) {
+                console.log('🔗 [setupDragAndDrop] Dropped URL detected:', droppedUrl);
+                try {
+                    const urlObj = new URL(droppedUrl);
+                    if (window.handleUrlAdd) {
+                        window.handleUrlAdd(urlObj.href);
+                    } else {
+                        handleUrlAdd(urlObj.href);
+                    }
+                } catch (err) {
+                    console.warn('⚠️ [setupDragAndDrop] Dropped item is not a valid URL:', droppedUrl);
+                }
+            }
         }
     });
 
@@ -1834,9 +2046,15 @@ async function handleUrlAdd(url) {
         const currentMode = modeSelect ? modeSelect.value : 'nano_banana';
         const limit = getImageLimitForMode(currentMode);
 
-        if (userImageState.images.length >= limit) {
-            if (window.showToast) window.showToast('error', `Maximum limit reached.`);
-            return;
+        if (limit > 1) {
+            if (userImageState.images.length >= limit) {
+                const limitMsg = window.appState?.translate?.('image_limit_error') || `Maximum limit of ${limit} images reached for this model.`;
+                if (window.showToast) window.showToast('error', limitMsg);
+                return;
+            }
+        } else {
+            // Automatically replace existing image for single-image models
+            clearUserImage();
         }
 
         // We add the URL directly without fetching the file, we will let backend fetch it.
@@ -1915,6 +2133,11 @@ async function onUserImageChange(e) {
         const modeSelect = document.getElementById('modeSelect');
         const currentMode = modeSelect ? modeSelect.value : 'nano_banana';
         const limit = getImageLimitForMode(currentMode);
+
+        if (limit === 1 && files.length > 0) {
+            console.log('🔄 Single image limit: automatically replacing existing image');
+            clearUserImage();
+        }
 
         const currentCount = userImageState.images.length;
         // Check total attempted upload count against limit
@@ -2296,7 +2519,12 @@ function clearAllImages() {
     }
 
     // 🔥 ДОБАВЛЕНИЕ: Обновляем видимость после очистки
-    setTimeout(() => updateImageUploadVisibility(), 50);
+    setTimeout(() => {
+        updateImageUploadVisibility();
+        document.dispatchEvent(new CustomEvent('images:updated', {
+            detail: { imageCount: 0 }
+        }));
+    }, 50);
 }
 
 // 🔥 EXPORT TO WINDOW FOR MODALS
@@ -2719,297 +2947,7 @@ function attachPreviewLightbox(container) {
     });
 }
 
-// ===== BroadcastChannel для синхронизации диплинков между вкладками =====
-const _pixplaceTabId = Date.now() + '_' + Math.random().toString(36).slice(2, 8);
 
-if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
-    const receiverChannel = new BroadcastChannel('pixplace_deeplink_channel');
-    receiverChannel.onmessage = async (event) => {
-        const { type, payload, senderTabId, targetTabId, state } = event.data || {};
-        // Ignore messages from ourselves
-        if (senderTabId === _pixplaceTabId) return;
-
-        if (type === 'PING_DEEPLINK_RECEIVER') {
-            console.log('📡 [BroadcastChannel] Received PING from another tab. Sending PONG with current state...');
-            const currentState = {
-                images: window.appState?.userImageState?.images || [],
-                activeMode: window.appState?.activeMode || 'image',
-                modesState: window.appState?.state?.modesState || {}
-            };
-            receiverChannel.postMessage({
-                type: 'PONG_DEEPLINK_RECEIVER',
-                senderTabId: _pixplaceTabId,
-                state: currentState
-            });
-        } else if (type === 'APPLY_DEEPLINK_PAYLOAD') {
-            // Unicast: Ignore if targetTabId is specified and is not this tab's ID
-            if (targetTabId && targetTabId !== _pixplaceTabId) {
-                console.log('📡 [BroadcastChannel] Ignored deep link payload targeted to tab:', targetTabId);
-                return;
-            }
-
-            console.log('📡 [BroadcastChannel] Received deep link payload:', payload);
-            await applyDeepLinkPayload(payload, true);
-            if (window.showToast) {
-                const toastMsg = window.translate ? window.translate('deeplink_imported_toast') : 'Settings and images imported successfully!';
-                window.showToast('success', toastMsg);
-            }
-            try {
-                window.focus();
-            } catch (e) {
-                console.warn('📡 [BroadcastChannel] Failed to focus window:', e);
-            }
-        } else if (type === 'TAKE_OVER_SESSION') {
-            // Ignore if targeted to someone else specifically
-            if (targetTabId && targetTabId !== _pixplaceTabId && targetTabId !== 'all_others') return;
-            console.log('📡 [BroadcastChannel] Active session moved to another tab. Suspending this tab.');
-            showSessionMovedOverlay();
-        }
-    };
-}
-
-/**
- * Beautiful full-screen blur card indicating that the active session was moved/transferred to another tab.
- */
-function showSessionMovedOverlay() {
-    if (document.getElementById('session-moved-overlay')) return;
-
-    const getTranslation = (key, defaultText) => {
-        const trans = window.translate ? window.translate(key) : key;
-        return trans === key ? defaultText : trans;
-    };
-
-    const overlay = document.createElement('div');
-    overlay.id = 'session-moved-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.backgroundColor = 'rgba(10, 10, 12, 0.9)';
-    overlay.style.backdropFilter = 'blur(15px)';
-    overlay.style.webkitBackdropFilter = 'blur(15px)';
-    overlay.style.zIndex = '999999';
-    overlay.style.display = 'flex';
-    overlay.style.justifyContent = 'center';
-    overlay.style.alignItems = 'center';
-    overlay.style.padding = '20px';
-    overlay.style.color = '#fff';
-    overlay.style.fontFamily = "'Outfit', sans-serif";
-    overlay.style.animation = 'fadeIn 0.3s ease forwards';
-
-    const card = document.createElement('div');
-    card.style.background = 'linear-gradient(135deg, rgba(25, 25, 30, 0.95) 0%, rgba(18, 18, 22, 0.95) 100%)';
-    card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
-    card.style.borderRadius = '24px';
-    card.style.padding = '40px 30px';
-    card.style.maxWidth = '420px';
-    card.style.width = '100%';
-    card.style.textAlign = 'center';
-    card.style.boxShadow = '0 20px 40px rgba(0,0,0,0.6)';
-    card.style.transform = 'translateY(20px)';
-    card.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
-
-    card.innerHTML = `
-        <div style="font-size: 56px; margin-bottom: 20px;">🔄</div>
-        <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #ffdf00;">${getTranslation('session_moved_title', 'Session moved!')}</h3>
-        <p style="font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 30px;">
-            ${getTranslation('session_moved_desc', 'You have transferred your active session to another tab.')}
-        </p>
-        <button id="resume-session-here-btn" style="
-            background: linear-gradient(135deg, #ffdf00 0%, #ffb700 100%);
-            color: #0b0b0d;
-            border: none;
-            border-radius: 14px;
-            padding: 14px 28px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(255, 223, 0, 0.2);
-            font-family: inherit;
-        ">${getTranslation('session_moved_resume', 'Resume session here')}</button>
-    `;
-
-    overlay.appendChild(card);
-    document.body.appendChild(overlay);
-
-    document.getElementById('resume-session-here-btn').addEventListener('click', () => {
-        overlay.style.animation = 'fadeIn 0.2s ease reverse';
-        setTimeout(() => {
-            overlay.remove();
-            if (typeof BroadcastChannel !== 'undefined') {
-                const channel = new BroadcastChannel('pixplace_deeplink_channel');
-                channel.postMessage({
-                    type: 'TAKE_OVER_SESSION',
-                    targetTabId: 'all_others',
-                    senderTabId: _pixplaceTabId
-                });
-            }
-        }, 200);
-    });
-}
-
-/**
- * Beautiful full-screen overlay when the deep link is opened but another active tab is detected.
- * Returns a Promise that resolves to 'new' if the user chooses to continue in this tab.
- * If the user chooses to delegate to the existing tab, it broadcasts the payload, closes itself or prompts.
- */
-function showDeeplinkChoiceOverlay(payload, pingChannel, targetTabId, importedState) {
-    return new Promise((resolve) => {
-        if (document.getElementById('deeplink-delegated-overlay')) {
-            document.getElementById('deeplink-delegated-overlay').remove();
-        }
-
-        const getTranslation = (key, defaultText) => {
-            const trans = window.translate ? window.translate(key) : key;
-            return trans === key ? defaultText : trans;
-        };
-
-        const titleText = getTranslation('deeplink_title', 'Already open!');
-        const descText = getTranslation('deeplink_desc', 'An active pixPLace session is open in another tab. Would you like to import your existing settings and images here, or start a clean session?');
-        const btnExistingText = getTranslation('deeplink_open_existing', 'Import existing session (adds new image)');
-        const btnNewText = getTranslation('deeplink_open_new', 'Start clean session');
-
-        const overlay = document.createElement('div');
-        overlay.id = 'deeplink-delegated-overlay';
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100vw';
-        overlay.style.height = '100vh';
-        overlay.style.backgroundColor = 'rgba(10, 10, 12, 0.85)';
-        overlay.style.backdropFilter = 'blur(12px)';
-        overlay.style.webkitBackdropFilter = 'blur(12px)';
-        overlay.style.zIndex = '99999';
-        overlay.style.display = 'flex';
-        overlay.style.justifyContent = 'center';
-        overlay.style.alignItems = 'center';
-        overlay.style.padding = '20px';
-        overlay.style.color = '#fff';
-        overlay.style.fontFamily = "'Outfit', sans-serif";
-        overlay.style.animation = 'fadeIn 0.3s ease forwards';
-
-        const card = document.createElement('div');
-        card.style.background = 'linear-gradient(135deg, rgba(25, 25, 30, 0.9) 0%, rgba(18, 18, 22, 0.9) 100%)';
-        card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
-        card.style.borderRadius = '24px';
-        card.style.padding = '40px 30px';
-        card.style.maxWidth = '440px';
-        card.style.width = '100%';
-        card.style.textAlign = 'center';
-        card.style.boxShadow = '0 20px 40px rgba(0,0,0,0.5), 0 0 50px rgba(255, 223, 0, 0.05)';
-        card.style.transform = 'translateY(20px)';
-        card.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
-
-        card.innerHTML = `
-            <div style="font-size: 56px; margin-bottom: 20px; animation: pulse 2s infinite; display: inline-block;">⚡</div>
-            <h3 id="deeplink-title" style="font-size: 22px; font-weight: 700; margin-bottom: 12px; background: linear-gradient(90deg, #ffdf00, #ffb700); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${titleText}</h3>
-            <p id="deeplink-desc" style="font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 30px;">
-                ${descText}
-            </p>
-            <div id="deeplink-actions-container" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
-                <button id="open-existing-tab-btn" style="
-                    background: linear-gradient(135deg, #ffdf00 0%, #ffb700 100%);
-                    color: #0b0b0d;
-                    border: none;
-                    border-radius: 14px;
-                    padding: 14px 28px;
-                    font-size: 15px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    width: 100%;
-                    transition: all 0.2s ease;
-                    box-shadow: 0 4px 15px rgba(255, 223, 0, 0.2);
-                    font-family: inherit;
-                ">${btnExistingText}</button>
-                
-                <button id="open-new-tab-btn" style="
-                    background: rgba(255, 255, 255, 0.08);
-                    color: #fff;
-                    border: 1px solid rgba(255, 255, 255, 0.15);
-                    border-radius: 14px;
-                    padding: 14px 28px;
-                    font-size: 15px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    width: 100%;
-                    transition: all 0.2s ease;
-                    font-family: inherit;
-                ">${btnNewText}</button>
-            </div>
-        `;
-
-        overlay.appendChild(card);
-        document.body.appendChild(overlay);
-
-        const style = document.createElement('style');
-        style.id = 'deeplink-delegated-style';
-        style.innerHTML = `
-            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-            @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-            @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
-            #open-existing-tab-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 223, 0, 0.3); }
-            #open-new-tab-btn:hover { background: rgba(255, 255, 255, 0.12); }
-        `;
-        document.head.appendChild(style);
-
-        // Option 1: Import existing session and continue in this tab
-        document.getElementById('open-existing-tab-btn').addEventListener('click', () => {
-            console.log('📡 [BroadcastChannel] User chose to import session in this tab:', targetTabId);
-            
-            // 1. Import the existing state
-            if (importedState) {
-                console.log('🔄 Importing existing state from active tab:', importedState);
-                if (window.appState) {
-                    // Restore images
-                    if (importedState.images && importedState.images.length > 0) {
-                        window.appState.setImageState({
-                            images: [...importedState.images]
-                        });
-                    }
-                    // Restore active mode
-                    if (importedState.activeMode) {
-                        window.appState.activeMode = importedState.activeMode;
-                    }
-                    // Restore modesState settings
-                    if (importedState.modesState) {
-                        for (const [mode, mState] of Object.entries(importedState.modesState)) {
-                            window.appState.setModeState(mode, mState);
-                        }
-                    }
-                }
-            }
-
-            // 2. Notify the other tab to suspend itself
-            pingChannel.postMessage({
-                type: 'TAKE_OVER_SESSION',
-                targetTabId: targetTabId,
-                senderTabId: _pixplaceTabId
-            });
-
-            // 3. Remove the overlay with animation and resolve
-            overlay.style.animation = 'fadeIn 0.2s ease reverse';
-            setTimeout(() => {
-                overlay.remove();
-                style.remove();
-                resolve('existing');
-            }, 200);
-        });
-
-        // Option 2: Open in a new tab (simply clear overlay and continue locally)
-        document.getElementById('open-new-tab-btn').addEventListener('click', () => {
-            console.log('📡 [BroadcastChannel] User chose to open in a new tab.');
-            overlay.style.animation = 'fadeIn 0.2s ease reverse';
-            setTimeout(() => {
-                overlay.remove();
-                style.remove();
-                resolve('new');
-            }, 200);
-        });
-    });
-}
 
 /**
  * Core deep link applicator. Can append new images to userImageState up to the active model limit.
@@ -3077,12 +3015,19 @@ async function applyDeepLinkPayload(params, isAppend = true) {
             const activeMode = urlModel || document.getElementById('modeSelect')?.value || 'nano_banana';
             const limit = getImageLimitForMode(activeMode);
 
-            if (isAppend && limit > 1 && userImageState.images.length < limit) {
-                userImageState.images.push(imageObj);
-                console.log('✅ Deep link image appended to userImageState:', imageObj);
+            if (isAppend && limit > 1) {
+                if (userImageState.images.length < limit) {
+                    userImageState.images.push(imageObj);
+                    console.log('✅ Deep link image appended to userImageState:', imageObj);
+                } else {
+                    console.warn('⚠️ Limit reached, deep link image not appended');
+                    if (window.showToast) {
+                        window.showToast('error', `Maximum limit of ${limit} images reached for this model.`);
+                    }
+                }
             } else {
                 userImageState.images = [imageObj];
-                console.log('✅ Deep link image replaced userImageState (limit reached or single-image mode):', imageObj);
+                console.log('✅ Deep link image replaced userImageState (single-image mode):', imageObj);
             }
 
             if (window.renderPreviews) window.renderPreviews();
@@ -3109,8 +3054,15 @@ async function applyDeepLinkPayload(params, isAppend = true) {
                 uploadedUrl: urlImageUrl
             };
 
-            if (isAppend && limit > 1 && userImageState.images.length < limit) {
-                userImageState.images.push(fallbackImg);
+            if (isAppend && limit > 1) {
+                if (userImageState.images.length < limit) {
+                    userImageState.images.push(fallbackImg);
+                } else {
+                    console.warn('⚠️ Limit reached, deep link image fallback not appended');
+                    if (window.showToast) {
+                        window.showToast('error', `Maximum limit of ${limit} images reached for this model.`);
+                    }
+                }
             } else {
                 userImageState.images = [fallbackImg];
             }
@@ -3164,6 +3116,8 @@ async function applyDeepLinkPayload(params, isAppend = true) {
             }
         }
     }
+    // 🔥 Save active session to localStorage after deep link parameters are fully applied
+    if (typeof saveActiveSessionToLocalStorage === 'function') saveActiveSessionToLocalStorage();
 }
 
 async function applyUrlParams() {
@@ -3242,37 +3196,7 @@ async function applyUrlParams() {
         }
     }
 
-    // 🔥 DEEPLINK CROSS-TAB DELEGATION: If another tab is already open, delegate to it
-    const hasParams = urlPrompt || urlImageUrl || urlMode || urlModel;
-    if (hasParams && typeof BroadcastChannel !== 'undefined') {
-        const pingChannel = new BroadcastChannel('pixplace_deeplink_channel');
-        let pongReceived = false;
-        let targetTabId = null;
-        let importedState = null;
-        
-        const pongListener = (e) => {
-            if (e.data && e.data.type === 'PONG_DEEPLINK_RECEIVER' && e.data.senderTabId !== _pixplaceTabId) {
-                pongReceived = true;
-                if (!targetTabId) {
-                    targetTabId = e.data.senderTabId;
-                    importedState = e.data.state;
-                }
-            }
-        };
-        pingChannel.addEventListener('message', pongListener);
-        
-        // Send PING with our tabId so receivers can ignore self-echo
-        pingChannel.postMessage({ type: 'PING_DEEPLINK_RECEIVER', senderTabId: _pixplaceTabId });
-        
-        // Wait 200ms for a PONG from another tab
-        await new Promise(resolve => setTimeout(resolve, 200));
-        pingChannel.removeEventListener('message', pongListener);
-        
-        if (pongReceived) {
-            console.log('🚀 [applyUrlParams] Active tab detected! Showing choice overlay for target:', targetTabId);
-            await showDeeplinkChoiceOverlay(Object.fromEntries(urlParams), pingChannel, targetTabId, importedState);
-        }
-    }
+
 
     // Fetch prompt from webhook if it is an ID
     if (urlPrompt && (urlPrompt.startsWith('prmpt_id_') || urlPrompt.startsWith('prompt_id_'))) {
@@ -3570,6 +3494,11 @@ const MAINTENANCE_MODE = ${CONFIG.MAINTENANCE_MODE}; // Auto-updated: ${new Date
 
     await initializeUI();
     initUserImageUpload();
+
+    // 🔄 Restore the active session from localStorage BEFORE applying URL params (so deep link appends/modifies it)
+    if (typeof restoreActiveSessionFromLocalStorage === 'function') {
+        await restoreActiveSessionFromLocalStorage();
+    }
 
     // 🔥 URL PARAMS: apply after full UI + image upload init
     await applyUrlParams();

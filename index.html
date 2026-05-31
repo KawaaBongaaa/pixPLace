@@ -268,7 +268,7 @@
     </script>
 
     <!-- Cookie Consent & Tracking -->
-    <script src="core/cookie-manager.js?v=1780197030" defer></script>
+    <script src="core/cookie-manager.js?v=1780197876" defer></script>
 
 
     <!-- ⚡ PERFORMANCE: JS Module Preloading -->
@@ -2596,7 +2596,7 @@
     <script src="core/legal-router.js"></script>
     <script type="module" src="parallel-generation.js"></script>
     <script src="telegram-auth.js"></script>
-    <script type="module" src="app_modern.js?v=1780197030"></script>
+    <script type="module" src="app_modern.js?v=1780197876"></script>
 
 
     <!-- 🎬 ONBOARDING LOADER: Swappable — replace onboarding/ folder to change flow -->
@@ -3097,11 +3097,26 @@
         function handleEditDrop(e) {
             e.preventDefault();
             const file = e.dataTransfer.files[0];
-            if (!file || !file.type.startsWith('image/')) return;
-            if (window.onUserImageChange) {
-                window.onUserImageChange({ target: { files: [file] } });
+            if (file) {
+                if (!file.type.startsWith('image/')) return;
+                if (window.onUserImageChange) {
+                    window.onUserImageChange({ target: { files: [file] } });
+                }
+                _showEditStep2(URL.createObjectURL(file));
+            } else {
+                const droppedUrl = e.dataTransfer.getData('URL') || e.dataTransfer.getData('text/plain');
+                if (droppedUrl) {
+                    try {
+                        const urlObj = new URL(droppedUrl);
+                        if (window.handleUrlAdd) {
+                            window.handleUrlAdd(urlObj.href);
+                        }
+                        _showEditStep2(urlObj.href);
+                    } catch (err) {
+                        console.warn('⚠️ [handleEditDrop] Dropped item is not a valid URL:', droppedUrl);
+                    }
+                }
             }
-            _showEditStep2(URL.createObjectURL(file));
         }
 
         function addEditImageFromUrl() {
@@ -3209,10 +3224,24 @@
         function handleSoundImageDrop(e) {
             e.preventDefault();
             const file = e.dataTransfer.files[0];
-            if (!file || !file.type.startsWith('image/')) return;
-            _soundImageBlob = file;
-            _soundImageUrl = null;
-            _showSoundStep2(URL.createObjectURL(file));
+            if (file) {
+                if (!file.type.startsWith('image/')) return;
+                _soundImageBlob = file;
+                _soundImageUrl = null;
+                _showSoundStep2(URL.createObjectURL(file));
+            } else {
+                const droppedUrl = e.dataTransfer.getData('URL') || e.dataTransfer.getData('text/plain');
+                if (droppedUrl) {
+                    try {
+                        const urlObj = new URL(droppedUrl);
+                        _soundImageUrl = urlObj.href;
+                        _soundImageBlob = null;
+                        _showSoundStep2(urlObj.href);
+                    } catch (err) {
+                        console.warn('⚠️ [handleSoundImageDrop] Dropped item is not a valid URL:', droppedUrl);
+                    }
+                }
+            }
         }
 
         function addSoundImageFromUrl() {
@@ -3309,7 +3338,7 @@
     </script>
 
     <!-- Portal Loader for modular forms -->
-    <script src="forms/portal-loader.js?v=1780197030"></script>
+    <script src="forms/portal-loader.js?v=1780197876"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize portal loader for image form
