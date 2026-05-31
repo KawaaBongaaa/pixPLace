@@ -4,20 +4,20 @@ console.log('🚀 APP MODERN MODULE IMPORTED');
 // 🚀 OPTIMIZATION: Removed static imports for heavy modules
 
 // ✅ НОВЫЕ: Импорт сервисов вместо прямых зависимостей
-import { initializeGlobalServices } from './core/services.js?v=1780198845';
-import { AppStateManager } from './store/app-state.js?v=1780198845';
+import { initializeGlobalServices } from './core/services.js?v=1780198863';
+import { AppStateManager } from './store/app-state.js?v=1780198863';
 import { showScreen, showApp, showResult, displayFullResult, showResultToast, showProcessing, showAuth } from './screen-manager.js';
 import { dictionaryManager } from './dictionary-manager.js';
 
 // Импорт ScreenManager для работы с авторизацией
-import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780198845-1';
+import { updateUserNameDisplay, updateUserBalanceDisplay, showWarningAboutNoImage, toggleModeDetails, showHistory, initStyleCarousel, initLazyLanguageDropdown } from './navigation-manager.js?v=1780198863-1';
 import { readFileAsDataURL, maybeCompressImage, sanitizeJsonString, generateUUIDv4, isIOS, downloadOrShareImage, triggerHapticFeedback, extractBase64FromDataUrl, readFileAsArrayBuffer, arrayBufferToBlob, blobToDataURL, maybeCompressImageBlob, downloadAndConvertImage } from './utils.js';
 // 🚀 LAZY LOAD: AI Coach loaded on demand
 // import { createCoachButton, initAICoach, createChatButton } from './ai-coach.js';
 import { updateHistoryItemWithImage, createLoadingHistoryItem, viewHistoryItem, updateHistoryDisplay, updateHistoryCount } from './history-manager.js';
 // 🚀 LAZY LOAD: These modules are now imported dynamically when needed
 // import { generationManager } from './parallel-generation.js';
-import { initUserAccount } from './user-account.js?v=1780198845';
+import { initUserAccount } from './user-account.js?v=1780198863';
 // Import mode management functions with lazy loading support
 let modeCardsExports = null;
 
@@ -1223,6 +1223,12 @@ function getImageLimitForMode(mode) {
             return 1; // All other modes — max 1 image
     }
 }
+
+// Expose functions globally for modal check support
+window.getImageLimitForMode = getImageLimitForMode;
+window.getSelectedMode = () => {
+    return document.getElementById('modeSelect')?.value || 'nano_banana';
+};
 
 function canUploadMoreImages(mode, currentCount) {
     const limit = getImageLimitForMode(mode);
