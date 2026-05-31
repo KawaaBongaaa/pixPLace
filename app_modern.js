@@ -2725,13 +2725,22 @@ const _pixplaceTabId = Date.now() + '_' + Math.random().toString(36).slice(2, 8)
 if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
     const receiverChannel = new BroadcastChannel('pixplace_deeplink_channel');
     receiverChannel.onmessage = async (event) => {
-        const { type, payload, senderTabId, targetTabId } = event.data || {};
+        const { type, payload, senderTabId, targetTabId, state } = event.data || {};
         // Ignore messages from ourselves
         if (senderTabId === _pixplaceTabId) return;
 
         if (type === 'PING_DEEPLINK_RECEIVER') {
-            console.log('📡 [BroadcastChannel] Received PING from another tab. Sending PONG...');
-            receiverChannel.postMessage({ type: 'PONG_DEEPLINK_RECEIVER', senderTabId: _pixplaceTabId });
+            console.log('📡 [BroadcastChannel] Received PING from another tab. Sending PONG with current state...');
+            const currentState = {
+                images: window.appState?.userImageState?.images || [],
+                activeMode: window.appState?.activeMode || 'image',
+                modesState: window.appState?.state?.modesState || {}
+            };
+            receiverChannel.postMessage({
+                type: 'PONG_DEEPLINK_RECEIVER',
+                senderTabId: _pixplaceTabId,
+                state: currentState
+            });
         } else if (type === 'APPLY_DEEPLINK_PAYLOAD') {
             // Unicast: Ignore if targetTabId is specified and is not this tab's ID
             if (targetTabId && targetTabId !== _pixplaceTabId) {
@@ -2750,8 +2759,96 @@ if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
             } catch (e) {
                 console.warn('📡 [BroadcastChannel] Failed to focus window:', e);
             }
+        } else if (type === 'TAKE_OVER_SESSION') {
+            // Ignore if targeted to someone else specifically
+            if (targetTabId && targetTabId !== _pixplaceTabId && targetTabId !== 'all_others') return;
+            console.log('📡 [BroadcastChannel] Active session moved to another tab. Suspending this tab.');
+            showSessionMovedOverlay();
         }
     };
+}
+
+/**
+ * Beautiful full-screen blur card indicating that the active session was moved/transferred to another tab.
+ */
+function showSessionMovedOverlay() {
+    if (document.getElementById('session-moved-overlay')) return;
+
+    const getTranslation = (key, defaultText) => {
+        const trans = window.translate ? window.translate(key) : key;
+        return trans === key ? defaultText : trans;
+    };
+
+    const overlay = document.createElement('div');
+    overlay.id = 'session-moved-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'rgba(10, 10, 12, 0.9)';
+    overlay.style.backdropFilter = 'blur(15px)';
+    overlay.style.webkitBackdropFilter = 'blur(15px)';
+    overlay.style.zIndex = '999999';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.padding = '20px';
+    overlay.style.color = '#fff';
+    overlay.style.fontFamily = "'Outfit', sans-serif";
+    overlay.style.animation = 'fadeIn 0.3s ease forwards';
+
+    const card = document.createElement('div');
+    card.style.background = 'linear-gradient(135deg, rgba(25, 25, 30, 0.95) 0%, rgba(18, 18, 22, 0.95) 100%)';
+    card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+    card.style.borderRadius = '24px';
+    card.style.padding = '40px 30px';
+    card.style.maxWidth = '420px';
+    card.style.width = '100%';
+    card.style.textAlign = 'center';
+    card.style.boxShadow = '0 20px 40px rgba(0,0,0,0.6)';
+    card.style.transform = 'translateY(20px)';
+    card.style.animation = 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+
+    card.innerHTML = `
+        <div style="font-size: 56px; margin-bottom: 20px;">🔄</div>
+        <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #ffdf00;">${getTranslation('session_moved_title', 'Session moved!')}</h3>
+        <p style="font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 30px;">
+            ${getTranslation('session_moved_desc', 'You have transferred your active session to another tab.')}
+        </p>
+        <button id="resume-session-here-btn" style="
+            background: linear-gradient(135deg, #ffdf00 0%, #ffb700 100%);
+            color: #0b0b0d;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 223, 0, 0.2);
+            font-family: inherit;
+        ">${getTranslation('session_moved_resume', 'Resume session here')}</button>
+    `;
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    document.getElementById('resume-session-here-btn').addEventListener('click', () => {
+        overlay.style.animation = 'fadeIn 0.2s ease reverse';
+        setTimeout(() => {
+            overlay.remove();
+            if (typeof BroadcastChannel !== 'undefined') {
+                const channel = new BroadcastChannel('pixplace_deeplink_channel');
+                channel.postMessage({
+                    type: 'TAKE_OVER_SESSION',
+                    targetTabId: 'all_others',
+                    senderTabId: _pixplaceTabId
+                });
+            }
+        }, 200);
+    });
 }
 
 /**
@@ -2759,7 +2856,7 @@ if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
  * Returns a Promise that resolves to 'new' if the user chooses to continue in this tab.
  * If the user chooses to delegate to the existing tab, it broadcasts the payload, closes itself or prompts.
  */
-function showDeeplinkChoiceOverlay(payload, pingChannel, targetTabId) {
+function showDeeplinkChoiceOverlay(payload, pingChannel, targetTabId, importedState) {
     return new Promise((resolve) => {
         if (document.getElementById('deeplink-delegated-overlay')) {
             document.getElementById('deeplink-delegated-overlay').remove();
@@ -2771,10 +2868,9 @@ function showDeeplinkChoiceOverlay(payload, pingChannel, targetTabId) {
         };
 
         const titleText = getTranslation('deeplink_title', 'Already open!');
-        const descText = getTranslation('deeplink_desc', 'pixPLace is already open in another tab. How would you like to open this link?');
-        const btnExistingText = getTranslation('deeplink_open_existing', 'Open in existing tab (add to existing images)');
-        const btnNewText = getTranslation('deeplink_open_new', 'Open in a new tab');
-        const sentNoticeText = getTranslation('deeplink_sent_notice', 'Settings and images successfully sent to the active tab! Please switch to it or close this tab manually.');
+        const descText = getTranslation('deeplink_desc', 'An active pixPLace session is open in another tab. Would you like to import your existing settings and images here, or start a clean session?');
+        const btnExistingText = getTranslation('deeplink_open_existing', 'Import existing session (adds new image)');
+        const btnNewText = getTranslation('deeplink_open_new', 'Start clean session');
 
         const overlay = document.createElement('div');
         overlay.id = 'deeplink-delegated-overlay';
@@ -2854,65 +2950,52 @@ function showDeeplinkChoiceOverlay(payload, pingChannel, targetTabId) {
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
             @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
             @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
-            @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
             #open-existing-tab-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 223, 0, 0.3); }
             #open-new-tab-btn:hover { background: rgba(255, 255, 255, 0.12); }
         `;
         document.head.appendChild(style);
 
-        // Option 1: Open in existing tab (broadcast payload and attempt to close)
+        // Option 1: Import existing session and continue in this tab
         document.getElementById('open-existing-tab-btn').addEventListener('click', () => {
-            console.log('📡 [BroadcastChannel] User chose to delegate to existing tab:', targetTabId);
+            console.log('📡 [BroadcastChannel] User chose to import session in this tab:', targetTabId);
+            
+            // 1. Import the existing state
+            if (importedState) {
+                console.log('🔄 Importing existing state from active tab:', importedState);
+                if (window.appState) {
+                    // Restore images
+                    if (importedState.images && importedState.images.length > 0) {
+                        window.appState.setImageState({
+                            images: [...importedState.images]
+                        });
+                    }
+                    // Restore active mode
+                    if (importedState.activeMode) {
+                        window.appState.activeMode = importedState.activeMode;
+                    }
+                    // Restore modesState settings
+                    if (importedState.modesState) {
+                        for (const [mode, mState] of Object.entries(importedState.modesState)) {
+                            window.appState.setModeState(mode, mState);
+                        }
+                    }
+                }
+            }
+
+            // 2. Notify the other tab to suspend itself
             pingChannel.postMessage({
-                type: 'APPLY_DEEPLINK_PAYLOAD',
-                payload: payload,
+                type: 'TAKE_OVER_SESSION',
                 targetTabId: targetTabId,
                 senderTabId: _pixplaceTabId
             });
 
-            // Update overlay UI to a nice sent notification state
-            const descEl = document.getElementById('deeplink-desc');
-            const actionsContainer = document.getElementById('deeplink-actions-container');
-            
-            descEl.textContent = sentNoticeText;
-            actionsContainer.innerHTML = `
-                <button id="close-this-tab-btn" style="
-                    background: linear-gradient(135deg, #ffdf00 0%, #ffb700 100%);
-                    color: #0b0b0d;
-                    border: none;
-                    border-radius: 14px;
-                    padding: 14px 28px;
-                    font-size: 15px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    width: 100%;
-                    transition: all 0.2s ease;
-                    box-shadow: 0 4px 15px rgba(255, 223, 0, 0.2);
-                    font-family: inherit;
-                ">${getTranslation('close_button', 'Close')}</button>
-            `;
-
-            document.getElementById('close-this-tab-btn').addEventListener('click', () => {
-                window.close();
-                overlay.style.animation = 'fadeIn 0.2s ease reverse';
-                setTimeout(() => { overlay.remove(); style.remove(); resolve('existing'); }, 200);
-            });
-
-            // Try closing tab automatically so browser switches to the other active tab
+            // 3. Remove the overlay with animation and resolve
+            overlay.style.animation = 'fadeIn 0.2s ease reverse';
             setTimeout(() => {
-                window.close();
-                // If the tab is still open after 300ms, it means window.close() was blocked by browser security.
-                // We show an awesome animated bounce finger pointing up to the tab bar to help the user!
-                setTimeout(() => {
-                    if (document.getElementById('deeplink-delegated-overlay')) {
-                        descEl.innerHTML = `
-                            <div style="font-size: 56px; margin-bottom: 20px; animation: bounce 1.5s infinite; display: inline-block;">👆</div>
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #ffdf00;">${getTranslation('deeplink_sent_notice_title', 'Successfully sent!')}</div>
-                            <div style="font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.6;">${sentNoticeText}</div>
-                        `;
-                    }
-                }, 100);
-            }, 300);
+                overlay.remove();
+                style.remove();
+                resolve('existing');
+            }, 200);
         });
 
         // Option 2: Open in a new tab (simply clear overlay and continue locally)
@@ -3165,12 +3248,14 @@ async function applyUrlParams() {
         const pingChannel = new BroadcastChannel('pixplace_deeplink_channel');
         let pongReceived = false;
         let targetTabId = null;
+        let importedState = null;
         
         const pongListener = (e) => {
             if (e.data && e.data.type === 'PONG_DEEPLINK_RECEIVER' && e.data.senderTabId !== _pixplaceTabId) {
                 pongReceived = true;
                 if (!targetTabId) {
                     targetTabId = e.data.senderTabId;
+                    importedState = e.data.state;
                 }
             }
         };
@@ -3185,10 +3270,7 @@ async function applyUrlParams() {
         
         if (pongReceived) {
             console.log('🚀 [applyUrlParams] Active tab detected! Showing choice overlay for target:', targetTabId);
-            const userChoice = await showDeeplinkChoiceOverlay(Object.fromEntries(urlParams), pingChannel, targetTabId);
-            if (userChoice === 'existing') {
-                return;
-            }
+            await showDeeplinkChoiceOverlay(Object.fromEntries(urlParams), pingChannel, targetTabId, importedState);
         }
     }
 
